@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "description": "Manual regression set for ranking quality. Add new cases as we discover weak rankings.",
+  "cases": [
+    {
+      "id": "bad-result-1-arcular",
+      "source_product_name": "Arcular",
+      "source_image_url": "https://content.designerpages.com/assets/82362868/6655ecef07c049dc725f0ef1ArcularLCSofaIndexCrops.jpg",
+      "mode": "balanced",
+      "generated_query": "Olive green chair and sofa with upholstered fabric arms, smoothly curved continuous back and arms on metal base, slim dark metal leg supporting the seats featuring not visible internally frame",
+      "notes": "Arcular appears first, but Casen should likely rank above Cahoots, Alya, and Raglan for this query.",
+      "expected_top_order": [
+        "Arcular - Sofas",
+        "Casen - Lounge Chairs"
+      ],
+      "expected_above_pairs": [
+        {
+          "higher": "Casen - Lounge Chairs",
+          "lower": "Cahoots"
+        },
+        {
+          "higher": "Casen - Lounge Chairs",
+          "lower": "Alya Bu1521"
+        },
+        {
+          "higher": "Casen - Lounge Chairs",
+          "lower": "Raglan - Lounge Chairs"
+        }
+      ],
+      "actual_results_snapshot": [
+        "Arcular - Sofas",
+        "Cahoots",
+        "Alya Bu1521",
+        "Raglan - Lounge Chairs",
+        "Casen - Lounge Chairs",
+        "Canelle",
+        "Otto",
+        "Cabana Lounge"
+      ]
+    },
+    {
+      "id": "bad-result-2-coalesse-ensemble",
+      "source_product_name": "Coalesse Ensemble Lounge System - Lounge Chairs",
+      "source_image_url": "https://content.designerpages.com/assets/82380421/240227610thumbnail.jpg",
+      "mode": "balanced",
+      "generated_query": "Chair with deeply cushioned seat and back, boxy yet softly curved volumes on wood or metal base, rounded dark wood or metal leg featuring not visible finish",
+      "notes": "Uploaded product appears around #4. Eames Lounge and Ginkgo are weak matches. Results roughly #3-#6 looked better.",
+      "expected_top_order": [
+        "Coalesse Ensemble Lounge System - Lounge Chairs"
+      ],
+      "expected_above_pairs": [
+        {
+          "higher": "Coalesse Ensemble Lounge System - Lounge Chairs",
+          "lower": "Eames Lounge Chair and Ottoman"
+        },
+        {
+          "higher": "Coalesse Ensemble Lounge System - Lounge Chairs",
+          "lower": "Ginkgo Ply Lounge"
+        }
+      ],
+      "actual_results_snapshot": [
+        "Eames Lounge Chair and Ottoman",
+        "Ginkgo Ply Lounge",
+        "Raglan - Lounge Chairs",
+        "Coalesse Ensemble Lounge System - Lounge Chairs",
+        "Harmony Luxe - Lounge",
+        "Millbrae Lifestyle Lounge Seating - Lounge Chairs",
+        "Nordic Lounge",
+        "Otto"
+      ]
+    },
+    {
+      "id": "bad-result-3-canelle-red-shell",
+      "source_product_name": "Canelle",
+      "source_image_url": "https://content.designerpages.com/assets/81879180/CanelleLoungeIndex011.jpg",
+      "mode": "balanced",
+      "generated_query": "Minimalist lounge chair profile with vivid red upholstery, upholstered fabric arms featuring molded shell upholstered, sculptural, enveloping form",
+      "notes": "Canelle should rank above Alya and Coalesse. Cahoots and Next Lounge should also rank above Coalesse for this query intent.",
+      "expected_top_order": [
+        "Canelle"
+      ],
+      "expected_above_pairs": [
+        {
+          "higher": "Canelle",
+          "lower": "Alya Bu1521"
+        },
+        {
+          "higher": "Canelle",
+          "lower": "Coalesse Ensemble Lounge System - Lounge Chairs"
+        },
+        {
+          "higher": "Cahoots",
+          "lower": "Coalesse Ensemble Lounge System - Lounge Chairs"
+        },
+        {
+          "higher": "Next Lounge",
+          "lower": "Coalesse Ensemble Lounge System - Lounge Chairs"
+        }
+      ],
+      "actual_results_snapshot": [
+        "Alya Bu1521",
+        "Coalesse Ensemble Lounge System - Lounge Chairs",
+        "Cahoots",
+        "Raglan - Lounge Chairs",
+        "Canelle",
+        "Next Lounge",
+        "Casen - Lounge Chairs",
+        "Wombâ¢ Chair"
+      ]
+    },
+    {
+      "id": "bad-result-4-harmony-thin-metal",
+      "source_product_name": "Harmony Luxe - Lounge",
+      "source_image_url": "https://content.designerpages.com/assets/81881042/HarmonyLuxeLoungeIndex011.jpg",
+      "mode": "balanced",
+      "generated_query": "Chair with upholstered fabric arms, light textured upholstery with thin polished metal leg, thin straight, not visible frame",
+      "notes": "Harmony Luxe at #1 is good. Raglan is a strong match. Alya is a weak match. Millbrae should appear much earlier (around after Raglan), not near result 9.",
+      "expected_top_order": [
+        "Harmony Luxe - Lounge"
+      ],
+      "expected_above_pairs": [
+        {
+          "higher": "Raglan - Lounge Chairs",
+          "lower": "Alya Bu1521"
+        },
+        {
+          "higher": "Millbrae Lifestyle Lounge Seating - Lounge Chairs",
+          "lower": "Alya Bu1521"
+        },
+        {
+          "higher": "Millbrae Lifestyle Lounge Seating - Lounge Chairs",
+          "lower": "Cahoots"
+        },
+        {
+          "higher": "Millbrae Lifestyle Lounge Seating - Lounge Chairs",
+          "lower": "Canelle"
+        }
+      ],
+      "actual_results_snapshot": []
+    }
+  ]
+}

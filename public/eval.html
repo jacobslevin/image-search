@@ -1,0 +1,1720 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reranker Eval Review</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --paper: rgba(255, 252, 247, 0.88);
+        --panel: #fffdf9;
+        --line: #ddd2c5;
+        --text: #1d1712;
+        --muted: #6d6257;
+        --accent: #1f6b43;
+        --accent-strong: #145230;
+        --accent-soft: #e4f3e8;
+        --warn: #b78428;
+        --shadow: 0 24px 60px rgba(50, 32, 15, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(217, 188, 147, 0.18), transparent 28%),
+          linear-gradient(180deg, #fbf7f2 0%, var(--bg) 55%, #f7f2ea 100%);
+        font-family: "SF Pro Display", "Neue Haas Grotesk Text Pro", "Helvetica Neue", sans-serif;
+      }
+
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+      }
+
+      .shell {
+        width: 100vw;
+        max-width: none;
+        margin: 0 auto;
+        padding: 2px 4px 6px;
+      }
+
+      .topbar,
+      .bottombar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 252, 247, 0.97);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        margin-bottom: 8px;
+      }
+
+      .topbar-actions {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr);
+        gap: 4px;
+        align-items: start;
+      }
+
+      .query-panel,
+      .list-panel,
+      .results-panel {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .query-panel {
+        position: sticky;
+        top: 64px;
+        padding: 4px;
+      }
+
+      .query-image {
+        width: 100%;
+        height: 220px;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #f5f5f0;
+        border: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        margin: 0 0 4px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.92rem;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .query-title {
+        margin-top: 6px;
+        font-size: 1.18rem;
+        line-height: 1.1;
+      }
+
+      .query-brand {
+        margin-top: 2px;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 6px;
+      }
+
+      .scene-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #d8c48f;
+        background: #fbf1cf;
+        color: #7c5b12;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .summary-box {
+        margin-top: 8px;
+        padding: 8px;
+        border-radius: 10px;
+        background: #fff;
+        border: 1px solid var(--line);
+        font-size: 0.98rem;
+        line-height: 1.25;
+      }
+
+      .summary-toggle,
+      .ghost-button,
+      .export-button {
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        font-size: 0.95rem;
+      }
+
+      .view-toggle-group {
+        display: inline-flex;
+        gap: 8px;
+      }
+
+      .view-toggle {
+        padding: 7px 10px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        font-size: 0.92rem;
+      }
+
+      .view-toggle.active {
+        background: #17120f;
+        color: #fff;
+        border-color: #17120f;
+      }
+
+      .list-panel {
+        padding: 4px;
+        display: grid;
+        grid-template-rows: auto auto auto;
+        align-content: start;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        margin-bottom: 4px;
+      }
+
+      .sortable-list {
+        display: grid;
+        gap: 4px;
+      }
+
+      .line-button {
+        width: 100%;
+        padding: 5px 6px;
+        border-radius: 999px;
+        border: 1px dashed var(--line);
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.1;
+      }
+
+      .line-button.active {
+        border-style: solid;
+        border-color: #b78428;
+        background: #fff1d9;
+        color: #7c5b12;
+      }
+
+      body.horizontal-mode .layout {
+        grid-template-columns: 170px minmax(0, 1fr);
+        align-items: start;
+      }
+
+      body.horizontal-mode .list-panel {
+        overflow: hidden;
+        min-height: calc(100vh - 104px);
+      }
+
+      body.horizontal-mode .sortable-list {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(10, minmax(0, 1fr));
+        align-items: stretch;
+        overflow: hidden;
+        padding: 0;
+        min-height: 0;
+      }
+
+      body.horizontal-mode .candidate-card {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto;
+        min-height: 0;
+        gap: 2px;
+      }
+
+      body.horizontal-mode .drag-handle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      body.horizontal-mode .candidate-content {
+        width: 100%;
+      }
+
+      body.horizontal-mode .candidate-image {
+        height: clamp(340px, 48vh, 540px);
+      }
+
+      .candidate-card {
+        display: grid;
+        grid-template-columns: 28px 40px minmax(0, 1fr);
+        align-items: start;
+        gap: 3px;
+        padding: 3px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .candidate-card.query-match {
+        border-color: #8ac19b;
+        background: var(--accent-soft);
+      }
+
+      .candidate-card.below-line {
+        border-color: #e5c37d;
+        background: #fff7e7;
+      }
+
+      .drag-handle-row {
+        display: grid;
+        grid-template-columns: 20px 28px;
+        align-items: start;
+        gap: 4px;
+      }
+
+      .drag-handle {
+        color: var(--muted);
+        font-size: 1.15rem;
+        text-align: center;
+        user-select: none;
+      }
+
+      .rank-pill {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        background: #faf5ee;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .candidate-image {
+        width: 100%;
+        min-height: 340px;
+        height: 340px;
+        object-fit: contain;
+        object-position: center center;
+        border-radius: 6px;
+        border: 1px solid var(--line);
+        background: #f5f5f0;
+      }
+
+      .candidate-image-frame {
+        position: relative;
+      }
+
+      .candidate-overlay-action {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 24px;
+        height: 24px;
+        display: grid;
+        place-items: center;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--text);
+        font-size: 0.82rem;
+        padding: 0;
+      }
+
+      .candidate-content {
+        min-width: 0;
+      }
+
+      .candidate-visual {
+        display: grid;
+        gap: 4px;
+      }
+
+      .candidate-name {
+        font-size: 1.08rem;
+        line-height: 1.04;
+        white-space: normal;
+      }
+
+      .candidate-brand {
+        margin-top: 1px;
+        color: var(--muted);
+        white-space: normal;
+        font-size: 0.98rem;
+      }
+
+      .query-star {
+        display: none;
+      }
+
+      .candidate-actions {
+        display: flex;
+        justify-content: stretch;
+        gap: 6px;
+        margin-top: 2px;
+      }
+
+      .candidate-action {
+        padding: 4px 6px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        font-size: 0.66rem;
+      }
+
+      .card-cutoff-button {
+        margin-top: 4px;
+      }
+
+      .console-panel {
+        margin-top: 4px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.86);
+        min-height: 220px;
+      }
+
+      .console-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .console-feed {
+        display: grid;
+        gap: 8px;
+        margin-top: 8px;
+        max-height: 320px;
+        overflow: auto;
+      }
+
+      .console-empty {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .console-entry {
+        display: grid;
+        gap: 5px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .console-entry-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .console-entry-title {
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .console-entry-time,
+      .console-entry-meta,
+      .console-entry-traits {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.2;
+      }
+
+      .removed-panel {
+        margin-top: 18px;
+        padding-top: 18px;
+        border-top: 1px solid var(--line);
+      }
+
+      .removed-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .removed-chip {
+        display: grid;
+        grid-template-columns: 58px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .removed-image {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #f5f5f0;
+      }
+
+      .bottombar {
+        margin-top: 4px;
+      }
+
+      .confirm-button {
+        padding: 9px 12px;
+        border-radius: 16px;
+        border: 1px solid #0d4e2e;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .room-scene-button {
+        padding: 9px 12px;
+        border-radius: 16px;
+        border: 1px solid #b36a16;
+        background: #d68428;
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .note {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      #progressText {
+        font-size: 1.3rem;
+        line-height: 1.05;
+      }
+
+      .panel-header h2,
+      .console-header h3 {
+        font-size: 1.22rem;
+        line-height: 1.05;
+      }
+
+      .results-panel {
+        padding: 22px;
+      }
+
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .stat-card {
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .stat-value {
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1;
+      }
+
+      .trait-report {
+        margin-top: 20px;
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .trait-report-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .trait-column {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fdf9f4;
+      }
+
+      .trait-report-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .trait-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .trait-item {
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff;
+      }
+
+      .trait-item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .trait-header-main {
+        display: grid;
+        gap: 6px;
+      }
+
+      .trait-name {
+        font-weight: 700;
+        word-break: break-word;
+      }
+
+      .trait-flags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .trait-flag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 0.76rem;
+        line-height: 1;
+        background: #f7f2ea;
+        color: var(--muted);
+      }
+
+      .trait-flag.query-aligned {
+        border-color: #8ac19b;
+        background: #edf8f0;
+        color: var(--accent-strong);
+        font-weight: 700;
+      }
+
+      .trait-meta {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .trait-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .trait-evidence-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .trait-evidence-case {
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fcfaf6;
+      }
+
+      .trait-evidence-header {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+      }
+
+      .trait-evidence-image {
+        width: 72px;
+        height: 72px;
+        object-fit: contain;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #f5f5f0;
+      }
+
+      .trait-evidence-title {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+
+      .trait-evidence-meta {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .trait-evidence-lists {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .trait-evidence-empty {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .approve-button,
+      .reject-button {
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .approve-button {
+        border-color: #8ac19b;
+        color: var(--accent-strong);
+      }
+
+      .reject-button {
+        border-color: #d8c48f;
+        color: #7c5b12;
+      }
+
+      .status-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .corrected-case {
+        padding: 18px;
+        border-radius: 20px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .corrected-header {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .corrected-query-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 1px solid var(--line);
+      }
+
+      .before-after {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .mini-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .mini-card {
+        display: grid;
+        grid-template-columns: 28px 58px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fdf9f4;
+      }
+
+      .mini-image {
+        width: 58px;
+        height: 58px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      @media (max-width: 980px) {
+        .layout,
+        .stats-row,
+        .before-after,
+        .trait-report-grid,
+        .trait-evidence-lists {
+          grid-template-columns: 1fr;
+        }
+
+        .query-panel {
+          position: static;
+        }
+
+        body.horizontal-mode .sortable-list {
+          grid-auto-flow: row;
+          grid-template-columns: 1fr;
+          grid-auto-columns: unset;
+          min-height: 0;
+        }
+
+        .topbar,
+        .bottombar,
+        .panel-header {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
+
+      @media (min-width: 2400px) {
+        .shell {
+          padding: 2px 2px 4px;
+        }
+
+        .layout,
+        body.horizontal-mode .layout {
+          grid-template-columns: 180px minmax(0, 1fr);
+          gap: 4px;
+        }
+
+        .query-panel {
+          padding: 4px;
+        }
+
+        .query-image {
+          height: 240px;
+        }
+
+        body.horizontal-mode .sortable-list {
+          gap: 4px;
+        }
+
+        body.horizontal-mode .candidate-image {
+          height: clamp(400px, 52vh, 640px);
+        }
+
+        .candidate-image {
+          min-height: 400px;
+          height: 400px;
+        }
+
+        .candidate-card {
+          padding: 3px;
+          gap: 3px;
+        }
+
+        .candidate-name {
+          font-size: 1.18rem;
+        }
+
+        .candidate-brand {
+          font-size: 1.04rem;
+        }
+
+        .line-button {
+          font-size: 1rem;
+          padding: 6px 8px;
+        }
+
+        #progressText {
+          font-size: 1.5rem;
+        }
+
+        .console-panel {
+          min-height: 300px;
+        }
+
+        .console-feed {
+          max-height: 420px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section id="reviewView">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">Visual Review</p>
+            <h1 id="progressText">Loading…</h1>
+          </div>
+          <div class="topbar-actions">
+            <button id="skipButton" class="ghost-button" type="button">Skip</button>
+            <button id="stopButton" class="ghost-button" type="button">Stop &amp; see results</button>
+          </div>
+        </div>
+
+        <div class="layout">
+          <aside class="query-panel">
+            <p class="eyebrow">Query product</p>
+            <img id="queryImage" class="query-image" alt="" />
+            <h2 id="queryTitle" class="query-title"></h2>
+            <p id="queryBrand" class="query-brand"></p>
+            <div id="queryBadges" class="badge-row"></div>
+            <div class="summary-box">
+              <p id="summaryText"></p>
+              <button id="summaryToggle" class="summary-toggle hidden" type="button">Show more</button>
+            </div>
+          </aside>
+
+          <section class="list-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Reranked top 10</p>
+                <h2>Drag to reorder or set a relevance cutoff</h2>
+              </div>
+              <div class="view-toggle-group">
+                <button id="stackedViewButton" class="view-toggle active" type="button">Stacked</button>
+                <button id="horizontalViewButton" class="view-toggle" type="button">Horizontal</button>
+              </div>
+            </div>
+            <div id="sortableList" class="sortable-list"></div>
+            <section class="console-panel">
+              <div class="console-header">
+                <div>
+                  <p class="eyebrow">Live Save Feed</p>
+                  <h3>Judgments written in this session</h3>
+                </div>
+              </div>
+              <div id="consoleFeed" class="console-feed">
+                <p class="console-empty">No saved judgments yet.</p>
+              </div>
+            </section>
+            <section id="removedPanel" class="removed-panel hidden">
+              <p class="eyebrow">Removed as irrelevant</p>
+              <div id="removedList" class="removed-list"></div>
+            </section>
+          </section>
+        </div>
+
+        <div class="bottombar">
+          <p id="reviewNote" class="note">Drag to reorder before confirming</p>
+          <div>
+            <button id="roomSceneButton" class="room-scene-button" type="button">Room scene 🏠</button>
+            <button id="confirmButton" class="confirm-button" type="button">Confirm &amp; next →</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="resultsView" class="results-panel hidden">
+        <p class="eyebrow">Results</p>
+        <h1>Review summary</h1>
+        <div class="stats-row">
+          <article class="stat-card">
+            <p class="muted">Searches needing correction</p>
+            <p id="correctionRate" class="stat-value">0%</p>
+          </article>
+          <article class="stat-card">
+            <p class="muted">Reranker improved self-rank vs embedding only</p>
+            <p id="improvementRate" class="stat-value">0%</p>
+          </article>
+        </div>
+        <section class="trait-report">
+          <p class="eyebrow">Trait Suggestions</p>
+          <h2>Suggested reranker trait weights</h2>
+          <p id="traitReportNote" class="muted" style="margin-top:8px;"></p>
+          <div class="trait-report-actions">
+            <button id="exportButton" class="export-button" type="button">Export review snapshot</button>
+          </div>
+          <div class="trait-report-grid">
+            <div class="trait-column">
+              <p class="eyebrow">Suggestions With Inline Evidence</p>
+              <div id="traitSuggestionList" class="trait-list"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <script>
+      const state = {
+        data: null,
+        judgments: new Map(),
+        roomSceneFlags: new Set(),
+        sessionRoomSceneFlags: new Set(),
+        currentIndex: 0,
+        sortable: null,
+        currentOrder: [],
+        removedIds: new Set(),
+        belowLineAfterRank: null,
+        summaryExpanded: false,
+        viewMode: "horizontal",
+        traitReport: null,
+        consoleEntries: []
+      };
+
+      function api(path) {
+        return path;
+      }
+
+      async function fetchJson(path, options) {
+        const response = await fetch(api(path), options);
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || `Request failed: ${response.status}`);
+        }
+        return payload;
+      }
+
+      function reviewedCount() {
+        return state.judgments.size;
+      }
+
+      function correctedCount() {
+        return [...state.judgments.values()].filter((judgment) => judgment.was_corrected).length;
+      }
+
+      function sessionFlaggedCount() {
+        return state.sessionRoomSceneFlags.size;
+      }
+
+      function skippedRoomSceneCount() {
+        return Number(state.data?.summary?.skipped_room_scenes || 0);
+      }
+
+      function currentResult() {
+        return state.data?.results?.[state.currentIndex] || null;
+      }
+
+      function nextUnreviewedIndex() {
+        const results = state.data?.results || [];
+        return results.findIndex((item) =>
+          !state.judgments.has(item.product_id) &&
+          !state.roomSceneFlags.has(item.product_id)
+        );
+      }
+
+      function updateProgressText() {
+        const total = state.data?.results?.length || 0;
+        const parts = [
+          `${reviewedCount()} saved reviews`,
+          `${correctedCount()} corrected`,
+          `${total} in eval set`
+        ];
+        const skipped = skippedRoomSceneCount();
+        if (skipped) {
+          parts.push(`${skipped} skipped by generator`);
+        }
+        const sessionFlags = sessionFlaggedCount();
+        if (sessionFlags) {
+          parts.push(`${sessionFlags} flagged in this session`);
+        }
+        document.querySelector("#progressText").textContent = parts.join(" — ");
+      }
+
+      function setViewMode(mode) {
+        state.viewMode = mode === "horizontal" ? "horizontal" : "stacked";
+        document.body.classList.toggle("horizontal-mode", state.viewMode === "horizontal");
+        document.querySelector("#stackedViewButton").classList.toggle("active", state.viewMode === "stacked");
+        document.querySelector("#horizontalViewButton").classList.toggle("active", state.viewMode === "horizontal");
+      }
+
+      function renderSummary(result) {
+        const sentences = String(result.visual_summary || "").split(/(?<=[.!?])\s+/).filter(Boolean);
+        const preview = sentences.slice(0, 2).join(" ");
+        const full = String(result.visual_summary || "").trim();
+        const expanded = state.summaryExpanded || sentences.length <= 2;
+        document.querySelector("#summaryText").textContent = expanded ? full : preview;
+        const toggle = document.querySelector("#summaryToggle");
+        toggle.classList.toggle("hidden", sentences.length <= 2);
+        toggle.textContent = expanded ? "Show less" : "Show more";
+      }
+
+      function updateRanks() {
+        [...document.querySelectorAll(".candidate-card")].forEach((card, index) => {
+          card.querySelector(".rank-pill").textContent = index + 1;
+        });
+        state.currentOrder = [...document.querySelectorAll(".candidate-card")].map((card) => card.dataset.productId);
+        renderLineButtons();
+        renderCandidateStates();
+        renderReviewNote();
+      }
+
+      function getBelowLineIds() {
+        if (!Number.isInteger(state.belowLineAfterRank) || state.belowLineAfterRank < 0) {
+          return [];
+        }
+        return state.currentOrder.slice(state.belowLineAfterRank + 1);
+      }
+
+      function renderCandidateStates() {
+        const belowLineIds = new Set(getBelowLineIds());
+        [...document.querySelectorAll(".candidate-card")].forEach((card) => {
+          card.classList.toggle("below-line", belowLineIds.has(card.dataset.productId));
+        });
+      }
+
+      function renderLineButtons() {
+        const cards = [...document.querySelectorAll(".candidate-card")];
+        cards.forEach((card, index) => {
+          let button = card.querySelector(".card-cutoff-button");
+          const canCutoffAfter = index < cards.length - 1;
+
+          if (!canCutoffAfter) {
+            if (button) {
+              button.remove();
+            }
+            return;
+          }
+
+          if (!button) {
+            button = document.createElement("button");
+            button.type = "button";
+            button.className = "line-button card-cutoff-button";
+            button.addEventListener("click", () => setBelowLineAfterRank(Number(button.dataset.rankAfter)));
+            card.appendChild(button);
+          }
+
+          button.dataset.rankAfter = String(index);
+          const rank = index;
+          const isActive = state.belowLineAfterRank === rank;
+          button.classList.toggle("active", isActive);
+          button.textContent = isActive ? "Clear last relevant marker" : "Last relevant result";
+        });
+      }
+
+      function formatScore(value) {
+        return typeof value === "number" && Number.isFinite(value) ? value.toFixed(3) : "n/a";
+      }
+
+      function formatConsoleTraits(summary, key) {
+        const list = Array.isArray(summary?.[key]) ? summary[key].slice(0, 3) : [];
+        if (!list.length) {
+          return "none";
+        }
+        return list.map((entry) => `${entry.trait} (${entry.count})`).join(", ");
+      }
+
+      function renderConsoleFeed() {
+        const feed = document.querySelector("#consoleFeed");
+        const entries = state.consoleEntries || [];
+        if (!entries.length) {
+          feed.innerHTML = '<p class="console-empty">No saved judgments yet.</p>';
+          return;
+        }
+
+        feed.innerHTML = "";
+        entries.forEach((entry) => {
+          const node = document.createElement("article");
+          node.className = "console-entry";
+          node.innerHTML = `
+            <div class="console-entry-top">
+              <div class="console-entry-title">${entry.query_product_name}</div>
+              <div class="console-entry-time">${entry.saved_at_label}</div>
+            </div>
+            <div class="console-entry-meta">Saved to eval judgments • kept ${entry.kept_count} • removed ${entry.removed_count} • cutoff ${entry.cutoff_count}</div>
+            <div class="console-entry-traits">Weighted up: ${entry.preferred_traits}</div>
+            <div class="console-entry-traits">Weighted down: ${entry.demoted_traits}</div>
+          `;
+          feed.appendChild(node);
+        });
+      }
+
+      function pushConsoleEntry(savedJudgment, localCounts) {
+        const timestamp = savedJudgment?.timestamp ? new Date(savedJudgment.timestamp) : new Date();
+        const entry = {
+          query_product_name: savedJudgment?.query_product_name || "Unknown product",
+          kept_count: localCounts.keptCount,
+          removed_count: localCounts.removedCount,
+          cutoff_count: localCounts.cutoffCount,
+          preferred_traits: formatConsoleTraits(savedJudgment?.trait_preference_summary, "preferred_traits"),
+          demoted_traits: formatConsoleTraits(savedJudgment?.trait_preference_summary, "demoted_traits"),
+          saved_at_label: timestamp.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" })
+        };
+        state.consoleEntries = [entry, ...(state.consoleEntries || [])].slice(0, 12);
+        renderConsoleFeed();
+      }
+
+      function renderReviewNote() {
+        const parts = [];
+        const removedCount = state.removedIds.size;
+        const belowLineCount = getBelowLineIds().length;
+        if (!removedCount && !belowLineCount) {
+          parts.push("Drag to reorder before confirming");
+        } else {
+          parts.push("Review includes explicit negative feedback");
+          if (removedCount) {
+            parts.push(`${removedCount} removed`);
+          }
+          if (belowLineCount) {
+            parts.push(`${belowLineCount} below cutoff`);
+          }
+        }
+        document.querySelector("#reviewNote").textContent = parts.join(" • ");
+      }
+
+      function setBelowLineAfterRank(rankAfter) {
+        state.belowLineAfterRank = state.belowLineAfterRank === rankAfter ? null : rankAfter;
+        renderLineButtons();
+        renderCandidateStates();
+        renderReviewNote();
+      }
+
+      function renderRemoved(result) {
+        const removedPanel = document.querySelector("#removedPanel");
+        const removedList = document.querySelector("#removedList");
+        const lookup = buildLookup(result);
+        const removedItems = [...state.removedIds].map((productId) => lookup.get(productId)).filter(Boolean);
+
+        removedPanel.classList.toggle("hidden", removedItems.length === 0);
+        removedList.innerHTML = "";
+
+        removedItems.forEach((item) => {
+          const chip = document.createElement("div");
+          chip.className = "removed-chip";
+          chip.innerHTML = `
+            <img class="removed-image" src="${item.image_url || ""}" alt="${item.product_name}" />
+            <div>
+              <div>${item.product_name}</div>
+              <div class="muted">${item.brand || ""}</div>
+            </div>
+            <button class="candidate-action" type="button" data-restore-id="${item.product_id}">Restore</button>
+          `;
+          removedList.appendChild(chip);
+        });
+
+        removedList.querySelectorAll("[data-restore-id]").forEach((button) => {
+          button.addEventListener("click", () => restoreCandidate(button.dataset.restoreId));
+        });
+      }
+
+      function removeCandidate(productId) {
+        const result = currentResult();
+        if (!result || !productId || productId === result.product_id) {
+          return;
+        }
+
+        state.removedIds.add(productId);
+        renderCandidates(result);
+      }
+
+      function restoreCandidate(productId) {
+        const result = currentResult();
+        if (!result || !state.removedIds.has(productId)) {
+          return;
+        }
+
+        state.removedIds.delete(productId);
+        renderCandidates(result);
+      }
+
+      function orderedVisibleItems(result) {
+        const rerankerItems = result.reranker_top10 || [];
+        const itemLookup = new Map(rerankerItems.map((item) => [item.product_id, item]));
+        const preferredOrder = state.currentOrder.length
+          ? [...state.currentOrder, ...rerankerItems.map((item) => item.product_id)]
+          : rerankerItems.map((item) => item.product_id);
+        const seen = new Set();
+        return preferredOrder
+          .filter((productId) => {
+            if (!productId || seen.has(productId) || state.removedIds.has(productId)) {
+              return false;
+            }
+            seen.add(productId);
+            return itemLookup.has(productId);
+          })
+          .map((productId) => itemLookup.get(productId));
+      }
+
+      function renderCandidates(result) {
+        const list = document.querySelector("#sortableList");
+        list.innerHTML = "";
+
+        const visibleItems = orderedVisibleItems(result);
+
+        visibleItems.forEach((item, itemIndex) => {
+          const card = document.createElement("article");
+          card.className = "candidate-card";
+          if (item.product_id === result.product_id) {
+            card.classList.add("query-match");
+          }
+          card.dataset.productId = item.product_id;
+          const isQueryMatch = item.product_id === result.product_id;
+          card.innerHTML = `
+            <div class="drag-handle-row">
+              <div class="drag-handle" aria-hidden="true">⋮⋮</div>
+              <div class="rank-pill"></div>
+            </div>
+            <div class="candidate-content">
+              <div class="candidate-visual">
+                <img class="candidate-image" src="${item.image_url || ""}" alt="${item.product_name}" />
+                <div>
+                  <h3 class="candidate-name">${item.product_name}</h3>
+                  <p class="candidate-brand">${item.brand || ""}</p>
+                </div>
+              </div>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+
+        if (!state.sortable) {
+          state.sortable = new Sortable(list, {
+            animation: 160,
+            handle: ".drag-handle",
+            draggable: ".candidate-card",
+            onChange: updateRanks,
+            onSort: updateRanks,
+            onEnd: updateRanks
+          });
+        }
+
+        updateRanks();
+        renderRemoved(result);
+      }
+
+      function renderReview() {
+        updateProgressText();
+        const result = currentResult();
+        if (!result) {
+          renderResults();
+          return;
+        }
+
+        state.summaryExpanded = false;
+        state.removedIds = new Set();
+        state.belowLineAfterRank = null;
+        state.currentOrder = (result.reranker_top10 || []).map((item) => item.product_id);
+        document.querySelector("#queryImage").src = result.image_url || "";
+        document.querySelector("#queryImage").alt = result.product_name;
+        document.querySelector("#queryTitle").textContent = result.product_name;
+        document.querySelector("#queryBrand").textContent = result.brand || "";
+        document.querySelector("#queryBadges").innerHTML = (result.is_room_scene || state.roomSceneFlags.has(result.product_id))
+          ? '<div class="scene-badge">Room scene</div>'
+          : "";
+        renderSummary(result);
+        renderCandidates(result);
+        renderConsoleFeed();
+      }
+
+      async function confirmCurrent() {
+        const result = currentResult();
+        if (!result) {
+          return;
+        }
+
+        const rerankerOrder = (result.reranker_top10 || []).map((item) => item.product_id);
+        const humanCorrectedOrder = [...state.currentOrder];
+        const removedProductIds = [...state.removedIds];
+        const belowLineProductIds = getBelowLineIds();
+        const keptCount = humanCorrectedOrder.length - removedProductIds.length - belowLineProductIds.length;
+        const wasCorrected =
+          rerankerOrder.join("|") !== humanCorrectedOrder.join("|") ||
+          removedProductIds.length > 0 ||
+          belowLineProductIds.length > 0;
+        const judgment = {
+          product_id: result.product_id,
+          query_product_name: result.product_name,
+          visual_summary: result.visual_summary,
+          reranker_order: rerankerOrder,
+          human_corrected_order: humanCorrectedOrder,
+          removed_product_ids: removedProductIds,
+          below_line_product_ids: belowLineProductIds,
+          below_line_after_rank: Number.isInteger(state.belowLineAfterRank) ? state.belowLineAfterRank + 1 : null,
+          was_corrected: wasCorrected,
+          timestamp: new Date().toISOString()
+        };
+
+        const payload = await fetchJson("/api/eval-judgment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(judgment)
+        });
+
+        if (payload.skipped) {
+          alert(payload.reason || "No evaluative signal provided.");
+          return;
+        }
+
+        state.judgments.set(result.product_id, payload.judgment || judgment);
+        pushConsoleEntry(payload.judgment || judgment, {
+          keptCount,
+          removedCount: removedProductIds.length,
+          cutoffCount: belowLineProductIds.length
+        });
+        const nextIndex = nextUnreviewedIndex();
+        if (nextIndex === -1) {
+          renderResults();
+          return;
+        }
+        state.currentIndex = nextIndex;
+        renderReview();
+      }
+
+      function skipCurrent() {
+        const results = state.data?.results || [];
+        if (!results.length) {
+          return;
+        }
+
+        const nextIndexes = results
+          .map((_, index) => index)
+          .filter((index) =>
+            index > state.currentIndex &&
+            !state.judgments.has(results[index].product_id) &&
+            !state.roomSceneFlags.has(results[index].product_id)
+          );
+
+        if (nextIndexes.length) {
+          state.currentIndex = nextIndexes[0];
+          renderReview();
+          return;
+        }
+
+        const fallbackIndex = nextUnreviewedIndex();
+        if (fallbackIndex >= 0 && fallbackIndex !== state.currentIndex) {
+          state.currentIndex = fallbackIndex;
+          renderReview();
+        } else {
+          renderResults();
+        }
+      }
+
+      async function flagCurrentRoomScene() {
+        const result = currentResult();
+        if (!result) {
+          return;
+        }
+
+        await fetchJson("/api/eval-flag-room-scene", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product_id: result.product_id })
+        });
+
+        state.roomSceneFlags.add(result.product_id);
+        state.sessionRoomSceneFlags.add(result.product_id);
+        result.is_room_scene = true;
+        const nextIndex = nextUnreviewedIndex();
+        if (nextIndex === -1) {
+          renderResults();
+          return;
+        }
+        state.currentIndex = nextIndex;
+        renderReview();
+      }
+
+      function buildLookup(result) {
+        return new Map(
+          [...(result.reranker_top10 || []), ...(result.embedding_top10 || [])].map((item) => [item.product_id, item])
+        );
+      }
+
+      function renderMiniList(container, items) {
+        container.innerHTML = "";
+        items.forEach((item, index) => {
+          const card = document.createElement("div");
+          card.className = "mini-card";
+          card.innerHTML = `
+            <div class="rank-pill">${index + 1}</div>
+            <img class="mini-image" src="${item.image_url || ""}" alt="${item.product_name}" />
+            <div>
+              <div>${item.product_name}</div>
+              <div class="muted">${item.brand || ""}</div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      function buildSuggestionEvidenceCases(suggestion, judgments, resultMap) {
+        const trait = String(suggestion?.trait || "");
+        return judgments
+          .filter((judgment) => judgment?.was_corrected)
+          .map((judgment) => {
+            const matchingPairs = (judgment.preference_pairs || []).filter((pair) =>
+              (pair.preferred_only_traits || []).includes(trait) ||
+              (pair.demoted_only_traits || []).includes(trait)
+            );
+            if (!matchingPairs.length) {
+              return null;
+            }
+
+            const result = resultMap.get(judgment.product_id);
+            if (!result) {
+              return null;
+            }
+
+            const lookup = buildLookup(result);
+            const belowLineSet = new Set(judgment.below_line_product_ids || []);
+            const afterItems = (judgment.human_corrected_order || [])
+              .filter((id) => !belowLineSet.has(id))
+              .slice(0, 5)
+              .map((id) => lookup.get(id))
+              .filter(Boolean);
+            const beforeItems = (judgment.reranker_order || [])
+              .slice(0, 5)
+              .map((id) => lookup.get(id))
+              .filter(Boolean);
+            const queryAlignedPairs = matchingPairs.filter((pair) =>
+              (pair.query_aligned_preferred_traits || []).includes(trait) ||
+              (pair.query_aligned_demoted_traits || []).includes(trait)
+            ).length;
+
+            return {
+              judgment,
+              result,
+              beforeItems,
+              afterItems,
+              pairCount: matchingPairs.length,
+              queryAlignedPairs
+            };
+          })
+          .filter(Boolean);
+      }
+
+      async function saveTraitDecision(suggestion, status) {
+        const payload = await fetchJson("/api/reranker-trait-decision", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            trait: suggestion.trait,
+            status,
+            direction: suggestion.direction,
+            proposed_weight: suggestion.proposed_weight,
+            evidence: suggestion.evidence,
+            net_score: suggestion.net_score
+          })
+        });
+        state.traitReport = payload.report;
+        renderTraitReport();
+      }
+
+      function renderTraitSuggestions(container, suggestions, judgments, resultMap) {
+        container.innerHTML = "";
+
+        if (!suggestions.length) {
+          container.innerHTML = '<p class="muted">No suggestions yet.</p>';
+          return;
+        }
+
+        suggestions.slice(0, 20).forEach((suggestion) => {
+          const item = document.createElement("article");
+          item.className = "trait-item";
+          const queryAligned = (suggestion.query_aligned_up_count || 0) + (suggestion.query_aligned_down_count || 0) > 0;
+          item.innerHTML = `
+            <div class="trait-item-header">
+              <div class="trait-header-main">
+                <div class="trait-name">${suggestion.trait}</div>
+                <div class="trait-flags">
+                  ${queryAligned ? '<span class="trait-flag query-aligned">Present in query product</span>' : ""}
+                  <span class="trait-flag">${suggestion.direction === "up" ? "Suggest upweight" : "Suggest downweight"}</span>
+                </div>
+              </div>
+              <span class="status-chip">${suggestion.status}</span>
+            </div>
+            <p class="trait-meta">Proposed weight: ${suggestion.proposed_weight} | Evidence: ${suggestion.evidence} | Net: ${suggestion.net_score}</p>
+            <p class="trait-meta">Weighted up: ${suggestion.weighted_up ?? "n/a"} | Weighted down: ${suggestion.weighted_down ?? "n/a"}</p>
+            <p class="trait-meta">Raw up: ${suggestion.up_count} | Raw down: ${suggestion.down_count}</p>
+            <p class="trait-meta">Query-aligned up: ${suggestion.query_aligned_up_count} | Query-aligned down: ${suggestion.query_aligned_down_count}</p>
+            <div class="trait-actions">
+              <button class="approve-button" type="button">Approve</button>
+              <button class="reject-button" type="button">Reject</button>
+            </div>
+            <div class="trait-evidence-list"></div>
+          `;
+          item.querySelector(".approve-button").addEventListener("click", () => {
+            saveTraitDecision(suggestion, "approved").catch((error) => alert(error.message));
+          });
+          item.querySelector(".reject-button").addEventListener("click", () => {
+            saveTraitDecision(suggestion, "rejected").catch((error) => alert(error.message));
+          });
+
+          const evidenceCases = buildSuggestionEvidenceCases(suggestion, judgments, resultMap);
+          const evidenceList = item.querySelector(".trait-evidence-list");
+          if (!evidenceCases.length) {
+            evidenceList.innerHTML = '<p class="trait-evidence-empty">No corrected cases linked to this suggestion.</p>';
+          } else {
+            evidenceCases.forEach((entry) => {
+              const caseNode = document.createElement("article");
+              caseNode.className = "trait-evidence-case";
+              caseNode.innerHTML = `
+                <div class="trait-evidence-header">
+                  <img class="trait-evidence-image" src="${entry.result.image_url || ""}" alt="${entry.result.product_name}" />
+                  <div>
+                    <div class="trait-evidence-title">${entry.result.product_name}</div>
+                    <div class="trait-evidence-meta">${entry.result.brand || ""}</div>
+                    <div class="trait-evidence-meta">Matched pairs: ${entry.pairCount} | Query-aligned pairs: ${entry.queryAlignedPairs} | Cutoff after rank ${entry.judgment.below_line_after_rank ?? "none"}</div>
+                  </div>
+                </div>
+                <div class="trait-evidence-lists">
+                  <section>
+                    <p class="eyebrow">Before</p>
+                    <div class="mini-list" data-before></div>
+                  </section>
+                  <section>
+                    <p class="eyebrow">After</p>
+                    <div class="mini-list" data-after></div>
+                  </section>
+                </div>
+              `;
+              renderMiniList(caseNode.querySelector("[data-before]"), entry.beforeItems);
+              renderMiniList(caseNode.querySelector("[data-after]"), entry.afterItems);
+              evidenceList.appendChild(caseNode);
+            });
+          }
+
+          container.appendChild(item);
+        });
+      }
+
+      function renderTraitReport() {
+        const report = state.traitReport || { suggested_up: [], suggested_down: [], note: "" };
+        document.querySelector("#traitReportNote").textContent = report.note || "";
+        const judgments = [...state.judgments.values()];
+        const resultMap = new Map((state.data?.results || []).map((result) => [result.product_id, result]));
+        renderTraitSuggestions(
+          document.querySelector("#traitSuggestionList"),
+          report.suggestions || [],
+          judgments,
+          resultMap
+        );
+      }
+
+      function renderResults() {
+        document.querySelector("#reviewView").classList.add("hidden");
+        document.querySelector("#resultsView").classList.remove("hidden");
+
+        const judgments = [...state.judgments.values()];
+        const reviewed = judgments.length || 1;
+        const corrected = judgments.filter((judgment) => judgment.was_corrected).length;
+        const correctionRate = Math.round((corrected / reviewed) * 100);
+        const improvementCases = (state.data?.results || []).filter((result) => result.reranker_rank < result.embedding_rank).length;
+        const improvementRate = Math.round((improvementCases / ((state.data?.results || []).length || 1)) * 100);
+
+        document.querySelector("#correctionRate").textContent = `${correctionRate}%`;
+        document.querySelector("#improvementRate").textContent = `${improvementRate}%`;
+        renderTraitReport();
+
+      }
+
+      async function init() {
+        const payload = await fetchJson("/api/eval-data");
+        state.data = payload;
+        state.judgments = new Map((payload.judgments || []).map((judgment) => [judgment.product_id, judgment]));
+        state.traitReport = payload.trait_report || null;
+        state.sessionRoomSceneFlags = new Set();
+        state.roomSceneFlags = new Set(
+          (payload.results || [])
+            .filter((result) => result.is_room_scene)
+            .map((result) => result.product_id)
+        );
+        const firstIndex = nextUnreviewedIndex();
+        if (firstIndex === -1) {
+          renderResults();
+          return;
+        }
+        state.currentIndex = firstIndex;
+        renderReview();
+      }
+
+      document.querySelector("#summaryToggle").addEventListener("click", () => {
+        state.summaryExpanded = !state.summaryExpanded;
+        renderSummary(currentResult());
+      });
+
+      document.querySelector("#stackedViewButton").addEventListener("click", () => {
+        setViewMode("stacked");
+      });
+
+      document.querySelector("#horizontalViewButton").addEventListener("click", () => {
+        setViewMode("horizontal");
+      });
+
+      document.querySelector("#confirmButton").addEventListener("click", () => {
+        confirmCurrent().catch((error) => alert(error.message));
+      });
+
+      document.querySelector("#roomSceneButton").addEventListener("click", () => {
+        flagCurrentRoomScene().catch((error) => alert(error.message));
+      });
+
+      document.querySelector("#skipButton").addEventListener("click", skipCurrent);
+      document.querySelector("#stopButton").addEventListener("click", renderResults);
+
+      document.querySelector("#exportButton").addEventListener("click", () => {
+        window.location.href = "/api/eval-export";
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (!document.querySelector("#resultsView").classList.contains("hidden")) {
+          return;
+        }
+
+        if (event.key.toLowerCase() === "s") {
+          event.preventDefault();
+          skipCurrent();
+          return;
+        }
+
+        if (event.key.toLowerCase() === "r") {
+          event.preventDefault();
+          flagCurrentRoomScene().catch((error) => alert(error.message));
+          return;
+        }
+
+        if (event.key === "Enter" || event.key === "ArrowRight") {
+          event.preventDefault();
+          confirmCurrent().catch((error) => alert(error.message));
+        }
+      });
+
+      setViewMode("horizontal");
+      init().catch((error) => {
+        document.body.innerHTML = `<div class="shell"><div class="results-panel"><p class="eyebrow">Error</p><h1>${error.message}</h1></div></div>`;
+      });
+    </script>
+  </body>
+</html>

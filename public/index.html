@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visual Furniture Search</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Image Search</p>
+          <h1>Visual Furniture Search</h1>
+        </div>
+        <div class="hero-actions">
+          <button id="copyStructuredTraits" class="rules-summary-button" type="button">Structured Traits</button>
+          <button id="openRulesSummary" class="rules-summary-button" type="button">Ranking Rules</button>
+          <button id="debugToggle" class="debug-toggle" type="button" aria-pressed="false">
+            <span class="debug-indicator"></span>
+            <span id="debugToggleLabel">Debug Mode: Off</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="search-panel">
+        <form id="searchForm" class="search-form">
+          <label class="search-field" for="searchInput">
+            <span class="search-icon">⌕</span>
+            <input
+              id="searchInput"
+              name="query"
+              type="search"
+              placeholder="Search by visual traits (e.g., chrome sled base, wood arms...)"
+              autocomplete="off"
+            />
+            <button id="openImageSearch" class="search-image-trigger" type="button" aria-label="Search from an inspiration image">
+              <span aria-hidden="true">🖼</span>
+            </button>
+          </label>
+        </form>
+
+        <div class="context-row">
+          <span class="context-label">Searching within:</span>
+          <div id="contextPills" class="context-pills"></div>
+        </div>
+
+        <div id="seedQueries" class="seed-queries"></div>
+      </section>
+    </div>
+
+    <main class="results-shell">
+      <div class="results-header">
+        <p id="resultCount">Enter a visual query to search the indexed catalog.</p>
+        <button id="refineToggleButton" class="rules-summary-button refine-toggle-button" type="button" hidden>Refine</button>
+        <button id="resetSearchButton" class="rules-summary-button" type="button" hidden>Reset search</button>
+        <label class="results-sort">
+          <span>Sort</span>
+          <select id="sortSelect">
+            <option value="auto">Auto</option>
+            <option value="refreshed_desc">Last AI Refresh</option>
+            <option value="refreshed_asc">Oldest AI Refresh</option>
+            <option value="name">Name</option>
+          </select>
+        </label>
+        <div id="batchManageBar" class="batch-manage-bar" hidden>
+          <button id="manageSelectionButton" class="rules-summary-button batch-manage-trigger" type="button">Manage</button>
+          <div id="manageActions" class="batch-manage-actions" hidden>
+            <div id="manageControls" class="batch-manage-controls">
+              <div class="batch-manage-links">
+                <button id="selectAllButton" class="batch-manage-link" type="button">Select all</button>
+                <button id="selectNoneButton" class="batch-manage-link" type="button">None</button>
+                <button id="doneManagingButton" class="batch-manage-link batch-manage-link-right" type="button">Done</button>
+              </div>
+              <button id="batchRefreshButton" class="upload-button upload-button-strong batch-refresh-primary" type="button">Refresh AI Analysis</button>
+            </div>
+            <div id="batchRefreshProgress" class="batch-refresh-progress" hidden>
+              <p id="batchRefreshHeadline" class="batch-refresh-headline">Analyzing products...</p>
+              <div class="batch-refresh-meter-row">
+                <div class="batch-refresh-meter">
+                  <div id="batchRefreshMeterFill" class="batch-refresh-meter-fill"></div>
+                </div>
+                <span id="batchRefreshCount" class="batch-refresh-count">0 of 0</span>
+              </div>
+              <p id="batchRefreshBatchLabel" class="batch-refresh-meta">Batch 0 of 0</p>
+              <p id="batchRefreshCurrent" class="batch-refresh-current">Currently: waiting to start</p>
+              <div id="batchRefreshLog" class="batch-refresh-log" aria-live="polite"></div>
+              <p id="batchRefreshSummary" class="batch-refresh-summary">Done: 0 Failed: 0 Left: 0</p>
+              <div id="batchRefreshFailures" class="batch-refresh-failures" hidden></div>
+              <button id="batchRefreshCloseButton" class="batch-manage-link batch-refresh-close" type="button" hidden>Done</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <section id="statusPanel" class="status-panel"></section>
+      <div id="refineDrawerBackdrop" class="refine-drawer-backdrop" hidden></div>
+      <div class="results-layout">
+        <aside id="resultsSidebar" class="results-sidebar" hidden>
+          <div class="results-sidebar-header">
+            <div>
+              <p class="eyebrow">Tools</p>
+              <h2 class="results-sidebar-title">Refine results</h2>
+              <button id="reopenFocusOverlay" class="results-sidebar-link" type="button" hidden>Re-analyze focus area</button>
+            </div>
+            <button id="closeRefineSidebar" class="modal-close refine-sidebar-close" type="button" aria-label="Close refine sidebar">✕</button>
+          </div>
+          <section class="results-sidebar-section">
+            <p class="results-sidebar-section-title">Bullet priority</p>
+            <div id="refineBulletsList" class="refine-bullets-list"></div>
+          </section>
+          <section class="results-sidebar-section">
+            <p class="results-sidebar-section-title">Refine by product</p>
+            <div id="refineProductsList" class="refine-products-list"></div>
+          </section>
+        </aside>
+        <div class="results-main">
+          <section id="resultsGrid" class="results-grid" aria-live="polite"></section>
+        </div>
+      </div>
+    </main>
+
+    <div id="imageModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="imageModalClose"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">Start From An Image</p>
+            <h2 id="modalTitle" class="modal-title">Upload or paste an image</h2>
+          </div>
+          <button id="closeImageModal" class="modal-close" type="button" aria-label="Close image search modal">✕</button>
+        </div>
+
+        <section id="imageModalUploadStage" class="modal-stage">
+          <p id="uploadSupportNote" class="upload-support-note"></p>
+          <div class="modal-upload-grid">
+            <div class="modal-upload-block">
+              <p class="debug-caption-label">Upload an image file</p>
+              <input id="imageUploadInput" type="file" accept="image/*" hidden />
+              <button id="imageUploadButton" class="upload-button" type="button">Choose Image</button>
+              <p id="selectedFileName" class="modal-helper">No file selected.</p>
+            </div>
+            <div class="modal-upload-block">
+              <p class="debug-caption-label">Or paste an image URL</p>
+              <input id="imageUrlInput" class="modal-url-input" type="url" placeholder="https://example.com/inspiration.jpg" />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="analyzeImageButton" class="upload-button upload-button-strong" type="button">Analyze Image</button>
+          </div>
+          <div id="imageAnalyzeLoading" class="image-analyze-loading" hidden>
+            <span class="image-analyze-spinner" aria-hidden="true"></span>
+            <span>Analyzing image...</span>
+          </div>
+        </section>
+
+        <section id="imageModalResultsStage" class="modal-stage" hidden>
+          <div class="inspiration-preview-wrap focus-stage-card">
+            <p id="focusAreaHint" class="focus-stage-label">Drag to focus on the item you want to search for</p>
+            <div id="previewCanvas" class="inspiration-preview-canvas">
+              <img id="inspirationPreview" class="inspiration-preview" alt="Uploaded inspiration" />
+              <div id="focusBox" class="focus-box" hidden></div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="skipFocusButton" class="upload-button" type="button">Skip — use full image</button>
+            <button id="applyFocusButton" class="upload-button upload-button-strong" type="button">Analyze this area →</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="structuredTraitsModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="structuredTraitsModalClose"></div>
+      <div class="modal-card rules-modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">Structured Traits</p>
+            <h2 class="modal-title">Category Trait Schema</h2>
+          </div>
+          <button id="closeStructuredTraitsModal" class="modal-close" type="button" aria-label="Close structured traits modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content">
+          <div id="structuredTraitsText" class="structured-traits-list"></div>
+          <div class="rules-actions">
+            <button id="copyStructuredTraitsModalButton" class="rules-summary-button" type="button">Copy</button>
+            <span id="copyStructuredTraitsStatus" class="rules-copy-status" hidden>Copied!</span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="rulesModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="rulesModalClose"></div>
+      <div class="modal-card rules-modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">How Ranking Works</p>
+            <h2 class="modal-title">Result Prioritization Summary</h2>
+          </div>
+          <button id="closeRulesModal" class="modal-close" type="button" aria-label="Close ranking rules modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content">
+          <p class="rules-summary-intro">
+            Ranking blends semantic similarity with structured trait matching, then applies mode-specific boosts and penalties.
+          </p>
+          <div id="rulesSummaryDetails" class="rules-summary-details">
+            <ul class="rules-summary-list">
+              <li><strong>Closest overall match:</strong> balanced blend of caption similarity, visual description similarity, and trait matches.</li>
+              <li><strong>Shape &amp; overall form:</strong> emphasizes silhouette/component cues (integrated shell, high-back taper, base geometry) and penalizes mismatched forms.</li>
+              <li><strong>Color &amp; material details:</strong> boosts exact color and finish alignment (e.g., red, chrome/polished) and penalizes mismatches.</li>
+              <li><strong>Image-led search boost:</strong> when searching from an uploaded image, exact source-image and same-product records receive priority boosts.</li>
+              <li><strong>Trait sanity checks:</strong> penalties apply for clear mismatches (category/type, partial product images, and unsupported required cues).</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <template id="cardTemplate">
+      <article class="card">
+        <div class="card-image-wrap">
+          <img class="card-image" alt="" loading="lazy" />
+          <span class="score-badge" data-role="scoreBadge"></span>
+          <div class="inspect-control">
+            <label class="card-select-toggle" data-role="manageCheckboxWrap" hidden>
+              <input class="card-select-checkbox" data-role="manageCheckbox" type="checkbox" aria-label="Select product for AI refresh" />
+              <span class="card-select-indicator"></span>
+            </label>
+            <button class="refresh-ai-button" data-role="refreshAiButton" type="button" aria-label="Refresh AI data for this product" title="Refresh AI">
+              ↻
+            </button>
+            <button class="inspect-button" data-role="inspectButton" type="button" aria-label="Inspect result details">
+              AI
+            </button>
+          </div>
+        </div>
+        <div class="thumbnail-strip" data-role="thumbnails"></div>
+        <div class="card-body">
+          <div class="matched-block" data-role="matchedBlock">
+            <p class="matched-label">Matched on:</p>
+            <div class="chip-row chip-row-strong" data-role="matched"></div>
+          </div>
+
+          <div class="meta-block">
+            <h2 class="product-name"></h2>
+            <div class="card-refinement-actions" data-role="refinementActions">
+              <button class="rules-summary-button" data-role="moreLikeThisButton" type="button">More like this +</button>
+              <button class="rules-summary-button" data-role="lessLikeThisButton" type="button">Less like this −</button>
+            </div>
+            <p class="brand-name"></p>
+            <p class="ai-refresh-time" data-role="aiRefreshTime"></p>
+            <span class="category-pill"></span>
+          </div>
+
+          <details class="debug-details">
+            <summary>How this was identified</summary>
+            <div class="debug-content">
+              <p class="debug-caption-label">Parsed Query Traits:</p>
+              <div class="chip-row chip-row-muted" data-role="queryTraits"></div>
+              <p class="debug-caption-label">AI-Generated Caption:</p>
+              <p class="debug-caption"></p>
+              <p class="debug-caption-label">Detected Visual Traits:</p>
+              <div class="chip-row chip-row-muted" data-role="traits"></div>
+              <p class="debug-caption-label">Trait Mismatches:</p>
+              <div class="chip-row chip-row-muted" data-role="mismatches"></div>
+              <p class="debug-caption-label">Score Calculation:</p>
+              <div class="score-breakdown" data-role="scoreBreakdown"></div>
+            </div>
+          </details>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="/app.js?v=20260410b"></script>
+  </body>
+  </html>

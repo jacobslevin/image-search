@@ -1,0 +1,425 @@
+[
+  {
+    "trait": "catalog.category:lounge seating",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 64,
+    "net_score": 122,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "catalog.category:seating & chairs > outdoor seating",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.14,
+    "evidence": 7,
+    "net_score": -7,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.arm_configuration:no arms",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 137,
+    "net_score": 125,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.arm_configuration:two arms",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 125,
+    "net_score": 121,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.arm_option:adjustable arms",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.18,
+    "evidence": 9,
+    "net_score": -9,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.back_height:low",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 171,
+    "net_score": 181,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.back_height:mid",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 172,
+    "net_score": 178,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.base_finish:black",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 174,
+    "net_score": 128,
+    "decided_at": "2026-04-11T17:32:00.417Z"
+  },
+  {
+    "trait": "image.base_finish:white",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 26,
+    "net_score": -26,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.base_type:4-leg wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 91,
+    "net_score": 123,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.floor_interface:glides (hard floor / carpet)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 131,
+    "net_score": 181,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.frame:metal",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 65,
+    "net_score": 153,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.seat_material:molded plastic",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 58,
+    "net_score": -48,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.seat_material:upholstered",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 101,
+    "net_score": 143,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.shell_base_finish:natural / wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 183,
+    "net_score": 211,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.shell_material:fabric wrapped",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 167,
+    "net_score": 251,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.shell_plastic_finish:arctic white",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 18,
+    "net_score": -18,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "image.shell_plastic_finish:platinum / gray",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 16,
+    "net_score": -16,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.shell_seat_material:upholstered frame",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 158,
+    "net_score": 194,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.stackability:non-stackable",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 178,
+    "net_score": 108,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.upholstery:upholstered seat & back",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 149,
+    "net_score": 183,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.arm_configuration:no arms",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 137,
+    "net_score": 125,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.arm_configuration:two arms",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 125,
+    "net_score": 121,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.arm_option:adjustable arms",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.18,
+    "evidence": 9,
+    "net_score": -9,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.back_height:low",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 171,
+    "net_score": 181,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.back_height:mid",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 172,
+    "net_score": 178,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.base_finish:black",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 174,
+    "net_score": 128,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.base_finish:white",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 26,
+    "net_score": -26,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.base_type:4-leg wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 91,
+    "net_score": 123,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.floor_interface:glides (hard floor / carpet)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 131,
+    "net_score": 181,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.frame:metal",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 65,
+    "net_score": 153,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.seat_material:molded plastic",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 58,
+    "net_score": -48,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.seat_material:upholstered",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 101,
+    "net_score": 143,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.shell_base_finish:natural / wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 183,
+    "net_score": 211,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.shell_material:fabric wrapped",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 167,
+    "net_score": 251,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.shell_plastic_finish:arctic white",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 18,
+    "net_score": -18,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "merged.shell_plastic_finish:platinum / gray",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 16,
+    "net_score": -16,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.shell_seat_material:upholstered frame",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 158,
+    "net_score": 194,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.stackability:non-stackable",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 178,
+    "net_score": 108,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "merged.upholstery:upholstered seat & back",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 149,
+    "net_score": 183,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "visual.back_material:molded plastic",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 58,
+    "net_score": -48,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "visual.back_material:upholstered",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 101,
+    "net_score": 143,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "visual.base_type:4-leg wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 91,
+    "net_score": 123,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "visual.dominant_materials:molded plastic",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 58,
+    "net_score": -48,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "visual.dominant_materials:solid wood",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 68,
+    "net_score": 120,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "visual.seat_material:molded plastic",
+    "status": "approved",
+    "direction": "down",
+    "proposed_weight": 0.2,
+    "evidence": 58,
+    "net_score": -48,
+    "decided_at": "2026-04-11T17:32:00.420Z"
+  },
+  {
+    "trait": "visual.seat_material:upholstered",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 101,
+    "net_score": 143,
+    "decided_at": "2026-04-11T17:32:00.419Z"
+  }
+]
