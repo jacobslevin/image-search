@@ -2,12 +2,15 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { analyzeInspirationImage, generateCaption, generateSearchQuery } from "./src/captioning.js";
+import { analyzeInspirationImage, extractTextQueryTraits, generateImageExtractionRecord, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
+import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, searchIndex } from "./src/search.js";
-import { readJson, writeJson } from "./src/utils.js";
+import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
+import { createId, ensureDir, getAllCategoryTerms, getCategoryDisplayLabel, getCategoryLevels, getImageIndexPath, getLeafCategories, readJson, writeJson } from "./src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,15 +19,240 @@ const envFiles = [
   path.join(__dirname, ".env")
 ];
 const publicDir = path.join(__dirname, "public");
+const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
 const normalizedPath = path.join(__dirname, "data", "normalized-catalog.json");
-const indexPath = path.join(__dirname, "data", "image-index.json");
+const indexPath = getImageIndexPath();
+const sceneFilterProgressPath = path.join(__dirname, "data", "scene-filter-progress.json");
+const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
 const seatingTypesPath = path.join(__dirname, "data", "seating-types.json");
 const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
 const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json");
 const traitSuggestionDecisionsPath = path.join(__dirname, "scripts", "reranker-trait-decisions.json");
+const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
+const traitCorrectionImagesDir = path.join(__dirname, "data", "trait-correction-images");
 const seatingTypesConfig = JSON.parse(fsSync.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
+const EXTRACTION_SUMMARY_UNSPECIFIED = "unspecified";
+const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
+
+function normalizeExtractionSummaryCategory(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) {
+    return EXTRACTION_SUMMARY_UNSPECIFIED;
+  }
+  if (normalized === "task_chair" || normalized === "collaborative_chair") {
+    return "task_collab_chair";
+  }
+  if (normalized === "perch_stool") {
+    return "stool";
+  }
+  return normalized;
+}
+
+function buildExtractionSummary(index = { images: [] }) {
+  const images = Array.isArray(index?.images) ? index.images : [];
+  const byCategory = new Map();
+
+  const ensureCategory = (categoryKey) => {
+    const key = normalizeExtractionSummaryCategory(categoryKey);
+    if (!byCategory.has(key)) {
+      byCategory.set(key, {
+        category_key: key,
+        total_images: 0,
+        stage1_product_detail_missed_by_stage0: 0,
+        tiebreakers_triggered: 0
+      });
+    }
+    return byCategory.get(key);
+  };
+
+  let detailMisses = 0;
+  let tiebreakers = 0;
+
+  for (const image of images) {
+    const categoryKey = normalizeExtractionSummaryCategory(image?.stage1?.seating_type || image?.seating_type || "");
+    const categorySummary = ensureCategory(categoryKey);
+    categorySummary.total_images += 1;
+
+    const stage0 = normalizeStage0Result(image?.stage_0_result);
+    const stage1Result = String(image?.stage1?.result || "").trim().toLowerCase();
+    const detailMissedByStage0 = stage0 === "product" && stage1Result === "product_detail";
+    if (detailMissedByStage0) {
+      detailMisses += 1;
+      ensureCategory(image?.stage1?.seating_type || "").stage1_product_detail_missed_by_stage0 += 1;
+    }
+
+    if (Boolean(image?.tiebreaker_triggered)) {
+      tiebreakers += 1;
+      categorySummary.tiebreakers_triggered += 1;
+    }
+  }
+
+  const order = [
+    "task_collab_chair",
+    "guest_chair",
+    "lounge_chair",
+    "bench",
+    "ottoman",
+    "stool",
+    "other_seating",
+    EXTRACTION_SUMMARY_UNSPECIFIED
+  ];
+  const orderIndex = new Map(order.map((value, index) => [value, index]));
+  const categories = [...byCategory.values()].sort((left, right) => {
+    const leftRank = orderIndex.has(left.category_key) ? orderIndex.get(left.category_key) : Number.MAX_SAFE_INTEGER;
+    const rightRank = orderIndex.has(right.category_key) ? orderIndex.get(right.category_key) : Number.MAX_SAFE_INTEGER;
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    return String(left.category_key).localeCompare(String(right.category_key));
+  });
+
+  return {
+    generated_at: new Date().toISOString(),
+    total_images: images.length,
+    stage1_product_detail_missed_by_stage0: detailMisses,
+    tiebreakers_triggered: tiebreakers,
+    categories
+  };
+}
+
+function normalizeFocusAreaPayload(rawFocusArea = null) {
+  if (!rawFocusArea || typeof rawFocusArea !== "object") {
+    return null;
+  }
+  const x = Number(rawFocusArea.x);
+  const y = Number(rawFocusArea.y);
+  const width = Number(rawFocusArea.width);
+  const height = Number(rawFocusArea.height);
+  if (![x, y, width, height].every((value) => Number.isFinite(value))) {
+    return null;
+  }
+  return { x, y, width, height };
+}
+
+function getQueryImageAnalysisIdentifier({ imageSource = "", imageUrl = "", fileName = "" } = {}) {
+  const normalizedFileName = String(fileName || "").trim();
+  if (normalizedFileName) {
+    return `upload:${normalizedFileName}`;
+  }
+
+  const normalizedImageUrl = String(imageUrl || "").trim();
+  if (normalizedImageUrl) {
+    return normalizedImageUrl;
+  }
+
+  const normalizedSource = String(imageSource || "").trim();
+  if (normalizedSource.startsWith("data:image/")) {
+    return createId("query_image", normalizedSource.slice(0, 256));
+  }
+
+  return normalizedSource || createId("query_image", String(Date.now()));
+}
+
+function logQueryImageAnalysisFailure({ imageIdentifier = "", stage = "", error = null } = {}) {
+  const errorMessage = String(error?.message || error || "").trim() || "Unknown query-time image analysis error.";
+  console.error("[query-image-analysis] failure", JSON.stringify({
+    image_identifier: imageIdentifier,
+    stage: String(stage || "").trim() || "unknown",
+    error_message: errorMessage
+  }));
+}
+
+function extensionFromMimeType(mimeType = "") {
+  const normalized = String(mimeType || "").trim().toLowerCase();
+  if (!normalized.startsWith("image/")) {
+    return ".bin";
+  }
+  const subtype = normalized.split("/")[1]?.split(";")[0]?.trim() || "png";
+  if (subtype === "jpeg") {
+    return ".jpg";
+  }
+  return `.${subtype.replace(/[^a-z0-9]/gi, "") || "png"}`;
+}
+
+function extensionFromImageUrl(imageUrl = "") {
+  try {
+    const pathname = new URL(String(imageUrl || "").trim()).pathname || "";
+    const ext = path.extname(pathname).toLowerCase();
+    return ext || ".jpg";
+  } catch {
+    return ".jpg";
+  }
+}
+
+async function persistTraitCorrectionImageAsset(imageSource = "", recordId = "") {
+  const source = String(imageSource || "").trim();
+  if (!source) {
+    return {
+      source_kind: "unknown",
+      source_url: "",
+      stored_image_path: "",
+      mime_type: ""
+    };
+  }
+
+  await ensureDir(traitCorrectionImagesDir);
+
+  if (source.startsWith("data:image/")) {
+    const match = source.match(/^data:(image\/[^;]+);base64,(.+)$/);
+    if (!match) {
+      return {
+        source_kind: "data_url",
+        source_url: "",
+        stored_image_path: "",
+        mime_type: ""
+      };
+    }
+    const mimeType = String(match[1] || "").trim().toLowerCase();
+    const extension = extensionFromMimeType(mimeType);
+    const fileName = `${recordId}${extension}`;
+    const outputPath = path.join(traitCorrectionImagesDir, fileName);
+    await fs.writeFile(outputPath, Buffer.from(match[2], "base64"));
+    return {
+      source_kind: "upload",
+      source_url: "",
+      stored_image_path: path.relative(__dirname, outputPath),
+      mime_type: mimeType
+    };
+  }
+
+  if (/^https?:\/\//i.test(source)) {
+    try {
+      const remoteResponse = await fetch(source);
+      if (!remoteResponse.ok) {
+        throw new Error(`Remote fetch failed with ${remoteResponse.status}`);
+      }
+      const mimeType = String(remoteResponse.headers.get("content-type") || "").trim().toLowerCase();
+      const extension = mimeType ? extensionFromMimeType(mimeType) : extensionFromImageUrl(source);
+      const fileName = `${recordId}${extension}`;
+      const outputPath = path.join(traitCorrectionImagesDir, fileName);
+      const buffer = Buffer.from(await remoteResponse.arrayBuffer());
+      await fs.writeFile(outputPath, buffer);
+      return {
+        source_kind: "remote_url",
+        source_url: source,
+        stored_image_path: path.relative(__dirname, outputPath),
+        mime_type: mimeType
+      };
+    } catch {
+      return {
+        source_kind: "remote_url",
+        source_url: source,
+        stored_image_path: "",
+        mime_type: ""
+      };
+    }
+  }
+
+  return {
+    source_kind: "unknown",
+    source_url: source,
+    stored_image_path: "",
+    mime_type: ""
+  };
+}
 
 async function loadLocalEnv() {
   for (const envPath of envFiles) {
@@ -65,10 +293,9 @@ async function loadLocalEnv() {
 }
 
 const seedQueries = [
-  "guest seating with chrome sled base and wood arms",
-  "wood seating",
-  "lounge chair with exposed wood frame",
-  "upholstered guest chair with metal base"
+  "highback lounge chairs with wood bases",
+  "guest chairs with circular shaped backs",
+  "sofas with concealed bases"
 ];
 
 const mimeTypes = {
@@ -78,16 +305,217 @@ const mimeTypes = {
   ".json": "application/json; charset=utf-8",
   ".svg": "image/svg+xml"
 };
+
+let sceneFilterRunner = {
+  pid: 0,
+  startedAt: "",
+  command: []
+};
+
+const MODEL_PRICING_USD_PER_MILLION = {
+  "gpt-4.1-nano": {
+    input: 0.10,
+    output: 0.40
+  }
+};
+
+function envNumber(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function getResultCutoffConfig() {
+  return {
+    minResults: envNumber("RESULT_CUTOFF_MIN_RESULTS", RESULT_CUTOFF_DEFAULTS.minResults),
+    maxResults: envNumber("RESULT_CUTOFF_MAX_RESULTS", RESULT_CUTOFF_DEFAULTS.maxResults),
+    minGapAbsolute: envNumber("RESULT_CUTOFF_MIN_GAP_ABSOLUTE", RESULT_CUTOFF_DEFAULTS.minGapAbsolute),
+    minGapRatio: envNumber("RESULT_CUTOFF_MIN_GAP_RATIO", RESULT_CUTOFF_DEFAULTS.minGapRatio),
+    relativeFloor: envNumber("RESULT_CUTOFF_RELATIVE_FLOOR", RESULT_CUTOFF_DEFAULTS.relativeFloor),
+    uniformThreshold: envNumber("RESULT_CUTOFF_UNIFORM_THRESHOLD", RESULT_CUTOFF_DEFAULTS.uniformThreshold)
+  };
+}
+
+function normalizeStage0Result(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  return normalized === "scene" || normalized === "product" || normalized === "product_detail"
+    ? normalized
+    : "";
+}
+
+function incrementReindexStage0Counts(result = "") {
+  const normalized = normalizeStage0Result(result);
+  if (normalized === "product") {
+    reindexState.product_photos = Number(reindexState.product_photos || 0) + 1;
+    return normalized;
+  }
+  if (normalized === "scene") {
+    reindexState.scene_photos = Number(reindexState.scene_photos || 0) + 1;
+    return normalized;
+  }
+  if (normalized === "product_detail") {
+    reindexState.detail_photos = Number(reindexState.detail_photos || 0) + 1;
+    return normalized;
+  }
+  return "";
+}
+
+async function readSceneFilterProgress() {
+  let raw = "";
+  try {
+    raw = await fs.readFile(sceneFilterProgressPath, "utf8");
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return { available: false };
+    }
+    throw error;
+  }
+
+  const payload = raw ? JSON.parse(raw) : {};
+  const total = Math.max(0, Number(payload.total_products ?? payload.max_products) || 0);
+  const completed = Math.max(0, Number(payload.completed_products) || 0);
+  const imagesChecked = Math.max(0, Number(payload.images_checked) || 0);
+  const productPhotos = Math.max(0, Number(payload.product_photos) || 0);
+  const scenePhotos = Math.max(0, Number(payload.scene_photos) || 0);
+  const inputTokens = Math.max(0, Number(payload.input_tokens) || 0);
+  const outputTokens = Math.max(0, Number(payload.output_tokens) || 0);
+  const totalTokens = Math.max(0, Number(payload.total_tokens) || 0);
+  const updatedAt = String(payload.updated_at || "").trim();
+  const updatedMs = updatedAt ? Date.parse(updatedAt) : Number.NaN;
+  const stale = !Number.isNaN(updatedMs) && (Date.now() - updatedMs) > (3 * 60 * 1000);
+  const done = Boolean(payload.done) || (total > 0 && completed >= total);
+  const running = !done && !stale;
+  const pricing = MODEL_PRICING_USD_PER_MILLION[String(payload.model_version || "").trim()] || null;
+  const estimatedInputCostUsd = pricing ? (inputTokens / 1_000_000) * pricing.input : 0;
+  const estimatedOutputCostUsd = pricing ? (outputTokens / 1_000_000) * pricing.output : 0;
+  const estimatedTotalCostUsd = estimatedInputCostUsd + estimatedOutputCostUsd;
+
+  return {
+    available: true,
+    running: running || Boolean(sceneFilterRunner.pid),
+    done,
+    stale: !done && stale,
+    total,
+    completed,
+    left: Math.max(total - completed, 0),
+    images_checked: imagesChecked,
+    product_photos: productPhotos,
+    scene_photos: scenePhotos,
+    product_photo_pct: imagesChecked ? Number(((productPhotos / imagesChecked) * 100).toFixed(1)) : 0,
+    scene_photo_pct: imagesChecked ? Number(((scenePhotos / imagesChecked) * 100).toFixed(1)) : 0,
+    input_tokens: inputTokens,
+    output_tokens: outputTokens,
+    total_tokens: totalTokens,
+    avg_total_tokens_per_image: imagesChecked ? Number((totalTokens / imagesChecked).toFixed(1)) : 0,
+    estimated_input_cost_usd: Number(estimatedInputCostUsd.toFixed(6)),
+    estimated_output_cost_usd: Number(estimatedOutputCostUsd.toFixed(6)),
+    estimated_total_cost_usd: Number(estimatedTotalCostUsd.toFixed(6)),
+    avg_cost_per_image_usd: imagesChecked ? Number((estimatedTotalCostUsd / imagesChecked).toFixed(6)) : 0,
+    model_version: String(payload.model_version || "").trim(),
+    detail: String(payload.detail || "").trim(),
+    label: String(payload.label || "").trim(),
+    product_ids_file: String(payload.product_ids_file || "").trim(),
+    last_product_id: String(payload.last_product_id || "").trim(),
+    updated_at: updatedAt,
+    log: Array.isArray(payload.log) ? payload.log.slice(0, 8) : [],
+    runner_pid: sceneFilterRunner.pid || 0
+  };
+}
+
+async function startSceneFilterRunner() {
+  if (sceneFilterRunner.pid) {
+    throw new Error("Stage 0 scene filter is already running.");
+  }
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Stage 0 scene filter requires OPENAI_API_KEY on the local server.");
+  }
+
+  const progress = await readSceneFilterProgress();
+  if (!progress.available) {
+    throw new Error("No Stage 0 checkpoint found to resume.");
+  }
+  if (progress.done) {
+    throw new Error("Stage 0 scene filter is already complete.");
+  }
+  const remainingProducts = Math.max(progress.left, 0);
+  if (!remainingProducts) {
+    throw new Error("No remaining products to process.");
+  }
+
+  const progressPayload = JSON.parse(await fs.readFile(sceneFilterProgressPath, "utf8"));
+  const resumedStartIndex = Math.max(0, Number(progressPayload.start_index) || 0) + Math.max(0, Number(progressPayload.completed_products) || 0);
+  const command = [
+    path.join(__dirname, "scripts", "run-scene-filter-sample.js"),
+    "--start", String(resumedStartIndex),
+    "--max-products", String(remainingProducts),
+    "--progress-start-index", String(Math.max(0, Number(progressPayload.start_index) || 0)),
+    "--progress-total-products", String(Math.max(0, Number(progressPayload.total_products ?? progressPayload.max_products) || remainingProducts)),
+    "--resume-completed", String(Math.max(0, Number(progressPayload.completed_products) || 0)),
+    "--resume-images-checked", String(Math.max(0, Number(progressPayload.images_checked) || 0)),
+    "--resume-product-photos", String(Math.max(0, Number(progressPayload.product_photos) || 0)),
+    "--resume-scene-photos", String(Math.max(0, Number(progressPayload.scene_photos) || 0)),
+    "--resume-input-tokens", String(Math.max(0, Number(progressPayload.input_tokens) || 0)),
+    "--resume-output-tokens", String(Math.max(0, Number(progressPayload.output_tokens) || 0)),
+    "--resume-total-tokens", String(Math.max(0, Number(progressPayload.total_tokens) || 0))
+  ];
+  if (String(progressPayload.product_ids_file || "").trim()) {
+    command.push("--product-ids-file", String(progressPayload.product_ids_file).trim());
+  }
+  if (String(progressPayload.label || "").trim()) {
+    command.push("--progress-label", String(progressPayload.label).trim());
+  }
+
+  const logFd = fsSync.openSync(sceneFilterBatchLogPath, "a");
+  const child = spawn(process.execPath, command, {
+    cwd: __dirname,
+    env: process.env,
+    detached: true,
+    stdio: ["ignore", logFd, logFd]
+  });
+  fsSync.closeSync(logFd);
+
+  sceneFilterRunner = {
+    pid: child.pid || 0,
+    startedAt: new Date().toISOString(),
+    command
+  };
+
+  child.once("exit", () => {
+    sceneFilterRunner = {
+      pid: 0,
+      startedAt: "",
+      command: []
+    };
+  });
+  child.unref();
+
+  return {
+    started: true,
+    pid: sceneFilterRunner.pid,
+    start_index: resumedStartIndex,
+    remaining_products: remainingProducts
+  };
+}
 const BULK_REFRESH_BATCH_SIZE = 5;
 const BULK_REFRESH_PRODUCT_DELAY_MS = 200;
 const BULK_REFRESH_BATCH_DELAY_MS = 1000;
 let reindexState = {
   running: false,
+  started_at: "",
   total: 0,
   completed: 0,
   failed: 0,
   failed_products: [],
   current_product: "",
+  current_product_id: "",
+  current_product_images_passed: 0,
+  current_run: "",
+  current_image_url: "",
+  processed_images: 0,
+  product_photos: 0,
+  scene_photos: 0,
+  detail_photos: 0,
+  total_cost_usd: 0,
+  tiebreaker_products: 0,
   current_batch: 0,
   total_batches: 0,
   log: [],
@@ -95,12 +523,79 @@ let reindexState = {
 };
 
 function json(response, statusCode, payload) {
-  response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
+  response.writeHead(statusCode, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  });
   response.end(JSON.stringify(payload));
+}
+
+function normalizeRequestedSeatingType(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  return seatingTypes[normalized] ? normalized : "";
+}
+
+function isAllSeatingTypeRequest(value = "") {
+  return String(value || "").trim().toLowerCase() === "all";
 }
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getSceneFilterResults(record = null) {
+  return Array.isArray(record?.scene_filter_results) ? record.scene_filter_results : [];
+}
+
+function findSceneFilterResult(record = null, imageUrl = "") {
+  const canonicalTarget = canonicalizeProductImageUrl(imageUrl);
+  if (!canonicalTarget) {
+    return null;
+  }
+
+  return getSceneFilterResults(record).find((entry) => {
+    const modelVersion = String(entry?.model_version || "").trim();
+    return /gpt-4\.1-nano/i.test(modelVersion) &&
+      canonicalizeProductImageUrl(entry?.image_url) === canonicalTarget &&
+      (entry?.result === "scene" || entry?.result === "product");
+  }) || null;
+}
+
+function selectSceneFilterHeroImage(record = null, candidateUrls = []) {
+  const results = getSceneFilterResults(record);
+  if (!results.length) {
+    return "";
+  }
+
+  const candidateMap = new Map(
+    (candidateUrls || [])
+      .map((url) => [canonicalizeProductImageUrl(url), String(url || "").trim()])
+      .filter(([canonical, original]) => canonical && original)
+  );
+
+  for (const entry of results) {
+    const canonical = canonicalizeProductImageUrl(entry?.image_url);
+    if (candidateMap.has(canonical)) {
+      return candidateMap.get(canonical);
+    }
+  }
+
+  return "";
+}
+
+function buildSceneFilterBadge(record = null, imageUrl = "") {
+  const match = findSceneFilterResult(record, imageUrl);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    label: match.result === "scene" ? "Scene" : "Product",
+    result: match.result,
+    model_version: String(match.model_version || "").trim()
+  };
 }
 
 function splitSentences(value = "") {
@@ -617,7 +1112,8 @@ function formatDetectedTraits(imageTraits = {}, typeKey, limit = 6) {
     ["back_style", "Back"],
     ["arm_option", "Arms"],
     ["seat_upholstery", "Seat"],
-    ["shell_material", "Shell"]
+    ["shell_material", "Shell"],
+    ["body_construction", "Body"]
   ]);
   const fieldMap = new Map(getTypeFields(typeKey).map((field) => [field.field, field]));
 
@@ -690,20 +1186,46 @@ function normalizeStructuredBullets(bullets = []) {
   };
 
   if (Array.isArray(bullets)) {
-    return {
-      essential: [],
-      normal: normalizeList(bullets)
-    };
+    const normalized = { essential: [], normal: [], low: [] };
+    normalizeList(bullets).forEach((bullet) => {
+      const text = String(bullet || "");
+      const separatorIndex = text.indexOf(":");
+      const field = separatorIndex === -1
+        ? ""
+        : text.slice(0, separatorIndex).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+      if (["body_construction", "arm_configuration", "back_height", "configuration", "base_visibility"].includes(field)) {
+        normalized.essential.push(text);
+      } else if (["base_type", "base_finish"].includes(field)) {
+        normalized.low.push(text);
+      } else {
+        normalized.normal.push(text);
+      }
+    });
+    return normalized;
   }
 
   if (!bullets || typeof bullets !== "object") {
-    return { essential: [], normal: [] };
+    return { essential: [], normal: [], low: [] };
   }
 
   return {
     essential: normalizeList(bullets.essential || []),
-    normal: normalizeList(bullets.normal || [])
+    normal: normalizeList(bullets.normal || []),
+    low: normalizeList(bullets.low || [])
   };
+}
+
+function mergeStructuredBullets(...groups) {
+  const merged = { essential: [], normal: [], low: [] };
+
+  for (const group of groups) {
+    const normalized = normalizeStructuredBullets(group);
+    merged.essential.push(...normalized.essential);
+    merged.normal.push(...normalized.normal);
+    merged.low.push(...normalized.low);
+  }
+
+  return normalizeStructuredBullets(merged);
 }
 
 function normalizeComposedQueryText(value = "") {
@@ -726,6 +1248,81 @@ function normalizeComposedQueryText(value = "") {
   };
 
   return collapseRepeatedClauses(normalizeCandidateText(value));
+}
+
+function formatTraitChangeLine(change = {}) {
+  const label = String(change.label || change.field || "Trait").trim();
+  const oldValue = String(change.old_value || "").trim();
+  const newValue = String(change.new_value || "").trim();
+  if (oldValue && newValue) {
+    return `- ${label}: ${oldValue} -> ${newValue}`;
+  }
+  if (newValue) {
+    return `- ${label}: (not specified) -> ${newValue}`;
+  }
+  return `- ${label}: ${oldValue} -> removed`;
+}
+
+async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges = [], activeBullets = [], apiKey = "") {
+  const queryText = String(currentQueryText || "").trim();
+  if (!queryText) {
+    return "";
+  }
+
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is required for targeted query rewrites.");
+  }
+
+  const changesText = (Array.isArray(traitChanges) ? traitChanges : [])
+    .map((entry) => formatTraitChangeLine(entry))
+    .filter(Boolean)
+    .join("\n");
+  const activeTraitsText = (Array.isArray(activeBullets) ? activeBullets : [])
+    .map((bullet) => `- ${String(bullet || "").trim()}`)
+    .filter((line) => line !== "-")
+    .join("\n");
+  const systemPrompt = "You are making targeted edits to a furniture search query. Your goal is to preserve as much of the original query as possible while reflecting the trait changes listed below.\n\nRules:\n- Only modify phrases that describe the changed traits\n- If the original query contains language that conflicts with any trait in the current active trait set, replace that conflicting language. The active traits always win over the original description.\n- If a changed trait was not mentioned in the original query, add a brief natural-sounding phrase for it\n- Do not rewrite, remove, or restructure any part of the query that is not related to the changed traits\n- The result should read as natural flowing prose, not a list of traits\n- Avoid vague substitutions like 'unique material' or 'special finish'; use the actual trait values\n\nReturn the updated query text only. No preamble, no explanation, no quotation marks.";
+  const userPrompt = `Original query:\n${queryText}\n\nTraits that changed (old value -> new value):\n${changesText || "- None"}\n\nCurrent active trait set (full target state):\n${activeTraitsText || "- None"}`;
+
+  console.log("[rewrite-query-traits] original_query_text:", queryText);
+  console.log("[rewrite-query-traits] trait_changes:", JSON.stringify(traitChanges));
+  console.log("[rewrite-query-traits] active_bullets:", JSON.stringify(activeBullets));
+  console.log("[rewrite-query-traits] system_prompt:", systemPrompt);
+  console.log("[rewrite-query-traits] user_prompt:", userPrompt);
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenAI targeted query rewrite failed with ${response.status}.`);
+  }
+
+  const payload = await response.json();
+  const content = String(payload?.choices?.[0]?.message?.content || "").trim();
+  console.log("[rewrite-query-traits] model_response_raw:", JSON.stringify(payload));
+  console.log("[rewrite-query-traits] model_response_text:", content);
+  if (!content) {
+    console.log("[rewrite-query-traits] empty model response; client will fall back to composeQueryWithFallback.");
+  }
+  return normalizeComposedQueryText(content);
 }
 
 function polishSearchQuery(value = "") {
@@ -994,49 +1591,76 @@ async function loadSeatingTypes() {
   return readJson(seatingTypesPath, { types: {}, default_type: "other_seating" });
 }
 
-function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString()) {
+function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString(), extra = {}) {
+  const stage0Result = normalizeStage0Result(generated?.stage_0_result || extra?.stage_0_result);
   return {
-    ...image,
-    stage1: {
-      seating_type: generated.stage1?.seating_type || generated.seating_type || "other_seating"
-    },
-    stage2: {
-      visual_summary: generated.stage2?.visual_summary || ""
-    },
-    structured_caption: generated.structured_caption,
-    raw_visual_highlights: generated.raw_visual_highlights || [],
-    visual_summary: generated.stage2?.visual_summary || "",
-    visual_highlights: generated.visual_highlights,
-    seating_type: generated.seating_type || "other_seating",
-    image_traits: generated.image_traits || {},
-    spec_traits: generated.spec_traits || {},
-    merged_traits: generated.merged_traits || {},
-    trait_provenance: generated.trait_provenance || {},
-    visual_traits: generated.visual_traits,
-    caption_embedding: generated.caption_embedding,
-    visual_description_embedding: generated.visual_description_embedding,
-    visual_summary_embedding: generated.visual_summary_embedding,
-    caption_model_version: generated.caption_model_version,
-    embedding_model_version: generated.embedding_model_version,
+    ...generated,
+    ...extra,
+    stage_0_result: stage0Result || String(generated?.stage_0_result || extra?.stage_0_result || "").trim(),
     ai_refreshed_at: refreshedAt
   };
 }
 
+function buildLightweightProductRecords(catalog, imageRecords = []) {
+  const byProductId = new Map();
+
+  for (const product of catalog?.products || []) {
+    const { a_level, b_level, c_level } = getCategoryLevels(product);
+    byProductId.set(product.product_id, {
+      product_id: product.product_id,
+      product_name: product.name,
+      name: product.name,
+      brand: product.brand,
+      a_level,
+      b_level,
+      c_level,
+      image_urls: [...new Set(product.image_urls || [])],
+      passing_image_count: 0
+    });
+  }
+
+  for (const image of imageRecords) {
+    if (!byProductId.has(image.product_id)) {
+      byProductId.set(image.product_id, {
+        product_id: image.product_id,
+        product_name: image.product_name || image.name || "",
+        name: image.product_name || image.name || "",
+        brand: image.brand || "",
+        a_level: image.a_level || [],
+        b_level: image.b_level || [],
+        c_level: image.c_level || [],
+        image_urls: [],
+        passing_image_count: 0
+      });
+    }
+
+    const product = byProductId.get(image.product_id);
+    product.image_urls = [...new Set([...product.image_urls, image.image_url].filter(Boolean))];
+    if (normalizeStage0Result(image.stage_0_result) === "product") {
+      product.passing_image_count += 1;
+    }
+  }
+
+  return [...byProductId.values()];
+}
+
 function buildIndexOutput(index, catalog, mergedImages) {
-  const indexedBrands = [...new Set(mergedImages.map((image) => image.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  const indexedCategories = [...new Set(mergedImages.map((image) => image.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  const indexedProducts = new Set(mergedImages.map((image) => image.product_id)).size;
+  const searchableImages = mergedImages.filter((image) => normalizeStage0Result(image.stage_0_result) === "product");
+  const products = buildLightweightProductRecords(catalog, mergedImages);
+  const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
   return {
     ...index,
     generated_at: new Date().toISOString(),
     provider: "openai",
     totals: {
-      products: indexedProducts,
-      images: mergedImages.length
+      products: products.length,
+      images: searchableImages.length
     },
     brands: indexedBrands.length ? indexedBrands : catalog.brands,
     categories: indexedCategories.length ? indexedCategories : catalog.categories,
+    products,
     images: mergedImages
   };
 }
@@ -1051,6 +1675,7 @@ function createEmptyIndex(catalog) {
     },
     brands: catalog?.brands || [],
     categories: catalog?.categories || [],
+    products: buildLightweightProductRecords(catalog, []),
     images: []
   };
 }
@@ -1079,24 +1704,82 @@ function mergeRefreshedImages(index, catalog, refreshedImages = []) {
 }
 
 async function generateProductRefreshPayload(productId, matchingImages = []) {
-  const productImages = [];
   const refreshedAt = new Date().toISOString();
+  const refreshedImages = [];
+  const failedImages = [];
+  let passingImageCount = 0;
+  let productCostUsd = 0;
+  let tiebreakerUsed = false;
+  let lastError = null;
 
   for (const image of matchingImages) {
-    const generated = await generateCaption(image, {
-      provider: "openai",
-      apiKey: process.env.OPENAI_API_KEY,
-      visionModel: process.env.VISION_MODEL
-    });
-    productImages.push(buildIndexedImageRecord(image, generated, refreshedAt));
+    try {
+      const generated = await generateImageExtractionRecord(image, {
+        provider: "openai",
+        apiKey: process.env.OPENAI_API_KEY,
+        visionModel: process.env.VISION_MODEL,
+        embeddingModel: process.env.EMBEDDING_MODEL,
+        progressCallback: (event = {}) => {
+          if (event.type === "image_start") {
+            reindexState.current_image_url = String(event.image_url || "").trim();
+            return;
+          }
+          if (event.type === "run_start") {
+            const rawLabel = String(event.run_label || "").trim().toLowerCase();
+            reindexState.current_run = rawLabel === "run_3"
+              ? "Tiebreaker"
+              : rawLabel === "run_2"
+                ? "Run 2"
+                : "Run 1";
+            return;
+          }
+        }
+      });
+
+      const record = buildIndexedImageRecord(image, generated, refreshedAt);
+      refreshedImages.push(record);
+      reindexState.processed_images = Number(reindexState.processed_images || 0) + 1;
+      const normalizedStage0Result = incrementReindexStage0Counts(record.stage_0_result);
+      if (normalizedStage0Result === "product") {
+        passingImageCount += 1;
+      } else if (!normalizedStage0Result) {
+        console.warn(
+          `[reindex-progress] Unrecognized stage_0_result for product ${productId}: ${JSON.stringify(record.stage_0_result || "")}`
+        );
+      }
+      if (record.tiebreaker_triggered) {
+        tiebreakerUsed = true;
+      }
+      productCostUsd = Number((productCostUsd + Number(record.cost?.total_usd || 0)).toFixed(6));
+      reindexState.total_cost_usd = Number((Number(reindexState.total_cost_usd || 0) + Number(record.cost?.total_usd || 0)).toFixed(6));
+      reindexState.current_product_images_passed = passingImageCount;
+    } catch (error) {
+      lastError = error;
+      failedImages.push({
+        image_url: String(image?.image_url || "").trim(),
+        error: error?.message || "Image extraction failed."
+      });
+      console.warn(`Skipping image during refresh for ${productId}: ${String(image?.image_url || "").trim()} — ${error?.message || "Image extraction failed."}`);
+    }
+  }
+
+  if (!refreshedImages.length) {
+    throw new Error(lastError?.message || "All images failed extraction for this product.");
   }
 
   return {
     product_id: productId,
-    refreshed_images: productImages.length,
-    caption_model_version: productImages[0]?.caption_model_version || "",
+    refreshed_images: refreshedImages.length,
+    caption_model_version: "openai:gpt-4.1",
     ai_refreshed_at: refreshedAt,
-    images: productImages
+    images: refreshedImages,
+    progress: {
+      product_cost_usd: productCostUsd,
+      tiebreaker_used: tiebreakerUsed,
+      passing_image_count: passingImageCount,
+      failed_image_count: failedImages.length
+    },
+    failed_images: failedImages
   };
 }
 
@@ -1104,11 +1787,22 @@ function resetReindexState(productIds = []) {
   const uniqueProductIds = [...new Set((productIds || []).map((value) => String(value || "").trim()).filter(Boolean))];
   reindexState = {
     running: true,
+    started_at: new Date().toISOString(),
     total: uniqueProductIds.length,
     completed: 0,
     failed: 0,
     failed_products: [],
     current_product: "",
+    current_product_id: "",
+    current_product_images_passed: 0,
+    current_run: "",
+    current_image_url: "",
+    processed_images: 0,
+    product_photos: 0,
+    scene_photos: 0,
+    detail_photos: 0,
+    total_cost_usd: 0,
+    tiebreaker_products: 0,
     current_batch: uniqueProductIds.length ? 1 : 0,
     total_batches: Math.ceil(uniqueProductIds.length / BULK_REFRESH_BATCH_SIZE),
     log: [],
@@ -1145,6 +1839,10 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
       const matchingImages = productImageMap.get(productId) || [];
       const productName = matchingImages[0]?.name || productId;
       reindexState.current_product = productName;
+      reindexState.current_product_id = productId;
+      reindexState.current_product_images_passed = 0;
+      reindexState.current_run = "";
+      reindexState.current_image_url = "";
 
       try {
         if (!matchingImages.length) {
@@ -1153,6 +1851,10 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
 
         const productPayload = await generateProductRefreshPayload(productId, matchingImages);
         batchRefreshedImages.push(...productPayload.images);
+        reindexState.current_product_images_passed = Number(productPayload.progress?.passing_image_count || 0);
+        if (productPayload.progress?.tiebreaker_used) {
+          reindexState.tiebreaker_products += 1;
+        }
         reindexState.log.unshift({
           name: productName,
           status: "success",
@@ -1179,6 +1881,12 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         : batches[batchIndex + 1]?.[0]
           ? (productImageMap.get(batches[batchIndex + 1][0]) || [])[0]?.name || batches[batchIndex + 1][0]
           : "";
+      reindexState.current_product_id = batchProductIds[productIndex + 1]
+        ? batchProductIds[productIndex + 1]
+        : batches[batchIndex + 1]?.[0] || "";
+      reindexState.current_product_images_passed = 0;
+      reindexState.current_run = "";
+      reindexState.current_image_url = "";
 
       if (reindexState.completed < reindexState.total) {
         await sleep(BULK_REFRESH_PRODUCT_DELAY_MS);
@@ -1197,6 +1905,10 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
 
   reindexState.running = false;
   reindexState.current_product = "";
+  reindexState.current_product_id = "";
+  reindexState.current_product_images_passed = 0;
+  reindexState.current_run = "";
+  reindexState.current_image_url = "";
   reindexState.done = true;
 }
 
@@ -1237,54 +1949,16 @@ async function refreshProductsIndex(productIds = []) {
     }
 
     try {
-      const productImages = [];
-      const refreshedAt = new Date().toISOString();
-      for (const image of matchingImages) {
-        const generated = await generateCaption(image, {
-          provider: "openai",
-          apiKey: process.env.OPENAI_API_KEY,
-          visionModel: process.env.VISION_MODEL
-        });
-        const indexedRecord = buildIndexedImageRecord(image, generated, refreshedAt);
-        refreshedImages.push(indexedRecord);
-        productImages.push(indexedRecord);
-      }
-
-      refreshedProducts.push({
-        product_id: productId,
-        refreshed_images: productImages.length,
-        caption_model_version: productImages[0]?.caption_model_version || "",
-        ai_refreshed_at: refreshedAt,
-        images: productImages
-      });
+      const productPayload = await generateProductRefreshPayload(productId, matchingImages);
+      refreshedImages.push(...productPayload.images);
+      refreshedProducts.push(productPayload);
     } catch (error) {
       errors.push({ product_id: productId, error: error.message || "Product refresh failed." });
     }
   }
 
   if (refreshedImages.length) {
-    const refreshedMap = new Map(refreshedImages.map((image) => [image.image_id || image.image_url, image]));
-    const mergedImages = (index.images || []).map((image) => {
-      const key = image.image_id || image.image_url;
-      return refreshedMap.get(key) || image;
-    });
-    const indexedBrands = [...new Set(mergedImages.map((image) => image.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-    const indexedCategories = [...new Set(mergedImages.map((image) => image.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-    const indexedProducts = new Set(mergedImages.map((image) => image.product_id)).size;
-
-    const output = {
-      ...index,
-      generated_at: new Date().toISOString(),
-      provider: "openai",
-      totals: {
-        products: indexedProducts,
-        images: mergedImages.length
-      },
-      brands: indexedBrands.length ? indexedBrands : catalog.brands,
-      categories: indexedCategories.length ? indexedCategories : catalog.categories,
-      images: mergedImages
-    };
-
+    const output = mergeRefreshedImages(index, catalog, refreshedImages);
     await writeJson(indexPath, output);
   }
 
@@ -1315,9 +1989,143 @@ function compareProductsBySort(a, b, sort = "auto", browseMode = false) {
   return 0;
 }
 
-function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto") {
-  const indexedByProductId = new Map();
+function normalizeCategoryFilter(value) {
+  return String(value || "").trim().toLowerCase();
+}
 
+function getRefreshTimestamp(record = null) {
+  return String(
+    record?.ai_refreshed_at ||
+    record?.extraction_timestamp ||
+    record?.generated_at ||
+    ""
+  ).trim();
+}
+
+function refreshAgeToMs(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  const mapping = {
+    "1m": 60 * 1000,
+    "5m": 5 * 60 * 1000,
+    "10m": 10 * 60 * 1000,
+    "30m": 30 * 60 * 1000,
+    "1h": 60 * 60 * 1000,
+    "1d": 24 * 60 * 60 * 1000
+  };
+  return mapping[normalized] || 0;
+}
+
+function filterResultsByCategory(results = [], category = "") {
+  const normalizedCategories = (Array.isArray(category) ? category : category ? [category] : [])
+    .map((value) => normalizeCategoryFilter(value))
+    .filter(Boolean);
+  if (!normalizedCategories.length) {
+    return results;
+  }
+
+  return results.filter((result) => (
+    (result.filter_categories || []).some((value) => normalizedCategories.includes(normalizeCategoryFilter(value)))
+  ));
+}
+
+function filterResultsByRefreshAge(results = [], refreshAge = "") {
+  const normalizedRefreshAge = String(refreshAge || "").trim().toLowerCase();
+  if (normalizedRefreshAge === "none") {
+    return results.filter((result) => {
+      const refreshedAt = getRefreshTimestamp(result);
+      if (!refreshedAt) {
+        return true;
+      }
+      return Number.isNaN(Date.parse(refreshedAt));
+    });
+  }
+
+  const thresholdMs = refreshAgeToMs(normalizedRefreshAge);
+  if (!thresholdMs) {
+    return results;
+  }
+
+  const now = Date.now();
+  return results.filter((result) => {
+    const refreshedAt = getRefreshTimestamp(result);
+    if (!refreshedAt) {
+      return false;
+    }
+    const timestamp = Date.parse(refreshedAt);
+    if (Number.isNaN(timestamp)) {
+      return true;
+    }
+    return (now - timestamp) >= thresholdMs;
+  });
+}
+
+function canonicalizeProductImageUrl(value = "") {
+  const input = String(value || "").trim();
+  if (!input) {
+    return "";
+  }
+
+  try {
+    const url = new URL(input);
+    url.hash = "";
+    url.search = "";
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return input.replace(/[#?].*$/, "").replace(/\/$/, "");
+  }
+}
+
+function selectBrowsePrimaryImage(indexedImages = [], allowedImageUrls = []) {
+  const allowedUrls = new Set(
+    (allowedImageUrls || [])
+      .map((imageUrl) => canonicalizeProductImageUrl(imageUrl))
+      .filter(Boolean)
+  );
+
+  if (!allowedUrls.size) {
+    return indexedImages[0] || null;
+  }
+
+  return indexedImages.find((image) => allowedUrls.has(canonicalizeProductImageUrl(image?.image_url))) || null;
+}
+
+function buildProductImageUrls({
+  bestImageUrl = "",
+  indexedImages = [],
+  catalogImageUrls = [],
+  fallbackImageUrl = "",
+  allowedImageUrls = []
+}) {
+  const urls = [];
+  const seen = new Set();
+  const allowed = new Set((allowedImageUrls || []).map((imageUrl) => canonicalizeProductImageUrl(imageUrl)).filter(Boolean));
+
+  function appendCandidates(candidates = []) {
+    for (const candidate of candidates) {
+      const normalized = String(candidate || "").trim();
+      const canonical = canonicalizeProductImageUrl(normalized);
+      if (!canonical || seen.has(canonical)) {
+        continue;
+      }
+      if (allowed.size && !allowed.has(canonical)) {
+        continue;
+      }
+      seen.add(canonical);
+      urls.push(normalized);
+    }
+  }
+
+  appendCandidates([bestImageUrl]);
+  appendCandidates(indexedImages.flatMap((image) => image.passing_image_urls || []));
+  appendCandidates(indexedImages.flatMap((image) => image.all_image_urls || [image.image_url]));
+  appendCandidates(catalogImageUrls);
+  appendCandidates([fallbackImageUrl]);
+
+  return urls;
+}
+
+function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", category = []) {
+  const indexedByProductId = new Map();
   for (const image of index?.images || []) {
     if (!indexedByProductId.has(image.product_id)) {
       indexedByProductId.set(image.product_id, []);
@@ -1325,43 +2133,75 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto") {
     indexedByProductId.get(image.product_id).push(image);
   }
 
-  return (catalog?.products || [])
+  const productRecords = catalog?.products || [];
+
+  return productRecords
     .map((product) => {
       const indexedImages = indexedByProductId.get(product.product_id) || [];
-      const primaryIndexedImage = indexedImages[0] || null;
-      const catalogImageUrls = Array.isArray(product.image_urls) ? product.image_urls.filter(Boolean) : [];
-      const imageUrls = indexedImages.length
-        ? indexedImages.map((image) => image.image_url).filter(Boolean)
-        : catalogImageUrls.length
-          ? catalogImageUrls
-          : [product.product_image].filter(Boolean);
+      const passingImages = indexedImages.filter((image) => image.stage_0_result === "product");
+      const browseImages = indexedImages.length ? indexedImages : [];
+      const heroImage = passingImages[0] || browseImages[0] || null;
+      const imageUrls = (product.image_urls || []).filter(Boolean);
 
       return {
         product_id: product.product_id,
-        name: product.name,
+        name: product.product_name || product.name,
         brand: product.brand,
-        category: product.primary_category || product.category || product.designer_category || "",
-        ai_refreshed_at: primaryIndexedImage?.ai_refreshed_at || primaryIndexedImage?.generated_at || "",
-        best_image_url: primaryIndexedImage?.image_url || imageUrls[0] || "",
+        website: product.website || "",
+        category: getCategoryDisplayLabel(product),
+        category_tags: getLeafCategories(product),
+        filter_categories: getAllCategoryTerms(product),
+        ai_refreshed_at: getRefreshTimestamp(heroImage),
+        best_image_url: heroImage?.image_url || imageUrls[0] || "",
         image_urls: imageUrls,
         score: 1,
-        matched_traits: primaryIndexedImage
-          ? (primaryIndexedImage.visual_traits?.material_details || [])
-              .concat(primaryIndexedImage.visual_traits?.notable_features || [])
-              .concat(primaryIndexedImage.visual_traits?.dominant_materials || [])
-              .filter(Boolean)
-              .slice(0, 3)
+        matched_traits: heroImage
+          ? formatDetectedTraits(heroImage.enum_fields || heroImage.image_traits, heroImage.seating_type, 3)
           : [],
         debug: {
-          structured_caption: primaryIndexedImage?.structured_caption || "",
-          visual_description: primaryIndexedImage?.structured_caption || "",
-          visual_highlights: primaryIndexedImage?.visual_highlights || [],
-          detected_traits: primaryIndexedImage
-            ? formatDetectedTraits(primaryIndexedImage.image_traits, primaryIndexedImage.seating_type, 6)
+          structured_caption: heroImage?.structured_caption || heroImage?.free_text?.structured_caption || "",
+          visual_description: heroImage?.visual_summary || heroImage?.free_text?.visual_summary || "",
+          visual_highlights: heroImage?.free_text?.distinctive_elements || [],
+          detected_traits: heroImage
+            ? formatDetectedTraits(heroImage.enum_fields || heroImage.image_traits, heroImage.seating_type, 6)
             : []
         },
-        image_count: imageUrls.length
+        image_count: imageUrls.length,
+        match_count: browseImages.length || 1,
+        matching_images: browseImages.map((image) => ({
+          image_id: image.image_id,
+          image_url: image.image_url,
+          stage_0_result: image.stage_0_result,
+          seating_type: image.seating_type,
+          enum_fields: image.enum_fields || image.image_traits || {},
+          free_text: image.free_text || {},
+          visual_summary_embedding: image.visual_summary_embedding || image.search_text_embedding || [],
+          score: 1,
+          confidence_tier: image.confidence_tier || "high"
+        })),
+        hero_image: heroImage
+          ? {
+              image_id: heroImage.image_id,
+              image_url: heroImage.image_url,
+              stage_0_result: heroImage.stage_0_result,
+              seating_type: heroImage.seating_type,
+              enum_fields: heroImage.enum_fields || heroImage.image_traits || {},
+              free_text: heroImage.free_text || {},
+              visual_summary_embedding: heroImage.visual_summary_embedding || heroImage.search_text_embedding || [],
+              score: 1,
+              confidence_tier: heroImage.confidence_tier || "high"
+            }
+          : null,
+        scene_filter: buildSceneFilterBadge(heroImage, heroImage?.image_url || ""),
+        scene_filter_results: getSceneFilterResults(heroImage)
       };
+    })
+    .filter(Boolean)
+    .filter((result) => {
+      const normalizedCategories = (Array.isArray(category) ? category : category ? [category] : [])
+        .map((value) => normalizeCategoryFilter(value))
+        .filter(Boolean);
+      return !normalizedCategories.length || result.filter_categories.some((value) => normalizedCategories.includes(normalizeCategoryFilter(value)));
     })
     .sort((a, b) => compareProductsBySort(a, b, sort, true))
     .slice(0, limit);
@@ -1387,10 +2227,32 @@ async function serveStatic(requestPath, response) {
 }
 
 const server = http.createServer(async (request, response) => {
+  if (request.method === "OPTIONS") {
+    response.writeHead(204, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    });
+    response.end();
+    return;
+  }
+
   const url = new URL(request.url, "http://localhost");
 
   if (url.pathname === "/eval") {
     return serveStatic("/eval.html", response);
+  }
+
+  if (url.pathname === "/compare") {
+    return serveStatic("/compare.html", response);
+  }
+
+  if (url.pathname === "/curate") {
+    return serveStatic("/curate.html", response);
+  }
+
+  if (url.pathname === privateBrowsePath) {
+    return serveStatic("/index.html", response);
   }
 
   if (url.pathname === "/api/health") {
@@ -1399,16 +2261,28 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/bootstrap") {
     const [{ catalog, index }, seatingTypes] = await Promise.all([loadCatalog(), loadSeatingTypes()]);
+    const catalogLeafCategories = [...new Set(((catalog?.products || [])).flatMap((product) => getLeafCategories(product)).filter(Boolean))];
+    const categorySource = catalogLeafCategories.sort((a, b) => a.localeCompare(b));
     return json(response, 200, {
       has_index: Boolean(index?.images?.length),
       seed_queries: seedQueries,
       brands: catalog?.brands || [],
-      categories: catalog?.categories || [],
+      categories: categorySource,
       stats: catalog?.totals || { products: 0, images: 0 },
       image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
       ranking_rules: getRankingRulesSummary(),
-      seating_types: seatingTypes
+      seating_types: seatingTypes,
+      result_cutoff: getResultCutoffConfig()
     });
+  }
+
+  if (url.pathname === "/api/extraction-summary" && request.method === "GET") {
+    try {
+      const index = await readJson(indexPath, { images: [] });
+      return json(response, 200, buildExtractionSummary(index));
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Extraction summary unavailable." });
+    }
   }
 
   if (url.pathname === "/api/search") {
@@ -1416,22 +2290,42 @@ const server = http.createServer(async (request, response) => {
 
     const body = request.method === "POST" ? await readRequestJson(request) : {};
     const query = String((request.method === "POST" ? body.q : url.searchParams.get("q")) || "").trim();
+    const category = request.method === "POST"
+      ? (Array.isArray(body.category) ? body.category : body.category ? [body.category] : [])
+      : url.searchParams.getAll("category");
+    const refreshAge = String((request.method === "POST" ? body.refresh_age : url.searchParams.get("refresh_age")) || "").trim();
     const matchMode = String((request.method === "POST" ? body.match_mode : url.searchParams.get("match_mode")) || "balanced").trim();
     const sourceImageUrl = String((request.method === "POST" ? body.source_image_url : url.searchParams.get("source_image_url")) || "").trim();
+    const debugParam = request.method === "POST" ? body.debug : url.searchParams.get("debug");
+    const debug = debugParam === true || String(debugParam || "").trim().toLowerCase() === "true";
     const sort = String((request.method === "POST" ? body.sort : url.searchParams.get("sort")) || "auto").trim();
+    const rawRequestedSeatingType = request.method === "POST" ? body.seating_type : url.searchParams.get("seating_type");
+    const disableSeatingTypeInference = isAllSeatingTypeRequest(rawRequestedSeatingType);
+    const explicitSeatingType = disableSeatingTypeInference
+      ? ""
+      : normalizeRequestedSeatingType(rawRequestedSeatingType);
+    const weightedParam = request.method === "POST" ? body.weighted : url.searchParams.get("weighted");
+    const weighted = weightedParam === undefined || weightedParam === null || String(weightedParam).trim().toLowerCase() !== "false";
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
     const selectedBullets = normalizeStructuredBullets(body.selected_bullets);
     if (!query) {
-      const results = buildBrowseResults(catalog, index, Infinity, sort);
+      const results = filterResultsByRefreshAge(
+        buildBrowseResults(catalog, index, Infinity, sort, category),
+        refreshAge
+      );
       return json(response, 200, {
         query,
+        category_filter: category,
+        refresh_age_filter: refreshAge,
         sort,
+        weighted,
         parsed: {
           category: null,
           brand: null,
           visual_query: "",
           query_traits: null
         },
+        seating_type_source: "all",
         total_results: results.length,
         browse_mode: true,
         results
@@ -1444,14 +2338,43 @@ const server = http.createServer(async (request, response) => {
       });
     }
 
+    let inferredCategory = null;
+    let resolvedSeatingType = explicitSeatingType;
+    let seatingTypeSource = explicitSeatingType ? "explicit" : "all";
+    if (!imageAnalysis && !disableSeatingTypeInference) {
+      inferredCategory = await inferTextQueryCategory(query, {
+        apiKey: process.env.OPENAI_API_KEY,
+        model: "gpt-4o-mini"
+      });
+      if (!resolvedSeatingType && inferredCategory?.status === "resolved") {
+        resolvedSeatingType = String(inferredCategory.category_key || "").trim();
+        seatingTypeSource = "inferred";
+      }
+    }
+    if (disableSeatingTypeInference) {
+      seatingTypeSource = "all";
+    }
+
     const parsed = await parseSearchQuery(query, index.brands || [], {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.QUERY_MODEL
     });
+    parsed.seating_type = resolvedSeatingType || "";
+    const textQueryTraits = imageAnalysis
+      ? null
+      : await extractTextQueryTraits(query, {
+        apiKey: process.env.OPENAI_API_KEY,
+        model: "gpt-4.1-mini",
+        seatingType: resolvedSeatingType
+      });
+    const effectiveSelectedBullets = mergeStructuredBullets(
+      textQueryTraits?.search_bullets,
+      selectedBullets
+    );
     const queryEmbedding = await resolveQueryEmbedding({
       query,
       imageAnalysis,
-      selectedBullets,
+      selectedBullets: effectiveSelectedBullets,
       apiKey: process.env.OPENAI_API_KEY
     });
     const searchResponse = await searchIndex({
@@ -1461,18 +2384,34 @@ const server = http.createServer(async (request, response) => {
       sourceImageUrl,
       sort,
       imageAnalysis,
-      selectedBullets,
+      selectedBullets: effectiveSelectedBullets,
       queryEmbedding,
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: process.env.OPENAI_API_KEY,
+      approvedTraitWeightsEnabled: weighted,
+      includeSourceImage: debug
     });
-    const results = searchResponse.results;
+    const results = filterResultsByRefreshAge(
+      filterResultsByCategory(searchResponse.results, category),
+      refreshAge
+    );
 
     return json(response, 200, {
       query,
+      category_filter: category,
+      refresh_age_filter: refreshAge,
       sort,
+      weighted,
       match_mode: matchMode,
       source_image_url: sourceImageUrl,
+      debug,
       parsed,
+      seating_type: resolvedSeatingType || "",
+      seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
+      seating_type_source: seatingTypeSource,
+      category_required: Boolean(!resolvedSeatingType && inferredCategory?.status === "category_required"),
+      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
+      selected_bullets: effectiveSelectedBullets,
+      text_query_traits: textQueryTraits,
       query_embedding: queryEmbedding,
       reranker_used: searchResponse.reranker_used,
       total_results: results.length,
@@ -1491,8 +2430,13 @@ const server = http.createServer(async (request, response) => {
 
       const body = await readRequestJson(request);
       const queryEmbedding = Array.isArray(body.query_embedding) ? body.query_embedding.map((value) => Number(value)) : [];
+      const category = Array.isArray(body.category) ? body.category : body.category ? [body.category] : [];
+      const refreshAge = String(body.refresh_age || "").trim();
+      const sourceImageUrl = String(body.source_image_url || "").trim();
+      const debug = body.debug === true || String(body.debug || "").trim().toLowerCase() === "true";
       const selectedBullets = normalizeStructuredBullets(body.selected_bullets);
       const seatingType = String(body.seating_type || "").trim();
+      const rerankerEnabled = body.reranker_enabled !== false;
       const action = String(body.action || "").trim();
       const productId = String(body.product_id || "").trim();
 
@@ -1509,7 +2453,9 @@ const server = http.createServer(async (request, response) => {
           return json(response, 400, { error: "action must be 'more' or 'less'." });
         }
 
-        const targetRecord = (index.images || []).find((record) => record.product_id === productId);
+        const targetRecord = (index.images || [])
+          .filter((record) => record.product_id === productId && record.stage_0_result === "product")
+          .sort((a, b) => String(b.confidence_tier || "").localeCompare(String(a.confidence_tier || "")))[0];
         if (!targetRecord?.visual_summary_embedding?.length) {
           return json(response, 404, { error: "Target product embedding not found." });
         }
@@ -1537,18 +2483,27 @@ const server = http.createServer(async (request, response) => {
         query: "",
         parsed,
         index,
+        sourceImageUrl,
         sort: "auto",
         imageAnalysis,
         selectedBullets,
         queryEmbedding: blendedQueryEmbedding,
-        apiKey: process.env.OPENAI_API_KEY
+        apiKey: process.env.OPENAI_API_KEY,
+        rerankerEnabled,
+        includeSourceImage: debug
       });
-      const results = searchResponse.results;
+      const results = filterResultsByRefreshAge(
+        filterResultsByCategory(searchResponse.results, category),
+        refreshAge
+      );
 
       return json(response, 200, {
         action,
+        category_filter: category,
+        refresh_age_filter: refreshAge,
         product_id: productId,
         query_embedding: blendedQueryEmbedding,
+        debug,
         parsed,
         reranker_used: searchResponse.reranker_used,
         total_results: results.length,
@@ -1811,6 +2766,7 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (url.pathname === "/api/analyze-image" && request.method === "POST") {
+    let imageIdentifier = "";
     try {
       const body = await readRequestJson(request);
       const imageDataUrl = String(body.image_data_url || "").trim();
@@ -1827,6 +2783,11 @@ const server = http.createServer(async (request, response) => {
           }
         : null;
       const imageSource = imageDataUrl.startsWith("data:image/") ? imageDataUrl : imageUrl;
+      imageIdentifier = getQueryImageAnalysisIdentifier({
+        imageSource,
+        imageUrl,
+        fileName
+      });
 
       if (!imageSource) {
         return json(response, 400, { error: "Upload an image file or paste an image URL to analyze." });
@@ -1844,15 +2805,75 @@ const server = http.createServer(async (request, response) => {
         matchMode,
         focusArea
       });
+      const traitConflicts = detectTraitTextConflicts(analysis);
 
       return json(response, 200, {
         analysis: {
           ...analysis,
+          trait_conflicts: traitConflicts,
+          clarification_conflict: traitConflicts[0] || null,
           image_preview_url: imageSource
         }
       });
     } catch (error) {
+      if (error instanceof ResolutionGateError) {
+        return json(response, 400, { error: error.message });
+      }
+      if (error instanceof QueryImageAnalysisStageError) {
+        logQueryImageAnalysisFailure({
+          imageIdentifier,
+          stage: error.stage,
+          error
+        });
+        return json(response, 500, { error: QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE });
+      }
       return json(response, 500, { error: error.message || "Image analysis failed." });
+    }
+  }
+
+  if (url.pathname === "/api/trait-correction" && request.method === "POST") {
+    try {
+      const body = await readRequestJson(request);
+      const recordId = createId(
+        "trait_correction",
+        new Date().toISOString(),
+        String(body.image_url || "").trim(),
+        String(body.field || "").trim(),
+        String(body.user_selected_value ?? body.model_extracted_value ?? "").trim()
+      );
+      const focusArea = normalizeFocusAreaPayload(body.focus_area);
+      const persistedImage = await persistTraitCorrectionImageAsset(String(body.image_url || "").trim(), recordId);
+      const nextRecord = {
+        id: recordId,
+        timestamp: new Date().toISOString(),
+        image_url: persistedImage.source_url,
+        stored_image_path: persistedImage.stored_image_path,
+        image_source_kind: persistedImage.source_kind,
+        image_mime_type: persistedImage.mime_type,
+        source_file_name: String(body.source_file_name || "").trim(),
+        focus_area: focusArea,
+        field: String(body.field || "").trim(),
+        model_extracted_value: String(body.model_extracted_value || "").trim(),
+        stage2_free_text: String(body.stage2_free_text || "").trim(),
+        conflict_evidence: String(body.conflict_evidence || "").trim(),
+        user_selected_value: body.user_selected_value == null ? null : String(body.user_selected_value).trim(),
+        was_skipped: Boolean(body.was_skipped),
+        search_query: String(body.search_query || "").trim(),
+        active_bullets: normalizeStructuredBullets(body.active_bullets),
+        training_example_version: 1
+      };
+
+      const existing = await readJson(traitCorrectionsPath, []);
+      const records = Array.isArray(existing) ? existing : [];
+      records.push(nextRecord);
+      await writeJson(traitCorrectionsPath, records);
+
+      return json(response, 200, {
+        ok: true,
+        correction: nextRecord
+      });
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Failed to store trait correction." });
     }
   }
 
@@ -1940,6 +2961,24 @@ const server = http.createServer(async (request, response) => {
     return json(response, 200, reindexState);
   }
 
+  if (url.pathname === "/api/scene-filter-progress" && request.method === "GET") {
+    try {
+      return json(response, 200, await readSceneFilterProgress());
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Scene filter progress unavailable." });
+    }
+  }
+
+  if (url.pathname === "/api/scene-filter-resume" && request.method === "POST") {
+    try {
+      return json(response, 200, await startSceneFilterRunner());
+    } catch (error) {
+      const message = error.message || "Stage 0 scene filter resume failed.";
+      const status = /requires OPENAI_API_KEY|already running|already complete|No Stage 0 checkpoint|No remaining products/.test(message) ? 409 : 500;
+      return json(response, status, { error: message });
+    }
+  }
+
   if (url.pathname === "/api/compose-query" && request.method === "POST") {
     try {
       const body = await readRequestJson(request);
@@ -1955,13 +2994,35 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
+  if (url.pathname === "/api/rewrite-query-traits" && request.method === "POST") {
+    try {
+      const body = await readRequestJson(request);
+      const query = await rewriteQueryFromTraitChanges(
+        body.current_query_text,
+        Array.isArray(body.trait_changes) ? body.trait_changes : [],
+        Array.isArray(body.active_bullets) ? body.active_bullets : [],
+        process.env.OPENAI_API_KEY
+      );
+      return json(response, 200, { query });
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Targeted query rewrite failed." });
+    }
+  }
+
   return serveStatic(url.pathname, response);
 });
+
+await loadLocalEnv();
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "127.0.0.1";
 
-await loadLocalEnv();
+server.on("error", (error) => {
+  if (error?.syscall === "listen") {
+    console.error(`Failed to start server on http://${host}:${port}: ${error.message}`);
+    process.exit(1);
+  }
+});
 
 server.listen(port, host, () => {
   console.log(`Image Search prototype running at http://${host}:${port}`);

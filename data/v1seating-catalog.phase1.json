@@ -1,0 +1,1122 @@
+{
+  "generated_at": "2026-04-15T20:00:48.923Z",
+  "totals": {
+    "products": 5,
+    "images": 58
+  },
+  "brands": [
+    "Keilhauer",
+    "KI Furniture",
+    "SitOnIt Seating"
+  ],
+  "categories": [
+    "Workplace"
+  ],
+  "products": [
+    {
+      "product_id": "product_dp_13890814",
+      "source_system": "designerpages",
+      "source_product_id": "13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "description": "",
+      "raw_category": "High-performing Chairs / Stools :: Workplace",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "product_image": "https://content.designerpages.com/assets/81520754/SkyStool.jpg",
+      "website": "https://designerpages.com/products/13890814",
+      "source_file": "designerpages-live-intake",
+      "image_urls": [
+        "https://content.designerpages.com/assets/81520754/SkyStool.jpg",
+        "https://content.designerpages.com/assets/81520834/SkyStool1ST321769x1024.jpg",
+        "https://content.designerpages.com/assets/81520848/SkyStool1ST3211ST311769x1024.jpg",
+        "https://content.designerpages.com/assets/81520866/SkyStool1ST411blacksil889x1024.jpg",
+        "https://content.designerpages.com/assets/81520889/SkyStool1ST412blackuph889x1024.jpg",
+        "https://content.designerpages.com/assets/81520900/SkyStool1ST811white716x1024.jpg",
+        "https://content.designerpages.com/assets/81520909/SkyStool2ST312blue2694x1024.jpg",
+        "https://content.designerpages.com/assets/81520922/SkyStool2ST321bluelightblue709x1024.jpg"
+      ],
+      "phase1_status": "ready",
+      "phase1_screened_at": "2026-04-15T20:00:38.074Z",
+      "category": "Workplace",
+      "designer_category": "High-performing Chairs / Stools",
+      "primary_category": "Workplace",
+      "categories": {
+        "a": [],
+        "b": [
+          "Workplace"
+        ],
+        "c": [
+          "High-performing Chairs / Stools"
+        ]
+      }
+    },
+    {
+      "product_id": "product_dp_13926718",
+      "source_system": "designerpages",
+      "source_product_id": "13926718",
+      "name": "Doni Task Chair",
+      "brand": "KI Furniture",
+      "description": "",
+      "raw_category": "Other Work Chairs :: Workplace",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "product_image": "https://content.designerpages.com/assets/81724810/wowcabledonitaskconferencecrop.jpg",
+      "website": "https://designerpages.com/products/13926718",
+      "source_file": "designerpages-live-intake",
+      "image_urls": [
+        "https://content.designerpages.com/assets/81724810/wowcabledonitaskconferencecrop.jpg"
+      ],
+      "phase1_status": "ready",
+      "phase1_screened_at": "2026-04-15T20:00:43.860Z",
+      "category": "Workplace",
+      "designer_category": "Other Work Chairs",
+      "primary_category": "Workplace",
+      "categories": {
+        "a": [],
+        "b": [
+          "Workplace"
+        ],
+        "c": [
+          "Other Work Chairs"
+        ]
+      }
+    },
+    {
+      "product_id": "product_dp_13926720",
+      "source_system": "designerpages",
+      "source_product_id": "13926720",
+      "name": "Intellect Wave Task Chair",
+      "brand": "KI Furniture",
+      "description": "",
+      "raw_category": "Other Work Chairs :: Workplace",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "product_image": "https://content.designerpages.com/assets/81320636/ChairClassroomKIIntellectWaveTaskChair.jpg",
+      "website": "https://designerpages.com/products/13926720",
+      "source_file": "designerpages-live-intake",
+      "image_urls": [
+        "https://content.designerpages.com/assets/81320636/ChairClassroomKIIntellectWaveTaskChair.jpg",
+        "https://content.designerpages.com/assets/81724828/3s7a89501440crop.jpg"
+      ],
+      "phase1_status": "ready",
+      "phase1_screened_at": "2026-04-15T20:00:48.916Z",
+      "category": "Workplace",
+      "designer_category": "Other Work Chairs",
+      "primary_category": "Workplace",
+      "categories": {
+        "a": [],
+        "b": [
+          "Workplace"
+        ],
+        "c": [
+          "Other Work Chairs"
+        ]
+      }
+    },
+    {
+      "product_id": "product_dp_14105042",
+      "source_system": "designerpages",
+      "source_product_id": "14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "description": "",
+      "raw_category": "Other Work Chairs :: Workplace",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "product_image": "https://content.designerpages.com/assets/82667486/GalleryRio.png",
+      "website": "https://designerpages.com/products/14105042",
+      "source_file": "designerpages-live-intake",
+      "image_urls": [
+        "https://content.designerpages.com/assets/82667486/GalleryRio.png",
+        "https://content.designerpages.com/assets/82667504/newrioenvironapplewirerodmed.jpg",
+        "https://content.designerpages.com/assets/82667518/newriocafeteriaenvironment.jpg",
+        "https://content.designerpages.com/assets/82667533/newriohigheredenvironment.jpg",
+        "https://content.designerpages.com/assets/82667553/newrioclassroomenvironment.jpg",
+        "https://content.designerpages.com/assets/82667564/breakroom03401500x1500.jpg",
+        "https://content.designerpages.com/assets/82667595/newriomultipurposechairarcticshellmomentumsilicacumulusfront.jpg",
+        "https://content.designerpages.com/assets/82667614/newriomultipurposechairappleshellmomentummillenniumcrispfront.jpg",
+        "https://content.designerpages.com/assets/82667625/newriomultipurposechairappleshellmomentummillenniumcrispback.jpg",
+        "https://content.designerpages.com/assets/82667635/newriomultipurposechairblackshellfront.jpg",
+        "https://content.designerpages.com/assets/82667653/newriomultipurposechairblackshellback.jpg",
+        "https://content.designerpages.com/assets/82667673/newriomultipurposechairsterlingshellcastersfront.jpg",
+        "https://content.designerpages.com/assets/82667682/newriomultipurposechairsterlingshellcastersback.jpg",
+        "https://content.designerpages.com/assets/82667692/newriomultipurposechairlatteshellsoimetrowestminstercastersfront.jpg",
+        "https://content.designerpages.com/assets/82667702/newriomultipurposechairlatteshellsoimetrowestminstercastersback.jpg",
+        "https://content.designerpages.com/assets/82667712/riotabletrotationgallery.jpg",
+        "https://content.designerpages.com/assets/82667724/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+        "https://content.designerpages.com/assets/82667734/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+        "https://content.designerpages.com/assets/82667743/newriolighttaskpacificshellmomentumtraditionsoarfront.jpg",
+        "https://content.designerpages.com/assets/82667752/newriolighttaskpacificshellmomentumtraditionsoarback.jpg",
+        "https://content.designerpages.com/assets/82667760/newriolighttaskarcticshellfront.jpg",
+        "https://content.designerpages.com/assets/82667766/newriolighttaskarcticshellback.jpg",
+        "https://content.designerpages.com/assets/82667775/newriolighttaskslateshellfront.jpg"
+      ],
+      "phase1_status": "ready",
+      "phase1_screened_at": "2026-04-15T20:00:24.630Z",
+      "category": "Workplace",
+      "designer_category": "Other Work Chairs",
+      "primary_category": "Workplace",
+      "categories": {
+        "a": [],
+        "b": [
+          "Workplace"
+        ],
+        "c": [
+          "Other Work Chairs"
+        ]
+      }
+    },
+    {
+      "product_id": "product_dp_14105041",
+      "source_system": "designerpages",
+      "source_product_id": "14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "description": "",
+      "raw_category": "High-performing Chairs / Stools :: Workplace",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "product_image": "https://content.designerpages.com/assets/82667471/GalleryRio.png",
+      "website": "https://designerpages.com/products/14105041",
+      "source_file": "designerpages-live-intake",
+      "image_urls": [
+        "https://content.designerpages.com/assets/82667471/GalleryRio.png",
+        "https://content.designerpages.com/assets/82667481/newrioenvironapplewirerodmed.jpg",
+        "https://content.designerpages.com/assets/82667499/newriocafeteriaenvironment.jpg",
+        "https://content.designerpages.com/assets/82667510/newriohigheredenvironment.jpg",
+        "https://content.designerpages.com/assets/82667531/newrioclassroomenvironment.jpg",
+        "https://content.designerpages.com/assets/82667542/breakroom03401500x1500.jpg",
+        "https://content.designerpages.com/assets/82667576/newriomultipurposechairarcticshellmomentumsilicacumulusfront.jpg",
+        "https://content.designerpages.com/assets/82667589/newriomultipurposechairappleshellmomentummillenniumcrispfront.jpg",
+        "https://content.designerpages.com/assets/82667600/newriomultipurposechairappleshellmomentummillenniumcrispback.jpg",
+        "https://content.designerpages.com/assets/82667616/newriomultipurposechairblackshellfront.jpg",
+        "https://content.designerpages.com/assets/82667627/newriomultipurposechairblackshellback.jpg",
+        "https://content.designerpages.com/assets/82667637/newriomultipurposechairsterlingshellcastersfront.jpg",
+        "https://content.designerpages.com/assets/82667658/newriomultipurposechairsterlingshellcastersback.jpg",
+        "https://content.designerpages.com/assets/82667676/newriomultipurposechairlatteshellsoimetrowestminstercastersfront.jpg",
+        "https://content.designerpages.com/assets/82667685/newriomultipurposechairlatteshellsoimetrowestminstercastersback.jpg",
+        "https://content.designerpages.com/assets/82667697/riotabletrotationgallery.jpg",
+        "https://content.designerpages.com/assets/82667707/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+        "https://content.designerpages.com/assets/82667716/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+        "https://content.designerpages.com/assets/82667725/newriolighttaskpacificshellmomentumtraditionsoarfront.jpg",
+        "https://content.designerpages.com/assets/82667735/newriolighttaskpacificshellmomentumtraditionsoarback.jpg",
+        "https://content.designerpages.com/assets/82667744/newriolighttaskarcticshellfront.jpg",
+        "https://content.designerpages.com/assets/82667754/newriolighttaskarcticshellback.jpg",
+        "https://content.designerpages.com/assets/82667761/newriolighttaskslateshellfront.jpg",
+        "https://content.designerpages.com/assets/82667770/newriolighttaskslateshellback.jpg"
+      ],
+      "phase1_status": "ready",
+      "phase1_screened_at": "2026-04-15T20:00:34.164Z",
+      "category": "Workplace",
+      "designer_category": "High-performing Chairs / Stools",
+      "primary_category": "Workplace",
+      "categories": {
+        "a": [],
+        "b": [
+          "Workplace"
+        ],
+        "c": [
+          "High-performing Chairs / Stools"
+        ]
+      }
+    }
+  ],
+  "images": [
+    {
+      "image_id": "product_dp_13890814_img_001",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520754/SkyStool.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_002",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520834/SkyStool1ST321769x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_003",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520848/SkyStool1ST3211ST311769x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_004",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520866/SkyStool1ST411blacksil889x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_005",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520889/SkyStool1ST412blackuph889x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_006",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520900/SkyStool1ST811white716x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_007",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520909/SkyStool2ST312blue2694x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13890814_img_008",
+      "product_id": "product_dp_13890814",
+      "name": "Sky Stool",
+      "brand": "Keilhauer",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81520922/SkyStool2ST321bluelightblue709x1024.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13926718_img_001",
+      "product_id": "product_dp_13926718",
+      "name": "Doni Task Chair",
+      "brand": "KI Furniture",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81724810/wowcabledonitaskconferencecrop.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13926720_img_001",
+      "product_id": "product_dp_13926720",
+      "name": "Intellect Wave Task Chair",
+      "brand": "KI Furniture",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81320636/ChairClassroomKIIntellectWaveTaskChair.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_13926720_img_002",
+      "product_id": "product_dp_13926720",
+      "name": "Intellect Wave Task Chair",
+      "brand": "KI Furniture",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/81724828/3s7a89501440crop.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_001",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667486/GalleryRio.png",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_002",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667504/newrioenvironapplewirerodmed.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_003",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667518/newriocafeteriaenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_004",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667533/newriohigheredenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_005",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667553/newrioclassroomenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_006",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667564/breakroom03401500x1500.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_007",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667595/newriomultipurposechairarcticshellmomentumsilicacumulusfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_008",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667614/newriomultipurposechairappleshellmomentummillenniumcrispfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_009",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667625/newriomultipurposechairappleshellmomentummillenniumcrispback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_010",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667635/newriomultipurposechairblackshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_011",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667653/newriomultipurposechairblackshellback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_012",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667673/newriomultipurposechairsterlingshellcastersfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_013",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667682/newriomultipurposechairsterlingshellcastersback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_014",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667692/newriomultipurposechairlatteshellsoimetrowestminstercastersfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_015",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667702/newriomultipurposechairlatteshellsoimetrowestminstercastersback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_016",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667712/riotabletrotationgallery.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_017",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667724/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_018",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667734/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_019",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667743/newriolighttaskpacificshellmomentumtraditionsoarfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_020",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667752/newriolighttaskpacificshellmomentumtraditionsoarback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_021",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667760/newriolighttaskarcticshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_022",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667766/newriolighttaskarcticshellback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105042_img_023",
+      "product_id": "product_dp_14105042",
+      "name": "Rio Light Task",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "Other Work Chairs"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667775/newriolighttaskslateshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_001",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667471/GalleryRio.png",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_002",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667481/newrioenvironapplewirerodmed.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_003",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667499/newriocafeteriaenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_004",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667510/newriohigheredenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_005",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667531/newrioclassroomenvironment.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_006",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667542/breakroom03401500x1500.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_007",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667576/newriomultipurposechairarcticshellmomentumsilicacumulusfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_008",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667589/newriomultipurposechairappleshellmomentummillenniumcrispfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_009",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667600/newriomultipurposechairappleshellmomentummillenniumcrispback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_010",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667616/newriomultipurposechairblackshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_011",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667627/newriomultipurposechairblackshellback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_012",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667637/newriomultipurposechairsterlingshellcastersfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_013",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667658/newriomultipurposechairsterlingshellcastersback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_014",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667676/newriomultipurposechairlatteshellsoimetrowestminstercastersfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_015",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667685/newriomultipurposechairlatteshellsoimetrowestminstercastersback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_016",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667697/riotabletrotationgallery.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_017",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667707/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_018",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667716/newriomultipurposechairlagoonshellcasterstabletsilverleftfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_019",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667725/newriolighttaskpacificshellmomentumtraditionsoarfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_020",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667735/newriolighttaskpacificshellmomentumtraditionsoarback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_021",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667744/newriolighttaskarcticshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_022",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667754/newriolighttaskarcticshellback.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_023",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667761/newriolighttaskslateshellfront.jpg",
+      "source_file": "designerpages-live-intake"
+    },
+    {
+      "image_id": "product_dp_14105041_img_024",
+      "product_id": "product_dp_14105041",
+      "name": "Rio Task Stool",
+      "brand": "SitOnIt Seating",
+      "a_level": [],
+      "b_level": [
+        "Workplace"
+      ],
+      "c_level": [
+        "High-performing Chairs / Stools"
+      ],
+      "image_url": "https://content.designerpages.com/assets/82667770/newriolighttaskslateshellback.jpg",
+      "source_file": "designerpages-live-intake"
+    }
+  ]
+}

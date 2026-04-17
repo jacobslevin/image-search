@@ -1,0 +1,589 @@
+{
+  "generated_at": "2026-04-14T19:25:57.831Z",
+  "prompt_version": "shape_character_decision_tree_perspective_guard_v1",
+  "product_count": 58,
+  "reused_count": 5,
+  "fresh_count": 53,
+  "counts": {
+    "Tapered": 12,
+    "Soft / rounded": 36,
+    "Structured / boxy": 10
+  },
+  "results": [
+    {
+      "product_id": "product_c9595708db6b_13985761",
+      "product_name": "Driftâ¢",
+      "hero_url": "https://content.designerpages.com/assets/77828771/a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "filename": "a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The chair's arms and back clearly taper inwards from the seat to the top of the backrest as a deliberate design feature (visible in a straight-on view). Step 2: The back edge and arm forms do not display major curves as whole components—the overall silhouette remains angular with straight lines; only the corners are radiused but not enough to override the tapering.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The chair's arms and back clearly taper inwards from the seat to the top of the backrest as a deliberate design feature (visible in a straight-on view). Step 2: The back edge and arm forms do not display major curves as whole components—the overall silhouette remains angular with straight lines; only the corners are radiused but not enough to override the tapering.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "hero_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg",
+      "filename": "OFSBlush.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any dimension. The arms, seat, and back all maintain parallel lines and widths, so proceed to Step 3. Step 3: The arms show a major curve along their whole form, and the edges are heavily rounded. These would read as rounded even from across a room, so the squint test is passed. There are major curves present, so this classifies as Soft / rounded.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in any dimension. The arms, seat, and back all maintain parallel lines and widths, so proceed to Step 3. Step 3: The arms show a major curve along their whole form, and the edges are heavily rounded. These would read as rounded even from across a room, so the squint test is passed. There are major curves present, so this classifies as Soft / rounded.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_aa8462b9e245_14104979",
+      "product_name": "Gobi",
+      "hero_url": "https://content.designerpages.com/assets/79271543/401.JPG",
+      "filename": "401.JPG",
+      "reused": false,
+      "reasoning": "Step 1: The arms gently angle outward, but the overall body of the chair widens and narrows with sweeping curves rather than straight-line tapering. Step 2: The back edge, as well as the arms and seat, all form major curves — the whole seat and backrest have a rounded, continuous shell shape. The chair's silhouette is dominated by curves, not straight tapers.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The arms gently angle outward, but the overall body of the chair widens and narrows with sweeping curves rather than straight-line tapering. Step 2: The back edge, as well as the arms and seat, all form major curves — the whole seat and backrest have a rounded, continuous shell shape. The chair's silhouette is dominated by curves, not straight tapers.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_735cd52fd346_11612764",
+      "product_name": "MOD Standard Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/77691119/d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "filename": "d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any part of the form when viewed head-on. The back, arms, and seat are all the same width with straight edges. Step 3: No major curves are present. The arms, back, and seat are all made of flat, squared panels, and the overall silhouette is rectilinear. Some edge softening exists, but corners would still appear sharply boxy from across the room (fail the squint test).",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in any part of the form when viewed head-on. The back, arms, and seat are all the same width with straight edges. Step 3: No major curves are present. The arms, back, and seat are all made of flat, squared panels, and the overall silhouette is rectilinear. Some edge softening exists, but corners would still appear sharply boxy from across the room (fail the squint test).\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_450e09e0a581_13946112",
+      "product_name": "Mitt",
+      "hero_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "filename": "mitt_Mitt_PH_12_HR.jpg",
+      "reused": false,
+      "reasoning": "Step 3 applied. There is no straight-line tapering visible in the design, as the form does not deliberately narrow or widen in any direction as a design feature. The overall shape features major curves (the back, seat, and overall body present fully curved continuous forms that would pass the squint test), indicating softness and roundness.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 3 applied. There is no straight-line tapering visible in the design, as the form does not deliberately narrow or widen in any direction as a design feature. The overall shape features major curves (the back, seat, and overall body present fully curved continuous forms that would pass the squint test), indicating softness and roundness.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_75e31df50979_13931105",
+      "product_name": "Ani",
+      "hero_url": "https://content.designerpages.com/assets/78845521/ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "filename": "ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "reused": false,
+      "reasoning": "Step 1: There is no evidence of straight-line tapering in the overall form; the arms and back are parallel and do not narrow or widen deliberately as a design feature. Step 3: The silhouette is mostly made up of straight lines and flat planes. The corners of the arms and seat have some radius, but when applying the squint test, the sofa still reads clearly as a boxy shape with only modest softening at the edges.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  reasoning: \"Step 1: There is no evidence of straight-line tapering in the overall form; the arms and back are parallel and do not narrow or widen deliberately as a design feature. Step 3: The silhouette is mostly made up of straight lines and flat planes. The corners of the arms and seat have some radius, but when applying the squint test, the sofa still reads clearly as a boxy shape with only modest softening at the edges.\",\n  shape_character: \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "hero_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg",
+      "filename": "LOE_dess_wr_07.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The arms and back do show a straight-line taper, narrowing as they rise toward the back, which is a deliberate feature visible independently of camera angle. Step 2: The overall form, arms, and back do not follow major sweeping or bending curves; the only curves are slight edge radii and softening, not full component curves.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The arms and back do show a straight-line taper, narrowing as they rise toward the back, which is a deliberate feature visible independently of camera angle. Step 2: The overall form, arms, and back do not follow major sweeping or bending curves; the only curves are slight edge radii and softening, not full component curves.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg",
+      "filename": "cabana-thumbnail.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering—the back and seat maintain consistent width in their sections, and the arms do not taper or angle. Step 3: The major visible features are rectangular in overall layout, but both the seat, backrest, and the surrounding screen have rounded corners that would still appear soft when squinting from across the room. The rounded corners dominate the visual character against otherwise structured lines.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering—the back and seat maintain consistent width in their sections, and the arms do not taper or angle. Step 3: The major visible features are rectangular in overall layout, but both the seat, backrest, and the surrounding screen have rounded corners that would still appear soft when squinting from across the room. The rounded corners dominate the visual character against otherwise structured lines.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_170c81b60b01_14010180",
+      "product_name": "Puff Puff 67\" Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78341096/pf1_studio_gy_puff-puff-studio-sofa-edwards-light-grey.jpg",
+      "filename": "pf1_studio_gy_puff-puff-studio-sofa-edwards-light-grey.jpg",
+      "reused": true,
+      "shape_character": "Soft / rounded",
+      "reasoning": "Step 1: no clear tapering. Step 3: back and arms are major rounded components, and the roundness still reads from a distance."
+    },
+    {
+      "product_id": "product_4e05d6635070_13931090",
+      "product_name": "Heya Retreat",
+      "hero_url": "https://content.designerpages.com/assets/81061614/OFSHeyawr04.jpg",
+      "filename": "OFSHeyawr04.jpg",
+      "reused": false,
+      "reasoning": "Step 1: Checked for straight-line tapering. All major structural elements (the canopy, side walls, and seat) have parallel sides and do not narrow or widen deliberately — any sense of narrowing at the top is due to the viewing angle, not design. Step 3: Checked for curves. The corners and edges are softly radiused, but if squinting from a distance the silhouette is still composed of straight lines and flat planes. There are no major curves in the backrest, arms, or body as a whole.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: Checked for straight-line tapering. All major structural elements (the canopy, side walls, and seat) have parallel sides and do not narrow or widen deliberately — any sense of narrowing at the top is due to the viewing angle, not design. Step 3: Checked for curves. The corners and edges are softly radiused, but if squinting from a distance the silhouette is still composed of straight lines and flat planes. There are no major curves in the backrest, arms, or body as a whole.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_501f82ca9043_14050069",
+      "product_name": "Seba Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80313611/6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg",
+      "filename": "6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg",
+      "reused": false,
+      "reasoning": "Step 3 applies: There is no clear straight-line tapering in the overall forms; the fronts and backs are essentially parallel, not narrowing or widening in a straight line. Major curves are present—both the backrests and the sides of the chairs have a sweeping, enveloping curve when viewed head-on or from the side. The arms and back form a continuous, curved shell, passing both the major curves and the squint test.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 3 applies: There is no clear straight-line tapering in the overall forms; the fronts and backs are essentially parallel, not narrowing or widening in a straight line. Major curves are present—both the backrests and the sides of the chairs have a sweeping, enveloping curve when viewed head-on or from the side. The arms and back form a continuous, curved shell, passing both the major curves and the squint test.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_f6d4146c84dd_13717521",
+      "product_name": "Saiba Lounge Chair and Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/62199121/Herman_Miller_Saiba_1.jpg",
+      "filename": "Herman_Miller_Saiba_1.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The chair's seat and back do display a genuine tapering—specifically, the back is narrower than the seat as a designed feature (not due to camera angle), and the arms also taper upwards. Step 2: The major structural components (back, arms) are not just straight tapering lines, but curve as a whole—they have an overall sweeping, rounded contour rather than being made up of entirely straight lines. The back and arms both have a major curve present.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The chair's seat and back do display a genuine tapering—specifically, the back is narrower than the seat as a designed feature (not due to camera angle), and the arms also taper upwards. Step 2: The major structural components (back, arms) are not just straight tapering lines, but curve as a whole—they have an overall sweeping, rounded contour rather than being made up of entirely straight lines. The back and arms both have a major curve present.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_9d23ccd3a9ab_13945713",
+      "product_name": "Abra",
+      "hero_url": "https://content.designerpages.com/assets/80963498/CLL03.jpg",
+      "filename": "CLL03.jpg",
+      "reused": false,
+      "reasoning": "Step 1: No clear straight-line tapering detected; the sides do not deliberately narrow or widen in a straight line from any primary view. Step 3: The silhouette is dominated by major curves in the back, arms, and body, visible even with the squint test. The form is smoothly rounded throughout, with no boxy or edged structured elements.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: No clear straight-line tapering detected; the sides do not deliberately narrow or widen in a straight line from any primary view. Step 3: The silhouette is dominated by major curves in the back, arms, and body, visible even with the squint test. The form is smoothly rounded throughout, with no boxy or edged structured elements.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_ef2e358a6a84_14105961",
+      "product_name": "Kithara",
+      "hero_url": "https://content.designerpages.com/assets/82671016/Kithara0.jpg",
+      "filename": "Kithara0.jpg",
+      "reused": false,
+      "reasoning": "Step 1: No straight-line tapering is apparent in the design—the width of the back and the arms appears consistent and parallel, not narrowing or widening as a deliberate feature. This takes us to Step 3. Step 3: The silhouette features straight lines, with no major curves shaping the back, arms, or overall body. Only subtle edge softening (rounded corners) is present, but the overall structure remains rectilinear and would read as boxy from a distance.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  reasoning: \"Step 1: No straight-line tapering is apparent in the design—the width of the back and the arms appears consistent and parallel, not narrowing or widening as a deliberate feature. This takes us to Step 3. Step 3: The silhouette features straight lines, with no major curves shaping the back, arms, or overall body. Only subtle edge softening (rounded corners) is present, but the overall structure remains rectilinear and would read as boxy from a distance.\",\n  shape_character: \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_82daa52c758e_13945979",
+      "product_name": "Becca - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "filename": "c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "reused": false,
+      "reasoning": "Step 3 applies because there is no clear straight-line tapering; the form does not narrow or widen in a straight line as a design feature. The overall silhouette is characterized by major curves in the arms, back, and body of the chair, which are visible even from a distance and would pass the squint test.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 3 applies because there is no clear straight-line tapering; the form does not narrow or widen in a straight line as a design feature. The overall silhouette is characterized by major curves in the arms, back, and body of the chair, which are visible even from a distance and would pass the squint test.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_374f7779ff2b_13890797",
+      "product_name": "Neesh",
+      "hero_url": "https://content.designerpages.com/assets/81066812/Neesh94020WSV2.jpg",
+      "filename": "Neesh94020WSV2.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The backrest of the chair clearly tapers—widening from the top down to the seat in a straight line as a deliberate design feature. Step 2: The overall back and seat surfaces have gentle, continuous curves, especially in the transition between seat, back, and arms. The entire shell and arms appear softly rounded. Major curves are present in whole structural elements, overriding the tapering.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The backrest of the chair clearly tapers—widening from the top down to the seat in a straight line as a deliberate design feature. Step 2: The overall back and seat surfaces have gentle, continuous curves, especially in the transition between seat, back, and arms. The entire shell and arms appear softly rounded. Major curves are present in whole structural elements, overriding the tapering.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_58f1505a9747_13890787",
+      "product_name": "Hout",
+      "hero_url": "https://content.designerpages.com/assets/81445858/KHHout.jpg",
+      "filename": "KHHout.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The legs clearly taper as a deliberate design feature, narrowing from top to bottom. Step 2: While the upholstered seat and back have some soft curves, the legs (which are the main tapered parts) run in straight lines and do not curve as whole components. The arms are mostly straight and flat. Therefore, no major structural curves override the tapering.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  reasoning: \"Step 1: The legs clearly taper as a deliberate design feature, narrowing from top to bottom. Step 2: While the upholstered seat and back have some soft curves, the legs (which are the main tapered parts) run in straight lines and do not curve as whole components. The arms are mostly straight and flat. Therefore, no major structural curves override the tapering.\",\n  shape_character: \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_0196e5710d1b_10870591",
+      "product_name": "Conexus High Back Upholstered Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/70745111/087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "filename": "087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "reused": true,
+      "shape_character": "Tapered",
+      "reasoning": "Step 1: seat, back, and arms taper in straight lines as designed. Step 2: curved edges exist, but the overall structural paths are still straight and tapering rather than sweeping curves."
+    },
+    {
+      "product_id": "product_5cfec51f1afa_13931161",
+      "product_name": "Kasura - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78184394/OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "filename": "OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The back and arms both exhibit a form that gently narrows from the seat toward the top and rear, indicating genuine straight-line tapering as a design feature. Step 2: Evaluating curves only in overall components, the back and arms as whole forms are gently curved (they wrap in a smooth, rounded shape rather than running in straight lines), so major curves are present in the structure.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 1: The back and arms both exhibit a form that gently narrows from the seat toward the top and rear, indicating genuine straight-line tapering as a design feature. Step 2: Evaluating curves only in overall components, the back and arms as whole forms are gently curved (they wrap in a smooth, rounded shape rather than running in straight lines), so major curves are present in the structure.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_cae9f57cb82f_13945982",
+      "product_name": "Belmont",
+      "hero_url": "https://content.designerpages.com/assets/78877674/BelmontPhoto19HR.jpg",
+      "filename": "BelmontPhoto19HR.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The form of the chair shows deliberate tapering—specifically, the arms and the base of the seat narrow slightly towards the back as a design feature, visible even from a front elevation view. Step 2: There are no major curves in the structural components; the lines of the arms and back are straight, with only subtle rounding at the edges which do not constitute a sweeping curve for the whole form.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The form of the chair shows deliberate tapering—specifically, the arms and the base of the seat narrow slightly towards the back as a design feature, visible even from a front elevation view. Step 2: There are no major curves in the structural components; the lines of the arms and back are straight, with only subtle rounding at the edges which do not constitute a sweeping curve for the whole form.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_ea784919b15d_13945968",
+      "product_name": "Astra",
+      "hero_url": "https://content.designerpages.com/assets/77808813/26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "filename": "26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "reused": false,
+      "reasoning": "Step 1: The form genuinely tapers—this chair narrows as it goes from base up to the upper edge, which is a deliberate design feature. Step 2: The back and arms both follow a smoothly curved, sweeping path as whole components (not just rounded corners but entirely curved forms), so major curves are present.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 1: The form genuinely tapers—this chair narrows as it goes from base up to the upper edge, which is a deliberate design feature. Step 2: The back and arms both follow a smoothly curved, sweeping path as whole components (not just rounded corners but entirely curved forms), so major curves are present.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_f68c5d59f02d_13944731",
+      "product_name": "Parallel Lounge",
+      "hero_url": "https://content.designerpages.com/assets/71079931/4d340b5b-2c33-4d3f-b69c-f14aa8e2d7fd.jpg",
+      "filename": "4d340b5b-2c33-4d3f-b69c-f14aa8e2d7fd.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no straight-line tapering visible in the sofa's form; the arms and back are parallel and maintain consistent width in a straight-on view. Step 3: There are no major curves or sweeping rounded components. The form is highly rectilinear, and the corners appear crisp and squared even when squinting. Edge softening is minimal and does not dominate the silhouette.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no straight-line tapering visible in the sofa's form; the arms and back are parallel and maintain consistent width in a straight-on view. Step 3: There are no major curves or sweeping rounded components. The form is highly rectilinear, and the corners appear crisp and squared even when squinting. Edge softening is minimal and does not dominate the silhouette.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_3704838b4f42_13946006",
+      "product_name": "Chiara",
+      "hero_url": "https://content.designerpages.com/assets/53054942/chiara_12.jpg",
+      "filename": "chiara_12.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The form does not clearly narrow or widen in a straight line in any dimension—there is no obvious straight-line tapering visible from the front. Step 3: The entire back, arms, and seat body are majorly curved, creating an overall rounded silhouette, not just softened edges. Even squinting from afar, the chair appears round and curved.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The form does not clearly narrow or widen in a straight line in any dimension—there is no obvious straight-line tapering visible from the front. Step 3: The entire back, arms, and seat body are majorly curved, creating an overall rounded silhouette, not just softened edges. Even squinting from afar, the chair appears round and curved.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_57ce0e255162_14050067",
+      "product_name": "Sachet Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79004232/C18DAVISSACHETMIDBACK.jpg",
+      "filename": "C18DAVISSACHETMIDBACK.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The chair form clearly narrows from the seat to the top of the backrest and the arms also taper from front to back as actual design features, not due to camera angle, so Step 2 applies. Step 2: The main structural lines of the back and arms run in straight lines; there is no major curvature in the back edge, arms, or shell (there are only small radiused corners at the top edges, but these are not major curves affecting the whole component).",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  reasoning: \"Step 1: The chair form clearly narrows from the seat to the top of the backrest and the arms also taper from front to back as actual design features, not due to camera angle, so Step 2 applies. Step 2: The main structural lines of the back and arms run in straight lines; there is no major curvature in the back edge, arms, or shell (there are only small radiused corners at the top edges, but these are not major curves affecting the whole component).\",\n  shape_character: \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_9bbf0f4416cc_13884211",
+      "product_name": "Axial Modular Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81468425/AxialModularSofa0.jpg",
+      "filename": "AxialModularSofa0.jpg",
+      "reused": true,
+      "shape_character": "Structured / boxy",
+      "reasoning": "Step 1: no deliberate tapering; back and arms stay parallel in a straight-on reading. Step 3: straight rectangular volumes; corners only gently softened and fail the squint test."
+    },
+    {
+      "product_id": "product_99030faaf1a2_13945981",
+      "product_name": "Becca - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78880902/BeccaPhoto18HR.jpg",
+      "filename": "BeccaPhoto18HR.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The sofa form genuinely widens from the base toward the arms and has straight-line tapering on the sides. Step 2: The entire back and arms each are curved as whole components—there are major sweeping curves. According to the decision tree, major curves in whole components override the tapering.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The sofa form genuinely widens from the base toward the arms and has straight-line tapering on the sides. Step 2: The entire back and arms each are curved as whole components—there are major sweeping curves. According to the decision tree, major curves in whole components override the tapering.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_0164528e3518_11819235",
+      "product_name": "Platner Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78555632/Thumbplatnerloungechairthumb5.png",
+      "filename": "Thumbplatnerloungechairthumb5.png",
+      "reused": false,
+      "reasoning": "Step 1: The base of the chair clearly tapers as a design feature, narrowing towards the bottom. Step 2: The entire upholstered shell and back/arms form a continuous, major curve that sweeps around in a soft, rounded path, overriding any tapering in the base.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 1: The base of the chair clearly tapers as a design feature, narrowing towards the bottom. Step 2: The entire upholstered shell and back/arms form a continuous, major curve that sweeps around in a soft, rounded path, overriding any tapering in the base.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_e83fa8d91705_14049343",
+      "product_name": "A-Bench - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/82362660/621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "filename": "621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in the seat, back, or arms; the sides run parallel and do not narrow or widen deliberately as a design feature. Step 3: The major components (arms and back) feature rounded, continuous curves that would remain visible even when squinting; the silhouette is not boxy, and the curves are dominant features.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in the seat, back, or arms; the sides run parallel and do not narrow or widen deliberately as a design feature. Step 3: The major components (arms and back) feature rounded, continuous curves that would remain visible even when squinting; the silhouette is not boxy, and the curves are dominant features.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_1f29aaa671ce_14057734",
+      "product_name": "Clipse",
+      "hero_url": "https://content.designerpages.com/assets/82415261/627006600x600.jpg",
+      "filename": "627006600x600.jpg",
+      "reused": true,
+      "shape_character": "Tapered",
+      "reasoning": "Step 1: clear deliberate straight-line tapering in back and arms. Step 2: no major sweeping curves, only minor softened edges."
+    },
+    {
+      "product_id": "product_07cd4ea59111_14107462",
+      "product_name": "Jovalie",
+      "hero_url": "https://content.designerpages.com/assets/79900300/Jovalie2.png",
+      "filename": "Jovalie2.png",
+      "reused": false,
+      "reasoning": "Step 1: No straight-line tapering is present—the form does not clearly narrow or widen in any dimension; the back and arms maintain consistent width. Step 3: The whole body and back have major smooth curves, forming a continuous rounded silhouette. This is not limited to corner radiusing; the primary structure is curved.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: No straight-line tapering is present—the form does not clearly narrow or widen in any dimension; the back and arms maintain consistent width. Step 3: The whole body and back have major smooth curves, forming a continuous rounded silhouette. This is not limited to corner radiusing; the primary structure is curved.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_387e5dd376f4_13802237",
+      "product_name": "JINX Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/78687203/jinxsoftseating2018d202104151349715ale3r.jpeg",
+      "filename": "jinxsoftseating2018d202104151349715ale3r.jpeg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering visible; the silhouette does not deliberately narrow or widen as a major design feature. Step 3: The overall body and components are highly curved, with major curves in the back, arms, and general shape — even when squinting, the silhouette appears soft and rounded with no boxy or structured features.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering visible; the silhouette does not deliberately narrow or widen as a major design feature. Step 3: The overall body and components are highly curved, with major curves in the back, arms, and general shape — even when squinting, the silhouette appears soft and rounded with no boxy or structured features.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "filename": "PreludeLoungeImageGallery183.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering visible in any dimension; the seat, arms, and back form a continuous, voluminous shape rather than tapering to a narrower end. Step 3: The entire body, arms, and back form are comprised of major sweeping curves, with no hard edges or boxy lines. The soft curves would remain visible even when squinting or viewing from a distance.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering visible in any dimension; the seat, arms, and back form a continuous, voluminous shape rather than tapering to a narrower end. Step 3: The entire body, arms, and back form are comprised of major sweeping curves, with no hard edges or boxy lines. The soft curves would remain visible even when squinting or viewing from a distance.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_ec05ab4a8b9a_13946102",
+      "product_name": "Luca - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78075896/LucaSofa_Drawing_01_LR20191205-26989-1ovvkca.jpeg",
+      "filename": "LucaSofa_Drawing_01_LR20191205-26989-1ovvkca.jpeg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any dimension; the back and seat are consistently wide, and the arms do not narrow from front to back as a design feature. Step 3: The arms and back have major curves — the entire arms sweep outward in a curved form, not just at the corners. This passes the squint test, as the rounded silhouette is prominent at a distance.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 1: There is no clear straight-line tapering in any dimension; the back and seat are consistently wide, and the arms do not narrow from front to back as a design feature. Step 3: The arms and back have major curves — the entire arms sweep outward in a curved form, not just at the corners. This passes the squint test, as the rounded silhouette is prominent at a distance.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_686e4be74777_13945990",
+      "product_name": "Bombom",
+      "hero_url": "https://content.designerpages.com/assets/78044437/Bombom_Drawing_01_LR20191118-956-ba19f2.jpeg",
+      "filename": "Bombom_Drawing_01_LR20191118-956-ba19f2.jpeg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering; the chair's form does not narrow or widen in a straight line as a design feature. Move to Step 3. Step 3: The overall body, back, and arms are majorly curved. Even when applying the squint test, the silhouette remains rounded rather than structured or boxy.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering; the chair's form does not narrow or widen in a straight line as a design feature. Move to Step 3. Step 3: The overall body, back, and arms are majorly curved. Even when applying the squint test, the silhouette remains rounded rather than structured or boxy.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_4a3593a321bc_13909365",
+      "product_name": "CÄav",
+      "hero_url": "https://content.designerpages.com/assets/80506960/jsicaavcomp00002.jpg",
+      "filename": "jsicaavcomp00002.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering—neither the arms nor the back narrow or widen significantly as a design feature; any change in width appears to be due to perspective, not intentional tapering. Step 3: The arms, back, and body all show pronounced curves and rounded shapes that would be evident even from a distance (squint test). These are major curves in structural components.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering—neither the arms nor the back narrow or widen significantly as a design feature; any change in width appears to be due to perspective, not intentional tapering. Step 3: The arms, back, and body all show pronounced curves and rounded shapes that would be evident even from a distance (squint test). These are major curves in structural components.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_922c48edb7c8_13958173",
+      "product_name": "Flote Sofa - Three-Seat",
+      "hero_url": "https://content.designerpages.com/assets/81940989/FloteSofaThreeSeat01.jpg",
+      "filename": "FloteSofaThreeSeat01.jpg",
+      "reused": true,
+      "shape_character": "Soft / rounded",
+      "reasoning": "Step 3: no clear tapering. Major curves in the arms/body and heavily rounded corners dominate the silhouette."
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "hero_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg",
+      "filename": "JSITeekanTwoSeat.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any major element; both the arms and back run parallel without narrowing or widening as a design element. Step 3: Examined overall form for curves. There are no major curves present in the arms, back, or body—these components are straight-edged and rectilinear. Corner radii are very subtle and would likely disappear when squinting from a distance, so they do not override the fundamentally boxy silhouette.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in any major element; both the arms and back run parallel without narrowing or widening as a design element. Step 3: Examined overall form for curves. There are no major curves present in the arms, back, or body—these components are straight-edged and rectilinear. Corner radii are very subtle and would likely disappear when squinting from a distance, so they do not override the fundamentally boxy silhouette.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_2c5a390f0e66_13989642",
+      "product_name": "Poppy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75537041/54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "filename": "54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no obvious straight-line tapering; the arms and back are not designed to narrow or widen in a straight line as a major feature. Step 3: The chair features major curves in the body—particularly in the backrest and arms, which are smoothly rounded and curving as whole components. The corners are clearly rounded and would appear so even when squinting from across the room.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 1: There is no obvious straight-line tapering; the arms and back are not designed to narrow or widen in a straight line as a major feature. Step 3: The chair features major curves in the body—particularly in the backrest and arms, which are smoothly rounded and curving as whole components. The corners are clearly rounded and would appear so even when squinting from across the room.\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_0f7b9724f200_13958701",
+      "product_name": "Gimbal Lounge Chair, Highback - Rocker Base",
+      "hero_url": "https://content.designerpages.com/assets/81942209/HTGM005GimbalHighbackLoungeRocker01.jpg",
+      "filename": "HTGM005GimbalHighbackLoungeRocker01.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The form does taper; the chair's back is clearly narrower at the top compared to the seat at the bottom, as a deliberate design feature, not due to perspective. Step 2: The overall body of the chair is highly curved, especially the base, sides, and back, which all sweep smoothly in one continuous curve as whole components. This presence of major curves overrides the tapering.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The form does taper; the chair's back is clearly narrower at the top compared to the seat at the bottom, as a deliberate design feature, not due to perspective. Step 2: The overall body of the chair is highly curved, especially the base, sides, and back, which all sweep smoothly in one continuous curve as whole components. This presence of major curves overrides the tapering.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_bb5e85c3bec5_13717519",
+      "product_name": "Reframe Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/79337945/ProductImage.PNG",
+      "filename": "ProductImage.PNG",
+      "reused": false,
+      "reasoning": "Step 1: The arms and legs clearly taper in a straight line, as the arms angle inward from front to back and the legs narrow towards the floor. Step 2: While the arms and body have visibly radiused/rounded edges, the overall structural forms (arms and back) do not sweep or bend—these are straight components with softened, not fully curved, forms. Thus, there are no major overall curves in the structural components.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The arms and legs clearly taper in a straight line, as the arms angle inward from front to back and the legs narrow towards the floor. Step 2: While the arms and body have visibly radiused/rounded edges, the overall structural forms (arms and back) do not sweep or bend—these are straight components with softened, not fully curved, forms. Thus, there are no major overall curves in the structural components.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_4755720d5ee2_13909356",
+      "product_name": "Arwyn",
+      "hero_url": "https://content.designerpages.com/assets/79048787/JSIArwynCrossoverLounge.jpg",
+      "filename": "JSIArwynCrossoverLounge.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The chair form does genuinely taper; the back is clearly narrower than the seat, and the arms angle outward from back to front as a deliberate design feature, not due to camera angle. Step 2: There are no major curves in the arms or back; the main components follow straight lines with some radiused corners, but the overall silhouette is not dominantly curved.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The chair form does genuinely taper; the back is clearly narrower than the seat, and the arms angle outward from back to front as a deliberate design feature, not due to camera angle. Step 2: There are no major curves in the arms or back; the main components follow straight lines with some radiused corners, but the overall silhouette is not dominantly curved.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_d7617cf8df24_13933447",
+      "product_name": "Elara - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80675978/CARElaralounge9821S010.jpg",
+      "filename": "CARElaralounge9821S010.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The arms and back of the chair clearly taper from the seat base up to the top (back is narrower than the seat in a straight line). Step 2: There are no major curves in the back, arms, or body as entire components—the form is mainly defined by straight lines with radiused (rounded) corners. Therefore, the piece is classified as Tapered, since only edge softening is present and no major curves override the straight-line tapering.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The arms and back of the chair clearly taper from the seat base up to the top (back is narrower than the seat in a straight line). Step 2: There are no major curves in the back, arms, or body as entire components—the form is mainly defined by straight lines with radiused (rounded) corners. Therefore, the piece is classified as Tapered, since only edge softening is present and no major curves override the straight-line tapering.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "reused": false,
+      "reasoning": "Step 1: Checked for straight-line tapering. The arms and back do not narrow or widen in a straight line as a deliberate design feature; the shape appears parallel and does not taper in a significant way. Proceeded to Step 3. Step 3: Checked for curves. The back and arms are mostly straight, with only the corners slightly rounded. If squinting from a distance, the overall silhouette would still appear boxy, as curves are minor and limited to corner radius rather than major sweeping curves.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: Checked for straight-line tapering. The arms and back do not narrow or widen in a straight line as a deliberate design feature; the shape appears parallel and does not taper in a significant way. Proceeded to Step 3. Step 3: Checked for curves. The back and arms are mostly straight, with only the corners slightly rounded. If squinting from a distance, the overall silhouette would still appear boxy, as curves are minor and limited to corner radius rather than major sweeping curves.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_b0bec9ec4ab6_14050073",
+      "product_name": "Soft Privacy",
+      "hero_url": "https://content.designerpages.com/assets/78266072/DAVIS_SOFTPRIVACY.jpg",
+      "filename": "DAVIS_SOFTPRIVACY.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The chair clearly tapers—the base noticeably narrows downward in a straight line as a deliberate design feature. Step 2: The upper upholstered section, which includes the back and arms, forms a continuous soft curve rather than a straight line, with the entire upper shell visibly curved as a design statement. Major curves in whole components override tapering.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The chair clearly tapers—the base noticeably narrows downward in a straight line as a deliberate design feature. Step 2: The upper upholstered section, which includes the back and arms, forms a continuous soft curve rather than a straight line, with the entire upper shell visibly curved as a design statement. Major curves in whole components override tapering.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_0d66b33a0bf2_14049534",
+      "product_name": "Arcular - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80873346/6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "filename": "6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The form does not clearly narrow or widen in a straight line in any dimension; there is no straight-line tapering in the back, seat, or arms as a design feature. Proceeded to Step 3. Step 3: The back and arms both have a major continuous curve forming the overall shell, and the corners would still appear rounded even if squinting from afar. The overall impression is soft and rounded rather than structured/boxy.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The form does not clearly narrow or widen in a straight line in any dimension; there is no straight-line tapering in the back, seat, or arms as a design feature. Proceeded to Step 3. Step 3: The back and arms both have a major continuous curve forming the overall shell, and the corners would still appear rounded even if squinting from afar. The overall impression is soft and rounded rather than structured/boxy.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_fc112c135d70_13890748",
+      "product_name": "ABL",
+      "hero_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "filename": "ABL.jpg",
+      "reused": false,
+      "reasoning": "Step 3 applied. There is no noticeable straight-line tapering in any dimension; the back and seat are roughly parallel, and arms do not angle or taper front to back. The major forms (arms and seat) have visible curves – the arms sweep gently out and downward, and the seat body is rounded, not a strict box even from a distance. The back, seat, and arms would still look curved if you squinted from across a room (they pass the squint test).",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  reasoning: \"Step 3 applied. There is no noticeable straight-line tapering in any dimension; the back and seat are roughly parallel, and arms do not angle or taper front to back. The major forms (arms and seat) have visible curves – the arms sweep gently out and downward, and the seat body is rounded, not a strict box even from a distance. The back, seat, and arms would still look curved if you squinted from across a room (they pass the squint test).\",\n  shape_character: \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_f9b43e62b30e_13946003",
+      "product_name": "Chapelle - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81879528/ChapelleImageGallery021.jpg",
+      "filename": "ChapelleImageGallery021.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The side/back panel of the seating piece appears to taper as it rises, becoming noticeably narrower at the top—this is a genuine design feature and not due to camera angle. Step 2: There are no major curves in the structural components; the back and side appear to rise in straight lines with only moderate corner rounding (not a major curve dominating the form).",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The side/back panel of the seating piece appears to taper as it rises, becoming noticeably narrower at the top—this is a genuine design feature and not due to camera angle. Step 2: There are no major curves in the structural components; the back and side appear to rise in straight lines with only moderate corner rounding (not a major curve dominating the form).\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_8257b15cd55d_14097275",
+      "product_name": "Bowie Armchair",
+      "hero_url": "https://content.designerpages.com/assets/82581437/C14B.jpg",
+      "filename": "C14B.jpg",
+      "reused": false,
+      "reasoning": "Step 1: The form of the arms and base does taper slightly, but more importantly, the major structural components such as the arms and lower frame follow a curved path. The backrest and seat also exhibit significant curvature in their overall shapes, not just in their edges or corners. Step 2: Since entire components are curved as a whole, the presence of major curves overrides tapering.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: The form of the arms and base does taper slightly, but more importantly, the major structural components such as the arms and lower frame follow a curved path. The backrest and seat also exhibit significant curvature in their overall shapes, not just in their edges or corners. Step 2: Since entire components are curved as a whole, the presence of major curves overrides tapering.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_2e42b4a4a525_14097276",
+      "product_name": "Fuuga Nesting Armchair",
+      "hero_url": "https://content.designerpages.com/assets/82581458/C09.jpg",
+      "filename": "C09.jpg",
+      "reused": false,
+      "reasoning": "Step 3 applied. There is no clear straight-line tapering in any dimension; the back and arms rise as a continuous curve around the seat, and the overall shell is distinctly curved rather than structured or sharply angular. The major body components (arms, back) are defined by sweeping curves that would still appear rounded when squinting from across the room.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 3 applied. There is no clear straight-line tapering in any dimension; the back and arms rise as a continuous curve around the seat, and the overall shell is distinctly curved rather than structured or sharply angular. The major body components (arms, back) are defined by sweeping curves that would still appear rounded when squinting from across the room.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_369be2770571_14050009",
+      "product_name": "JP Lounge - Privacy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82365446/621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "filename": "621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any structural component visible in a front or side view—the back and seat are parallel, and the arms rise straight up. Step 3: While the cushions have some soft curvature and the arm cushions are lightly curved, the high outer shell and legs are strictly rectilinear, with squared-off corners that would still read as squared when squinting from a distance. The overall silhouette is defined by straight lines and angles rather than curves.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in any structural component visible in a front or side view—the back and seat are parallel, and the arms rise straight up. Step 3: While the cushions have some soft curvature and the arm cushions are lightly curved, the high outer shell and legs are strictly rectilinear, with squared-off corners that would still read as squared when squinting from a distance. The overall silhouette is defined by straight lines and angles rather than curves.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_3e280432f637_91254",
+      "product_name": "Iris",
+      "hero_url": "https://content.designerpages.com/assets/82668660/igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "filename": "igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "reused": false,
+      "reasoning": "Step 1 — The form clearly narrows in a straight line from the wider seat to the narrower top of the backrest, indicating tapered design. Step 2 — There are no major overall curves in the structure; the back and arms follow straight lines with only minor edge softening. Radiused corners do not override the visible straight tapering.",
+      "shape_character": "Tapered",
+      "raw_response": "{\n  \"reasoning\": \"Step 1 — The form clearly narrows in a straight line from the wider seat to the narrower top of the backrest, indicating tapered design. Step 2 — There are no major overall curves in the structure; the back and arms follow straight lines with only minor edge softening. Radiused corners do not override the visible straight tapering.\",\n  \"shape_character\": \"Tapered\"\n}"
+    },
+    {
+      "product_id": "product_274381eca4e4_13890830",
+      "product_name": "Verge",
+      "hero_url": "https://content.designerpages.com/assets/78931170/Verge.jpg",
+      "filename": "Verge.jpg",
+      "reused": false,
+      "reasoning": "Step 3 applied. There is no evident straight-line tapering in the overall form when considering a straight-on view. The back, seat, and arms all have major, continuous curves as primary design features. The entire body appears notably rounded and soft, not just at the corners but in the main structure itself.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 3 applied. There is no evident straight-line tapering in the overall form when considering a straight-on view. The back, seat, and arms all have major, continuous curves as primary design features. The entire body appears notably rounded and soft, not just at the corners but in the main structure itself.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "reused": false,
+      "reasoning": "Step 1: No clear straight-line tapering is detected in the seat or back; both retain consistent width and shape in any direct view. Step 3: The seat and back have major soft curves, and the corners are visibly rounded even if viewed from a distance (they would pass the squint test). The silhouette is dominated by smooth, flowing, rounded shapes rather than hard angles or flat planes.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: No clear straight-line tapering is detected in the seat or back; both retain consistent width and shape in any direct view. Step 3: The seat and back have major soft curves, and the corners are visibly rounded even if viewed from a distance (they would pass the squint test). The silhouette is dominated by smooth, flowing, rounded shapes rather than hard angles or flat planes.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_f1b4cb162ed4_13959657",
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "hero_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "filename": "ChairLoungeHightowerNest.JPG",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering present—the seat and back are roughly the same width and the silhouette is vertical without a deliberate narrowing or widening. Moved to Step 3. Step 3: The back and arms exhibit strong, continuous curves that would remain visible if squinting from a distance (not just softened edges). The entire body has a rounded, cocoon-like form.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering present—the seat and back are roughly the same width and the silhouette is vertical without a deliberate narrowing or widening. Moved to Step 3. Step 3: The back and arms exhibit strong, continuous curves that would remain visible if squinting from a distance (not just softened edges). The entire body has a rounded, cocoon-like form.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_5e3ba5935350_13946067",
+      "product_name": "Harmony Classic - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/77953117/a92ac0b2-b192-49e5-abd3-07518e0fc543.jpg",
+      "filename": "a92ac0b2-b192-49e5-abd3-07518e0fc543.jpg",
+      "reused": false,
+      "reasoning": "Step 1 — There is no straight-line tapering present; the arms, back, and seat are all parallel and maintain consistent dimensions across their lengths. Step 3 — There are no major curves in the body, arms, or back; the silhouette is formed by straight lines with only slightly softened corners that fail the squint test, as the edges still read as boxy from a distance.",
+      "shape_character": "Structured / boxy",
+      "raw_response": "{\n  \"reasoning\": \"Step 1 — There is no straight-line tapering present; the arms, back, and seat are all parallel and maintain consistent dimensions across their lengths. Step 3 — There are no major curves in the body, arms, or back; the silhouette is formed by straight lines with only slightly softened corners that fail the squint test, as the edges still read as boxy from a distance.\",\n  \"shape_character\": \"Structured / boxy\"\n}"
+    },
+    {
+      "product_id": "product_77f37a7c9e40_14010227",
+      "product_name": "Acre Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/82224394/ac1lngchrma34frontlow.jpg",
+      "filename": "ac1lngchrma34frontlow.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in the major components. The seat, back, and arms maintain consistent width or gently curve rather than narrowing or widening in a straight line. Step 3: The entire shell of the chair is formed as a continuous curve, with the arms and back curving smoothly as whole forms. The corners are fully rounded and would look soft even from across the room.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in the major components. The seat, back, and arms maintain consistent width or gently curve rather than narrowing or widening in a straight line. Step 3: The entire shell of the chair is formed as a continuous curve, with the arms and back curving smoothly as whole forms. The corners are fully rounded and would look soft even from across the room.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_c65ef43d7c1d_13959752",
+      "product_name": "Flote Sofa, Two-Seat - Zipper Detail",
+      "hero_url": "https://content.designerpages.com/assets/81944959/HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "filename": "HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no straight-line tapering present; the arms and back do not narrow or widen in a straight line as a design feature. Step 3: The major components (arms, back, and seat) all follow curved forms, and the entire silhouette appears rounded even when viewed from afar (passes squint test).",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no straight-line tapering present; the arms and back do not narrow or widen in a straight line as a design feature. Step 3: The major components (arms, back, and seat) all follow curved forms, and the entire silhouette appears rounded even when viewed from afar (passes squint test).\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    },
+    {
+      "product_id": "product_a2738837a6b6_13886928",
+      "product_name": "Arbour Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81500149/thprdarboursofaloungeseatingfn.jpg",
+      "filename": "thprdarboursofaloungeseatingfn.jpg",
+      "reused": false,
+      "reasoning": "Step 1: There is no clear straight-line tapering in any dimension; the arms and back are parallel and the form does not narrow or widen as a design feature. Step 3: The sofa has major curves in the form of rounded, overstuffed cushions on both the arms and back—these would clearly appear rounded even from across the room, passing the squint test. There are no subtle radiused corners—these are significant soft shapes.",
+      "shape_character": "Soft / rounded",
+      "raw_response": "{\n  \"reasoning\": \"Step 1: There is no clear straight-line tapering in any dimension; the arms and back are parallel and the form does not narrow or widen as a design feature. Step 3: The sofa has major curves in the form of rounded, overstuffed cushions on both the arms and back—these would clearly appear rounded even from across the room, passing the squint test. There are no subtle radiused corners—these are significant soft shapes.\",\n  \"shape_character\": \"Soft / rounded\"\n}"
+    }
+  ]
+}

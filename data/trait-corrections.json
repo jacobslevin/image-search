@@ -1,0 +1,106 @@
+[
+  {
+    "timestamp": "2026-04-15T15:56:24.227Z",
+    "image_url": "https://content.designerpages.com/assets/82249548/FelixSilo07scaledREV.jpg",
+    "field": "base_visibility",
+    "model_extracted_value": "exposed",
+    "stage2_free_text": "This piece features a long, low, and continuous silhouette with a fully upholstered body. The back and arms are integrated into a single, gently curved form that wraps around the seat, creating a seamless enclosure. The seat is thick and plush, running the full width of the piece, with rounded edges and no visible separation between seat and back. The arms are low and slope smoothly from the back, with no distinct break or joint. The support structure consists of short, cylindrical legs that are set back from the edges, giving the appearance of the body floating slightly above the ground. The overall form is soft, with no sharp corners or hard lines, and the surface character is smooth and uniform.",
+    "conflict_evidence": "floating",
+    "user_selected_value": "integrated",
+    "was_skipped": false,
+    "search_query": "This piece features a long, low, and continuous silhouette with a fully upholstered body. The back and arms are integrated into a single, gently curved form that wraps around the seat, creating a seamless enclosure. The seat is thick and plush, running the full width of the piece, with rounded edges and no visible separation between seat and back. The arms are low and slope smoothly from the back, with no distinct break or joint. The support structure consists of short, cylindrical legs that are set back from the edges, giving the appearance of the body floating slightly above the ground. The overall form is soft, with no sharp corners or hard lines, and the surface character is smooth and uniform.",
+    "active_bullets": {
+      "essential": [
+        "body construction: upholstered",
+        "arm configuration: integrated / sculpted",
+        "back height: low",
+        "configuration: multi-seat / sofa",
+        "base visibility: exposed"
+      ],
+      "normal": [
+        "seat upholstery: fabric",
+        "back upholstery: matches seat",
+        "design register: minimal",
+        "shape character: soft / tapered",
+        "plan shape: round / semicircular",
+        "base material: wood"
+      ],
+      "low": [
+        "base type: 4-leg",
+        "base finish: wood"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-04-16T03:49:29.692Z",
+    "image_url": "https://content.designerpages.com/assets/81878667/AstraImageGallery151.jpg",
+    "field": "base_visibility",
+    "model_extracted_value": "integrated",
+    "stage2_free_text": "This lounge chair features a continuous, fully upholstered shell that forms a unified seat, back, and arm structure. The silhouette is softly rounded with a gentle taper from a wider seat front to a slightly narrower back, creating a welcoming, enveloping form. The backrest curves smoothly around the sides, integrating low arms into the overall shape without any visible separation. The base is visually absorbed into the body, with no discrete legs or pedestal visible, giving the chair a grounded, monolithic appearance. The seat cushion is thick and plush, matching the upholstery of the shell, and the overall form is free of sharp corners or angular transitions.",
+    "conflict_evidence": "pedestal",
+    "user_selected_value": "integrated",
+    "was_skipped": false,
+    "search_query": "This lounge chair features a continuous, fully upholstered shell that forms a unified seat, back, and arm structure. The silhouette is softly rounded with a gentle taper from a wider seat front to a slightly narrower back, creating a welcoming, enveloping form. The backrest curves smoothly around the sides, integrating low arms into the overall shape without any visible separation. The base is visually absorbed into the body, with no discrete legs or pedestal visible, giving the chair a grounded, monolithic appearance. The seat cushion is thick and plush, matching the upholstery of the shell, and the overall form is free of sharp corners or angular transitions.",
+    "active_bullets": {
+      "essential": [
+        "body construction: upholstered",
+        "arm configuration: integrated / sculpted",
+        "back height: mid",
+        "configuration: single seat",
+        "base visibility: integrated"
+      ],
+      "normal": [
+        "seat upholstery: fabric",
+        "back upholstery: matches seat",
+        "design register: minimal",
+        "shape character: soft / tapered",
+        "plan shape: round / semicircular"
+      ],
+      "low": [
+        "base type: integrated base"
+      ]
+    }
+  },
+  {
+    "id": "trait_correction_26cfab685917",
+    "timestamp": "2026-04-16T17:09:05.533Z",
+    "image_url": "https://content.designerpages.com/assets/81520887/Swish.jpg",
+    "stored_image_path": "data/trait-correction-images/trait_correction_26cfab685917.jpg",
+    "image_source_kind": "remote_url",
+    "image_mime_type": "image/jpeg",
+    "source_file_name": "",
+    "focus_area": {
+      "x": 0,
+      "y": 0,
+      "width": 1,
+      "height": 1
+    },
+    "field": "base_visibility",
+    "model_extracted_value": "integrated",
+    "stage2_free_text": "This lounge chair features a rounded, enveloping silhouette with a continuous, sculpted back and arms that flow seamlessly into each other, forming an integrated shell. The back and arms curve gently around the seat, creating a soft, cocoon-like enclosure. The seat is generously proportioned, plush, and rounded, contrasting with the smooth, slightly tapered backrest. The base is visually integrated into the form, with no discrete legs or visible support structure, giving the chair a grounded, monolithic appearance. The surface character is a mix of smooth and textured upholstery, with subtle seam detailing on the back.",
+    "conflict_evidence": "legs",
+    "user_selected_value": "integrated",
+    "was_skipped": false,
+    "search_query": "This lounge chair features a rounded, enveloping silhouette with a continuous, sculpted back and arms that flow seamlessly into each other, forming an integrated shell. The back and arms curve gently around the seat, creating a soft, cocoon-like enclosure. The seat is generously proportioned, plush, and rounded, contrasting with the smooth, slightly tapered backrest. The base is visually integrated into the form, with no discrete legs or visible support structure, giving the chair a grounded, monolithic appearance. The surface character is a mix of smooth and textured upholstery, with subtle seam detailing on the back.",
+    "active_bullets": {
+      "essential": [
+        "body construction: upholstered",
+        "arm configuration: integrated / sculpted",
+        "back height: mid",
+        "configuration: single seat",
+        "base visibility: integrated"
+      ],
+      "normal": [
+        "seat upholstery: fabric",
+        "back upholstery: independent fabric",
+        "design register: organic",
+        "shape character: soft / tapered",
+        "plan shape: round / semicircular"
+      ],
+      "low": [
+        "base type: integrated base"
+      ]
+    },
+    "training_example_version": 1
+  }
+]

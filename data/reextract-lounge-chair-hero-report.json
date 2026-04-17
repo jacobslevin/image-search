@@ -1,0 +1,4487 @@
+{
+  "started_at": "2026-04-15T00:06:54.165Z",
+  "completed_at": "2026-04-15T00:30:06.797Z",
+  "reextracted_hero_images": 54,
+  "skipped_products": 692,
+  "total_cost_usd_stage123_only": 1.4013,
+  "selected_products": [
+    {
+      "product_id": "product_c9595708db6b_13985761",
+      "product_name": "Driftâ¢",
+      "image_id": "product_c9595708db6b_13985761_img_001",
+      "image_url": "https://content.designerpages.com/assets/77828771/a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "image_id": "product_4805cb71bcfe_13931115_img_001",
+      "image_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg"
+    },
+    {
+      "product_id": "product_aa8462b9e245_14104979",
+      "product_name": "Gobi",
+      "image_id": "product_aa8462b9e245_14104979_img_001",
+      "image_url": "https://content.designerpages.com/assets/79271543/401.JPG"
+    },
+    {
+      "product_id": "product_735cd52fd346_11612764",
+      "product_name": "MOD Standard Lounge Chair",
+      "image_id": "product_735cd52fd346_11612764_img_001",
+      "image_url": "https://content.designerpages.com/assets/77691119/d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg"
+    },
+    {
+      "product_id": "product_450e09e0a581_13946112",
+      "product_name": "Mitt",
+      "image_id": "product_450e09e0a581_13946112_img_001",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg"
+    },
+    {
+      "product_id": "product_75e31df50979_13931105",
+      "product_name": "Ani",
+      "image_id": "product_75e31df50979_13931105_img_001",
+      "image_url": "https://content.designerpages.com/assets/78845521/ofs02set01img16v02wr20220107299041mqc7hw.jpeg"
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "image_id": "product_cd2ac565a531_13933444_img_001",
+      "image_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg"
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "image_id": "product_231fb820f522_13989292_img_001",
+      "image_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg"
+    },
+    {
+      "product_id": "product_170c81b60b01_14010180",
+      "product_name": "Puff Puff 67\" Sofa",
+      "image_id": "product_170c81b60b01_14010180_img_001",
+      "image_url": "https://content.designerpages.com/assets/78341096/pf1_studio_gy_puff-puff-studio-sofa-edwards-light-grey.jpg"
+    },
+    {
+      "product_id": "product_4e05d6635070_13931090",
+      "product_name": "Heya Retreat",
+      "image_id": "product_4e05d6635070_13931090_img_001",
+      "image_url": "https://content.designerpages.com/assets/81061614/OFSHeyawr04.jpg"
+    },
+    {
+      "product_id": "product_501f82ca9043_14050069",
+      "product_name": "Seba Lounge",
+      "image_id": "product_501f82ca9043_14050069_img_001",
+      "image_url": "https://content.designerpages.com/assets/80313611/6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg"
+    },
+    {
+      "product_id": "product_f6d4146c84dd_13717521",
+      "product_name": "Saiba Lounge Chair and Ottoman",
+      "image_id": "product_f6d4146c84dd_13717521_img_001",
+      "image_url": "https://content.designerpages.com/assets/62199121/Herman_Miller_Saiba_1.jpg"
+    },
+    {
+      "product_id": "product_9d23ccd3a9ab_13945713",
+      "product_name": "Abra",
+      "image_id": "product_9d23ccd3a9ab_13945713_img_001",
+      "image_url": "https://content.designerpages.com/assets/80963498/CLL03.jpg"
+    },
+    {
+      "product_id": "product_ef2e358a6a84_14105961",
+      "product_name": "Kithara",
+      "image_id": "product_ef2e358a6a84_14105961_img_001",
+      "image_url": "https://content.designerpages.com/assets/82671016/Kithara0.jpg"
+    },
+    {
+      "product_id": "product_82daa52c758e_13945979",
+      "product_name": "Becca - Lounge",
+      "image_id": "product_82daa52c758e_13945979_img_001",
+      "image_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg"
+    },
+    {
+      "product_id": "product_374f7779ff2b_13890797",
+      "product_name": "Neesh",
+      "image_id": "product_374f7779ff2b_13890797_img_001",
+      "image_url": "https://content.designerpages.com/assets/81066812/Neesh94020WSV2.jpg"
+    },
+    {
+      "product_id": "product_58f1505a9747_13890787",
+      "product_name": "Hout",
+      "image_id": "product_58f1505a9747_13890787_img_001",
+      "image_url": "https://content.designerpages.com/assets/81445858/KHHout.jpg"
+    },
+    {
+      "product_id": "product_0196e5710d1b_10870591",
+      "product_name": "Conexus High Back Upholstered Lounge Chair",
+      "image_id": "product_0196e5710d1b_10870591_img_001",
+      "image_url": "https://content.designerpages.com/assets/70745111/087b2706-c7af-41d4-884d-d6cbb544be70.png"
+    },
+    {
+      "product_id": "product_5cfec51f1afa_13931161",
+      "product_name": "Kasura - Lounge",
+      "image_id": "product_5cfec51f1afa_13931161_img_001",
+      "image_url": "https://content.designerpages.com/assets/78184394/OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg"
+    },
+    {
+      "product_id": "product_cae9f57cb82f_13945982",
+      "product_name": "Belmont",
+      "image_id": "product_cae9f57cb82f_13945982_img_001",
+      "image_url": "https://content.designerpages.com/assets/78877674/BelmontPhoto19HR.jpg"
+    },
+    {
+      "product_id": "product_ea784919b15d_13945968",
+      "product_name": "Astra",
+      "image_id": "product_ea784919b15d_13945968_img_001",
+      "image_url": "https://content.designerpages.com/assets/77808813/26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg"
+    },
+    {
+      "product_id": "product_f68c5d59f02d_13944731",
+      "product_name": "Parallel Lounge",
+      "image_id": "product_f68c5d59f02d_13944731_img_001",
+      "image_url": "https://content.designerpages.com/assets/71079931/4d340b5b-2c33-4d3f-b69c-f14aa8e2d7fd.jpg"
+    },
+    {
+      "product_id": "product_3704838b4f42_13946006",
+      "product_name": "Chiara",
+      "image_id": "product_3704838b4f42_13946006_img_001",
+      "image_url": "https://content.designerpages.com/assets/53054942/chiara_12.jpg"
+    },
+    {
+      "product_id": "product_57ce0e255162_14050067",
+      "product_name": "Sachet Lounge",
+      "image_id": "product_57ce0e255162_14050067_img_001",
+      "image_url": "https://content.designerpages.com/assets/79004232/C18DAVISSACHETMIDBACK.jpg"
+    },
+    {
+      "product_id": "product_9bbf0f4416cc_13884211",
+      "product_name": "Axial Modular Sofa",
+      "image_id": "product_9bbf0f4416cc_13884211_img_001",
+      "image_url": "https://content.designerpages.com/assets/81468425/AxialModularSofa0.jpg"
+    },
+    {
+      "product_id": "product_99030faaf1a2_13945981",
+      "product_name": "Becca - Sofa",
+      "image_id": "product_99030faaf1a2_13945981_img_001",
+      "image_url": "https://content.designerpages.com/assets/78880902/BeccaPhoto18HR.jpg"
+    },
+    {
+      "product_id": "product_0164528e3518_11819235",
+      "product_name": "Platner Lounge Chair",
+      "image_id": "product_0164528e3518_11819235_img_001",
+      "image_url": "https://content.designerpages.com/assets/78555632/Thumbplatnerloungechairthumb5.png"
+    },
+    {
+      "product_id": "product_1f29aaa671ce_14057734",
+      "product_name": "Clipse",
+      "image_id": "product_1f29aaa671ce_14057734_img_001",
+      "image_url": "https://content.designerpages.com/assets/82415261/627006600x600.jpg"
+    },
+    {
+      "product_id": "product_07cd4ea59111_14107462",
+      "product_name": "Jovalie",
+      "image_id": "product_07cd4ea59111_14107462_img_001",
+      "image_url": "https://content.designerpages.com/assets/79900300/Jovalie2.png"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "image_id": "product_027ab3199241_13946135_img_001",
+      "image_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg"
+    },
+    {
+      "product_id": "product_ec05ab4a8b9a_13946102",
+      "product_name": "Luca - Sofa",
+      "image_id": "product_ec05ab4a8b9a_13946102_img_001",
+      "image_url": "https://content.designerpages.com/assets/78075896/LucaSofa_Drawing_01_LR20191205-26989-1ovvkca.jpeg"
+    },
+    {
+      "product_id": "product_686e4be74777_13945990",
+      "product_name": "Bombom",
+      "image_id": "product_686e4be74777_13945990_img_001",
+      "image_url": "https://content.designerpages.com/assets/78044437/Bombom_Drawing_01_LR20191118-956-ba19f2.jpeg"
+    },
+    {
+      "product_id": "product_4a3593a321bc_13909365",
+      "product_name": "CÄav",
+      "image_id": "product_4a3593a321bc_13909365_img_001",
+      "image_url": "https://content.designerpages.com/assets/80506960/jsicaavcomp00002.jpg"
+    },
+    {
+      "product_id": "product_922c48edb7c8_13958173",
+      "product_name": "Flote Sofa - Three-Seat",
+      "image_id": "product_922c48edb7c8_13958173_img_001",
+      "image_url": "https://content.designerpages.com/assets/81940989/FloteSofaThreeSeat01.jpg"
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "image_id": "product_0dbf2f9b5b2c_13909426_img_001",
+      "image_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg"
+    },
+    {
+      "product_id": "product_2c5a390f0e66_13989642",
+      "product_name": "Poppy Lounge",
+      "image_id": "product_2c5a390f0e66_13989642_img_001",
+      "image_url": "https://content.designerpages.com/assets/75537041/54523847-f2e3-44f1-bef9-538ed3b49e77.jpg"
+    },
+    {
+      "product_id": "product_0f7b9724f200_13958701",
+      "product_name": "Gimbal Lounge Chair, Highback - Rocker Base",
+      "image_id": "product_0f7b9724f200_13958701_img_001",
+      "image_url": "https://content.designerpages.com/assets/81942209/HTGM005GimbalHighbackLoungeRocker01.jpg"
+    },
+    {
+      "product_id": "product_bb5e85c3bec5_13717519",
+      "product_name": "Reframe Lounge Seating",
+      "image_id": "product_bb5e85c3bec5_13717519_img_001",
+      "image_url": "https://content.designerpages.com/assets/79337945/ProductImage.PNG"
+    },
+    {
+      "product_id": "product_4755720d5ee2_13909356",
+      "product_name": "Arwyn",
+      "image_id": "product_4755720d5ee2_13909356_img_001",
+      "image_url": "https://content.designerpages.com/assets/79048787/JSIArwynCrossoverLounge.jpg"
+    },
+    {
+      "product_id": "product_d7617cf8df24_13933447",
+      "product_name": "Elara - Lounge",
+      "image_id": "product_d7617cf8df24_13933447_img_001",
+      "image_url": "https://content.designerpages.com/assets/80675978/CARElaralounge9821S010.jpg"
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "image_id": "product_ba09ac78ec7a_13934283_img_001",
+      "image_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg"
+    },
+    {
+      "product_id": "product_b0bec9ec4ab6_14050073",
+      "product_name": "Soft Privacy",
+      "image_id": "product_b0bec9ec4ab6_14050073_img_001",
+      "image_url": "https://content.designerpages.com/assets/78266072/DAVIS_SOFTPRIVACY.jpg"
+    },
+    {
+      "product_id": "product_0d66b33a0bf2_14049534",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_id": "product_0d66b33a0bf2_14049534_img_001",
+      "image_url": "https://content.designerpages.com/assets/80873346/6655f27e87e8a14be5d9e71bArcularProduct11.jpg"
+    },
+    {
+      "product_id": "product_8257b15cd55d_14097275",
+      "product_name": "Bowie Armchair",
+      "image_id": "product_8257b15cd55d_14097275_img_001",
+      "image_url": "https://content.designerpages.com/assets/82581437/C14B.jpg"
+    },
+    {
+      "product_id": "product_2e42b4a4a525_14097276",
+      "product_name": "Fuuga Nesting Armchair",
+      "image_id": "product_2e42b4a4a525_14097276_img_001",
+      "image_url": "https://content.designerpages.com/assets/82581458/C09.jpg"
+    },
+    {
+      "product_id": "product_369be2770571_14050009",
+      "product_name": "JP Lounge - Privacy Lounge",
+      "image_id": "product_369be2770571_14050009_img_001",
+      "image_url": "https://content.designerpages.com/assets/82365446/621ede96332db81d68d0e355JP20LoungePrivacy.jpg"
+    },
+    {
+      "product_id": "product_3e280432f637_91254",
+      "product_name": "Iris",
+      "image_id": "product_3e280432f637_91254_img_001",
+      "image_url": "https://content.designerpages.com/assets/82668660/igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png"
+    },
+    {
+      "product_id": "product_274381eca4e4_13890830",
+      "product_name": "Verge",
+      "image_id": "product_274381eca4e4_13890830_img_001",
+      "image_url": "https://content.designerpages.com/assets/78931170/Verge.jpg"
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "image_id": "product_1d040726e4e3_14038343_img_001",
+      "image_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg"
+    },
+    {
+      "product_id": "product_f1b4cb162ed4_13959657",
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_id": "product_f1b4cb162ed4_13959657_img_001",
+      "image_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG"
+    },
+    {
+      "product_id": "product_5e3ba5935350_13946067",
+      "product_name": "Harmony Classic - Sofa",
+      "image_id": "product_5e3ba5935350_13946067_img_001",
+      "image_url": "https://content.designerpages.com/assets/77953117/a92ac0b2-b192-49e5-abd3-07518e0fc543.jpg"
+    },
+    {
+      "product_id": "product_77f37a7c9e40_14010227",
+      "product_name": "Acre Lounge Chair",
+      "image_id": "product_77f37a7c9e40_14010227_img_001",
+      "image_url": "https://content.designerpages.com/assets/82224394/ac1lngchrma34frontlow.jpg"
+    },
+    {
+      "product_id": "product_c65ef43d7c1d_13959752",
+      "product_name": "Flote Sofa, Two-Seat - Zipper Detail",
+      "image_id": "product_c65ef43d7c1d_13959752_img_001",
+      "image_url": "https://content.designerpages.com/assets/81944959/HTFE120FloteSofaTwoSeatZipper01.jpg"
+    },
+    {
+      "product_id": "product_a2738837a6b6_13886928",
+      "product_name": "Arbour Sofa",
+      "image_id": "product_a2738837a6b6_13886928_img_001",
+      "image_url": "https://content.designerpages.com/assets/81500149/thprdarboursofaloungeseatingfn.jpg"
+    }
+  ],
+  "skipped": [
+    {
+      "product_id": "product_d44c9633b155_14105042",
+      "product_name": "Rio Light Task",
+      "hero_url": "https://content.designerpages.com/assets/82667486/GalleryRio.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9e5054b7457e_14105041",
+      "product_name": "Rio Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/80532610/riotaskstool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7ef6a5bd37ae_13890814",
+      "product_name": "Sky Stool",
+      "hero_url": "https://content.designerpages.com/assets/71053191/e7e8fdd4-5ecd-46e9-89e0-af73c1f4d0ff.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_05e7b0384abd_13926718",
+      "product_name": "Doni Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/72883061/4e2fa17b-085d-4dd4-bf95-b560573bd39e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cd31303d126d_13926720",
+      "product_name": "Intellect Wave Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/77405746/0a329e77-87f2-4283-8d72-200ec34c7795.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2299409b4a2d_11819613",
+      "product_name": "Generation by KnollÂ®",
+      "hero_url": "https://content.designerpages.com/assets/78559196/Thumbgenerationbyknolltaskchair5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5c8687ef1957_13755331",
+      "product_name": "Steelcase Series 2 Stool",
+      "hero_url": "https://content.designerpages.com/assets/80845112/200135162.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6051cb4ff4fa_13926800",
+      "product_name": "Intellect Wave Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/77919663/2375a5ed-50a2-4c2f-839b-6651d82e03ca.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_516281ddf666_14104980",
+      "product_name": "Hexy",
+      "hero_url": "https://content.designerpages.com/assets/78733401/SOIHexyPDPGallery71000x562.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d6df90f5f8b1_13926798",
+      "product_name": "Doni Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/77918132/d19b4d96-3de1-461d-b0ab-b49c04cbef25.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8a1359fd6509_13753178",
+      "product_name": "Amia + Amia Air",
+      "hero_url": "https://content.designerpages.com/assets/57346931/Amia_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_aad9b0c6d2c8_13989707",
+      "product_name": "Very Conference",
+      "hero_url": "https://content.designerpages.com/assets/23243942/GetAsset.ashx.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d6b5df695bb1_13755326",
+      "product_name": "Amia + Amia Air Stool",
+      "hero_url": "https://content.designerpages.com/assets/80844876/150006784.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_40ad1d619136_14105680",
+      "product_name": "Superkool",
+      "hero_url": "https://content.designerpages.com/assets/71272321/68127507-8f84-4885-bfc7-e3dd6ff48e13.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a6b6131025f7_13972513",
+      "product_name": "Generation by KnollÂ®",
+      "hero_url": "https://content.designerpages.com/assets/56944281/Generation_by_Knoll_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ac191566ba53_14050018",
+      "product_name": "Lucid",
+      "hero_url": "https://content.designerpages.com/assets/11503921/Lucid_30_10.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_84e7b4269db4_13753183",
+      "product_name": "Siento",
+      "hero_url": "https://content.designerpages.com/assets/57347271/Siento_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c0f8548d5a10_13753010",
+      "product_name": "Steelcase Series 1",
+      "hero_url": "https://content.designerpages.com/assets/70849411/a0c06d6f-e3d4-45f3-a2e5-ef8304793803.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_01120733fc9f_13753181",
+      "product_name": "Steelcase Karman",
+      "hero_url": "https://content.designerpages.com/assets/78917674/21016316516x9Banner2022042410417elt8ca.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ce2ac39dba37_11703166",
+      "product_name": "Liberty Task",
+      "hero_url": "https://content.designerpages.com/assets/53516331/Liberty_Conference_Task_Chair_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8ef5b1acd37d_11603282",
+      "product_name": "Softshell Chair - Four-Legged Base",
+      "hero_url": "https://content.designerpages.com/assets/40043432/cb3b6885f4fc3e2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fc16c459ef36_13989320",
+      "product_name": "Fern",
+      "hero_url": "https://content.designerpages.com/assets/62131691/ResourceLibrary_147104066120160812-22941-11xa2hs.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3aaa01075db1_13926725",
+      "product_name": "Signia Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/79018301/signiataskchairv4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ea621499d0fe_13885842",
+      "product_name": "Verus Chairs",
+      "hero_url": "https://content.designerpages.com/assets/69840531/40260e6e-16dd-4819-8f75-8dfce7ba8433.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_79ac811b059a_11831691",
+      "product_name": "Neo Lite",
+      "hero_url": "https://content.designerpages.com/assets/78617361/NeoLite20315020front.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_25f6e5dbde45_13937565",
+      "product_name": "Click",
+      "hero_url": "https://content.designerpages.com/assets/80697131/webgalleryStylexStudioClickTableTrioGraySlide.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_43e9e3656e99_13931146",
+      "product_name": "HB - Task",
+      "hero_url": "https://content.designerpages.com/assets/64183911/7107-E1-A56.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cf486d89a8e5_13753197",
+      "product_name": "Cachet",
+      "hero_url": "https://content.designerpages.com/assets/77590097/94f7cea4-db64-49c5-8f21-947a52c829cf.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8292d770435a_13874107",
+      "product_name": "Novo - Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/62087031/novo_hb_onyx_black_3qf.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_25dea086d9c3_14006761",
+      "product_name": "Ignition",
+      "hero_url": "https://content.designerpages.com/assets/54249521/Ignition_Task_Stool_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3c09b3f0f2e6_13985769",
+      "product_name": "Factorâ¢",
+      "hero_url": "https://content.designerpages.com/assets/78071088/DBE_5541-8_IN88_P4_U1_IC_Reg20191203-19430-1pedev8.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7f3aed631598_13989706",
+      "product_name": "Very",
+      "hero_url": "https://content.designerpages.com/assets/64219081/verytask-desk-chair-whitesweep-white-haworth.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1665ca65e851_13885783",
+      "product_name": "Setu Chair",
+      "hero_url": "https://content.designerpages.com/assets/67010561/17593475-66be-471f-a196-c72f8fcbaf7a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a45baeec3ed2_13753180",
+      "product_name": "Think",
+      "hero_url": "https://content.designerpages.com/assets/57346741/Think_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4ac73fc54985_13885726",
+      "product_name": "Cosm Chairs",
+      "hero_url": "https://content.designerpages.com/assets/75652391/50fd0e03-2015-465f-9fca-7b5a74933b34.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cd955c0f78ea_13753193",
+      "product_name": "SILQ",
+      "hero_url": "https://content.designerpages.com/assets/75278291/79d8b81a-c9a6-4bd9-a5b7-d71a1e46cf7e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5bd864273a75_14050108",
+      "product_name": "Zen Conference",
+      "hero_url": "https://content.designerpages.com/assets/81201801/65e236dc294713dd13eb12b9ZenConferenceProduct5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e9b03ebf5c58_13885908",
+      "product_name": "Verus Stool",
+      "hero_url": "https://content.designerpages.com/assets/69840601/2980751a-4511-433f-bee3-f74bc1cf0dbe.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a18111565547_14104935",
+      "product_name": "Amplify - Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/55733171/CarinaClark_142289229320150202-48586-1x146oe.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d14a38a677a5_13909405",
+      "product_name": "Newton",
+      "hero_url": "https://content.designerpages.com/assets/53108162/cropped_Swivel_Seating__Newton_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_36977fd34f8d_13885782",
+      "product_name": "Lino Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80583911/thprdlinochairofficechairsfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e208156e6dc6_14104969",
+      "product_name": "Focus 2.0",
+      "hero_url": "https://content.designerpages.com/assets/78733308/SOIFocus2.0PDPLimbo.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f99a9055deed_13834062",
+      "product_name": "SABRINA",
+      "hero_url": "https://content.designerpages.com/assets/59361371/Sabrina.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9e4ddb827da4_11704599",
+      "product_name": "Smart Ocean",
+      "hero_url": "https://content.designerpages.com/assets/78070908/S113BA19FT57-------.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ad7e77745ced_14050020",
+      "product_name": "M75",
+      "hero_url": "https://content.designerpages.com/assets/79131336/620fd17cb190207e60c0850fM75Product01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_559026b1b794_12120638",
+      "product_name": "Circo",
+      "hero_url": "https://content.designerpages.com/assets/79439620/02230212senatorambiente145532copy.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f2de8d88ecd7_14105013",
+      "product_name": "Novo Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/81549900/SitOnItNovotaskchair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2898a1d4d451_13729820",
+      "product_name": "Svelte Low-Back Conference Chair",
+      "hero_url": "https://content.designerpages.com/assets/80755230/SvelteLowbackConference.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_76d52d817c1b_13989496",
+      "product_name": "Maari Conference Chair",
+      "hero_url": "https://content.designerpages.com/assets/80951719/04maariupholsteredchairwith5starbaseMelange20Nap20711Smooth20PlasterV1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c6fdd4d7849b_14051154",
+      "product_name": "Marien152 Conference Chair",
+      "hero_url": "https://content.designerpages.com/assets/78849073/C04T08.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a181457b2e92_11704574",
+      "product_name": "Freedom Headrest",
+      "hero_url": "https://content.designerpages.com/assets/53516611/Freedom_Headrest_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a178e92f403b_11703203",
+      "product_name": "Summa",
+      "hero_url": "https://content.designerpages.com/assets/78070617/summaproduct_6.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_61604d4e7d3e_13885907",
+      "product_name": "Setu Stool",
+      "hero_url": "https://content.designerpages.com/assets/67010711/8adf1811-71ff-47da-9111-15d04a3a3216.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1926b90bf95f_13755328",
+      "product_name": "Leap Stool",
+      "hero_url": "https://content.designerpages.com/assets/80845006/120008892.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7a591c72b1a9_11603246",
+      "product_name": "Physix",
+      "hero_url": "https://content.designerpages.com/assets/67204071/3d5e579a-8083-4432-bc41-847af59680dc.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b91e947182d1_13937624",
+      "product_name": "Sava Mesh",
+      "hero_url": "https://content.designerpages.com/assets/81794015/webgallerySavaMeshHero.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e63ac4b26c24_6586791",
+      "product_name": "Leadchair",
+      "hero_url": "https://content.designerpages.com/assets/62064221/Leadchair_15.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7965284bd229_13937610",
+      "product_name": "Insight Executive",
+      "hero_url": "https://content.designerpages.com/assets/53517371/Insight-Executive-Mid-Back-2-HR.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_77319890029b_14023822",
+      "product_name": "Posh",
+      "hero_url": "https://content.designerpages.com/assets/79292978/DARRANPoshGroup1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_45177bbac6ba_13717573",
+      "product_name": "Full Loop Chair",
+      "hero_url": "https://content.designerpages.com/assets/80685369/thprdfullloopchairofficeseatingfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9f0eb021f36b_11819614",
+      "product_name": "ReGeneration by KnollÂ®",
+      "hero_url": "https://content.designerpages.com/assets/78559220/Thumbregenerationbyknolltaskchair5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3c59c5b9dd6f_13747840",
+      "product_name": "Ollo",
+      "hero_url": "https://content.designerpages.com/assets/77472828/b1f1a793-c43d-4532-b2bc-45019773e55e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a52d4d3fbf0f_13753194",
+      "product_name": "QiVi",
+      "hero_url": "https://content.designerpages.com/assets/57348601/QiVi_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4a329c73967b_13885725",
+      "product_name": "Aeron Chair",
+      "hero_url": "https://content.designerpages.com/assets/56266441/Aeron_Chairs_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9180c29bdaee_14050074",
+      "product_name": "Sola",
+      "hero_url": "https://content.designerpages.com/assets/61583221/Sola_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_225226a5d1f6_13945959",
+      "product_name": "Alta",
+      "hero_url": "https://content.designerpages.com/assets/57271751/Bernhardt_Alta1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a0978d00841a_13885843",
+      "product_name": "Eames Aluminum Group Chairs",
+      "hero_url": "https://content.designerpages.com/assets/56267061/Eames_Aluminum_Group_Chairs_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5d72c6826cb3_13755330",
+      "product_name": "Steelcase Series 1 Stool",
+      "hero_url": "https://content.designerpages.com/assets/80845075/3b9cac1489b0482eb93b4df8dee226cf.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_de1f9a31460a_11713117",
+      "product_name": "Fenix",
+      "hero_url": "https://content.designerpages.com/assets/61582871/Fenix_3.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_133d848743f7_13890749",
+      "product_name": "Aesync",
+      "hero_url": "https://content.designerpages.com/assets/53582882/Keilhauer_Aesync5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ed4ec0a3666_13989725",
+      "product_name": "Zody II",
+      "hero_url": "https://content.designerpages.com/assets/79123942/zodyS2TD20724A1A1X5MA22TRFTRTFTRTF.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_44a356b6f686_13885902",
+      "product_name": "Aeron Stool",
+      "hero_url": "https://content.designerpages.com/assets/67010671/bd2ab4ad-9a69-479d-b323-7039a362e14e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fc08f7851121_13885844",
+      "product_name": "Eames Soft Pad Chairs",
+      "hero_url": "https://content.designerpages.com/assets/56267161/Eames_Soft_Pad_Chairs_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6c9c16b14683_14104991",
+      "product_name": "Lavo",
+      "hero_url": "https://content.designerpages.com/assets/81910422/11000x1000.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_470531f8fb28_14105050",
+      "product_name": "Sephen",
+      "hero_url": "https://content.designerpages.com/assets/81405895/img.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bd4bfc1fb70a_11819620",
+      "product_name": "Ollo",
+      "hero_url": "https://content.designerpages.com/assets/78559539/Thumbollodefaultthumb5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ef8494ed1b2f_13931185",
+      "product_name": "Pret - Task Stools",
+      "hero_url": "https://content.designerpages.com/assets/77750904/5f9172fe-3744-474b-9900-f9a89fa246c1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_de853942697d_14006832",
+      "product_name": "Solve",
+      "hero_url": "https://content.designerpages.com/assets/74198931/6402af8e-e0a5-4be5-aaa5-5c6a266e85c8.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6c5b637d07fe_14104998",
+      "product_name": "Mavic",
+      "hero_url": "https://content.designerpages.com/assets/78955858/SOIMavicgallery081000x1500.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_893aabcead41_13926799",
+      "product_name": "Grazie Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/72890121/1fe21c39-3e1e-473c-a4cc-1251798f7831.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cfe70efdf112_13989708",
+      "product_name": "Very Conference Stool",
+      "hero_url": "https://content.designerpages.com/assets/60462401/ArianaDemaj_146550483220160609-30453-1qzy7rf.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_862ca4bb0702_13926719",
+      "product_name": "Grazie Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/56655971/Grazie_task_arms_uphseatback_front.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_30fe75f32e90_13890829",
+      "product_name": "Vanilla",
+      "hero_url": "https://content.designerpages.com/assets/71054381/b487454c-7524-486b-8e33-c1c96ce9d9a3.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4e9072154e60_13937623",
+      "product_name": "Sava",
+      "hero_url": "https://content.designerpages.com/assets/56975221/Sava_Chair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_053e2de6a6a8_13946085",
+      "product_name": "Kylo",
+      "hero_url": "https://content.designerpages.com/assets/78694948/bernhardtkylomidback.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_84712e0be675_13874081",
+      "product_name": "Focus - Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/74284421/c76f61be-c5db-41fe-8f0c-a91cf196ec3d.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_db18c80a1171_14104965",
+      "product_name": "Focus Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/82665589/soipdpherofocusworkgallerymedium1250x834.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9b4d7a57d978_14006837",
+      "product_name": "Flexion",
+      "hero_url": "https://content.designerpages.com/assets/82066843/HONFlexionTaskChairHFXT1F0STCASSIKUR28NLSBT.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_396bcff707e8_13884142",
+      "product_name": "Calma - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81465734/CalmaChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ea1710f4521b_14049574",
+      "product_name": "Exo",
+      "hero_url": "https://content.designerpages.com/assets/61582751/Exo_1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_22b9b75530b8_14049543",
+      "product_name": "Avena",
+      "hero_url": "https://content.designerpages.com/assets/81763818/682e257bbd4f867b55618c6bAvenaProduct2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5dd01bad91bc_13753196",
+      "product_name": "Kart Chair and Stool",
+      "hero_url": "https://content.designerpages.com/assets/1200344/0d10aaace3f7bcf394c101be7399bc29.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_faad10d45e9e_13946147",
+      "product_name": "Renn",
+      "hero_url": "https://content.designerpages.com/assets/81883111/RennImageGallery011.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b0ea2f2e1263_14050071",
+      "product_name": "Sketch Conference",
+      "hero_url": "https://content.designerpages.com/assets/61619441/sketch_conference_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6fa732718f6c_13946137",
+      "product_name": "Prelude - Swivel",
+      "hero_url": "https://content.designerpages.com/assets/80468429/PreludeSwivelImageGallery101202404162162912dyvle.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2853c0fab548_13874139",
+      "product_name": "Wit - Task",
+      "hero_url": "https://content.designerpages.com/assets/55370971/CourtneyRobinson_141865821420141215-19943-1l4l89e.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d1e30f7c0ae1_13755332",
+      "product_name": "Think Stool",
+      "hero_url": "https://content.designerpages.com/assets/80845138/1400022981.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_be886aa0fb39_13942045",
+      "product_name": "Ozmo",
+      "hero_url": "https://content.designerpages.com/assets/81850486/img.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7b2d736d5a43_14006762",
+      "product_name": "Altern",
+      "hero_url": "https://content.designerpages.com/assets/82200226/HONAlternGalleryPanel500001.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_015179e73336_14007418",
+      "product_name": "Cipher",
+      "hero_url": "https://content.designerpages.com/assets/82215286/HONCipher5000114.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_07eaf04c18c8_13883627",
+      "product_name": "Capri Executive - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81463611/capriexecutivechairsso1583andreuworld1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3f21f1dbed0b_13890817",
+      "product_name": "Swav",
+      "hero_url": "https://content.designerpages.com/assets/81520846/Swav.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4eee3cc95fef_13711892",
+      "product_name": "Bolero - Task",
+      "hero_url": "https://content.designerpages.com/assets/78154087/OFS_Bolero_Arms.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fdb9afc85819_14083823",
+      "product_name": "Gesture",
+      "hero_url": "https://content.designerpages.com/assets/57346381/Gesture_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_44a7905d3142_13753182",
+      "product_name": "Reply",
+      "hero_url": "https://content.designerpages.com/assets/79451950/steelcasereply.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2723e6885291_13945970",
+      "product_name": "Aubry",
+      "hero_url": "https://content.designerpages.com/assets/81878732/AubryImageGallery131.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6453bfbf014f_13755322",
+      "product_name": "Cobi Stool",
+      "hero_url": "https://content.designerpages.com/assets/80844781/100000146.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8923b5f469a3_13753009",
+      "product_name": "Leap",
+      "hero_url": "https://content.designerpages.com/assets/57346561/Leap_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_11e212b8ebcc_13926801",
+      "product_name": "LimeLite Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/79948668/limelitetaskstool400x400px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0e454bd03762_13985782",
+      "product_name": "Global Accordâ¢",
+      "hero_url": "https://content.designerpages.com/assets/79262204/GlobalAccord.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_06fe7dc35cc1_13961542",
+      "product_name": "Potentialâ¢ Adjustable Height Chair",
+      "hero_url": "https://content.designerpages.com/assets/81952691/32740BacklessAdjustableStoolApple1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9236136afbba_14051158",
+      "product_name": "Massaud Conference Seating",
+      "hero_url": "https://content.designerpages.com/assets/74227051/dd9f6520-0bf4-407f-ad46-9eb1f8f25610.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_de8b99f8bc9b_13934246",
+      "product_name": "Airus - Task",
+      "hero_url": "https://content.designerpages.com/assets/81784029/HMKairusbodybalancewr01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3fae8f88f42c_13885727",
+      "product_name": "Embody Chairs",
+      "hero_url": "https://content.designerpages.com/assets/56266351/Embody_Chairs_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8993af1dc7cc_13926722",
+      "product_name": "Ruckus Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/77407606/16b15b33-3c3b-4988-8eaa-a4ed8ec472d3.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0fa343ae854b_13985872",
+      "product_name": "Vionâ¢",
+      "hero_url": "https://content.designerpages.com/assets/80748445/globalvion.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cf8ffb1b7729_13985846",
+      "product_name": "Saxonâ¢",
+      "hero_url": "https://content.designerpages.com/assets/82085655/seriessaxon2018.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_aa3adf98474a_13885788",
+      "product_name": "Eames Shell Task Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78866066/EMF4096320180427144736437P.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a95028f0257f_13755325",
+      "product_name": "SILQ Stool",
+      "hero_url": "https://content.designerpages.com/assets/80844875/200146915.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7e5a7e62e32c_13931184",
+      "product_name": "Pret - Task",
+      "hero_url": "https://content.designerpages.com/assets/75397061/930a085b-8922-43f9-9b8b-c22642a8c766.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_68c4cd85da76_11831773",
+      "product_name": "Strata Lite",
+      "hero_url": "https://content.designerpages.com/assets/78618440/Strata1545Y1A36Polished0000.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_097cfe53296b_13946002",
+      "product_name": "Chantal - Swivel",
+      "hero_url": "https://content.designerpages.com/assets/71288021/1d60a46c-0a3d-4b52-961f-7523c670c2c9.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_15a45b2c66f7_13926721",
+      "product_name": "LimeLite Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/81724737/limelitetaskchair400x400px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c4156f0004f9_3377392",
+      "product_name": "Clamshell Conference",
+      "hero_url": "https://content.designerpages.com/assets/82642498/GeigerClamshellChair.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_04561adb8180_13989671",
+      "product_name": "Soji",
+      "hero_url": "https://content.designerpages.com/assets/75539451/c1b97cba-ef2f-43f1-97c6-cb3b300e60ec.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d983eb6e288f_13890800",
+      "product_name": "Orign",
+      "hero_url": "https://content.designerpages.com/assets/77819326/b04754bd-51fc-46b8-bd38-3310b2344b50.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_73e737773269_13985767",
+      "product_name": "EnterpriseÂ®",
+      "hero_url": "https://content.designerpages.com/assets/81043293/327331.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ed06af43b104_11704593",
+      "product_name": "Freedom Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/78070835/17_humanscale_freedom_headrest_chair_prod1_JW.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_587a028561fb_13753179",
+      "product_name": "Steelcase Series 2",
+      "hero_url": "https://content.designerpages.com/assets/78765630/SteelcaseSeries2BackView.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e7055590da60_13931080",
+      "product_name": "Genus - Task",
+      "hero_url": "https://content.designerpages.com/assets/73346821/6248f8da-d1d8-452b-8e8f-0b6191080888.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fcc65b31ee28_13926802",
+      "product_name": "Strive Task Stool",
+      "hero_url": "https://content.designerpages.com/assets/77408711/de2532c7-c53b-4988-88d8-3911f9fcaaa5.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7a45972f5c9a_14007390",
+      "product_name": "Pillow-Soft",
+      "hero_url": "https://content.designerpages.com/assets/77750596/9bac24de-d5cd-4389-860d-8b0890509a06.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9ba126a1f522_14050984",
+      "product_name": "Bindu Conference Seating",
+      "hero_url": "https://content.designerpages.com/assets/78268053/09-0000629-Bindu-Conference-Chair-pdp-gallery.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ab0ba12fbfba_13926709",
+      "product_name": "Altus Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/67319971/5241dffe-c6dc-4b1b-a636-dd512cb3b126.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_990d8603c95e_13985586",
+      "product_name": "Auburnâ¢",
+      "hero_url": "https://content.designerpages.com/assets/82083450/seriesauburn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ce90d84e4619_13985844",
+      "product_name": "RomaÂ®",
+      "hero_url": "https://content.designerpages.com/assets/82085605/seriesroma.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8246df9fcbf9_13933279",
+      "product_name": "Ardha - Stool",
+      "hero_url": "https://content.designerpages.com/assets/79702558/1719102020OFS2020Quick20Ship20232020Ardha20stools.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_354b4eb1282e_13931128",
+      "product_name": "Coact - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77937800/4889e9f1-49b8-4b95-a235-ecae221c7dfa.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e7e6fb51114d_13684309",
+      "product_name": "TIER - Stacking",
+      "hero_url": "https://content.designerpages.com/assets/80504548/5f71eaee4fe858444d3f2e614fc5de16.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a9db1cb4a60_13931170",
+      "product_name": "Marco",
+      "hero_url": "https://content.designerpages.com/assets/79046112/MARCO5STARBASE.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6dffd3345774_13926507",
+      "product_name": "LimeLite Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/78959612/limelitestackchair400x400px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0069cb9a5065_14107900",
+      "product_name": "Geo",
+      "hero_url": "https://content.designerpages.com/assets/78366052/Geo_SoL_Chair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_be3321a9fd0a_13946082",
+      "product_name": "Jackson - Mobile",
+      "hero_url": "https://content.designerpages.com/assets/79901048/bernhardtjacksonmobile.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ca93524b81c8_13931125",
+      "product_name": "Cinque - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/79034130/CinqueChair.PNG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_52654e394e81_13874120",
+      "product_name": "Rio",
+      "hero_url": "https://content.designerpages.com/assets/66365711/33cd2ec4-aba5-4187-92c9-6fbfa8443956.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f15a7e56cb6c_13684311",
+      "product_name": "TIER - Stools",
+      "hero_url": "https://content.designerpages.com/assets/79677157/581790f51ef23b6ea2908b1e07101767.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ef1de6a9bff1_14107168",
+      "product_name": "Connolly",
+      "hero_url": "https://content.designerpages.com/assets/80493699/ConnollyRoom3.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_40ac34f5fabf_14023772",
+      "product_name": "Bota Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77703375/dcb01c39-d80d-45c5-9297-99aa71bb5c63.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_53080d863160_13885850",
+      "product_name": "Verus Side Chairs",
+      "hero_url": "https://content.designerpages.com/assets/71260301/89f9a1ae-ebc0-4b85-b7df-557b750e725a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b4345d6c3523_13926759",
+      "product_name": "Sonrisa Bench & Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/81246236/SN1003301.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_55b0140ef284_13926505",
+      "product_name": "Doni Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/67962341/1a46a1db-59eb-4d97-8c47-3a4738c7cdb3.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_241eead8f2a7_13926743",
+      "product_name": "Calida Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/77917276/457d2d80-68ca-4bea-9fcb-829e9cdd6ca420200819-18616-rbmy4n20200820-636-o50x7120200820-14612-1lczzt4.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bdf01dae608d_14106828",
+      "product_name": "Hoopla",
+      "hero_url": "https://content.designerpages.com/assets/81080866/CL0M01HouplaStool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d9c2c1ab012e_13926781",
+      "product_name": "Doni Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/77404164/1267afdd-306e-492f-89b3-e8a8da2177e1.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a55087f1882_13931130",
+      "product_name": "Coact Lite - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79659114/ofs44set01img06v0328129wr2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c0d38429419e_13926731",
+      "product_name": "Ricochet Stool",
+      "hero_url": "https://content.designerpages.com/assets/78935740/ricochet16.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dccb3565c5cf_13926758",
+      "product_name": "MyPlace Benches & Ottomans",
+      "hero_url": "https://content.designerpages.com/assets/80776246/KIMYPLACELOUNGESYSTEN.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ab71de3c379_13885899",
+      "product_name": "Caper Stacking Chair",
+      "hero_url": "https://content.designerpages.com/assets/56274171/Caper_Stacking_Chair_4_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_27b121f0fec4_14006658",
+      "product_name": "Parc Vue Bench",
+      "hero_url": "https://content.designerpages.com/assets/82198656/f03b9b9b6baa0afe5be466230f6b061ad3059e6f.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fe434f26c79c_14104946",
+      "product_name": "Baja",
+      "hero_url": "https://content.designerpages.com/assets/78733806/img.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_87c7c45ebea8_13890806",
+      "product_name": "Ponder",
+      "hero_url": "https://content.designerpages.com/assets/71081641/b4166c74-72e7-470b-9cfd-ee03e0895048.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8e3eb0545636_13694450",
+      "product_name": "Kickstand",
+      "hero_url": "https://content.designerpages.com/assets/80531186/soikickstandplpBLK.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0e74645b59f6_4094851",
+      "product_name": "bernu upholstered bench",
+      "hero_url": "https://content.designerpages.com/assets/56015631/Bernu-Bench-Upholstered-72-angle-1300x731.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_61b8d34b93a7_14105027",
+      "product_name": "PasÃ©a Ottomans & Tables",
+      "hero_url": "https://content.designerpages.com/assets/79044465/SitonItPaseaMiniRound1000.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_701b54902dc6_13937566",
+      "product_name": "Cove Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75673941/669907ea-6718-43a7-817a-dc380f7230d0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ffc911acf8fb_13931094",
+      "product_name": "LeanTo",
+      "hero_url": "https://content.designerpages.com/assets/77750949/ff7a0243-740a-4da3-956e-017bb0d995a5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_379e42818325_13890805",
+      "product_name": "Plunk",
+      "hero_url": "https://content.designerpages.com/assets/81520553/Plunk.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8d81bdbc3220_11621837",
+      "product_name": "BROOM STACKING CHAIR",
+      "hero_url": "https://content.designerpages.com/assets/55120182/KateORourke_141629660520141118-24289-13hks9n.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9baa7cb3c1f2_13874103",
+      "product_name": "Movi - Nester",
+      "hero_url": "https://content.designerpages.com/assets/73629421/81c5749a-dafe-4701-bef6-0bc8a63ce857.PNG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0787c1a09426_11621776",
+      "product_name": "NAVYÂ® COUNTER STOOL",
+      "hero_url": "https://content.designerpages.com/assets/63894601/296_d6a01f6961-1006-24-copy-large.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_53c384dfe169_13753342",
+      "product_name": "Node",
+      "hero_url": "https://content.designerpages.com/assets/57353851/Node_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_967523667c87_14050050",
+      "product_name": "Q6",
+      "hero_url": "https://content.designerpages.com/assets/68672961/b34e1e78-3e82-4bc6-aa18-cd70fd53735f.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e09c27c354a6_13545930",
+      "product_name": "Peak Lounge System",
+      "hero_url": "https://content.designerpages.com/assets/78413193/IdeaStarters_TWN-127_1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1941d01234cc_13961503",
+      "product_name": "Two-Thirds",
+      "hero_url": "https://content.designerpages.com/assets/78785469/TwoThirdsLounge.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_81b9b48f58de_13944727",
+      "product_name": "Jetty:Mod",
+      "hero_url": "https://content.designerpages.com/assets/78838308/EnvironmentJettyModLounge01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_327af6758709_14097273",
+      "product_name": "Sorrel",
+      "hero_url": "https://content.designerpages.com/assets/78486042/Sorrel-FB.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6315d49c83ec_14038311",
+      "product_name": "Celebrate Chair",
+      "hero_url": "https://content.designerpages.com/assets/82282699/68348f3415a3d5df3bfb4c78celebratepolyfourlegchair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3b649b710169_14038328",
+      "product_name": "Jump Chair",
+      "hero_url": "https://content.designerpages.com/assets/82283129/6835ece2951bebf3f98b4f11jumpchair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8c5b0251b5f6_14038329",
+      "product_name": "Jump Stool",
+      "hero_url": "https://content.designerpages.com/assets/82283155/685988950ee5ec7b7f599373jumpstoolwhite.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7605fc12bce0_13753184",
+      "product_name": "Move",
+      "hero_url": "https://content.designerpages.com/assets/57348791/Move_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d492ab131b57_14050034",
+      "product_name": "Ottanna",
+      "hero_url": "https://content.designerpages.com/assets/81187785/668bf927a3fc2088e66b9d6dOttannaProduct1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2a9894567569_13957962",
+      "product_name": "Adapt Modular",
+      "hero_url": "https://content.designerpages.com/assets/80827105/AdaptModularSeating08.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b444eebb9f5c_13946133",
+      "product_name": "Prelude - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/80399585/PreludeBarstoolImageGallery1412024031515143naoxuw.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8e38a05d5f36_13933442",
+      "product_name": "Chrys - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80675823/CARSChrysMBH089SBSea20Salt01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_17b7c9b105d5_13933518",
+      "product_name": "Rule of Three - Guest Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/64169371/ROT_guest_silo.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5d5985e873d0_13684204",
+      "product_name": "BÃTTE - Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/77802788/5ed194cf-b0c6-4739-b07c-e0aaec6ccadd.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_200f9ee77320_14050090",
+      "product_name": "Tote",
+      "hero_url": "https://content.designerpages.com/assets/79005000/621d45b9532486830c04ac96ToteProduct072022081625638zsbn.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_42b31b9807df_3377132",
+      "product_name": "Crosshatch",
+      "hero_url": "https://content.designerpages.com/assets/75154861/1b5d3097-8d46-4d80-8e93-1193823a2fa8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e441084b57a6_14050075",
+      "product_name": "SoMod - Freestanding Benches",
+      "hero_url": "https://content.designerpages.com/assets/79517391/sodmod.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8a1f51f9a768_11895209",
+      "product_name": "Las Ondas",
+      "hero_url": "https://content.designerpages.com/assets/78826545/14721.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_95f45f5acd15_13946134",
+      "product_name": "Prelude - Guest Metal",
+      "hero_url": "https://content.designerpages.com/assets/80392978/PreludeMetalImageGallery20120240315154561lbqf.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_14e5b3d1974b_13945986",
+      "product_name": "Blitz",
+      "hero_url": "https://content.designerpages.com/assets/80475202/BlitzImageGallery12120240417250911tw3tyr.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_effe3cd413c9_13989505",
+      "product_name": "Maari Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/77800607/b34a57bb-e85c-45f6-b402-76af1d76fe18.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_aa3cc1b6554d_11741350",
+      "product_name": "RAVEN",
+      "hero_url": "https://content.designerpages.com/assets/78172688/Raven_48Banquettel_20BacktoBack_20WPanel.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2a99e4ba202e_13833857",
+      "product_name": "BANQS",
+      "hero_url": "https://content.designerpages.com/assets/77816535/653a5b15-c955-4a99-8dd4-70081ebd3877.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_89ce779daa37_14049342",
+      "product_name": "A-Bench - Freestanding Benches",
+      "hero_url": "https://content.designerpages.com/assets/79476532/61e574f825a55532307ac0acABenchProduct11.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_017718aff6b8_13982237",
+      "product_name": "KN04 Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/80811011/ThumbKN04defaultpierolissoniforknoll5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_31dea66f1ebb_13833866",
+      "product_name": "COLLABORATIVE OTTOMAN",
+      "hero_url": "https://content.designerpages.com/assets/71394861/e966e925-7721-4c58-b512-25d54659d5d2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a0d551e706a9_14107139",
+      "product_name": "Collette",
+      "hero_url": "https://content.designerpages.com/assets/77464413/2c3739a9-61db-4743-bb4e-6fc630e95f15.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1e16c37bf701_13933441",
+      "product_name": "Chrys - Cafe Dining",
+      "hero_url": "https://content.designerpages.com/assets/80675717/CARSChrysJBH095SAgave01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ec3765623b93_13937631",
+      "product_name": "Verve",
+      "hero_url": "https://content.designerpages.com/assets/64584411/02-Stylex-Verve-White-Three-Quarter.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_43b51aac2d4a_13886471",
+      "product_name": "Nelson Platform Bench",
+      "hero_url": "https://content.designerpages.com/assets/71235431/bfa1b6d2-506a-46e2-a16b-209726f67ec7.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_112eecdaf954_14056724",
+      "product_name": "FlirtÂ® Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78359897/6920b_01-scaled-aspect-ratio-1108-750-1024x693.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1182f2e0761b_13926806",
+      "product_name": "600 Series Industrial Stools",
+      "hero_url": "https://content.designerpages.com/assets/57795871/LonaRerick_144467677520151012-18134-14ejxy7.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_529eef2fc50d_14006660",
+      "product_name": "Palisade Bench",
+      "hero_url": "https://content.designerpages.com/assets/82198652/4314842c8f7fdfe7a5eeda8351326bbff32d784e.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b51d978c388e_13989711",
+      "product_name": "Very Wire",
+      "hero_url": "https://content.designerpages.com/assets/23249072/GetAsset.ashx.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4c6ec5ccea24_13874073",
+      "product_name": "Cora",
+      "hero_url": "https://content.designerpages.com/assets/78956176/Gallery16.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bb02e1417c17_13931160",
+      "product_name": "Kasura - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/78184404/OFS_Webb_Kasura_v25_WT_Mid_Back_Assembly-Sled0001_wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_eeb849c99198_13926783",
+      "product_name": "Intellect Wave Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/81548039/IWCS0030.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d991bed74589_13884403",
+      "product_name": "Flex Chair - Stacking",
+      "hero_url": "https://content.designerpages.com/assets/81312639/screenshot.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f9ca52397941_14006541",
+      "product_name": "Verona Chair",
+      "hero_url": "https://content.designerpages.com/assets/82197198/18d28eb1178f3992a211370edfabe064dc9689cd.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0a8ef22ccac4_11831701",
+      "product_name": "Shuttle",
+      "hero_url": "https://content.designerpages.com/assets/76875331/32a30d2b-5a91-4bc4-ab98-54e9e1324b6f.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_37ec14c56810_13874102",
+      "product_name": "Movi - Light Task Chair",
+      "hero_url": "https://content.designerpages.com/assets/78956981/MoviTask4000x4000208.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d257e12d425c_14109123",
+      "product_name": "Fringe",
+      "hero_url": "https://content.designerpages.com/assets/62175951/NATIONAL_FRINGE_BENCH.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_492b9785d75d_13926786",
+      "product_name": "LimeLite High-Density Stack Stool",
+      "hero_url": "https://content.designerpages.com/assets/78959613/limelitehdstool400x400px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f388195491fc_13926708",
+      "product_name": "Strive High-Density Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/77923086/4c3f5802-0878-4a15-875f-287db771ec4b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_21da18b36a18_13926737",
+      "product_name": "Strive Nesting Chair",
+      "hero_url": "https://content.designerpages.com/assets/11593681/strive_Nest_nesting.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ea65fbe4d1f8_14023773",
+      "product_name": "Bota Modular",
+      "hero_url": "https://content.designerpages.com/assets/78866048/HC140314LKMBloom031BotaLounge.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_50b3dffd55ce_13958786",
+      "product_name": "Kona Pouf - Round",
+      "hero_url": "https://content.designerpages.com/assets/80825193/HTKN150KonaPoufRound01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4d47fc8ab953_13933520",
+      "product_name": "Rule of Three - Multiple",
+      "hero_url": "https://content.designerpages.com/assets/53419792/Rule_of_Three___Multiple_Seating_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_22dc67f584db_13988427",
+      "product_name": "Orla",
+      "hero_url": "https://content.designerpages.com/assets/78230454/orla-lounge-chair-whitesweep-haworth.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9bf9d887bb44_13988251",
+      "product_name": "Cabana Lounge Island",
+      "hero_url": "https://content.designerpages.com/assets/79283427/cabanaloungeisland1whitesweep.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fe701e0dcc23_13937603",
+      "product_name": "Dau",
+      "hero_url": "https://content.designerpages.com/assets/79105779/StylexModelDauPoufMiniSingleLounge03Slide20221215316041m7l9bx.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0ae2ef48232b_14107687",
+      "product_name": "Whimsy",
+      "hero_url": "https://content.designerpages.com/assets/71648061/8837780b-f229-4c94-a515-2b72782a8b47.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8a92944f62fb_13926705",
+      "product_name": "LimeLite High-Density Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/78959611/limelitehdstackchair400x400px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3effeb18bf0f_14006893",
+      "product_name": "Revel",
+      "hero_url": "https://content.designerpages.com/assets/82204059/HONClassifi500004b28090HeaderCrop.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cca37f805838_13926790",
+      "product_name": "Strive High-Density Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/78936844/strivehdcombo.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_25dea086d9c3_2274392",
+      "product_name": "Ignition",
+      "hero_url": "https://content.designerpages.com/assets/51889962/Ignition1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e6049728980a_14006838",
+      "product_name": "Mav Single Lounge Series",
+      "hero_url": "https://content.designerpages.com/assets/79052402/HONMavSledBasse.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_66281b18a3ba_11577201",
+      "product_name": "Andaz laminate guest chair",
+      "hero_url": "https://content.designerpages.com/assets/77470209/c3069fec-5b92-41b0-8112-556f17c70a09.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b36c49eda1ab_14050707",
+      "product_name": "Await Lounge System - Benches & Ottomans",
+      "hero_url": "https://content.designerpages.com/assets/79570806/LB2CoalesseAWAITLOUNGESYSTEMBENCH.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b558869067b9_11819207",
+      "product_name": "Cescaâ¢ Stool",
+      "hero_url": "https://content.designerpages.com/assets/78554973/Thumbcescabarstoolcanedefault5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ee5b3f35e6e9_13946081",
+      "product_name": "Jackson - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79625161/ChairLoungeBernhardtJackson.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0f0f0b761a42_13885892",
+      "product_name": "Betwixt Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80584524/igprdovwbetwixtchairs05.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e718d2762e97_14009861",
+      "product_name": "Paramount 95\" Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81340509/newstandard92.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0416211e73d7_14051265",
+      "product_name": "Bob Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/39808892/3663515756_e1729d2e45_o.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8651117ee021_14049583",
+      "product_name": "Ginkgo Ply Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77484413/79ac5452-1d18-4e9b-88e5-97903d1ee371.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2c660a769099_13961194",
+      "product_name": "Numbersâ¢ Cantilever Chair",
+      "hero_url": "https://content.designerpages.com/assets/79271816/22879NumbersCatileverChairNavy021200x12001200x120020230223157341luozq0.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ecaa747ee1b5_13961204",
+      "product_name": "Numbersâ¢ Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/79081692/22849NumbersStackChairCerulean021200x12002022111516451w3rmvo.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_52c7b77c9bd6_4257071",
+      "product_name": "Slam",
+      "hero_url": "https://content.designerpages.com/assets/78725632/slamfourlegstackingsidechairpolypropylene.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3f64b38c5bb2_13930661",
+      "product_name": "Rowen - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/69340941/e51b83b5-a697-46ae-bd2f-815672351288.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8f82d5ee2825_11743753",
+      "product_name": "Coact - Modular Lounge",
+      "hero_url": "https://content.designerpages.com/assets/64180491/FO_SEATING_Thumbnail.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3bd20dc17b7a_13729933",
+      "product_name": "Recharge Lounge System",
+      "hero_url": "https://content.designerpages.com/assets/80756463/RechargeLounge.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b44de8c8d9cb_14108700",
+      "product_name": "Grin",
+      "hero_url": "https://content.designerpages.com/assets/71626381/44d3253b-841c-4352-a0fb-add9bdde3be5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d8e110cc58c1_13802233",
+      "product_name": "HAVEN BENCH",
+      "hero_url": "https://content.designerpages.com/assets/79215726/havenbench120230202157551dy9whu.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9ba8d0a64c97_14105052",
+      "product_name": "Sprout",
+      "hero_url": "https://content.designerpages.com/assets/79619915/Gallery8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9c433c197d30_13802247",
+      "product_name": "MAYZE MOBILE Sofas",
+      "hero_url": "https://content.designerpages.com/assets/81088882/20221125y2socialoffice139186greywheelsjpgcopy.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9f5e71bcccaf_13931098",
+      "product_name": "Acen",
+      "hero_url": "https://content.designerpages.com/assets/71130421/f045653a-c8f9-46ca-ad87-865baf75eebb.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_743f5b841515_13729874",
+      "product_name": "Bit Stool",
+      "hero_url": "https://content.designerpages.com/assets/80755474/NCBitTable.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bdcadbcddf9a_14107757",
+      "product_name": "Daymora",
+      "hero_url": "https://content.designerpages.com/assets/80489718/ChicagoDaymoraLoungehublobbyTablesModular02.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_30183d8ec9ab_13937608",
+      "product_name": "Free Address 2.0",
+      "hero_url": "https://content.designerpages.com/assets/78227468/Office_V2_ret_3-gallery-600x90020200227-16512-6891fq.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8c344a03798e_4439081",
+      "product_name": "Single",
+      "hero_url": "https://content.designerpages.com/assets/66174621/3c2f961a-4b58-4daa-b53f-95eab3e9a44b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3ce361591c85_13926706",
+      "product_name": "Maestro High-Density Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/77743837/0a465405-76e0-406e-892a-1e49ddae6354.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_32e259711873_4648661",
+      "product_name": "Ski Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/81587330/CH001.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_05ef0d78c939_6586711",
+      "product_name": "Healey Lounge",
+      "hero_url": "https://content.designerpages.com/assets/62063101/Healey_Lounge_19.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_de13302205dc_6944731",
+      "product_name": "Neos cantilever chair",
+      "hero_url": "https://content.designerpages.com/assets/81587305/CH005.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4bc71da71b70_14050068",
+      "product_name": "Seba",
+      "hero_url": "https://content.designerpages.com/assets/79476118/6476a12510efc1b115a3a28eSebaChairProduct08.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3ad3d33d6b49_14049581",
+      "product_name": "Ginkgo Lounge",
+      "hero_url": "https://content.designerpages.com/assets/57484931/Ginkgo_Lounge_Alt.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3ec59043ffd5_13884368",
+      "product_name": "Flex High Back - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/80624643/flexhighbackandreuworldBQ1666barstool21.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d1162aa14625_14049577",
+      "product_name": "Gene",
+      "hero_url": "https://content.designerpages.com/assets/81094201/65ae7f76c491ce3f32d4c031GeneProduct120241105174121iwzdus.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7bba68075b88_14050855",
+      "product_name": "Carl Hansen & Son Embrace Series - Side + Guest Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78274724/19-0116331-Embrace-Chair-CHE005-gallery.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a4ecd58adc35_13989495",
+      "product_name": "Lud'o",
+      "hero_url": "https://content.designerpages.com/assets/80952688/01Ludo4Spoke34FrontFNL.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6fb2fc96c576_14050865",
+      "product_name": "CH24 Wishbone Chair",
+      "hero_url": "https://content.designerpages.com/assets/74237691/0ae3610c-d8df-4c79-9ea9-31c7a689548b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_58786cf4106c_6598751",
+      "product_name": "CH20 | ELBOW CHAIR",
+      "hero_url": "https://content.designerpages.com/assets/62138711/CH20___ELBOW_CHAIR_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5cc5e6576668_6599911",
+      "product_name": "CH56 & CH58",
+      "hero_url": "https://content.designerpages.com/assets/58084441/CH56___CH58_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f01544fde15f_13937918",
+      "product_name": "Luna",
+      "hero_url": "https://content.designerpages.com/assets/79964911/Screenshot20231129155705.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_76f0fa30f436_13884225",
+      "product_name": "Sir - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/80624629/andreuworldsir1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_38b778951262_13884163",
+      "product_name": "Rizo - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80617816/rizoandreuworldSO2043armchair1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c9783d00ea60_14050853",
+      "product_name": "Carl Hansen & Son Embrace Series - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78268775/19-0116335-Embrace-Lounge-Chair-CHE015-gallery.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7626165c10ab_13884144",
+      "product_name": "Casta - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80616909/castaandreuworldSO23432.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_86a112cf820f_14051183",
+      "product_name": "Sistema Lounge System - Lounge Systems",
+      "hero_url": "https://content.designerpages.com/assets/78068608/18-0112390-sistema-lounge-system-pdp-header.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e5ffe3f7d7df_11783430",
+      "product_name": "Costela",
+      "hero_url": "https://content.designerpages.com/assets/78379306/Tacchini-LesArcanistes-02.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dd49622a40cc_14057797",
+      "product_name": "TwirlÂ® Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78362385/60223_06-600x600.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cf45b407379d_13684274",
+      "product_name": "MARTINI WOOD LEG - Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/80503732/42642caa8b3f7d32bf4f69394f923e96.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d8c7dd102a65_14049344",
+      "product_name": "A-Chair",
+      "hero_url": "https://content.designerpages.com/assets/61583511/a_chair_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dbd5cc73ea77_13937604",
+      "product_name": "Dela",
+      "hero_url": "https://content.designerpages.com/assets/78877597/StylexModelDelaGuestArmlessLightBlueFrontSlide2022030480153mpphz.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5083fc1a4b95_14049576",
+      "product_name": "Fina",
+      "hero_url": "https://content.designerpages.com/assets/50387202/Fina_Colored_Front_silo_med.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2146e0d8d0da_14051127",
+      "product_name": "Enea Lottus Chair",
+      "hero_url": "https://content.designerpages.com/assets/74219961/a69b53b9-e74a-495f-98ae-f1602b9ac2ce.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b5a2f3451172_14051129",
+      "product_name": "Enea Lottus Sled Stool",
+      "hero_url": "https://content.designerpages.com/assets/77696168/8d6da2cd-2ec0-4787-8359-5f34efc4f851.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b2416e5e20bd_13462585",
+      "product_name": "4501M Dignity - Single Seater with Arms",
+      "hero_url": "https://content.designerpages.com/assets/79527679/SpringstoneBEH20HealthProjectSOutpatientWaiting1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f3bdc3073c5d_13463757",
+      "product_name": "9101MHD Tailor HD - Single Seater",
+      "hero_url": "https://content.designerpages.com/assets/79540512/Tailor20HD20v4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2753a835c6f8_13463758",
+      "product_name": "9102MHD Tailor HD - Two Seater",
+      "hero_url": "https://content.designerpages.com/assets/79540521/Tailor20HD20v4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5144203f443a_4494741",
+      "product_name": "Karma Multipurpose Seating",
+      "hero_url": "https://content.designerpages.com/assets/81387347/karmadetailtrglide.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_13a4e489470a_2654622",
+      "product_name": "Hondo Nuevo Lounge Furniture",
+      "hero_url": "https://content.designerpages.com/assets/53573322/norix_hondo1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e410f9a20487_13961130",
+      "product_name": "FlowformÂ® Learn Lounge Single Seat",
+      "hero_url": "https://content.designerpages.com/assets/81949848/55010FlowformSingleSeatApricotscaled.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9370b512927a_13946069",
+      "product_name": "Harmony Luxe - Modular",
+      "hero_url": "https://content.designerpages.com/assets/80721013/HarmonyLuxeImageGallery031.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2f71915041ca_13886657",
+      "product_name": "Polly Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/79584883/thprdpollysidechairfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d07904c8e6ca_13785898",
+      "product_name": "Sway Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/64582621/SwayOttoman.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5b2f430022f6_14006842",
+      "product_name": "Flock",
+      "hero_url": "https://content.designerpages.com/assets/62944301/HON_Flock_mobile_ottoman.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7cb073a9b2cc_3808001",
+      "product_name": "Move Chair by Steelcase",
+      "hero_url": "https://content.designerpages.com/assets/73881071/2f08e664-58c1-435c-987c-3e28eda24681.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ea4b67bb8b34_13753185",
+      "product_name": "Player",
+      "hero_url": "https://content.designerpages.com/assets/79976777/200148828.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2f5579db34fd_13931117",
+      "product_name": "Boost",
+      "hero_url": "https://content.designerpages.com/assets/64115931/FOF_boost_wr_05.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_18bc80fc0d82_14105010",
+      "product_name": "Nano",
+      "hero_url": "https://content.designerpages.com/assets/81043244/OttomanSitOnItNanoTrapezoid.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4ef1187f4f1c_13926735",
+      "product_name": "MyWay Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/77406608/59a61082-bbf7-499b-8406-5171e4560839.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_99a0e0d01a35_13926752",
+      "product_name": "Sonrisa Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/81466071/CH01.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_da229daba1da_14056758",
+      "product_name": "Livia Benches",
+      "hero_url": "https://content.designerpages.com/assets/78359527/8248b_04-aspect-ratio-1108-750-1024x693.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e0edd7d826a5_14006693",
+      "product_name": "Abril",
+      "hero_url": "https://content.designerpages.com/assets/82199403/20d1a4be71e2c7f2e01727b58367dee376595eda.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ca351b5ae5cc_14006670",
+      "product_name": "Lakeside Bench",
+      "hero_url": "https://content.designerpages.com/assets/82198882/2c19c14064f568efec44c7bc578f1d6720c6dadb.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d2574cee216c_13890775",
+      "product_name": "Filo",
+      "hero_url": "https://content.designerpages.com/assets/81519762/Filo.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fb5dcddcf0b6_14104993",
+      "product_name": "Lumin Wire Rod",
+      "hero_url": "https://content.designerpages.com/assets/81445814/C4.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b07763975031_13946118",
+      "product_name": "Neve",
+      "hero_url": "https://content.designerpages.com/assets/79766504/NeveImageGallery091.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9becfcf7e77e_13462615",
+      "product_name": "ENDB2 EndZone Bench - 2 Seat No Cushion",
+      "hero_url": "https://content.designerpages.com/assets/79528537/SPECNeoCon20176284Resized.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6cdb4ebc48b5_14050036",
+      "product_name": "PLC",
+      "hero_url": "https://content.designerpages.com/assets/25167832/PLC_chair__Red2__by_PearsonLloyd.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1e3c99659034_14050037",
+      "product_name": "PLC Barstool",
+      "hero_url": "https://content.designerpages.com/assets/77485084/f550c627-e5c0-4eda-b2c7-23411b8b7589.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_caba462077c1_10870631",
+      "product_name": "Conexus Upholstered Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/75189021/4137cd9b-a049-40e9-a7ed-4a5a9a3c7aef.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bafca23b5e2d_14107719",
+      "product_name": "Bloom",
+      "hero_url": "https://content.designerpages.com/assets/57034661/ColetteAbeLee_143934858820150812-13256-1cjxku2.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8b3adf87e7e6_14107210",
+      "product_name": "Ditto",
+      "hero_url": "https://content.designerpages.com/assets/71614551/1804b022-da7c-4d4a-8d6d-6fea8237a472.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cd5bf92e4a04_13926749",
+      "product_name": "Katera Guest Chair",
+      "hero_url": "https://content.designerpages.com/assets/77920023/27b8bc39-fb3b-463e-bec8-432ed7d0fb21.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_59d80b22c872_13926997",
+      "product_name": "Zeker Modular Seating",
+      "hero_url": "https://content.designerpages.com/assets/81501080/ZK0600030.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_75d23bb1f063_13958699",
+      "product_name": "Gimbal Jr. Lounge Chair - Swivel Base with Auto-Return",
+      "hero_url": "https://content.designerpages.com/assets/80444034/GimbalJR0003.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_31b95ceade79_13959311",
+      "product_name": "Proto Lounge Chair - Highback",
+      "hero_url": "https://content.designerpages.com/assets/81587340/CH002A.1.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_70253270effe_13411780",
+      "product_name": "CoLab",
+      "hero_url": "https://content.designerpages.com/assets/79443126/banner1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a675675b3ff3_13926784",
+      "product_name": "Katera Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/78117772/katera-cafe-stool_600x600px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_17d4c847f1ab_14107468",
+      "product_name": "Mabel",
+      "hero_url": "https://content.designerpages.com/assets/71628481/ea1f7ce2-5b2b-4a5d-93cd-6e10f06b17fe.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4ad520c8c5e7_11831800",
+      "product_name": "Jax",
+      "hero_url": "https://content.designerpages.com/assets/78619077/9t05JaxHB9126FrontFacing1024x1024.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_93225d3aa86a_14050060",
+      "product_name": "Rho",
+      "hero_url": "https://content.designerpages.com/assets/80313935/6217ecd79c6aaf2997e7b901RhoProduct04.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_16c9dc7fd2ac_14050049",
+      "product_name": "Q5 - Ottomans",
+      "hero_url": "https://content.designerpages.com/assets/82366445/6220f3ae1ee9801c69e24ab2Q5FreestandingBenchMainThumbnail.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_331bf6c414f2_14050057",
+      "product_name": "Quad",
+      "hero_url": "https://content.designerpages.com/assets/79072928/61f805a65adf92941082a654QuadProduct01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7493bbb34938_14107167",
+      "product_name": "Chaddy",
+      "hero_url": "https://content.designerpages.com/assets/79428181/ChaddyMobile.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_595a850efb2d_14006547",
+      "product_name": "Chipman Chair",
+      "hero_url": "https://content.designerpages.com/assets/78599547/JanusEtCieTateACStackableQVMercuryCoffee.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fa7540d64140_13926788",
+      "product_name": "Ruckus Stool",
+      "hero_url": "https://content.designerpages.com/assets/77407636/d69bcd6b-5f10-4ef1-b889-1a2324df8429.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_09f58bd5b4f7_13890832",
+      "product_name": "Wunder",
+      "hero_url": "https://content.designerpages.com/assets/78607908/Wunder78040.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_04a60e20b4f3_13890820",
+      "product_name": "Symm",
+      "hero_url": "https://content.designerpages.com/assets/80330440/Symm93132WS.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8021e0d17b1c_13931159",
+      "product_name": "Kasura - Sled",
+      "hero_url": "https://content.designerpages.com/assets/81099548/F0240.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2b21fa8b13d8_13982287",
+      "product_name": "Risom Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/78014555/741_l.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ceb93cf807c4_13961479",
+      "product_name": "Normann Copenhagen Seating",
+      "hero_url": "https://content.designerpages.com/assets/73772141/34e192fe-74c7-46d7-97b7-1aadf1c8f3ce.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4200482acd2a_13931107",
+      "product_name": "Balance",
+      "hero_url": "https://content.designerpages.com/assets/75382731/25ddd6e1-5b51-44cf-ba70-1755245307b6.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4dfa9a1e28bf_13946084",
+      "product_name": "KL",
+      "hero_url": "https://content.designerpages.com/assets/78509890/KL_Photo_07_HR.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3a174882a447_13946001",
+      "product_name": "Chantal - Guest",
+      "hero_url": "https://content.designerpages.com/assets/78381085/Chantal02_Drawing_01_LR20200528-22375-7bj74c.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e2e2862f86b8_13958715",
+      "product_name": "Hari Chair - Polypropylene",
+      "hero_url": "https://content.designerpages.com/assets/81942336/NDHR025HariChairPolypropylene18.5W01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_31706c00f89c_13931143",
+      "product_name": "Harpin - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/75388951/e16abc97-1f9d-402e-b5d1-96649fe1235e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_13d198e6387b_13753199",
+      "product_name": "Scoop",
+      "hero_url": "https://content.designerpages.com/assets/77595371/6c600826-e19e-41ac-b053-2f82a23b0119.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ba2901b0e54a_13883666",
+      "product_name": "Hula",
+      "hero_url": "https://content.designerpages.com/assets/77824855/f2102d6a-381a-4de0-84a2-29157df901ac.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ac9622c546f5_13946106",
+      "product_name": "Matinee",
+      "hero_url": "https://content.designerpages.com/assets/78876417/MatineePhoto15HR.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1a57c2fa1566_11895064",
+      "product_name": "Inyo",
+      "hero_url": "https://content.designerpages.com/assets/78565614/11402.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_23311b40ec51_13989498",
+      "product_name": "Maari Stool",
+      "hero_url": "https://content.designerpages.com/assets/80733048/09HaworthTables0429FNL1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0de85bbec5b0_13824029",
+      "product_name": "Clique",
+      "hero_url": "https://content.designerpages.com/assets/77535701/26084021-1980-401f-8641-463c6ea9ec05.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d6894ad5cdcd_13937630",
+      "product_name": "Underline",
+      "hero_url": "https://content.designerpages.com/assets/78877530/StylexModelUnderlineStoolWoodOakFrontSlide2022030428157ewwj.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fb27b6acc6ac_13959183",
+      "product_name": "Levels Bench, Mid Height - 95\" Width",
+      "hero_url": "https://content.designerpages.com/assets/81943178/PHLV025LevelsMidSolo95W1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fa643deacdab_13885887",
+      "product_name": "Eames Molded Plastic Chair",
+      "hero_url": "https://content.designerpages.com/assets/56623481/Eames_Molded_Plastic_Armchair-Black.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_43910e91405e_14051159",
+      "product_name": "Massaud Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/59614161/CH-03_Coalesse-Massaud_Lounge.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0c67187b7e1f_14056723",
+      "product_name": "FlirtÂ® Guest",
+      "hero_url": "https://content.designerpages.com/assets/77890084/8d996415-c162-4984-b7e1-35efe5913aad.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4e31a0fb62b5_13945964",
+      "product_name": "Apel - Bench",
+      "hero_url": "https://content.designerpages.com/assets/78590059/OT2Image.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bddbbe501d3b_14006890",
+      "product_name": "Skip",
+      "hero_url": "https://content.designerpages.com/assets/82204037/HONSkipHQQ1700005.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f9a81d875b52_1451232",
+      "product_name": "Hokki",
+      "hero_url": "https://content.designerpages.com/assets/81561777/RICOCHET.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cc102881bcd3_14050064",
+      "product_name": "Sachet",
+      "hero_url": "https://content.designerpages.com/assets/67308521/1059411c-6daa-43d8-87c6-1ec0f0afe9e5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4347c72fe10d_13890804",
+      "product_name": "Parlez",
+      "hero_url": "https://content.designerpages.com/assets/73583991/e162cfd8-6d0a-487a-9d93-874063290cac.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6213e72ca8c1_11819239",
+      "product_name": "Pollock Arm Chair",
+      "hero_url": "https://content.designerpages.com/assets/78555733/Thumbpollockloungechair5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_38186b6f123b_14051161",
+      "product_name": "Millbrae Contract Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/56546861/Millbrae_Contract_s04_hi_1000_1333_90.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5151b1dcf13e_13728949",
+      "product_name": "Soft Edge Chair",
+      "hero_url": "https://content.designerpages.com/assets/80746804/thprdsoftedgechairfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e0a7bc6bcacb_13946018",
+      "product_name": "Code - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/71321611/93b18d56-afe0-4f44-8055-b7ea67d6a158.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_11be3d782e1d_13982197",
+      "product_name": "Brno Chair Tubular",
+      "hero_url": "https://content.designerpages.com/assets/56943421/Brno_Chair___Tubular_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b9c683abf913_1619232",
+      "product_name": "ACANTO",
+      "hero_url": "https://content.designerpages.com/assets/49725532/13935_L0_I3_13935_L0_I2_01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0bc804755de6_13946042",
+      "product_name": "Elevation - Bench",
+      "hero_url": "https://content.designerpages.com/assets/77469720/94f21d22-60a9-4659-96c7-a096e1d76b21.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f8dffe4f1b52_13884167",
+      "product_name": "Tauro - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/79846592/Tauro.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a0e43542d748_14049606",
+      "product_name": "Join",
+      "hero_url": "https://content.designerpages.com/assets/51896892/Join_Spread_hi.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5b77579d565e_13883741",
+      "product_name": "Tauro - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81465055/Tauro0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_04180183a7d6_14050023",
+      "product_name": "MilanoLight",
+      "hero_url": "https://content.designerpages.com/assets/11504842/Milano_Light.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0469d6cdd4cd_11602891",
+      "product_name": "Grand Repos",
+      "hero_url": "https://content.designerpages.com/assets/77641972/46d9697b-04bd-4675-b1a2-71fe256ce320.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_930aa2746d98_11973248",
+      "product_name": "Edge",
+      "hero_url": "https://content.designerpages.com/assets/53055892/edge_2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f2d033e5fd51_10313861",
+      "product_name": "Park Swivel Armchair",
+      "hero_url": "https://content.designerpages.com/assets/73174661/001d9d5a-9654-4c30-bc5a-039e761d5e58.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d5a9e428e9d5_13958028",
+      "product_name": "Boulevard Bench - 24\" Width",
+      "hero_url": "https://content.designerpages.com/assets/80826614/BoulevardBench24W01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a9c4280762c2_13958031",
+      "product_name": "Boulevard Bench, with Table - 24\" Width",
+      "hero_url": "https://content.designerpages.com/assets/80826651/BoulevardBenchTable24W01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_53f1d69e807c_13958030",
+      "product_name": "Boulevard Bench - 90Â° Curve",
+      "hero_url": "https://content.designerpages.com/assets/80826632/BoulevardBench90Curve01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_83c8993d0070_13933487",
+      "product_name": "Noe",
+      "hero_url": "https://content.designerpages.com/assets/80678670/CARNoeFamily02.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3ce2ac6310ab_13890793",
+      "product_name": "Loon",
+      "hero_url": "https://content.designerpages.com/assets/71053961/38bde3ab-b962-49d2-aaeb-5b6f675c7175.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_258f0bea11a6_14107220",
+      "product_name": "Delgado",
+      "hero_url": "https://content.designerpages.com/assets/71383421/44edbc6d-2568-48d2-81d6-5896685a0315.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7061e6a06baa_13883659",
+      "product_name": "Happy - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81463736/Happy0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_91ff4f0041b3_13890776",
+      "product_name": "Flit",
+      "hero_url": "https://content.designerpages.com/assets/71054521/7c31cff1-357b-4dbc-a6f1-29a65318c4da.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e80e5c15807f_11837711",
+      "product_name": "Bare",
+      "hero_url": "https://content.designerpages.com/assets/78650238/5f060c7cfc67655ca52da50eBareDIS0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b86c3a705d94_13890801",
+      "product_name": "Oro",
+      "hero_url": "https://content.designerpages.com/assets/81520429/Oro.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_63a486fdb8b1_13946036",
+      "product_name": "Diego",
+      "hero_url": "https://content.designerpages.com/assets/75312441/736b26f3-cc05-4f2c-bd33-be654cba061c.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8252ea579d98_13802259",
+      "product_name": "ORAN Sofas",
+      "hero_url": "https://content.designerpages.com/assets/78834546/OranSofaBlack.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e5df49c34559_13802257",
+      "product_name": "ORAI Sofas",
+      "hero_url": "https://content.designerpages.com/assets/78693998/allermuiroraiu103572fallhq.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0d6917d7b4f6_13945965",
+      "product_name": "Apel - Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/81568688/BernhardtApelImageGallery081green.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d1e62d60b5f0_14050078",
+      "product_name": "SoMod - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/79478052/621be10b2f4749b76c90bb88SoModPhoto20Gallery03.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_02e09e493f28_14006280",
+      "product_name": "Every Day Chair",
+      "hero_url": "https://content.designerpages.com/assets/81567752/LandscapeFormEverydayChairArms.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_81a0019bc840_13958176",
+      "product_name": "Flote Sofa, Three-Seat - Zipper Detail",
+      "hero_url": "https://content.designerpages.com/assets/80822884/FloteSofaZipper01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d83d969b09bd_14007397",
+      "product_name": "SmartLink",
+      "hero_url": "https://content.designerpages.com/assets/54244101/HON___SmartLink_Seating_7_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_01f35a521182_13957982",
+      "product_name": "Adapt Sofa, Three-Seat, Lowback - No Arms",
+      "hero_url": "https://content.designerpages.com/assets/81571542/AdaptLounge.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2558ba498cff_14051105",
+      "product_name": "Coalesse Ensemble Lounge System - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81574461/coalesestraightscreen.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8fadf10d12b5_13802218",
+      "product_name": "FAMIGLIA Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/81087810/famigliamoodimage1.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0a80be1568ba_11596501",
+      "product_name": "Fuuga",
+      "hero_url": "https://content.designerpages.com/assets/77588621/8cf63ef3-bc3d-422d-8b7c-5a9b4658c9f7.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ed8b8a0d09a_6587671",
+      "product_name": "Jaan Living - Benches",
+      "hero_url": "https://content.designerpages.com/assets/62072481/Jaan_Living___Benches_4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dd35a11f4821_13717518",
+      "product_name": "Rapport Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78503354/th_prd_rapport_sofa_lounge_seating_hv.jpg.rendition.1152.1152.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a5c19781002_11895198",
+      "product_name": "Blackburn - Side Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78826321/6255.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ac0fae82041_11716251",
+      "product_name": "Magis Spun Chair",
+      "hero_url": "https://content.designerpages.com/assets/71220871/5ae61252-398e-4378-97d8-24a1d8acd5f2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_49ebe22861c4_13884196",
+      "product_name": "Gala - Swivel",
+      "hero_url": "https://content.designerpages.com/assets/81468004/GalaSwivel0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9c712cf926c6_11597306",
+      "product_name": "West Elm Work Mesa Sectional",
+      "hero_url": "https://content.designerpages.com/assets/77594208/d4374f18-f9e1-4493-bb69-1ee1daf0692c.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c669c7ef9a02_13930666",
+      "product_name": "Rowen Bench",
+      "hero_url": "https://content.designerpages.com/assets/81758353/ofs20set01img06v06wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6212b2e74788_14050065",
+      "product_name": "Sachet Barstool",
+      "hero_url": "https://content.designerpages.com/assets/78850840/TaskBarstool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e83fa8d91705_14049343",
+      "product_name": "A-Bench - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/82362660/621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "reason": "hero seating_type is bench"
+    },
+    {
+      "product_id": "product_263a912d787a_11848908",
+      "product_name": "Huggy GL Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78680433/62814huggygllounge.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_19630dcf0d45_13926875",
+      "product_name": "Lancaster Auditorium Seating",
+      "hero_url": "https://content.designerpages.com/assets/77406131/9db981a3-b68f-43f0-9bed-1147f68eacab.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9532277d7872_11741426",
+      "product_name": "TOMMY",
+      "hero_url": "https://content.designerpages.com/assets/78173332/Tommy_White_CulpApple_Highest.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1c9f21e1bdfc_14006570",
+      "product_name": "Chill Chaise Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82197756/67507a5fba3c281687c8f6d10c47ec4a0f1d7e1e.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_46eaa9fefe0c_13882351",
+      "product_name": "Attessa - Modular",
+      "hero_url": "https://content.designerpages.com/assets/78958551/AM200ALrender.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a6fab3c0e3d2_14006848",
+      "product_name": "Motivate",
+      "hero_url": "https://content.designerpages.com/assets/77656331/c5709158-a48b-471e-86a1-84d5c43c0ac8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5fd34c6eebbb_13958603",
+      "product_name": "FourSureÂ® Chair - Sled Base",
+      "hero_url": "https://content.designerpages.com/assets/80827242/FDFS020ForSureSledChair01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8bfaec65ba5f_13958696",
+      "product_name": "Gimbal Jr. Lounge Chair - Caster Base",
+      "hero_url": "https://content.designerpages.com/assets/80822056/HTGM030GimbalJrLoungeCaster01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ff596359f8ef_13958061",
+      "product_name": "Dry Bench Cushion",
+      "hero_url": "https://content.designerpages.com/assets/80830869/DryBenchCushion01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2fb973d4860d_13926738",
+      "product_name": "Torsion Air Nesting Chair",
+      "hero_url": "https://content.designerpages.com/assets/77409206/dbf00632-f34d-42ed-8076-0eb5832caf1f.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e88bdb0f6829_11876825",
+      "product_name": "Kip",
+      "hero_url": "https://content.designerpages.com/assets/78754970/Kip1080GTGrey.RGBcolor.0000.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d6b6609c80d7_13681240",
+      "product_name": "FESTA24 Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/80483023/FESTA22alt2888x888.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d4173f4996cf_13728960",
+      "product_name": "Palissade Stool",
+      "hero_url": "https://content.designerpages.com/assets/77800588/f589136b-337f-4a75-a7cd-ed1af7c83b18.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_24f797604fee_14011184",
+      "product_name": "Bumper Large Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/78948877/by1lgottoblush2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3d951ea14715_14108699",
+      "product_name": "Fringe 2.0",
+      "hero_url": "https://content.designerpages.com/assets/81778570/S5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_630858d1bcb8_13885848",
+      "product_name": "Setu Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/81485789/thprdsetusidechairsidechairsfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dad609bdc547_13958586",
+      "product_name": "FourLikesÂ® Scooter Chair",
+      "hero_url": "https://content.designerpages.com/assets/81941711/FL100FourLikesScooterChair01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_429f0ab7e9b3_14057756",
+      "product_name": "Hoom Swivel",
+      "hero_url": "https://content.designerpages.com/assets/80881491/HoomGuest12600x600202409066737qll82.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d8157a8ece43_14057762",
+      "product_name": "Loupe Stools",
+      "hero_url": "https://content.designerpages.com/assets/79088458/LoupeStool01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a94546ea4e8_13885893",
+      "product_name": "Aside Chairs",
+      "hero_url": "https://content.designerpages.com/assets/71175701/7b9f6cdf-e4f2-4da9-9e62-d39347bc362b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1d1deefdd223_13931140",
+      "product_name": "Flexxy - Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/53408032/Flexxy_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e96f17305d85_13931256",
+      "product_name": "Vienna - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/81762560/ofs42set01img012C03v03000028129wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4ecd5771fd87_14107485",
+      "product_name": "Idara",
+      "hero_url": "https://content.designerpages.com/assets/78638709/L09NEWNOFIdara.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c443ff4b7e77_14011183",
+      "product_name": "Bumper Small Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/75894641/fa1ff3f7-8c05-4a8e-911a-237c057f147c.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cdf955234f11_13989728",
+      "product_name": "Zody Visitor",
+      "hero_url": "https://content.designerpages.com/assets/69843021/04866261-6f7c-48d8-be01-bebda496bebb.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c0a6aa2dabcf_13946108",
+      "product_name": "Mezzo",
+      "hero_url": "https://content.designerpages.com/assets/78299004/Mezzo_Drawing_01_LR20200326-6978-11ncspi.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6c52e02c1343_11819243",
+      "product_name": "Pilot by KnollÂ® High Back",
+      "hero_url": "https://content.designerpages.com/assets/78555827/Thumbpilothigharmsdefault5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6167278f1d78_13804810",
+      "product_name": "Enea Bar Stool",
+      "hero_url": "https://content.designerpages.com/assets/77696080/e59e4a49-412d-476a-8914-0123a3c29df8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e0bfbaa1ce42_13959419",
+      "product_name": "Tombolo Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/81898211/tomboloarmless.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d0e20c8be3ca_13926755",
+      "product_name": "Clamber Tiered Seating",
+      "hero_url": "https://content.designerpages.com/assets/81725998/clamberstylesonestraight.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_13edd04ff401_13972519",
+      "product_name": "RemixÂ® Side",
+      "hero_url": "https://content.designerpages.com/assets/81906577/64SXGL2RXSRXS03RXBRXB03FZ.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c63268b3e3e1_14050026",
+      "product_name": "Modo - Freestanding Benches",
+      "hero_url": "https://content.designerpages.com/assets/80312731/61f1c497b6c517ad27a10298ModoLifestyle01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_198a981a3dfc_13755318",
+      "product_name": "Tenor",
+      "hero_url": "https://content.designerpages.com/assets/79981148/220171614.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ccb9ffc4882_11819295",
+      "product_name": "1966 Three Seat Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78556940/Thumb1966threeseaterthumb5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_87e327c27224_11819292",
+      "product_name": "1966 Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78556858/Thumb1966loungechairthumb5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a25c2c99ba9c_14107904",
+      "product_name": "Joelle",
+      "hero_url": "https://content.designerpages.com/assets/54501441/Dwell_Env_01_xl.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_13f43ae9e531_14006840",
+      "product_name": "Confer",
+      "hero_url": "https://content.designerpages.com/assets/82201028/HONConfer500002herocrop.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e778c0943917_13989641",
+      "product_name": "Poppy Guest",
+      "hero_url": "https://content.designerpages.com/assets/66363871/da6f32eb-1d2d-4951-b983-dc7a68d42e6a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_671dd5136fea_13958208",
+      "product_name": "FourCastÂ®2 Chair, 4 Leg Base - with Seat Pad",
+      "hero_url": "https://content.designerpages.com/assets/80824560/FDFC035FourCastSeatPad4LegChair01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e70690076eff_13958247",
+      "product_name": "FourCastÂ®2 Chair, Counter Height, Sled Base - with Seat Pad",
+      "hero_url": "https://content.designerpages.com/assets/79904140/FDFC195FourCastSeatPadCounterSledChair02.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ac5f2db0516e_14006676",
+      "product_name": "Gretchen Bench",
+      "hero_url": "https://content.designerpages.com/assets/81509213/07c9e306d97e966e8c8920b3f67594ba8c2b0c56.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b68a365f4ecd_13959212",
+      "product_name": "Nadia Chair, Bar Height, Wood Frame - Upholstered",
+      "hero_url": "https://content.designerpages.com/assets/80823373/NDNA040NadiaChairUpholsteredBarHeight01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cffd66483b2a_13989709",
+      "product_name": "Very Side and Seminar",
+      "hero_url": "https://content.designerpages.com/assets/23245262/GetAsset.ashx.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_721537f6a20a_13930686",
+      "product_name": "Heya - Bench/Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/77938491/50e20ba8-a02e-41a7-8e64-39929fe634a8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_387e5dd376f4_13802237",
+      "product_name": "JINX Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/78687203/jinxsoftseating2018d202104151349715ale3r.jpeg",
+      "reason": "hero seating_type is blank"
+    },
+    {
+      "product_id": "product_abaf8b36bf94_13909411",
+      "product_name": "Poet",
+      "hero_url": "https://content.designerpages.com/assets/81601766/jsipoetenviro00015.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a3ef67addcd9_13931144",
+      "product_name": "Harpin - Stool",
+      "hero_url": "https://content.designerpages.com/assets/79049882/ofs08set03img01v04wr0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b24c65d68d8f_13890803",
+      "product_name": "Pact Flex",
+      "hero_url": "https://content.designerpages.com/assets/81520524/PactFlex1051232.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7c722677de1d_13931132",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/77850680/2e9ab25a-b94d-494c-a187-133628d9150c.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a71ce3841fa3_14051142",
+      "product_name": "Joel Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/74224051/c63a0976-470d-467d-bfd2-15c18782990c.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_25e6b29a8534_14038337",
+      "product_name": "Martini Swivel",
+      "hero_url": "https://content.designerpages.com/assets/82283372/686c240ba5befa54eb1603b2Martini20Ht20Adj20Swivel20Pol203.4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0bd0be24e770_13753203",
+      "product_name": "Umami Lounge System",
+      "hero_url": "https://content.designerpages.com/assets/70239961/709dee1e-711a-4969-852f-784a6ec2c13b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5de106aa9bdd_13890818",
+      "product_name": "Swish",
+      "hero_url": "https://content.designerpages.com/assets/81520887/Swish.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4d8e582c090a_14051198",
+      "product_name": "Visalia Lounge Seating - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/74237051/561a488b-01ef-4147-af90-396b28af7730.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_28d3eec4022d_13884153",
+      "product_name": "Liceo - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/79774827/liceoandreuworldso1546armchair1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c044b9a7342f_13946124",
+      "product_name": "Oslo.02",
+      "hero_url": "https://content.designerpages.com/assets/81882476/OsloImageGallery121.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d5153ee572cc_4494761",
+      "product_name": "Zola Modular Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/63596011/ZOLA-Privacy_Main06_Final.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0aae3091f063_11819208",
+      "product_name": "Saarinen Executive Stool",
+      "hero_url": "https://content.designerpages.com/assets/78554980/Thumbsaarinenexecutivestoolbarheight5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d2c2862c3c14_10872521",
+      "product_name": "Triscape Pouf",
+      "hero_url": "https://content.designerpages.com/assets/75222231/e7045f72-f2e0-417d-afa3-e82a3e0b50ca.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b25597eb2be9_13946156",
+      "product_name": "Stay",
+      "hero_url": "https://content.designerpages.com/assets/79769217/StayImageGallery111.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8c7c6f24b99e_13933526",
+      "product_name": "Serony - Guest Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/75401371/9a4c6ad6-39e9-40a7-b471-684aa168ef4b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a1a5eaac954a_13717457",
+      "product_name": "Tuxedo Benches",
+      "hero_url": "https://content.designerpages.com/assets/80683512/thprdtuxedobenchesbenchseatingfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0e170acf898d_13886041",
+      "product_name": "Eames Molded Wood Stool",
+      "hero_url": "https://content.designerpages.com/assets/65162511/eamemoldedwood-eamesmoldedwoodstool-1-cutout.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ce9b2a35ac67_14051104",
+      "product_name": "Coalesse Ensemble Lounge System",
+      "hero_url": "https://content.designerpages.com/assets/82040200/240224558.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_afea169262c4_14104973",
+      "product_name": "Focus Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/82040513/SitOnItFocusSideChair.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e8814ef40f37_13886040",
+      "product_name": "Eames Molded Plastic Stool",
+      "hero_url": "https://content.designerpages.com/assets/65162471/eamesmoldedplasticchairs-eamesmoldedplasticstool-1-cutout.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c0aec2d15862_13753201",
+      "product_name": "Steelcase Flex Perch Stool",
+      "hero_url": "https://content.designerpages.com/assets/80832793/eb0616ac0a014420b9226f5e3c0d5d06.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_116f84eda0ca_13933485",
+      "product_name": "Neom - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77960694/ab2a0704-59c5-4d46-8f4f-6b7c1f42e722.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_def506945a69_6588601",
+      "product_name": "Foster 520",
+      "hero_url": "https://content.designerpages.com/assets/62076821/Foster_520_5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_443b0d5a21ea_13802241",
+      "product_name": "KIN Stools",
+      "hero_url": "https://content.designerpages.com/assets/81089082/20230703senatory2156128copy.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d8996a3894cc_5838041",
+      "product_name": "Catifa 46âNew Edition",
+      "hero_url": "https://content.designerpages.com/assets/60389721/CATIFA46_01_ph_credits_40Dominik_Tarabanski.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_01a13264bedf_14049538",
+      "product_name": "Ariel Barstool",
+      "hero_url": "https://content.designerpages.com/assets/79044716/ArielBarstoolLifestyle01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e196ee409890_13802240",
+      "product_name": "KIN Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78221706/gallery_allermuir_kin_lo_40042.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cb72cf33a66a_13931241",
+      "product_name": "Sofy - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/79048522/ofs27set01img08v04wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b967b6c9ef7d_13934341",
+      "product_name": "Kasura - Wood",
+      "hero_url": "https://content.designerpages.com/assets/81785909/ofs07set01img11v1028129wr1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2b6a683abf39_13945992",
+      "product_name": "Canelle",
+      "hero_url": "https://content.designerpages.com/assets/78182204/Bernhardt_Canelle.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5e788ef827a7_13933476",
+      "product_name": "Modern Amenity - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/53418642/Modern_Amenity___Lounge_Modular_Lounge_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cb10f4f4342b_13930671",
+      "product_name": "Raya - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79626385/ofs34set02img0304v010000wr202308315378195je0s.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3c09c91a8458_13926745",
+      "product_name": "LimeLite Guest Chair",
+      "hero_url": "https://content.designerpages.com/assets/81725671/limelitewoodlegathens21440x810px.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8f5229fad9ca_14056776",
+      "product_name": "Savina Modular",
+      "hero_url": "https://content.designerpages.com/assets/78360392/5402o_03-600x600.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_203d9c355797_14050006",
+      "product_name": "JP Lounge - Freestanding Benches",
+      "hero_url": "https://content.designerpages.com/assets/81765288/620bd133252e7328b50dce6fJPModularBench.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3a5772224f6e_14057764",
+      "product_name": "Mayland Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80529776/MaylandGuest04.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_551bfe7860cf_14051102",
+      "product_name": "Circa Lounge System - Lounge Systems",
+      "hero_url": "https://content.designerpages.com/assets/33337362/519268e0403c8c1551e0df18974981e5.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_79bd64255cbd_13933448",
+      "product_name": "Elara - Modular Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80675982/CARSElaraModular070.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a73f990ee88a_13909363",
+      "product_name": "Bryn",
+      "hero_url": "https://content.designerpages.com/assets/81033420/jsibryncomp00023.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a8f65c4b8c57_14050105",
+      "product_name": "X50",
+      "hero_url": "https://content.designerpages.com/assets/81767886/65931c285e47d82a7f633980X50IndexCrops.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6d2a8d6a76ba_13946024",
+      "product_name": "Cooper",
+      "hero_url": "https://content.designerpages.com/assets/81880002/CooperImageGallery115.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_35e32ee74c05_13884148",
+      "product_name": "Flex Chair - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81465935/FlexChairChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_95a5ad29ba2f_13946035",
+      "product_name": "Darby",
+      "hero_url": "https://content.designerpages.com/assets/81880310/DarbyImageGallery022.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b61a94413cb8_13507966",
+      "product_name": "Revo Stool Closed Back",
+      "hero_url": "https://content.designerpages.com/assets/78975835/RevoStool190501030reverse937x875.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_733cea400ba5_14006847",
+      "product_name": "Etch",
+      "hero_url": "https://content.designerpages.com/assets/82111673/HONEtchStackingChairHPMMVL1POEP8VCYAA.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0eeb1339bc9b_13933519",
+      "product_name": "Rule of Three - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/53418802/Rule_of_Three___Lounge_Modular_Lounge_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7d9facf6c222_13684253",
+      "product_name": "JUMP - Swivel",
+      "hero_url": "https://content.designerpages.com/assets/78980882/1fc6f1dde383c368ed1fb1eefe17ee2b9802x.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ecec3e576eab_13802217",
+      "product_name": "FAMIGLIA Chairs",
+      "hero_url": "https://content.designerpages.com/assets/61423371/AutumnHoffmeier_146775524620160705-64249-ttnhab.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a9259b3243ec_13883626",
+      "product_name": "Bolete Chair",
+      "hero_url": "https://content.designerpages.com/assets/81463610/BoleteChair0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_87742b76bcaa_14105065",
+      "product_name": "Wit Side",
+      "hero_url": "https://content.designerpages.com/assets/69610161/c329bff9-b2cf-4b93-a6e0-a475a6c02a01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d3f4e50725e9_10112001",
+      "product_name": "Adirondack Chair (Flat)",
+      "hero_url": "https://content.designerpages.com/assets/72440571/8a6f6f07-8acb-4def-a243-04e4816fe7ef.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8b00aad79d82_14107199",
+      "product_name": "Eklund",
+      "hero_url": "https://content.designerpages.com/assets/78819638/nationaleklund20220401-47-10pthoa.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_368fbfd59abb_6586881",
+      "product_name": "Turtle",
+      "hero_url": "https://content.designerpages.com/assets/62065111/Turtle_6.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8e961fc60801_14097277",
+      "product_name": "Cubb Seating",
+      "hero_url": "https://content.designerpages.com/assets/78418889/19-0122584-Orangebox-Cubb-Stools20200714-7160-tjx67i.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b53f2c0f0349_13931127",
+      "product_name": "Coact - Bench/Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/77937828/ff9e49c7-610c-4281-a9ac-17c8532dc366.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_94d760539e5a_13753187",
+      "product_name": "Simple Chair",
+      "hero_url": "https://content.designerpages.com/assets/79262116/CH3DAVISARIEL.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_397f71e417e9_14049563",
+      "product_name": "Codi Barstool",
+      "hero_url": "https://content.designerpages.com/assets/79088320/61e1aadab34b3328b383a5a2CodiPhotoGallery8lo.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4a6e110ccb9e_13988380",
+      "product_name": "Lyda",
+      "hero_url": "https://content.designerpages.com/assets/82107241/ws1LydaWhitesweep2Haworth.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d315e26a6400_13884157",
+      "product_name": "Nub - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78356369/andreu-world-nub-3.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7d5f47a47e10_13890795",
+      "product_name": "Meander",
+      "hero_url": "https://content.designerpages.com/assets/71052981/5995b9e6-f5cc-430b-8d33-1734acf7a675.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_60955663d558_13720725",
+      "product_name": "Polly Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/80702128/thprdpollysidechairfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c20eb081a88f_1888642",
+      "product_name": "Maarten",
+      "hero_url": "https://content.designerpages.com/assets/78509515/Viccarbe-Maarten-plastic-chair-five-casters-base-by-Victor-Carrasco.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8ef786e8c932_13946050",
+      "product_name": "Finale - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/80445220/FinaleImageGallery10120240403130581io0xr0.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_81700d737d81_13946049",
+      "product_name": "Finale - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/67723281/93b5bd49-c982-4efe-9817-2b35694f2744.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6583d9eaa2d9_13946138",
+      "product_name": "Prelude - Wood",
+      "hero_url": "https://content.designerpages.com/assets/79766441/PreludeGuestImageGallery071.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ba51ff89d161_13890831",
+      "product_name": "Visit",
+      "hero_url": "https://content.designerpages.com/assets/69788161/6922e4f8-4375-4b06-8256-61ec7aa4c129.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8ee0727b4b3d_13884177",
+      "product_name": "Nub - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/81467078/NubBarstools0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d5e1faa50771_13933560",
+      "product_name": "Y60.G2 - Bench Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/77961637/e6792312-48f0-4ff3-a3ae-59e2ca138a68.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1fb0def1d9c2_14051155",
+      "product_name": "Marien152 Guest Chair",
+      "hero_url": "https://content.designerpages.com/assets/79312690/200144437Marien152thumbnail300x3002x.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_153c823eb700_14006685",
+      "product_name": "Extasi Bench",
+      "hero_url": "https://content.designerpages.com/assets/82199209/53255341a5cc5c9f415531f2002b47c3de195dcd.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_45abe11d2e1a_13946025",
+      "product_name": "Corvo",
+      "hero_url": "https://content.designerpages.com/assets/53328482/corvo_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_02456f37d2e6_13930651",
+      "product_name": "Ally - Bench",
+      "hero_url": "https://content.designerpages.com/assets/81758081/20250311Ally2.0BenchShepPearlMosswr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_14fd745b6987_14107919",
+      "product_name": "Whittaker",
+      "hero_url": "https://content.designerpages.com/assets/79880642/KimballWhittaker.PNG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6498a7212308_13933445",
+      "product_name": "Elani - Bench Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/81779728/CARElaniLounge8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_af9d61dc0367_13945983",
+      "product_name": "Blaine - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/61429511/blaine_BlaineTablet_PH_39_HR.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8e0fcfd7a8ae_14049554",
+      "product_name": "Cape - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/79477188/6478bc5928b4ce47c9deec01CapeLounge20ChairIndexCrops.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_99cac9f80938_13945994",
+      "product_name": "Capri",
+      "hero_url": "https://content.designerpages.com/assets/77400574/ea959734-5966-418c-9df4-56679af7479e.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1ed777539e10_14050047",
+      "product_name": "Q5 - Modular Benches",
+      "hero_url": "https://content.designerpages.com/assets/51896962/Q4_Island_w_Prop_hi.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8849b3486643_11783448",
+      "product_name": "Montevideo Chair",
+      "hero_url": "https://content.designerpages.com/assets/71672231/dd7e41af-e8f0-4f7d-8a06-e1e21d916d46.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d5dc40372a03_13717510",
+      "product_name": "Crosshatch Chair and Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/75153091/512d017b-7c23-41b0-886d-95500902dfe3.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3fd597dcb040_13883669",
+      "product_name": "Closed Bench",
+      "hero_url": "https://content.designerpages.com/assets/81463856/ClosedBench0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c6accbacd424_13728982",
+      "product_name": "Palissade Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/80747674/thprdpalissadeloungechairoutdoorseatingfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9c46ed49f295_13931102",
+      "product_name": "Airus - Multi-use",
+      "hero_url": "https://content.designerpages.com/assets/75381841/1c14ae78-1f28-4df3-aebe-d3dea23129f4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a464cf6d3852_14006849",
+      "product_name": "Accommodate",
+      "hero_url": "https://content.designerpages.com/assets/73985121/876aad5f-9555-4092-8e16-3d786ebad6cb.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6637ab9bc53f_14056752",
+      "product_name": "Leaflette Children's Modular",
+      "hero_url": "https://content.designerpages.com/assets/75455661/d674ec2b-b13f-400d-b1e1-b5a138e07de8.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7baa79f3bc8d_13985838",
+      "product_name": "Reboundâ¢",
+      "hero_url": "https://content.designerpages.com/assets/80187444/Rebound.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_18f4ab3c06c4_13753790",
+      "product_name": "Bassline Bench Seating",
+      "hero_url": "https://content.designerpages.com/assets/80838417/200148942.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_01bb68aa7768_14006852",
+      "product_name": "SoCo",
+      "hero_url": "https://content.designerpages.com/assets/82201187/HONSoCoSculptFlock50000601.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8fb958a621ae_13982304",
+      "product_name": "Sprite Stacking Chair",
+      "hero_url": "https://content.designerpages.com/assets/56946281/Sprite_Stacking_Chair_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_77758bc0608a_13961143",
+      "product_name": "FlowformÂ® Outdoor Straight Bench",
+      "hero_url": "https://content.designerpages.com/assets/78846941/FFOStrightBench2022011219145eptji.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1790457093b8_13961104",
+      "product_name": "FlavorsÂ® Mobile Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/73949851/00ba05a2-42f0-4061-a43e-cd9cac094dca.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3a9ac5f6e47c_13926780",
+      "product_name": "Cogni Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/81727021/cognistylescafestool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_25d1e8600e70_13961457",
+      "product_name": "Corral Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81951658/DeckSofa.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_13c71d6d32f3_13961103",
+      "product_name": "FlavorsÂ® Fixed-Height Stool",
+      "hero_url": "https://content.designerpages.com/assets/81949643/Flavorsplatinum.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a31cdbcc50a_13802250",
+      "product_name": "MOLLIE Stools",
+      "hero_url": "https://content.designerpages.com/assets/81089015/20221120allermuirlangeliniees0274copy.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_38e433e3a44e_13972528",
+      "product_name": "Rockwell UnscriptedÂ® Modular Lounge",
+      "hero_url": "https://content.designerpages.com/assets/67986201/cb7df8fc-3d99-4f43-819f-70fc1dd3c16a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4e465cc7630e_4494931",
+      "product_name": "Leyton Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/75456251/f1aaea02-b3d7-41a3-867f-a8411bea18cf.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d5754732b6e7_14051128",
+      "product_name": "Enea Lottus Post Stool",
+      "hero_url": "https://content.designerpages.com/assets/59614501/CH-11_Coalesse_SixFiveZero.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9ce8d0b7b29b_13992258",
+      "product_name": "Rally Tables",
+      "hero_url": "https://content.designerpages.com/assets/82119975/01RallyDTRect280BenchBackless280QVTexturedChassisSilverBronze.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_af23e04fc6d4_14051115",
+      "product_name": "EMU Rio R50 Series - Outdoor Seating",
+      "hero_url": "https://content.designerpages.com/assets/82380875/EmuRioArmChair200137024pdpthumbnail.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5b0213d4aa27_13755333",
+      "product_name": "Nooi Stool",
+      "hero_url": "https://content.designerpages.com/assets/80845159/210153436.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_08e8a383c5f4_14104994",
+      "product_name": "Lumin Multipurpose & Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/80531239/LuminCafeStool4000x4000.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_486d56e63cc3_14104992",
+      "product_name": "Lumin",
+      "hero_url": "https://content.designerpages.com/assets/62086951/lumin_side_slate_shell_wire_rod_armless.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fc9e00bfea9b_13890772",
+      "product_name": "Epix",
+      "hero_url": "https://content.designerpages.com/assets/78931132/Epix.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_aa70618ba4c4_14038368",
+      "product_name": "Viiva Chair",
+      "hero_url": "https://content.designerpages.com/assets/82284210/683774b3806125ff82c633b8viivachair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_55cf4cba536f_10113471",
+      "product_name": "Tall Adirondack Chair (Flat)",
+      "hero_url": "https://content.designerpages.com/assets/72452471/228d94c9-33c5-4853-b653-c6fade2a0044.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0cdf5426687b_13884365",
+      "product_name": "Alya - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81080385/CDM03AlyaChairs.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_277d8b355add_13946158",
+      "product_name": "Sunset - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81883391/SunsetImageGallery031.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bcb02c6d05ea_13933462",
+      "product_name": "Kyte",
+      "hero_url": "https://content.designerpages.com/assets/81780204/CARSKyteKY8908ML01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_31940d102bab_14049564",
+      "product_name": "Cova",
+      "hero_url": "https://content.designerpages.com/assets/77769443/2de036a7-d28b-414d-b35c-85f156aed2d9.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8dd27e7405e3_13884166",
+      "product_name": "Solo Chair - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81466628/SoloChairChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e65353c8abab_13890771",
+      "product_name": "Ellaby",
+      "hero_url": "https://content.designerpages.com/assets/78643498/CoyLowRes.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c7d08b8ac80d_14050031",
+      "product_name": "Nora - Freestanding Benches",
+      "hero_url": "https://content.designerpages.com/assets/82366009/621d18b5ab25a87a02499557NoraFreestandingBench.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a4bed12fefa4_14068882",
+      "product_name": "HIERARCHY FLIPZ STOOL",
+      "hero_url": "https://content.designerpages.com/assets/72424901/65a4b470-edee-44c8-8d73-f6fdf1ca08c2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_266637e081ef_13909424",
+      "product_name": "Sosa",
+      "hero_url": "https://content.designerpages.com/assets/81601893/jsisosaenviro00011.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fb0002385905_13909360",
+      "product_name": "Bourne",
+      "hero_url": "https://content.designerpages.com/assets/72857271/c6725aea-83fc-44e0-ae90-d4ed13347d97.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2d1135f7b11f_13886048",
+      "product_name": "Plex Lounge Furniture",
+      "hero_url": "https://content.designerpages.com/assets/65163201/plex-plex-1-cutout.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a1c11af66784_11750216",
+      "product_name": "Bryant Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/78217770/bryant-side-chair-front.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1a5b7122d8e9_13946114",
+      "product_name": "Neighborhoodâ¢ - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81882174/NeighborhoodSofaImageGallery132.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e1a2c157cd24_13933528",
+      "product_name": "Serony - Multiple",
+      "hero_url": "https://content.designerpages.com/assets/75401471/a164b5e4-dc8b-4c4f-a7b7-0f7c3e4f02b7.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_332b98e6901a_14050028",
+      "product_name": "Muse Barstool",
+      "hero_url": "https://content.designerpages.com/assets/77769426/b49efeff-0178-4318-950a-ab1caf6384a2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_93bba8fed4ac_14023790",
+      "product_name": "Felix",
+      "hero_url": "https://content.designerpages.com/assets/82249465/Darran2025Q1Felix01FINALCam01REVscaled.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b9633d2e21cf_13959229",
+      "product_name": "Nest Easy Lounge Chair - Metal Base",
+      "hero_url": "https://content.designerpages.com/assets/80821985/PHNE005NestEasyLoungeChairMetalBase1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fc112c135d70_13890748",
+      "product_name": "ABL",
+      "hero_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "reason": "hero seating_type is blank"
+    },
+    {
+      "product_id": "product_d91d37b5e085_13802221",
+      "product_name": "FOLK Chairs",
+      "hero_url": "https://content.designerpages.com/assets/78221502/folk_horizon_carousel_1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ca53e5a205f0_13946007",
+      "product_name": "Chloe - Guest",
+      "hero_url": "https://content.designerpages.com/assets/70849471/32cb77e4-3703-4a62-8a0b-78496ce0d0f1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e3d0c11b55f4_13934530",
+      "product_name": "Obee",
+      "hero_url": "https://content.designerpages.com/assets/81786719/20250525OFSObeeUnit08OFSShepPearlMaharamFerricwr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9c35912b7ce1_14050025",
+      "product_name": "Modo",
+      "hero_url": "https://content.designerpages.com/assets/53572962/Frame_Profile_SharpeFront.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0ffbdf236c44_6598741",
+      "product_name": "CH24 | WISHBONE CHAIR",
+      "hero_url": "https://content.designerpages.com/assets/79521605/CarlHansenWishbone.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e3e0786bb53b_11819632",
+      "product_name": "k.â¢ lounge",
+      "hero_url": "https://content.designerpages.com/assets/78559889/Thumbkloungedefault10.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_80e490956df6_13945977",
+      "product_name": "Bardot - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/53053482/bardot_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_76782f45407f_13946145",
+      "product_name": "Ravel - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79964890/RavelImageGallery14120231129245801rkv0z1.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5de638fd5be2_11549192",
+      "product_name": "Spine Wood Base Barstool",
+      "hero_url": "https://content.designerpages.com/assets/77361461/39fe4824-611e-4c6a-b83e-8f3e160dfb63.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1b880d5520cb_14051162",
+      "product_name": "Millbrae Lifestyle Lounge Seating - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/77696974/9dbce5e9-aa4f-45cd-807b-8d19287b7f05.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dc2f52cb3ef6_14051163",
+      "product_name": "Millbrae Lifestyle Lounge Seating - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/82382861/120001961Thumbnail.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4a8483aaac07_13985829",
+      "product_name": "Popcornâ¢",
+      "hero_url": "https://content.designerpages.com/assets/73177121/c0c258ea-a6f1-42bc-8739-c4eff50432c8.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_30eabf4fcb36_13874083",
+      "product_name": "Freelance",
+      "hero_url": "https://content.designerpages.com/assets/59238901/Capture.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a0b4808e5023_14050059",
+      "product_name": "Reed",
+      "hero_url": "https://content.designerpages.com/assets/67564181/b15e124f-1ce1-432b-a1af-adfa23638f5f.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f98da1fc23c9_13945998",
+      "product_name": "Catia",
+      "hero_url": "https://content.designerpages.com/assets/78772232/CatiaPH4HR.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d87c9cc37862_13884186",
+      "product_name": "Raglan - Benches",
+      "hero_url": "https://content.designerpages.com/assets/81467428/RaglanBenches0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_66818b1ecffe_13958755",
+      "product_name": "Kilo Island - Solo 4",
+      "hero_url": "https://content.designerpages.com/assets/81942601/PHKL020KiloIslandSolo401.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f3f3f14553c1_13884158",
+      "product_name": "Nuez - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81466342/NuezChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b9f95216a04e_13884178",
+      "product_name": "Nuez - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/81467095/NuezBarstools0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a07cce7bab9d_13958196",
+      "product_name": "FourCastÂ®2 Chair - Sled Base",
+      "hero_url": "https://content.designerpages.com/assets/81941125/FDFC055FourCastSledChair01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2ddd0803f66f_14051138",
+      "product_name": "Hosu Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/61005791/Hosu_PR_02.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2b15b6170970_13931081",
+      "product_name": "Heya - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/70931531/8b7069c3-e1f4-457b-b896-2d1b468137bf.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_73464bbcba3d_13890761",
+      "product_name": "Coy",
+      "hero_url": "https://content.designerpages.com/assets/77818013/4d78fa9d-cbcc-47f0-b0a7-06c25f1ba951.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c6d5ee7922f2_11819171",
+      "product_name": "Cescaâ¢ Chair",
+      "hero_url": "https://content.designerpages.com/assets/78553932/Thumbcescaarmchair3.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1e762038fe11_13958729",
+      "product_name": "Hari Chair, Wood Back - Upholstered Seat",
+      "hero_url": "https://content.designerpages.com/assets/81942431/NDHR015HariChairUpholsteredWoodback18.5W01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cdaeefb8efbf_14058257",
+      "product_name": "Bastille - BST03",
+      "hero_url": "https://content.designerpages.com/assets/82417730/BastilleBST030.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8265e491df48_14057746",
+      "product_name": "GoGo Benches",
+      "hero_url": "https://content.designerpages.com/assets/80414906/140107600x6002024032240351y15r6g.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e0721b9039bb_13961166",
+      "product_name": "GrooveÂ® Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/78166558/Groove_stack_hero220200204-21422-1h87mum.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c202b5849e59_13961102",
+      "product_name": "FlavorsÂ® Cantilever Chair",
+      "hero_url": "https://content.designerpages.com/assets/81949638/FlavorsCantilever.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5884f302b721_13946117",
+      "product_name": "Neighborhoodâ¢ - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/71708481/919dee6a-533b-4c39-8efd-414dbf44e7d7.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_7e9470034901_14038338",
+      "product_name": "Meets Chair",
+      "hero_url": "https://content.designerpages.com/assets/82283373/68362186582dc05f205a3e59meetschair.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3764c1fd2634_14049582",
+      "product_name": "Ginkgo Plastic",
+      "hero_url": "https://content.designerpages.com/assets/73993661/6d981956-c1a0-47f3-9b03-66797467c191.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_20153925e630_11603283",
+      "product_name": "Softshell Chair - Five-Star Base",
+      "hero_url": "https://content.designerpages.com/assets/11589582/f220343de87b51c.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_57ccba57344a_11603281",
+      "product_name": "Soft Work",
+      "hero_url": "https://content.designerpages.com/assets/79439157/vitra.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fe32be1bd00e_13890802",
+      "product_name": "Pact",
+      "hero_url": "https://content.designerpages.com/assets/78607925/Pact77001MerkatTarnishedPewter.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_f9b43e62b30e_13946003",
+      "product_name": "Chapelle - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81879528/ChapelleImageGallery021.jpg",
+      "reason": "hero seating_type is blank"
+    },
+    {
+      "product_id": "product_3b586f02ab96_14107777",
+      "product_name": "Pairings",
+      "hero_url": "https://content.designerpages.com/assets/63739711/Highlight_Pairings-Table_Round.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_151e0085ef4b_14097274",
+      "product_name": "Paste Elegant Sofa",
+      "hero_url": "https://content.designerpages.com/assets/82581425/C13B.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_faf5f7884a30_14051124",
+      "product_name": "Enea Altzo943 Chair",
+      "hero_url": "https://content.designerpages.com/assets/77942248/1ac1a686-1235-470b-ac3b-eea6009ab85a.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8665c859e0d0_14051151",
+      "product_name": "LessThanFive Collection - Side + Guest Chairs",
+      "hero_url": "https://content.designerpages.com/assets/59615141/CH-03_Coalesse-LessThanFive_opt.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4d71b4e2cf2d_13946022",
+      "product_name": "Colours - Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/81879938/ColoursImageGallery221.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_03b1d9c53e0a_13934276",
+      "product_name": "Cinque - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/81784662/OFSCinqueguestAllueSeaSaltlowback.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1fd4bec94e24_13929581",
+      "product_name": "Lona",
+      "hero_url": "https://content.designerpages.com/assets/68564601/eee88773-6d7f-45fe-bdff-55c06f51238e.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_958521f45937_13934240",
+      "product_name": "Acen",
+      "hero_url": "https://content.designerpages.com/assets/81784024/HMKAcenwr05.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ec3691983fb1_13934575",
+      "product_name": "Tate",
+      "hero_url": "https://content.designerpages.com/assets/81787478/ofs46set01img02v04wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b7d805c9f2d1_13883679",
+      "product_name": "Smile - Stacking",
+      "hero_url": "https://content.designerpages.com/assets/81464212/Smile0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_03a6d2003fbe_14107912",
+      "product_name": "Theo",
+      "hero_url": "https://content.designerpages.com/assets/73963831/e6eebcb4-9fd2-4286-8e21-5fb7ed398c7d.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c2563857a17e_14051256",
+      "product_name": "Montara650 Chair",
+      "hero_url": "https://content.designerpages.com/assets/61619131/DougMcAlister_146833754520160712-60496-omzdm1.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9b8d669613e6_13926785",
+      "product_name": "LimeLite Cafe Stool",
+      "hero_url": "https://content.designerpages.com/assets/79117595/limelitecafe6cafestoolcrop2022123019035mtbuk.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_0ae4fa4988d7_13933527",
+      "product_name": "Serony - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75401461/3b0d1e41-77ae-419b-9012-0f134c8a4aae.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fd29e66c9814_13923462",
+      "product_name": "Modena Multiple",
+      "hero_url": "https://content.designerpages.com/assets/81708386/1200pxMDAMTGBG11.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6411db989f83_13926756",
+      "product_name": "MyPlace Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/77406532/6b1abf4e-004d-4dbb-bea8-c54c62a6b408.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_02abbb8e1b55_13755314",
+      "product_name": "Agree Chair",
+      "hero_url": "https://content.designerpages.com/assets/80844774/230210888.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_67a91d1579e8_13717540",
+      "product_name": "Saiba Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/80684548/thprdsaibasidechairsidechairsfn.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8f5a0ab8a544_14057741",
+      "product_name": "Faction Nesting",
+      "hero_url": "https://content.designerpages.com/assets/82415269/FactionNesting03600x600.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_64008979b634_14057740",
+      "product_name": "Faction Guest",
+      "hero_url": "https://content.designerpages.com/assets/82415267/FactionGuest04600x600.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_73fd51ef787c_11819799",
+      "product_name": "Saarinen Executive Chair - Armless with Wood Legs",
+      "hero_url": "https://content.designerpages.com/assets/78562885/Thumbsaarinenexecutivearmlesschairwoodlegsdefault5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4ec8a6aa3d1c_13958244",
+      "product_name": "FourCastÂ®2 Chair, Counter Height, Bentwood Shell, 4 Leg Base - with Seat Pad",
+      "hero_url": "https://content.designerpages.com/assets/81941434/FDFC210FourCastBentwoodSeatPadCounter4LegChair01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e7243a68a06a_13931149",
+      "product_name": "Hinchada - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/63679801/hinchada_ottomans_round.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2e47afead329_14038339",
+      "product_name": "Meets Stool",
+      "hero_url": "https://content.designerpages.com/assets/82283403/683621932b43bf7dfd727db5meetsstool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_36a831876110_13961380",
+      "product_name": "FlowformÂ® Soft Rocker",
+      "hero_url": "https://content.designerpages.com/assets/79406842/55000FlowformSoftRockerGlowscaled1200x927.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_a4bf283323c4_13961106",
+      "product_name": "FlavorsÂ® Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/78990028/flavors18inchmobilepltbla1127x1200.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c56ba16ec557_11819634",
+      "product_name": "Rockwell UnscriptedÂ® High Back Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78559983/Thumbrockwellunscriptedhighbackloungechairdefault5.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c3b7a746df0b_13972525",
+      "product_name": "Rockwell UnscriptedÂ® High Back Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/77473662/b7a455f4-ec4d-4a25-a90d-90a0a529e716.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6322aea9767d_14010870",
+      "product_name": "Clutch Chair",
+      "hero_url": "https://content.designerpages.com/assets/77350111/b54a29b5-a00e-4fff-95a3-ba0e9a9348c5.JPG",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dd8a3f73a38f_14107929",
+      "product_name": "Villa",
+      "hero_url": "https://content.designerpages.com/assets/53579932/villa_201.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_571fc3f3e0f3_13931112",
+      "product_name": "Bistro - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/64188851/LOE_bistro_wr_hr_03_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d97ed3bf740a_13934264",
+      "product_name": "Bistro - Stool",
+      "hero_url": "https://content.designerpages.com/assets/81784414/OFSBistroStool2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_98d7d25e21cf_14057753",
+      "product_name": "Hoom Guest",
+      "hero_url": "https://content.designerpages.com/assets/80942079/CGL03.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_fb2429c74e4b_13884369",
+      "product_name": "Oru Chair - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/81469261/OruChairBarstools0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_6b0630af25f4_13646132",
+      "product_name": "Dotti Pouf",
+      "hero_url": "https://content.designerpages.com/assets/80327652/Dotti02Pouf012.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1706697caa2f_14011213",
+      "product_name": "Field Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/58948091/CraigGronowski_145435599220160201-36332-1auxt3r.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_695c7f864c1c_13824038",
+      "product_name": "Jima",
+      "hero_url": "https://content.designerpages.com/assets/78912949/Lowjimacarousel12022041424782fvcdp5.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_45bb8fc45f00_13988300",
+      "product_name": "Duo Seating",
+      "hero_url": "https://content.designerpages.com/assets/82106044/DuoSCStackableGraphite202404ws001.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_138f39a576b8_14049584",
+      "product_name": "Ginkgo Rope",
+      "hero_url": "https://content.designerpages.com/assets/82364080/632c89b37de5816ee1a79771GinkgoRopeChairs.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_89957351bea5_13926741",
+      "product_name": "LimeLite Nesting Chair",
+      "hero_url": "https://content.designerpages.com/assets/79846539/KILIMELITE00301.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9834f39a8466_14056821",
+      "product_name": "Savina Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77889838/a5d1293d-5472-432c-ac32-ab57115a2e8e.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1cf76b01b598_13961195",
+      "product_name": "Numbersâ¢ Fixed Height Stool",
+      "hero_url": "https://content.designerpages.com/assets/81950362/22888NumbersStoolCharcoal01.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_458c7799bcc6_11741348",
+      "product_name": "NAPOLI",
+      "hero_url": "https://content.designerpages.com/assets/71503561/9f9bdd04-27df-4668-8fba-b735f097c0df.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9a787ef6f01e_11842264",
+      "product_name": "Arum 1.2",
+      "hero_url": "https://content.designerpages.com/assets/78663276/Arumuphseat.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_621d7d575814_13937626",
+      "product_name": "Share",
+      "hero_url": "https://content.designerpages.com/assets/53517271/StylexSeating-Share-15.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_084abaca2d0d_13886896",
+      "product_name": "About A Chair",
+      "hero_url": "https://content.designerpages.com/assets/78098938/AAC23_2235011201603_G.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_75494d6190ef_14038398",
+      "product_name": "Martini Chair",
+      "hero_url": "https://content.designerpages.com/assets/78817825/ef888ddf9edd428cfd466582c3be8ed29802x.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ec2edc5149c7_5422331",
+      "product_name": "CATIFA 46 - SLED",
+      "hero_url": "https://content.designerpages.com/assets/59889311/CATIFA_46___SLED_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_50da86e66b57_11621811",
+      "product_name": "1 inch reclaimed by jasper morrison for emeco stacking",
+      "hero_url": "https://content.designerpages.com/assets/77756112/f74502c9-3758-4940-a132-b5cf7d6b47ea.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_efb334dcc43d_11921304",
+      "product_name": "Otto Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/78947962/ot1ottox2marine1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_cd2a37b009a4_13890785",
+      "product_name": "GSD",
+      "hero_url": "https://content.designerpages.com/assets/81520053/GSD86111.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_578f5c3704a9_13883630",
+      "product_name": "Gala Executive - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81463614/GalaExecutive0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_dd2fca962f6d_13937620",
+      "product_name": "Oko",
+      "hero_url": "https://content.designerpages.com/assets/79771422/StylexStudioScopeOkoWhiteHero.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5af2ef4e5db1_13926733",
+      "product_name": "Strive Stack Chair",
+      "hero_url": "https://content.designerpages.com/assets/63868551/KI_Strive_Leg_all_ploy.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d44f768b9e4b_1631682",
+      "product_name": "BENCH 153B",
+      "hero_url": "https://content.designerpages.com/assets/49757462/268025baaf4b5555def8a4a66fa8b74f.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1fd1dbded910_6600661",
+      "product_name": "E005 | EMBRACE CHAIR",
+      "hero_url": "https://content.designerpages.com/assets/62141981/E005___EMBRACE_CHAIR_4.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_48ff6a5b936f_13753211",
+      "product_name": "Collaboration Guest Chair",
+      "hero_url": "https://content.designerpages.com/assets/57352481/Collaboration_Guest_Chair_0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_3b8abd3e1739_1272142",
+      "product_name": "R806 Metal Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/25719172/560872.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_27dd2b8594f2_14011193",
+      "product_name": "Decade Chair",
+      "hero_url": "https://content.designerpages.com/assets/78950914/dz1decchrolfrontlow1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_36c2522ee049_13937618",
+      "product_name": "NYC Wrap-Over",
+      "hero_url": "https://content.designerpages.com/assets/77800162/16363b94-de42-4d31-9c9d-9cceae50a129.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_43fab017d971_14057755",
+      "product_name": "Hoom Stools",
+      "hero_url": "https://content.designerpages.com/assets/82415508/HoomStools02600x600.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4c6ec5ccea24_14104954",
+      "product_name": "Cora",
+      "hero_url": "https://content.designerpages.com/assets/82668444/Gallery16.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5fb384a066ba_13959271",
+      "product_name": "Nest Two-Seat Sofa - Metal Base",
+      "hero_url": "https://content.designerpages.com/assets/81943528/PHNE060HTNestTwoSeatSofaMetal1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8662bdfee5f3_13959227",
+      "product_name": "Nest Chair - Metal Base",
+      "hero_url": "https://content.designerpages.com/assets/81943335/PHNE055NestChairMetalBase1.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c1e6931ba9bd_3873871",
+      "product_name": "Fiber Chair - Swivel base",
+      "hero_url": "https://content.designerpages.com/assets/55613251/Fiber_Chair___Swivel_base_0_a.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4553200a91f3_13930670",
+      "product_name": "Raya - Guest/Dining",
+      "hero_url": "https://content.designerpages.com/assets/80627216/167123OFSRaya206037wr.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_33378d334bd3_13884376",
+      "product_name": "In Out Office - Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/81469588/InOutOfficeOttoman0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8ee71c37b622_13884895",
+      "product_name": "In Out Office - Multipurpose",
+      "hero_url": "https://content.designerpages.com/assets/81473601/InOutOfficeMultipurpose0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1778f828063b_13926808",
+      "product_name": "600 Series Folding Chair",
+      "hero_url": "https://content.designerpages.com/assets/81728007/600seriesbannerimage1440x810px2.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8f1531ea37ef_14107596",
+      "product_name": "Tizelle",
+      "hero_url": "https://content.designerpages.com/assets/78865036/TizelleN51GFA2100x1500.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_68380016b4e8_13909402",
+      "product_name": "Millie",
+      "hero_url": "https://content.designerpages.com/assets/79052284/JSIMillieBarstool.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_64a5f23a761d_13883665",
+      "product_name": "Anna - Barstools",
+      "hero_url": "https://content.designerpages.com/assets/81463739/Anna0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_d9196ca32860_13884140",
+      "product_name": "Anna - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81465732/AnnaChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_ed736f59a6d1_13985587",
+      "product_name": "Bakhitaâ¢",
+      "hero_url": "https://content.designerpages.com/assets/77397490/127ca7a2-cd20-4598-bbd8-a73bd16dcc7b.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b989d8d0df68_13663446",
+      "product_name": "Arven L Bar Stool",
+      "hero_url": "https://content.designerpages.com/assets/80402804/parlaarvenlbarstoolmain32x.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_1e4fe29cf90e_13874082",
+      "product_name": "Focus Side - Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/69625481/0663b249-8283-43a2-9d89-01fe721f03ed.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_bfba4a717947_11603285",
+      "product_name": "Softshell Side Chair",
+      "hero_url": "https://content.designerpages.com/assets/77642987/fa1ec8d6-4a36-44af-82a4-d7fb1adddc00.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_c3c62f28d963_13937635",
+      "product_name": "Yoom",
+      "hero_url": "https://content.designerpages.com/assets/71321571/206d1adf-131f-4602-995c-fe2167f6d15c.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_38f08535cf06_13824043",
+      "product_name": "Kuskoa Bi",
+      "hero_url": "https://content.designerpages.com/assets/73579161/3c88db39-c57c-4274-8730-f44a1cecd742.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_b8ecb9822570_14023796",
+      "product_name": "Heartfelt",
+      "hero_url": "https://content.designerpages.com/assets/82249499/HeartfeltHPH.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_9e4f38e754ae_14065269",
+      "product_name": "Famiglia - FMG1206",
+      "hero_url": "https://content.designerpages.com/assets/82444357/FamigliaFMG12060.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_85d1eeb38558_13961477",
+      "product_name": "Molti",
+      "hero_url": "https://content.designerpages.com/assets/81952003/MoltiGuest.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_71cc1df081c0_14065265",
+      "product_name": "Famiglia - FMG1106",
+      "hero_url": "https://content.designerpages.com/assets/82444355/FamigliaFMG11060.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_4cbda9092cd1_13945993",
+      "product_name": "Cantata",
+      "hero_url": "https://content.designerpages.com/assets/81879232/CantataImageGallery051.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_2a225778e719_14049536",
+      "product_name": "Arcular - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/82362868/6655ecef07c049dc725f0ef1ArcularLCSofaIndexCrops.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_653c78895b50_13946127",
+      "product_name": "Pasadena - Modular",
+      "hero_url": "https://content.designerpages.com/assets/81882568/PasadenaModularImageGallery011.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_8ae74aa69f31_13946129",
+      "product_name": "Pause",
+      "hero_url": "https://content.designerpages.com/assets/79765717/PauseCollage01.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_faf29ccfe053_14006554",
+      "product_name": "Catena Table",
+      "hero_url": "https://content.designerpages.com/assets/80873331/Screenshot20240830145519.png",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_79c75bce28e5_13884155",
+      "product_name": "Luba - Chairs",
+      "hero_url": "https://content.designerpages.com/assets/81466287/LubaChairs0.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_5bd767abc648_14006555",
+      "product_name": "21 Chair",
+      "hero_url": "https://content.designerpages.com/assets/77460697/86d706ba-c0c4-4d4e-812f-9754ab3bab94.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_287a0700d78f_14006356",
+      "product_name": "21 Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/82195770/34ea4a545c3871b05820bda5cb5e08708de27418.jpeg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_946c49a39237_14006853",
+      "product_name": "West Hill Lounge Collection",
+      "hero_url": "https://content.designerpages.com/assets/82201204/HONProductCareWestHillScramble500013.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e7a57f81a966_13462702",
+      "product_name": "1911 Snowball 3 - Four-Point, Armless",
+      "hero_url": "https://content.designerpages.com/assets/79530696/Snowball3cutout20CRichmond20Atrium03edited.jpg",
+      "reason": "hero image record missing"
+    },
+    {
+      "product_id": "product_e3959587fb03_13985877",
+      "product_name": "Wind Linearâ¢",
+      "hero_url": "https://content.designerpages.com/assets/82086361/serieswindlinear.jpg",
+      "reason": "hero image record missing"
+    }
+  ]
+}

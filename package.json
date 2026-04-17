@@ -8,10 +8,13 @@
   },
   "scripts": {
     "normalize": "node scripts/normalize-products.js",
+    "intake:designerpages": "node scripts/intake-designerpages-product-ids.js",
     "index": "node scripts/build-index.js",
     "import": "node scripts/import-catalog.js",
     "extract-pdfs": "node scripts/extract-pdf-text.js",
     "test:stability": "node scripts/test-image-pipeline-stability.js",
+    "test:resolution": "node scripts/test-resolution-cutoff.js",
+    "test:cutoff": "node --test scripts/find-cutoff.test.js",
     "test:ranking": "node scripts/eval-queries.js",
     "start": "node server.js",
     "dev": "node server.js"

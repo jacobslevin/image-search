@@ -2,35 +2,16 @@
   "version": "1.0",
   "default_type": "other_seating",
   "types": {
-    "task_chair": {
-      "label": "Ergonomic Task Chair",
+    "task_collab_chair": {
+      "label": "Task & Collaborative Chair",
       "fields": [
-        { "field": "seat_height_adjustment", "type": "enum", "detectability": "no", "allowed_values": ["Pneumatic standard range", "Pneumatic extended range", "Manual"] },
-        { "field": "seat_depth_adjustment", "type": "enum", "detectability": "no", "allowed_values": ["Fixed", "Adjustable (2-3 in range)"] },
-        { "field": "passive_seat_edge", "type": "enum", "detectability": "no", "allowed_values": ["Included", "Not included"] },
-        { "field": "lumbar_support", "type": "enum", "detectability": "no", "allowed_values": ["Lumbar height adjustable", "Fixed lumbar", "LiveLumbar / active", "None"] },
-        { "field": "back_tension_mechanism", "type": "enum", "detectability": "no", "allowed_values": ["Synchro-tilt", "Advanced synchro-tilt", "Weight-activated", "Manual tension adjust"] },
-        { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "3D knit / mesh", "Air back", "Suspended upholstery", "Quilted upholstered", "Ventilated plastic"] },
-        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Fixed arms", "Adjustable arms", "4D adjustable arms", "Arms with arm pads", "Integrated"] },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished aluminum", "Graphite", "White", "Plastic"] },
-        { "field": "frame", "type": "enum", "detectability": "yes", "allowed_values": ["Plastic", "Aluminum", "Metal"] },
-        { "field": "caster_floor_interface", "type": "enum", "detectability": "yes", "allowed_values": ["Hard wheel casters (carpet)", "Soft wheel casters (hard floor)", "Glides"] },
-        { "field": "seat_fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "Vinyl", "COM", "COL"] },
-        { "field": "back_fabric_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Matches seat", "Independent fabric", "Plastic outer back", "COM", "COL"] },
-        { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
-      ]
-    },
-    "collaborative_chair": {
-      "label": "Collaborative Chair",
-      "fields": [
-        { "field": "mechanism", "type": "enum", "detectability": "no", "allowed_values": ["Weight-activated / auto-adjust", "360° swivel (pneumatic height only)", "Fixed / no adjust"] },
-        { "field": "seat_height_adjustment", "type": "enum", "detectability": "no", "allowed_values": ["Pneumatic", "Fixed"] },
-        { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Mesh / net back", "Upholstered back", "Flexible plastic back", "Knit back"] },
-        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["None", "Armless", "Fixed arms", "Adjustable", "Integrated / non-removable arms"] },
+        { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Mesh / net", "Upholstered", "Plastic back", "Knit"] },
+        { "field": "back_profile", "type": "enum", "detectability": "yes", "allowed_values": ["Square / angular", "Rounded / curved"] },
+        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Fixed arms", "Adjustable arms"] },
         { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "Sled base", "4-leg"] },
-        { "field": "shell_plastic_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Arctic white", "Platinum / gray", "Near black", "Custom color"] },
-        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "Vinyl", "COM", "COL"] },
-        { "field": "stackability", "type": "enum", "detectability": "maybe", "allowed_values": ["Stackable", "Non-stackable", "Nesting"] },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"] },
+        { "field": "frame", "type": "enum", "detectability": "yes", "allowed_values": ["Plastic", "Aluminum", "Metal"] },
+        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
@@ -39,40 +20,53 @@
       "fields": [
         { "field": "seat_height_type", "type": "enum", "detectability": "no", "allowed_values": ["Fixed height", "Adjustable height"] },
         { "field": "swivel_mechanism", "type": "enum", "detectability": "no", "allowed_values": ["Fixed / no swivel", "Swivel", "Tilt-swivel", "Rocking"] },
-        { "field": "arm_configuration", "type": "enum", "detectability": "yes", "allowed_values": ["No arms", "One arm", "Two arms", "Integrated / sculpted"] },
-        { "field": "shell_material", "type": "enum", "detectability": "yes", "allowed_values": ["Molded plywood veneer", "Molded plastic", "Aluminum frame / suspended", "Upholstered foam", "Fabric wrapped"] },
-        { "field": "shell_base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black enamel", "White enamel", "Polished aluminum", "Graphite", "Natural / wood"] },
-        { "field": "floor_interface", "type": "enum", "detectability": "yes", "allowed_values": ["Glides (hard floor / carpet)", "Casters", "Pedestal base", "Square plate / plinth base"] },
-        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "COM", "COL"] },
-        { "field": "back_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Matches seat", "Independent fabric", "Exposed shell / no upholstery", "COM", "COL"] },
+        { "field": "arm_configuration", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "One arm", "Two arms", "Integrated / sculpted"] },
+        {
+          "field": "body_construction",
+          "type": "enum",
+          "detectability": "yes",
+          "allowed_values": ["Upholstered", "Molded plastic shell", "Molded plywood shell", "Suspended / sling", "Panel / privacy enclosure"],
+          "value_definitions": {
+            "Upholstered": "any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions",
+            "Molded plastic shell": "hard plastic one-piece structural form is the visible seat and back surface",
+            "Molded plywood shell": "structural bent or molded plywood; wood grain is visible as the structural surface, not just a veneer overlay",
+            "Suspended / sling": "material is tensioned between a visible frame; seat and back hang rather than rest on a surface",
+            "Panel / privacy enclosure": "high side panels form a three-sided or four-sided enclosure, rising above shoulder or head level"
+          }
+        },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished aluminum", "Wood", "Painted / powder coat"] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "Pedestal", "Square plate / plinth", "Integrated base", "Casters"] },
+        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "None / unupholstered"] },
+        { "field": "back_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Matches seat", "Independent fabric", "Unupholstered shell"] },
         { "field": "back_height", "type": "enum", "detectability": "yes", "allowed_values": ["Low", "Mid", "High", "Full enclosure"] },
         { "field": "configuration", "type": "enum", "detectability": "yes", "allowed_values": ["Single seat", "Multi-seat / sofa", "Modular component", "Corner unit"] },
-        { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
+        { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] },
+        { "field": "shape_character", "type": "enum", "detectability": "yes", "allowed_values": ["Soft / tapered", "Boxy"], "weight": "normal" },
+        { "field": "plan_shape", "type": "enum", "detectability": "yes", "allowed_values": ["Round / semicircular", "Trapezoidal", "Reverse trapezoidal", "Square / rectangular", "N/A"], "weight": "normal" }
       ]
     },
     "stool": {
       "label": "Stool",
       "fields": [
-        { "field": "height_category", "type": "enum", "detectability": "yes", "allowed_values": ["Counter (24-27 in)", "Bar (28-30 in)", "Drafting (30-34 in)", "Perch / variable"] },
-        { "field": "height_adjustability", "type": "enum", "detectability": "maybe", "allowed_values": ["Fixed", "Pneumatic (adjustable)"] },
-        { "field": "back", "type": "enum", "detectability": "yes", "allowed_values": ["None - backless", "Low back", "Full back"] },
+        { "field": "seat_geometry", "type": "enum", "detectability": "yes", "allowed_values": ["Flat", "Angled / perch", "Saddle", "Wobble / balance"] },
+        { "field": "back", "type": "enum", "detectability": "yes", "allowed_values": ["Backless", "Low back", "Full back"] },
         { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "4-leg", "Pedestal", "Molded one-piece"] },
-        { "field": "base_frame_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished aluminum", "Walnut", "Ebony", "White oak", "Plastic"] },
-        { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Solid wood", "Molded plastic", "Foam"] },
-        { "field": "seat_fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "COM", "COL"] },
+        { "field": "base_frame_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"] },
+        { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Solid wood", "Molded plastic"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
     "guest_chair": {
       "label": "Side & Guest Chair",
       "fields": [
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg metal", "4-leg wood", "Sled", "Cantilever"] },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Chrome / polished", "Walnut", "White ash", "Ebony", "Natural wood"] },
-        { "field": "shell_seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Molded plywood", "Plastic shell", "Upholstered frame", "Wood frame"] },
-        { "field": "shell_finish_stain", "type": "enum", "detectability": "yes", "allowed_values": ["Walnut veneer", "White ash veneer", "Ebony stain", "Red stain", "Santos palisander", "Paint color"] },
-        { "field": "upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Non-upholstered", "Upholstered seat only", "Upholstered seat & back"] },
-        { "field": "fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "COM", "COL"] },
-        { "field": "stackability", "type": "enum", "detectability": "maybe", "allowed_values": ["Stackable", "Non-stackable"] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "Cantilever", "Pedestal"] },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished", "Natural wood"] },
+        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Open arm", "Closed arm", "Integrated"] },
+        { "field": "back_profile", "type": "enum", "detectability": "yes", "allowed_values": ["Square / angular", "Rounded / curved"] },
+        { "field": "frame_openness", "type": "enum", "detectability": "yes", "allowed_values": ["Open / see-through", "Closed / solid"] },
+        { "field": "mobility", "type": "enum", "detectability": "yes", "allowed_values": ["Casters", "Non-mobile"] },
+        { "field": "seat_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Molded plastic", "Wood"] },
+        { "field": "back_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net", "Molded plastic", "Wood", "Unupholstered"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
@@ -89,22 +83,11 @@
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
-    "perch_stool": {
-      "label": "Perch & Active Stool",
-      "fields": [
-        { "field": "seat_geometry", "type": "enum", "detectability": "yes", "allowed_values": ["Angled / perch (fixed tilt)", "Saddle", "Wobble / balance (360° flex)"] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Pedestal (single column)", "Weighted base"] },
-        { "field": "shell_material_color", "type": "enum", "detectability": "yes", "allowed_values": ["Molded plastic - Baltic", "Molded plastic - Merle", "Molded plastic - Fog", "Molded plastic - Saffron", "Molded plastic - Light Peacock", "Other / specify"] },
-        { "field": "nesting_storage", "type": "enum", "detectability": "no", "allowed_values": ["Nests on floor (row)", "Stackable", "Non-stackable / standalone"] },
-        { "field": "weight_capacity", "type": "enum", "detectability": "no", "allowed_values": ["Up to 250 lbs", "Up to 300 lbs", "Over 300 lbs"] },
-        { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
-      ]
-    },
     "ottoman": {
       "label": "Ottoman",
       "fields": [
         { "field": "shape", "type": "enum", "detectability": "yes", "allowed_values": ["Rectangular", "Round / oval", "Irregular / free-form"] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Pedestal", "Sled", "No visible base / skirted"] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Pedestal", "Sled", "Skirted / concealed base"] },
         { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished metal", "Wood", "Concealed / skirted"] },
         { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Molded plastic", "Wood", "Tufted"] },
         { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "COM", "COL"] },
@@ -114,9 +97,9 @@
     "other_seating": {
       "label": "Other Seating",
       "fields": [
-        { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Mesh", "None — backless", "Full enclosure"] },
+        { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Mesh", "Backless", "Full enclosure"] },
         { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["None", "Fixed arms", "Adjustable arms", "Integrated"] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "5-star", "Pedestal", "Cantilever", "Wall-mounted", "None visible"] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "5-star", "Pedestal", "Cantilever", "Wall-mounted", "Concealed / integrated"] },
         { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh", "Molded plastic", "Wood", "COM", "COL"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]

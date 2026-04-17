@@ -533,6 +533,117 @@
         padding: 22px;
       }
 
+      .setup-panel {
+        max-width: 980px;
+        margin: 28px auto;
+        padding: 28px;
+      }
+
+      .setup-layout {
+        display: grid;
+        gap: 22px;
+      }
+
+      .setup-card {
+        padding: 22px;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(255, 252, 247, 0.96);
+        box-shadow: var(--shadow);
+      }
+
+      .setup-card h2 {
+        margin-top: 8px;
+        font-size: 1.5rem;
+        line-height: 1.1;
+      }
+
+      .setup-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .category-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .category-summary {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .category-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+        max-height: 420px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .category-option {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .category-option.priority-category {
+        border-color: #bfd4c5;
+        background: #f6fbf7;
+      }
+
+      .category-option input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+      }
+
+      .category-option-label {
+        font-weight: 600;
+      }
+
+      .category-option-hint {
+        color: var(--muted);
+        font-size: 0.84rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .setup-stats {
+        display: grid;
+        gap: 12px;
+      }
+
+      .setup-stat {
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .setup-stat-value {
+        margin-top: 4px;
+        font-size: clamp(1.8rem, 3vw, 2.4rem);
+        line-height: 1;
+      }
+
+      .setup-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+      }
+
       .stats-row {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -791,6 +902,7 @@
       }
 
       @media (max-width: 980px) {
+        .setup-grid,
         .layout,
         .stats-row,
         .before-after,
@@ -884,7 +996,53 @@
   </head>
   <body>
     <div class="shell">
-      <section id="reviewView">
+      <section id="setupView" class="setup-panel">
+        <div class="setup-layout">
+          <article class="setup-card">
+            <p class="eyebrow">Eval Setup</p>
+            <h1>Start a focused review session</h1>
+            <p class="category-summary">
+              Restrict the query pool before review to build denser signal in high-value catalog slices. Leaving all categories unselected keeps the current all-catalog behavior.
+            </p>
+          </article>
+
+          <article class="setup-card">
+            <div class="setup-grid">
+              <div>
+                <p class="eyebrow">Query Categories</p>
+                <h2>Filter the eval pool</h2>
+                <div class="category-toolbar">
+                  <button id="allCategoriesButton" class="ghost-button" type="button">All categories</button>
+                  <button id="clearCategoriesButton" class="ghost-button hidden" type="button">Clear selection</button>
+                </div>
+                <p id="categorySelectionSummary" class="category-summary">Loading categories…</p>
+                <div id="categoryList" class="category-list"></div>
+              </div>
+
+              <aside class="setup-stats">
+                <div class="setup-stat">
+                  <p class="muted">Queries in this session</p>
+                  <p id="setupQueryCount" class="setup-stat-value">0</p>
+                </div>
+                <div class="setup-stat">
+                  <p class="muted">Already reviewed in this pool</p>
+                  <p id="setupReviewedCount" class="setup-stat-value">0</p>
+                </div>
+                <div class="setup-stat">
+                  <p class="muted">Priority categories</p>
+                  <p class="category-summary">Lounge Seating and Multi-use Guest Chairs are surfaced first, with the full catalog available below.</p>
+                </div>
+              </aside>
+            </div>
+
+            <div class="setup-actions">
+              <button id="startSessionButton" class="confirm-button" type="button">Start review session</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="reviewView" class="hidden">
         <div class="topbar">
           <div>
             <p class="eyebrow">Visual Review</p>
@@ -979,9 +1137,15 @@
     </div>
 
     <script>
+      const QUERY_CATEGORY_BY_PRODUCT_ID = {"product_e7a57f81a966_13462702":"Seating & Chairs > Multi-use Guest Chairs","product_1ccb9ffc4882_11819295":"Seating & Chairs > Lounge Seating","product_5bd767abc648_14006555":"Seating & Chairs > Outdoor Seating","product_b2416e5e20bd_13462585":"Seating & Chairs > Multi-use Guest Chairs","product_1778f828063b_13926808":"Seating & Chairs > Stacking / Nesting Chairs","product_1182f2e0761b_13926806":"Seating & Chairs > Fixed-height Stools","product_f3bdc3073c5d_13463757":"Seating & Chairs > Lounge Seating","product_2753a835c6f8_13463758":"Seating & Chairs > Lounge Seating","product_e83fa8d91705_14049343":"Seating & Chairs > Lounge Seating","product_d8c7dd102a65_14049344":"Seating & Chairs > Stacking / Nesting Chairs","product_fc112c135d70_13890748":"Seating & Chairs > Lounge Seating","product_084abaca2d0d_13886896":"Seating & Chairs > Multi-use Guest Chairs","product_9d23ccd3a9ab_13945713":"Seating & Chairs > Lounge Seating","product_a464cf6d3852_14006849":"Seating & Chairs > Fixed-height Stools","product_958521f45937_13934240":"Seating & Chairs > Stacking / Nesting Chairs","product_9f5e71bcccaf_13931098":"Seating & Chairs > Multi-use Guest Chairs","product_77f37a7c9e40_14010227":"Seating & Chairs > Lounge Seating","product_01f35a521182_13957982":"Seating & Chairs > Lounge Seating","product_d3f4e50725e9_10112001":"Seating & Chairs > Lounge Seating","product_133d848743f7_13890749":"Specialty Furnishing > Workplace","product_02abbb8e1b55_13755314":"Seating & Chairs > Stacking / Nesting Chairs","product_9c46ed49f295_13931102":"Seating & Chairs > Multi-use Guest Chairs","product_de8b99f8bc9b_13934246":"Specialty Furnishing > Workplace","product_02456f37d2e6_13930651":"Seating & Chairs > Bench Seating","product_b91d6bb0d405_7644011":"Specialty Furnishing > Workplace","product_225226a5d1f6_13945959":"Specialty Furnishing > Workplace","product_0cdf5426687b_13884365":"Seating & Chairs > Multi-use Guest Chairs","product_66281b18a3ba_11577201":"Seating & Chairs > Multi-use Guest Chairs","product_75e31df50979_13931105":"Seating & Chairs > Lounge Seating","product_64a5f23a761d_13883665":"Seating & Chairs > Fixed-height Stools","product_d9196ca32860_13884140":"Seating & Chairs > Multi-use Guest Chairs","product_4e31a0fb62b5_13945964":"Seating & Chairs > Bench Seating","product_a2738837a6b6_13886928":"Seating & Chairs > Lounge Seating","product_0d66b33a0bf2_14049534":"Seating & Chairs > Lounge Seating","product_2a225778e719_14049536":"Seating & Chairs > Lounge Seating","product_8246df9fcbf9_13933279":"Seating & Chairs > Fixed-height Stools","product_01a13264bedf_14049538":"Seating & Chairs > Fixed-height Stools","product_9a787ef6f01e_11842264":"Seating & Chairs > Stacking / Nesting Chairs","product_b989d8d0df68_13663446":"Seating & Chairs > Fixed-height Stools","product_4755720d5ee2_13909356":"Seating & Chairs > Lounge Seating","product_9a94546ea4e8_13885893":"Seating & Chairs > Multi-use Guest Chairs","product_ea784919b15d_13945968":"Seating & Chairs > Lounge Seating","product_46eaa9fefe0c_13882351":"Seating & Chairs > Modular Seating","product_2723e6885291_13945970":"Specialty Furnishing > Workplace","product_22b9b75530b8_14049543":"Specialty Furnishing > Workplace","product_b36c49eda1ab_14050707":"Seating & Chairs > Bench Seating","product_9bbf0f4416cc_13884211":"Seating & Chairs > Lounge Seating","product_fe434f26c79c_14104946":"Seating & Chairs > Multi-use Guest Chairs","product_ed736f59a6d1_13985587":"Seating & Chairs > Stacking / Nesting Chairs","product_4200482acd2a_13931107":"Seating & Chairs > Multi-use Guest Chairs","product_2a99e4ba202e_13833857":"Seating & Chairs > Lounge Seating","product_80e490956df6_13945977":"Seating & Chairs > Lounge Seating","product_e80e5c15807f_11837711":"Seating & Chairs > Lounge Seating","product_5d5985e873d0_13684204":"Seating & Chairs > Multi-use Guest Chairs","product_82daa52c758e_13945979":"Seating & Chairs > Lounge Seating","product_99030faaf1a2_13945981":"Seating & Chairs > Lounge Seating","product_d44f768b9e4b_1631682":"Seating & Chairs > Bench Seating","product_0f0f0b761a42_13885892":"Seating & Chairs > Multi-use Guest Chairs","product_9ba126a1f522_14050984":"Specialty Furnishing > Workplace","product_d97ed3bf740a_13934264":"Seating & Chairs > Fixed-height Stools","product_743f5b841515_13729874":"Seating & Chairs > Fixed-height Stools","product_9a5c19781002_11895198":"Seating & Chairs > Multi-use Guest Chairs","product_af9d61dc0367_13945983":"Seating & Chairs > Lounge Seating","product_14e5b3d1974b_13945986":"Seating & Chairs > Multi-use Guest Chairs","product_bafca23b5e2d_14107719":"Seating & Chairs > Lounge Seating","product_4805cb71bcfe_13931115":"Seating & Chairs > Lounge Seating","product_0416211e73d7_14051265":"Seating & Chairs > Lounge Seating","product_a9259b3243ec_13883626":"Seating & Chairs > Multi-use Guest Chairs","product_686e4be74777_13945990":"Seating & Chairs > Lounge Seating","product_2f5579db34fd_13931117":"Seating & Chairs > Fixed-height Stools","product_40ac34f5fabf_14023772":"Seating & Chairs > Lounge Seating","product_ea65fbe4d1f8_14023773":"Seating & Chairs > Modular Seating","product_d5a9e428e9d5_13958028":"Seating & Chairs > Bench Seating","product_53f1d69e807c_13958030":"Seating & Chairs > Bench Seating","product_fb0002385905_13909360":"Seating & Chairs > Casegoods","product_8257b15cd55d_14097275":"Seating & Chairs > Lounge Seating","product_11be3d782e1d_13982197":"Seating & Chairs > Multi-use Guest Chairs","product_8d81bdbc3220_11621837":"Seating & Chairs > Stacking / Nesting Chairs","product_a1c11af66784_11750216":"Seating & Chairs > Multi-use Guest Chairs","product_a73f990ee88a_13909363":"Seating & Chairs > Fixed-height Stools","product_24f797604fee_14011184":"Seating & Chairs > Lounge Seating","product_4a3593a321bc_13909365":"Seating & Chairs > Lounge Seating","product_231fb820f522_13989292":"Seating & Chairs > Lounge Seating","product_9bf9d887bb44_13988251":"Seating & Chairs > Lounge Seating","product_cf486d89a8e5_13753197":"Specialty Furnishing > Workplace","product_241eead8f2a7_13926743":"Seating & Chairs > Multi-use Guest Chairs","product_4cbda9092cd1_13945993":"Seating & Chairs > Lounge Seating","product_8e0fcfd7a8ae_14049554":"Seating & Chairs > Lounge Seating","product_1ab71de3c379_13885899":"Seating & Chairs > Multi-use Guest Chairs","product_07eaf04c18c8_13883627":"Specialty Furnishing > Workplace","product_c9783d00ea60_14050853":"Seating & Chairs > Lounge Seating","product_7bba68075b88_14050855":"Seating & Chairs > Multi-use Guest Chairs","product_f98da1fc23c9_13945998":"Seating & Chairs > Bench Seating","product_ec2edc5149c7_5422331":"Seating & Chairs > Multi-use Guest Chairs","product_6315d49c83ec_14038311":"Seating & Chairs > Stacking / Nesting Chairs","product_b558869067b9_11819207":"Seating & Chairs > Stacking / Nesting Chairs","product_57b9171665bc_1428352":"Seating & Chairs > Multi-use Guest Chairs","product_0ffbdf236c44_6598741":"Seating & Chairs > Multi-use Guest Chairs","product_6fb2fc96c576_14050865":"Seating & Chairs > Multi-use Guest Chairs","product_5cc5e6576668_6599911":"Seating & Chairs > Fixed-height Stools","product_3a174882a447_13946001":"Seating & Chairs > Multi-use Guest Chairs","product_097cfe53296b_13946002":"Specialty Furnishing > Workplace","product_f9b43e62b30e_13946003":"Seating & Chairs > Lounge Seating","product_3704838b4f42_13946006":"Seating & Chairs > Lounge Seating","product_595a850efb2d_14006547":"Seating & Chairs > Outdoor Seating","product_ca53e5a205f0_13946007":"Seating & Chairs > Multi-use Guest Chairs","product_1e16c37bf701_13933441":"Seating & Chairs > Multi-use Guest Chairs","product_8e38a05d5f36_13933442":"Seating & Chairs > Lounge Seating","product_015179e73336_14007418":"Specialty Furnishing > Workplace","product_551bfe7860cf_14051102":"Seating & Chairs > Modular Seating","product_559026b1b794_12120638":"Specialty Furnishing > Workplace","product_c4156f0004f9_3377392":"Specialty Furnishing > Workplace","product_25f6e5dbde45_13937565":"Specialty Furnishing > Workplace","product_1f29aaa671ce_14057734":"Seating & Chairs > Lounge Seating","product_0de85bbec5b0_13824029":"Seating & Chairs > Bench Seating","product_3fd597dcb040_13883669":"Seating & Chairs > Bench Seating","product_6322aea9767d_14010870":"Seating & Chairs > Multi-use Guest Chairs","product_b53f2c0f0349_13931127":"Seating & Chairs > Bench Seating","product_8f82d5ee2825_11743753":"Seating & Chairs > Modular Seating","product_9a55087f1882_13931130":"Seating & Chairs > Lounge Seating","product_ce9b2a35ac67_14051104":"Seating & Chairs > Modular Seating","product_2558ba498cff_14051105":"Seating & Chairs > Lounge Seating","product_6453bfbf014f_13755322":"Specialty Furnishing > Workplace","product_e0a7bc6bcacb_13946018":"Seating & Chairs > Lounge Seating","product_397f71e417e9_14049563":"Seating & Chairs > Fixed-height Stools","product_3a9ac5f6e47c_13926780":"Seating & Chairs > Fixed-height Stools","product_48ff6a5b936f_13753211":"Seating & Chairs > Lounge Seating","product_a0d551e706a9_14107139":"Seating & Chairs > Lounge Seating","product_4d71b4e2cf2d_13946022":"Seating & Chairs > Lounge Seating","product_d932648a4a78_11602859":"Seating & Chairs > Lounge Seating","product_0196e5710d1b_10870591":"Seating & Chairs > Lounge Seating","product_ef1de6a9bff1_14107168":"Seating & Chairs > Bench Seating","product_6d2a8d6a76ba_13946024":"Seating & Chairs > Multi-use Guest Chairs","product_4c6ec5ccea24_13874073":"Seating & Chairs > Stacking / Nesting Chairs","product_4c6ec5ccea24_14104954":"Seating & Chairs > Multi-use Guest Chairs","product_25d1e8600e70_13961457":"Seating & Chairs > Lounge Seating","product_45abe11d2e1a_13946025":"Seating & Chairs > Multi-use Guest Chairs","product_ba09ac78ec7a_13934283":"Seating & Chairs > Lounge Seating","product_7c722677de1d_13931132":"Seating & Chairs > Lounge Seating","product_4ac73fc54985_13885726":"Specialty Furnishing > Workplace","product_e5ffe3f7d7df_11783430":"Seating & Chairs > Lounge Seating","product_31940d102bab_14049564":"Seating & Chairs > Lounge Seating","product_701b54902dc6_13937566":"Seating & Chairs > Lounge Seating","product_73464bbcba3d_13890761":"Seating & Chairs > Lounge Seating","product_42b31b9807df_3377132":"Seating & Chairs > Lounge Seating","product_d5dc40372a03_13717510":"Seating & Chairs > Lounge Seating","product_8e961fc60801_14097277":"Seating & Chairs > Multi-use Guest Chairs","product_bdcadbcddf9a_14107757":"Seating & Chairs > Bench Seating","product_27dd2b8594f2_14011193":"Seating & Chairs > Multi-use Guest Chairs","product_63a486fdb8b1_13946036":"Seating & Chairs > Lounge Seating","product_8b3adf87e7e6_14107210":"Seating & Chairs > Fixed-height Stools","product_d9c2c1ab012e_13926781":"Seating & Chairs > Fixed-height Stools","product_55b0140ef284_13926505":"Seating & Chairs > Stacking / Nesting Chairs","product_05e7b0384abd_13926718":"Specialty Furnishing > Workplace","product_6b0630af25f4_13646132":"Seating & Chairs > Lounge Seating","product_c9595708db6b_13985761":"Healthcare > Healthcare Lounge","product_45bb8fc45f00_13988300":"Seating & Chairs > Fixed-height Stools","product_1fd1dbded910_6600661":"Seating & Chairs > Multi-use Guest Chairs","product_a0978d00841a_13885843":"Specialty Furnishing > Workplace","product_fa643deacdab_13885887":"Seating & Chairs > Multi-use Guest Chairs","product_e8814ef40f37_13886040":"Seating & Chairs > Fixed-height Stools","product_aa3adf98474a_13885788":"Specialty Furnishing > Workplace","product_fc08f7851121_13885844":"Specialty Furnishing > Workplace","product_930aa2746d98_11973248":"Seating & Chairs > Lounge Seating","product_eab3b850e8c8_134125":"Seating & Chairs > Lounge Seating","product_8b00aad79d82_14107199":"Accessories > Lounge Seating","product_d7617cf8df24_13933447":"Seating & Chairs > Lounge Seating","product_79bd64255cbd_13933448":"Seating & Chairs > Modular Seating","product_0bc804755de6_13946042":"Seating & Chairs > Bench Seating","product_e65353c8abab_13890771":"Seating & Chairs > Lounge Seating","product_3fae8f88f42c_13885727":"Specialty Furnishing > Workplace","product_af23e04fc6d4_14051115":"Seating & Chairs > Outdoor Seating","product_9becfcf7e77e_13462615":"Seating & Chairs > Bench Seating","product_faf5f7884a30_14051124":"Seating & Chairs > Multi-use Guest Chairs","product_6167278f1d78_13804810":"Seating & Chairs > Fixed-height Stools","product_2146e0d8d0da_14051127":"Seating & Chairs > Multi-use Guest Chairs","product_d5754732b6e7_14051128":"Seating & Chairs > Fixed-height Stools","product_b5a2f3451172_14051129":"Seating & Chairs > Fixed-height Stools","product_73e737773269_13985767":"Specialty Furnishing > Workplace","product_fc9e00bfea9b_13890772":"Seating & Chairs > Fixed-height Stools","product_733cea400ba5_14006847":"Seating & Chairs > Fixed-height Stools","product_02e09e493f28_14006280":"Seating & Chairs > Outdoor Seating","product_ea1710f4521b_14049574":"Specialty Furnishing > Workplace","product_153c823eb700_14006685":"Seating & Chairs > Bench Seating","product_64008979b634_14057740":"Seating & Chairs > Multi-use Guest Chairs","product_8f5a0ab8a544_14057741":"Seating & Chairs > Stacking / Nesting Chairs","product_3c09b3f0f2e6_13985769":"Specialty Furnishing > Workplace","product_71cc1df081c0_14065265":"Seating & Chairs > Lounge Seating","product_ecec3e576eab_13802217":"Seating & Chairs > Multi-use Guest Chairs","product_8fadf10d12b5_13802218":"Seating & Chairs > Lounge Seating","product_93bba8fed4ac_14023790":"Seating & Chairs > Lounge Seating","product_de1f9a31460a_11713117":"Specialty Furnishing > Workplace","product_c1e6931ba9bd_3873871":"Seating & Chairs > Multi-use Guest Chairs","product_1706697caa2f_14011213":"Seating & Chairs > Lounge Seating","product_d2574cee216c_13890775":"Seating & Chairs > Multi-use Guest Chairs","product_5083fc1a4b95_14049576":"Seating & Chairs > Multi-use Guest Chairs","product_81700d737d81_13946049":"Seating & Chairs > Lounge Seating","product_c202b5849e59_13961102":"Seating & Chairs > Stacking / Nesting Chairs","product_13c71d6d32f3_13961103":"Seating & Chairs > Fixed-height Stools","product_1790457093b8_13961104":"Seating & Chairs > Stacking / Nesting Chairs","product_a4bf283323c4_13961106":"Seating & Chairs > Stacking / Nesting Chairs","product_d991bed74589_13884403":"Seating & Chairs > Stacking / Nesting Chairs","product_3ec59043ffd5_13884368":"Seating & Chairs > Fixed-height Stools","product_9b4d7a57d978_14006837":"Specialty Furnishing > Workplace","product_1d1deefdd223_13931140":"Seating & Chairs > Multi-use Guest Chairs","product_0c67187b7e1f_14056723":"Seating & Chairs > Multi-use Guest Chairs","product_91ff4f0041b3_13890776":"Seating & Chairs > Stacking / Nesting Chairs","product_5b2f430022f6_14006842":"Seating & Chairs > Fixed-height Stools","product_922c48edb7c8_13958173":"Seating & Chairs > Lounge Seating","product_c65ef43d7c1d_13959752":"Seating & Chairs > Lounge Seating","product_e410f9a20487_13961130":"Seating & Chairs > Lounge Seating","product_36a831876110_13961380":"Seating & Chairs > Lounge Seating","product_afea169262c4_14104973":"Seating & Chairs > Stacking / Nesting Chairs","product_d91d37b5e085_13802221":"Seating & Chairs > Multi-use Guest Chairs","product_def506945a69_6588601":"Seating & Chairs > Lounge Seating","product_a07cce7bab9d_13958196":"Seating & Chairs > Multi-use Guest Chairs","product_671dd5136fea_13958208":"Seating & Chairs > Multi-use Guest Chairs","product_dad609bdc547_13958586":"Seating & Chairs > Multi-use Guest Chairs","product_5fd34c6eebbb_13958603":"Seating & Chairs > Multi-use Guest Chairs","product_ed06af43b104_11704593":"Specialty Furnishing > Workplace","product_30eabf4fcb36_13874083":"Seating & Chairs > Fixed-height Stools","product_d257e12d425c_14109123":"Seating & Chairs > Modular Seating","product_3d951ea14715_14108699":"Seating & Chairs > Bench Seating","product_45177bbac6ba_13717573":"Specialty Furnishing > Workplace","product_0a80be1568ba_11596501":"Seating & Chairs > Lounge Seating","product_2e42b4a4a525_14097276":"Seating & Chairs > Lounge Seating","product_49ebe22861c4_13884196":"Seating & Chairs > Multi-use Guest Chairs","product_d1162aa14625_14049577":"Seating & Chairs > Stacking / Nesting Chairs","product_e7055590da60_13931080":"Specialty Furnishing > Workplace","product_0069cb9a5065_14107900":"Seating & Chairs > Lounge Seating","product_8bfaec65ba5f_13958696":"Seating & Chairs > Lounge Seating","product_75d23bb1f063_13958699":"Seating & Chairs > Lounge Seating","product_0f7b9724f200_13958701":"Seating & Chairs > Lounge Seating","product_3ad3d33d6b49_14049581":"Seating & Chairs > Lounge Seating","product_8651117ee021_14049583":"Seating & Chairs > Lounge Seating","product_138f39a576b8_14049584":"Seating & Chairs > Multi-use Guest Chairs","product_0e454bd03762_13985782":"Specialty Furnishing > Workplace","product_aa8462b9e245_14104979":"Seating & Chairs > Lounge Seating","product_0469d6cdd4cd_11602891":"Seating & Chairs > Lounge Seating","product_a41f2a7ab1c1_6944721":"Specialty Furnishing > Workplace","product_862ca4bb0702_13926719":"Specialty Furnishing > Workplace","product_ac5f2db0516e_14006676":"Seating & Chairs > Bench Seating","product_b44de8c8d9cb_14108700":"Seating & Chairs > Fixed-height Stools","product_e0721b9039bb_13961166":"Seating & Chairs > Stacking / Nesting Chairs","product_cd2a37b009a4_13890785":"Seating & Chairs > Multi-use Guest Chairs","product_7061e6a06baa_13883659":"Seating & Chairs > Multi-use Guest Chairs","product_e2e2862f86b8_13958715":"Seating & Chairs > Multi-use Guest Chairs","product_1e762038fe11_13958729":"Seating & Chairs > Multi-use Guest Chairs","product_5e3ba5935350_13946067":"Seating & Chairs > Lounge Seating","product_9370b512927a_13946069":"Seating & Chairs > Lounge Seating","product_31706c00f89c_13931143":"Seating & Chairs > Multi-use Guest Chairs","product_a3ef67addcd9_13931144":"Seating & Chairs > Fixed-height Stools","product_d8e110cc58c1_13802233":"Seating & Chairs > Lounge Seating","product_43e9e3656e99_13931146":"Specialty Furnishing > Workplace","product_05ef0d78c939_6586711":"Seating & Chairs > Lounge Seating","product_b8ecb9822570_14023796":"Seating & Chairs > Multi-use Guest Chairs","product_721537f6a20a_13930686":"Seating & Chairs > Bench Seating","product_2b15b6170970_13931081":"Seating & Chairs > Lounge Seating","product_a4bed12fefa4_14068882":"Seating & Chairs > Fixed-height Stools","product_e7243a68a06a_13931149":"Seating & Chairs > Lounge Seating","product_f9a81d875b52_1451232":"Multi-Use Guest Seating","product_77420436469c_42279":"Seating & Chairs > Lounge Seating","product_13a4e489470a_2654622":"Seating & Chairs > Lounge Seating","product_98d7d25e21cf_14057753":"Seating & Chairs > Multi-use Guest Chairs","product_429f0ab7e9b3_14057756":"Seating & Chairs > Multi-use Guest Chairs","product_bdf01dae608d_14106828":"Seating & Chairs > Fixed-height Stools","product_2ddd0803f66f_14051138":"Seating & Chairs > Lounge Seating","product_58f1505a9747_13890787":"Seating & Chairs > Lounge Seating","product_263a912d787a_11848908":"Seating & Chairs > Lounge Seating","product_ba2901b0e54a_13883666":"Seating & Chairs > Fixed-height Stools","product_8ee71c37b622_13884895":"Seating & Chairs > Lounge Seating","product_33378d334bd3_13884376":"Seating & Chairs > Lounge Seating","product_7965284bd229_13937610":"Specialty Furnishing > Workplace","product_eeb849c99198_13926783":"Seating & Chairs > Fixed-height Stools","product_3e280432f637_91254":"Seating & Chairs > Lounge Seating","product_1ed8b8a0d09a_6587671":"Seating & Chairs > Bench Seating","product_ee5b3f35e6e9_13946081":"Seating & Chairs > Lounge Seating","product_4ad520c8c5e7_11831800":"Seating & Chairs > Lounge Seating","product_81b9b48f58de_13944727":"Seating & Chairs > Lounge Seating","product_695c7f864c1c_13824038":"Seating & Chairs > Multi-use Guest Chairs","product_387e5dd376f4_13802237":"Seating & Chairs > Lounge Seating","product_a25c2c99ba9c_14107904":"Seating & Chairs > Lounge Seating","product_a0e43542d748_14049606":"Seating & Chairs > Stacking / Nesting Chairs","product_07cd4ea59111_14107462":"Seating & Chairs > Lounge Seating","product_203d9c355797_14050006":"Seating & Chairs > Bench Seating","product_7d9facf6c222_13684253":"Seating & Chairs > Multi-use Guest Chairs","product_8c5b0251b5f6_14038329":"Seating & Chairs > Fixed-height Stools","product_e3e0786bb53b_11819632":"Seating & Chairs > Lounge Seating","product_5dd01bad91bc_13753196":"Specialty Furnishing > Workplace","product_8021e0d17b1c_13931159":"Seating & Chairs > Multi-use Guest Chairs","product_b967b6c9ef7d_13934341":"Seating & Chairs > Multi-use Guest Chairs","product_a675675b3ff3_13926784":"Seating & Chairs > Fixed-height Stools","product_cd5bf92e4a04_13926749":"Seating & Chairs > Stacking / Nesting Chairs","product_8e3eb0545636_13694450":"Seating & Chairs > Self-supported Seating","product_e196ee409890_13802240":"Seating & Chairs > Multi-use Guest Chairs","product_443b0d5a21ea_13802241":"Seating & Chairs > Fixed-height Stools","product_e88bdb0f6829_11876825":"Seating & Chairs > Fixed-height Stools","product_4dfa9a1e28bf_13946084":"Seating & Chairs > Fixed-height Stools","product_017718aff6b8_13982237":"Seating & Chairs > Lounge Seating","product_50b3dffd55ce_13958786":"Seating & Chairs > Lounge Seating","product_38f08535cf06_13824043":"Seating & Chairs > Multi-use Guest Chairs","product_bcb02c6d05ea_13933462":"Seating & Chairs > Lounge Seating","product_8a1f51f9a768_11895209":"Seating & Chairs > Banquettes","product_6c9c16b14683_14104991":"Specialty Furnishing > Workplace","product_e63ac4b26c24_6586791":"Specialty Furnishing > Workplace","product_6637ab9bc53f_14056752":"Auxiliary Furniture > Childrens Furniture","product_8665c859e0d0_14051151":"Seating & Chairs > Multi-use Guest Chairs","product_fb27b6acc6ac_13959183":"Seating & Chairs > Bench Seating","product_4e465cc7630e_4494931":"Seating & Chairs > Lounge Seating","product_ce2ac39dba37_11703166":"Specialty Furnishing > Workplace","product_3c09c91a8458_13926745":"Seating & Chairs > Multi-use Guest Chairs","product_492b9785d75d_13926786":"Seating & Chairs > Fixed-height Stools","product_6dffd3345774_13926507":"Seating & Chairs > Stacking / Nesting Chairs","product_15a45b2c66f7_13926721":"Specialty Furnishing > Workplace","product_60517b03260d_6587601":"Seating & Chairs > Multi-use Guest Chairs","product_1fd4bec94e24_13929581":"Seating & Chairs > Lounge Seating","product_d8157a8ece43_14057762":"Seating & Chairs > Fixed-height Stools","product_79c75bce28e5_13884155":"Seating & Chairs > Multi-use Guest Chairs","product_ec05ab4a8b9a_13946102":"Seating & Chairs > Lounge Seating","product_ac191566ba53_14050018":"Specialty Furnishing > Workplace","product_486d56e63cc3_14104992":"Seating & Chairs > Stacking / Nesting Chairs","product_08e8a383c5f4_14104994":"Seating & Chairs > Fixed-height Stools","product_fb5dcddcf0b6_14104993":"Seating & Chairs > Stacking / Nesting Chairs","product_ad7e77745ced_14050020":"Specialty Furnishing > Workplace","product_76d52d817c1b_13989496":"Specialty Furnishing > Workplace","product_effe3cd413c9_13989505":"Seating & Chairs > Multi-use Guest Chairs","product_23311b40ec51_13989498":"Seating & Chairs > Fixed-height Stools","product_c20eb081a88f_1888642":"Seating & Chairs > Multi-use Guest Chairs","product_17d4c847f1ab_14107468":"Seating & Chairs > Lounge Seating","product_3ce361591c85_13926706":"Seating & Chairs > Stacking / Nesting Chairs","product_1ac0fae82041_11716251":"Seating & Chairs > Outdoor Seating","product_9a9db1cb4a60_13931170":"Seating & Chairs > Multi-use Guest Chairs","product_1fb0def1d9c2_14051155":"Seating & Chairs > Multi-use Guest Chairs","product_75494d6190ef_14038398":"Seating & Chairs > Multi-use Guest Chairs","product_9236136afbba_14051158":"Specialty Furnishing > Workplace","product_43910e91405e_14051159":"Seating & Chairs > Lounge Seating","product_ac9622c546f5_13946106":"Seating & Chairs > Multi-use Guest Chairs","product_e6049728980a_14006838":"Seating & Chairs > Lounge Seating","product_6c5b637d07fe_14104998":"Specialty Furnishing > Workplace","product_9c433c197d30_13802247":"Seating & Chairs > Lounge Seating","product_7d5f47a47e10_13890795":"Seating & Chairs > Modular Seating","product_7e9470034901_14038338":"Seating & Chairs > Multi-use Guest Chairs","product_2e47afead329_14038339":"Seating & Chairs > Fixed-height Stools","product_0805402df44f_14107773":"Specialty Furnishing > Workplace","product_c0a6aa2dabcf_13946108":"Seating & Chairs > Fixed-height Stools","product_04180183a7d6_14050023":"Seating & Chairs > Stacking / Nesting Chairs","product_38186b6f123b_14051161":"Seating & Chairs > Lounge Seating","product_1b880d5520cb_14051162":"Seating & Chairs > Lounge Seating","product_dc2f52cb3ef6_14051163":"Seating & Chairs > Lounge Seating","product_68380016b4e8_13909402":"Seating & Chairs > Fixed-height Stools","product_735cd52fd346_11612764":"Seating & Chairs > Lounge Seating","product_9c35912b7ce1_14050025":"Seating & Chairs > Modular Seating","product_9a31cdbcc50a_13802250":"Seating & Chairs > Fixed-height Stools","product_8849b3486643_11783448":"Seating & Chairs > Multi-use Guest Chairs","product_a6fab3c0e3d2_14006848":"Seating & Chairs > Fixed-height Stools","product_7605fc12bce0_13753184":"Seating & Chairs > Multi-use Guest Chairs","product_7cb073a9b2cc_3808001":"Seating & Chairs > Multi-use Guest Chairs","product_37ec14c56810_13874102":"Seating & Chairs > Multi-use Guest Chairs","product_9baa7cb3c1f2_13874103":"Seating & Chairs > Stacking / Nesting Chairs","product_332b98e6901a_14050028":"Seating & Chairs > Fixed-height Stools","product_dccb3565c5cf_13926758":"Seating & Chairs > Bench Seating","product_6411db989f83_13926756":"Seating & Chairs > Lounge Seating","product_b68a365f4ecd_13959212":"Seating & Chairs > Fixed-height Stools","product_374f7779ff2b_13890797":"Seating & Chairs > Lounge Seating","product_1a5b7122d8e9_13946114":"Seating & Chairs > Lounge Seating","product_79ac811b059a_11831691":"Specialty Furnishing > Workplace","product_116f84eda0ca_13933485":"Seating & Chairs > Lounge Seating","product_de13302205dc_6944731":"Seating & Chairs > Multi-use Guest Chairs","product_8662bdfee5f3_13959227":"Seating & Chairs > Multi-use Guest Chairs","product_b9633d2e21cf_13959229":"Seating & Chairs > Lounge Seating","product_5fb384a066ba_13959271":"Seating & Chairs > Lounge Seating","product_b07763975031_13946118":"Seating & Chairs > Multi-use Guest Chairs","product_d14a38a677a5_13909405":"Specialty Furnishing > Workplace","product_53c384dfe169_13753342":"Seating & Chairs > Multi-use Guest Chairs","product_5b0213d4aa27_13755333":"Seating & Chairs > Stacking / Nesting Chairs","product_1d040726e4e3_14038343":"Seating & Chairs > Lounge Seating","product_ceb93cf807c4_13961479":"Seating & Chairs > Fixed-height Stools","product_f2de8d88ecd7_14105013":"Specialty Furnishing > Workplace","product_d315e26a6400_13884157":"Seating & Chairs > Multi-use Guest Chairs","product_f3f3f14553c1_13884158":"Seating & Chairs > Multi-use Guest Chairs","product_1cf76b01b598_13961195":"Seating & Chairs > Fixed-height Stools","product_ecaa747ee1b5_13961204":"Seating & Chairs > Stacking / Nesting Chairs","product_36c2522ee049_13937618":"Seating & Chairs > Lounge Seating","product_e3d0c11b55f4_13934530":"Seating & Chairs > Modular Seating","product_dd2fca962f6d_13937620":"Seating & Chairs > Lounge Seating","product_bd4bfc1fb70a_11819620":"Specialty Furnishing > Workplace","product_3c59c5b9dd6f_13747840":"Specialty Furnishing > Workplace","product_8252ea579d98_13802259":"Seating & Chairs > Lounge Seating","product_d983eb6e288f_13890800":"Specialty Furnishing > Workplace","product_b86c3a705d94_13890801":"Seating & Chairs > Lounge Seating","product_c044b9a7342f_13946124":"Seating & Chairs > Lounge Seating","product_be886aa0fb39_13942045":"Seating & Chairs > Multi-use Guest Chairs","product_fe32be1bd00e_13890802":"Seating & Chairs > Lounge Seating","product_b24c65d68d8f_13890803":"Seating & Chairs > Modular Seating","product_3b586f02ab96_14107777":"Seating & Chairs > Bench Seating","product_d4173f4996cf_13728960":"Seating & Chairs > Fixed-height Stools","product_e718d2762e97_14009861":"Seating & Chairs > Lounge Seating","product_f2d033e5fd51_10313861":"Seating & Chairs > Lounge Seating","product_61b8d34b93a7_14105027":"Seating & Chairs > Lounge Seating","product_151e0085ef4b_14097274":"Seating & Chairs > Lounge Seating","product_e09c27c354a6_13545930":"Seating & Chairs > Lounge Seating","product_dc5262d55658_11603245":"Seating & Chairs > Lounge Seating","product_7a591c72b1a9_11603246":"Specialty Furnishing > Workplace","product_6c52e02c1343_11819243":"Seating & Chairs > Lounge Seating","product_2d1135f7b11f_13886048":"Seating & Chairs > Lounge Seating","product_379e42818325_13890805":"Seating & Chairs > Lounge Seating","product_abaf8b36bf94_13909411":"Seating & Chairs > Lounge Seating","product_60955663d558_13720725":"Seating & Chairs > Stacking / Nesting Chairs","product_87c7c45ebea8_13890806":"Seating & Chairs > Fixed-height Stools","product_4a8483aaac07_13985829":"Seating & Chairs > Fixed-height Stools","product_b444eebb9f5c_13946133":"Seating & Chairs > Fixed-height Stools","product_95f45f5acd15_13946134":"Seating & Chairs > Multi-use Guest Chairs","product_027ab3199241_13946135":"Seating & Chairs > Lounge Seating","product_6583d9eaa2d9_13946138":"Seating & Chairs > Multi-use Guest Chairs","product_7e5a7e62e32c_13931184":"Specialty Furnishing > Workplace","product_ef8494ed1b2f_13931185":"Specialty Furnishing > Workplace","product_31b95ceade79_13959311":"Seating & Chairs > Lounge Seating","product_170c81b60b01_14010180":"Seating & Chairs > Lounge Seating","product_1ed777539e10_14050047":"Seating & Chairs > Modular Seating","product_16c9dc7fd2ac_14050049":"Seating & Chairs > Lounge Seating","product_967523667c87_14050050":"Seating & Chairs > Modular Seating","product_331bf6c414f2_14050057":"Seating & Chairs > Lounge Seating","product_3b8abd3e1739_1272142":"Seating & Chairs > Multi-use Guest Chairs","product_d87c9cc37862_13884186":"Seating & Chairs > Bench Seating","product_dd35a11f4821_13717518":"Seating & Chairs > Lounge Seating","product_aa3cc1b6554d_11741350":"Seating & Chairs > Banquettes","product_4553200a91f3_13930670":"Seating & Chairs > Multi-use Guest Chairs","product_7baa79f3bc8d_13985838":"Seating & Chairs > Stacking / Nesting Chairs","product_a0b4808e5023_14050059":"Seating & Chairs > Stacking / Nesting Chairs","product_bb5e85c3bec5_13717519":"Seating & Chairs > Lounge Seating","product_9f0eb021f36b_11819614":"Specialty Furnishing > Workplace","product_13edd04ff401_13972519":"Seating & Chairs > Multi-use Guest Chairs","product_faad10d45e9e_13946147":"Specialty Furnishing > Workplace","product_44a7905d3142_13753182":"Specialty Furnishing > Workplace","product_3effeb18bf0f_14006893":"Seating & Chairs > Self-supported Seating","product_b61a94413cb8_13507966":"Seating & Chairs > Fixed-height Stools","product_c0d38429419e_13926731":"Seating & Chairs > Self-supported Seating","product_52654e394e81_13874120":"Seating & Chairs > Stacking / Nesting Chairs","product_2b21fa8b13d8_13982287":"Seating & Chairs > Multi-use Guest Chairs","product_38b778951262_13884163":"Seating & Chairs > Multi-use Guest Chairs","product_86a27e3d3552_5842201":"Seating & Chairs > Lounge Seating","product_c56ba16ec557_11819634":"Seating & Chairs > Lounge Seating","product_c3b7a746df0b_13972525":"Seating & Chairs > Lounge Seating","product_38e433e3a44e_13972528":"Seating & Chairs > Lounge Seating","product_ce90d84e4619_13985844":"Specialty Furnishing > Workplace","product_c669c7ef9a02_13930666":"Seating & Chairs > Bench Seating","product_fa7540d64140_13926788":"Seating & Chairs > Fixed-height Stools","product_0eeb1339bc9b_13933519":"Seating & Chairs > Lounge Seating","product_4d47fc8ab953_13933520":"Seating & Chairs > Public Seating","product_73fd51ef787c_11819799":"Seating & Chairs > Multi-use Guest Chairs","product_cc102881bcd3_14050064":"Seating & Chairs > Multi-use Guest Chairs","product_6212b2e74788_14050065":"Seating & Chairs > Fixed-height Stools","product_57ce0e255162_14050067":"Seating & Chairs > Lounge Seating","product_f6d4146c84dd_13717521":"Seating & Chairs > Lounge Seating","product_67a91d1579e8_13717540":"Seating & Chairs > Multi-use Guest Chairs","product_4e9072154e60_13937623":"Specialty Furnishing > Workplace","product_9834f39a8466_14056821":"Healthcare > Healthcare Lounge","product_13d198e6387b_13753199":"Seating & Chairs > Fixed-height Stools","product_4bc71da71b70_14050068":"Seating & Chairs > Multi-use Guest Chairs","product_470531f8fb28_14105050":"Specialty Furnishing > Workplace","product_48ddd836f697_5840791":"Seating & Chairs > Multi-use Guest Chairs","product_8c7c6f24b99e_13933526":"Seating & Chairs > Multi-use Guest Chairs","product_0ae4fa4988d7_13933527":"Seating & Chairs > Lounge Seating","product_1665ca65e851_13885783":"Specialty Furnishing > Workplace","product_630858d1bcb8_13885848":"Seating & Chairs > Multi-use Guest Chairs","product_621d7d575814_13937626":"Seating & Chairs > Lounge Seating","product_0a8ef22ccac4_11831701":"Seating & Chairs > Fixed-height Stools","product_cd955c0f78ea_13753193":"Specialty Furnishing > Workplace","product_a95028f0257f_13755325":"Specialty Furnishing > Workplace","product_94d760539e5a_13753187":"Seating & Chairs > Multi-use Guest Chairs","product_8c344a03798e_4439081":"Seating & Chairs > Banquettes","product_76f0fa30f436_13884225":"Seating & Chairs > Lounge Seating","product_86a112cf820f_14051183":"Seating & Chairs > Lounge Seating","product_b0ea2f2e1263_14050071":"Specialty Furnishing > Workplace","product_52c7b77c9bd6_4257071":"Seating & Chairs > Multi-use Guest Chairs","product_d83d969b09bd_14007397":"Seating & Chairs > Fixed-height Stools","product_b7d805c9f2d1_13883679":"Seating & Chairs > Stacking / Nesting Chairs","product_01bb68aa7768_14006852":"Seating & Chairs > Lounge Seating","product_5151b1dcf13e_13728949":"Seating & Chairs > Stacking / Nesting Chairs","product_b0bec9ec4ab6_14050073":"Seating & Chairs > Lounge Seating","product_57ccba57344a_11603281":"Seating & Chairs > Lounge Seating","product_8ef5b1acd37d_11603282":"Specialty Furnishing > Workplace","product_bfba4a717947_11603285":"Seating & Chairs > Multi-use Guest Chairs","product_cb72cf33a66a_13931241":"Seating & Chairs > Multi-use Guest Chairs","product_8dd27e7405e3_13884166":"Seating & Chairs > Multi-use Guest Chairs","product_e441084b57a6_14050075":"Seating & Chairs > Bench Seating","product_d1e62d60b5f0_14050078":"Seating & Chairs > Lounge Seating","product_b4345d6c3523_13926759":"Seating & Chairs > Lounge Seating","product_99a0e0d01a35_13926752":"Seating & Chairs > Lounge Seating","product_327af6758709_14097273":"Healthcare > Bariatric Seating","product_5de638fd5be2_11549192":"Seating & Chairs > Fixed-height Stools","product_8fb958a621ae_13982304":"Seating & Chairs > Multi-use Guest Chairs","product_9ba8d0a64c97_14105052":"Seating & Chairs > Stacking / Nesting Chairs","product_c0aec2d15862_13753201":"Seating & Chairs > Fixed-height Stools","product_c0f8548d5a10_13753010":"Specialty Furnishing > Workplace","product_f388195491fc_13926708":"Seating & Chairs > Stacking / Nesting Chairs","product_21da18b36a18_13926737":"Seating & Chairs > Stacking / Nesting Chairs","product_5af2ef4e5db1_13926733":"Seating & Chairs > Stacking / Nesting Chairs","product_277d8b355add_13946158":"Seating & Chairs > Lounge Seating","product_40ad1d619136_14105680":"Specialty Furnishing > Workplace","product_2898a1d4d451_13729820":"Specialty Furnishing > Workplace","product_3f21f1dbed0b_13890817":"Specialty Furnishing > Workplace","product_5de106aa9bdd_13890818":"Seating & Chairs > Lounge Seating","product_04a60e20b4f3_13890820":"Seating & Chairs > Lounge Seating","product_55cf4cba536f_10113471":"Seating & Chairs > Lounge Seating","product_ec3691983fb1_13934575":"Seating & Chairs > Lounge Seating","product_5b77579d565e_13883741":"Seating & Chairs > Lounge Seating","product_e7e6fb51114d_13684309":"Seating & Chairs > Stacking / Nesting Chairs","product_8f1531ea37ef_14107596":"Seating & Chairs > Multi-use Guest Chairs","product_e0bfbaa1ce42_13959419":"Seating & Chairs > Lounge Seating","product_9532277d7872_11741426":"Auxiliary Furniture > Childrens Furniture","product_200f9ee77320_14050090":"Seating & Chairs > Lounge Seating","product_368fbfd59abb_6586881":"Seating & Chairs > Multi-use Guest Chairs","product_a1a5eaac954a_13717457":"Seating & Chairs > Bench Seating","product_1941d01234cc_13961503":"Seating & Chairs > Lounge Seating","product_0bd0be24e770_13753203":"Seating & Chairs > Lounge Seating","product_d6894ad5cdcd_13937630":"Seating & Chairs > Multi-use Guest Chairs","product_30fe75f32e90_13890829":"Specialty Furnishing > Workplace","product_274381eca4e4_13890830":"Seating & Chairs > Lounge Seating","product_f9ca52397941_14006541":"Seating & Chairs > Outdoor Seating","product_ea621499d0fe_13885842":"Specialty Furnishing > Workplace","product_53080d863160_13885850":"Seating & Chairs > Multi-use Guest Chairs","product_ec3765623b93_13937631":"Seating & Chairs > Multi-use Guest Chairs","product_aad9b0c6d2c8_13989707":"Specialty Furnishing > Workplace","product_cfe70efdf112_13989708":"Specialty Furnishing > Workplace","product_cffd66483b2a_13989709":"Seating & Chairs > Multi-use Guest Chairs","product_b51d978c388e_13989711":"Seating & Chairs > Stacking / Nesting Chairs","product_aa70618ba4c4_14038368":"Seating & Chairs > Multi-use Guest Chairs","product_dd8a3f73a38f_14107929":"Seating & Chairs > Lounge Seating","product_0fa343ae854b_13985872":"Specialty Furnishing > Workplace","product_4d8e582c090a_14051198":"Seating & Chairs > Lounge Seating","product_ba51ff89d161_13890831":"Seating & Chairs > Modular Seating","product_9c712cf926c6_11597306":"Seating & Chairs > Lounge Seating","product_946c49a39237_14006853":"Seating & Chairs > Lounge Seating","product_0ae2ef48232b_14107687":"Seating & Chairs > Lounge Seating","product_14fd745b6987_14107919":"Seating & Chairs > Modular Seating","product_e3959587fb03_13985877":"Seating & Chairs > Lounge Seating","product_2853c0fab548_13874139":"Specialty Furnishing > Workplace","product_87742b76bcaa_14105065":"Seating & Chairs > Stacking / Nesting Chairs","product_a8f65c4b8c57_14050105":"Seating & Chairs > Stacking / Nesting Chairs","product_d5e1faa50771_13933560":"Seating & Chairs > Bench Seating","product_59d80b22c872_13926997":"Seating & Chairs > Modular Seating","product_5bd864273a75_14050108":"Specialty Furnishing > Workplace"};
+
       const state = {
+        bootstrap: null,
+        allData: null,
         data: null,
         judgments: new Map(),
+        selectedCategories: new Set(),
+        availableCategories: [],
         roomSceneFlags: new Set(),
         sessionRoomSceneFlags: new Set(),
         currentIndex: 0,
@@ -1006,6 +1170,133 @@
           throw new Error(payload.error || `Request failed: ${response.status}`);
         }
         return payload;
+      }
+
+      function normalizeCategoryName(value) {
+        const normalized = String(value || "").trim();
+        if (!normalized) {
+          return "";
+        }
+
+        const leaf = normalized.includes(">") ? normalized.split(">").pop().trim() : normalized;
+        const aliases = {
+          "Multi-Use Guest Seating": "Multi-use Guest Chairs",
+          "Fixed-height Stools": "Fixed-Height Stools",
+          "Healthcare Lounge": "Lounge Seating"
+        };
+        return aliases[leaf] || leaf;
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        })[char]);
+      }
+
+      function prioritizedCategories(categories) {
+        const priority = ["Lounge Seating", "Multi-use Guest Chairs"];
+        return [...categories].sort((left, right) => {
+          const leftPriority = priority.findIndex((entry) => entry.toLowerCase() === left.toLowerCase());
+          const rightPriority = priority.findIndex((entry) => entry.toLowerCase() === right.toLowerCase());
+          if (leftPriority !== -1 || rightPriority !== -1) {
+            if (leftPriority === -1) {
+              return 1;
+            }
+            if (rightPriority === -1) {
+              return -1;
+            }
+            return leftPriority - rightPriority;
+          }
+          return left.localeCompare(right);
+        });
+      }
+
+      function buildSessionData() {
+        const base = state.allData || { results: [], judgments: [], summary: {} };
+        const selected = state.selectedCategories;
+        const hasFilter = selected.size > 0;
+        const results = (base.results || []).filter((result) => {
+          if (!hasFilter) {
+            return true;
+          }
+          const category = normalizeCategoryName(result.query_category);
+          return category && selected.has(category);
+        });
+        const resultIds = new Set(results.map((result) => result.product_id));
+        const judgments = (base.judgments || []).filter((judgment) => resultIds.has(judgment.product_id));
+
+        return {
+          ...base,
+          results,
+          judgments
+        };
+      }
+
+      function updateSetupSummary() {
+        const filtered = buildSessionData();
+        const selected = [...state.selectedCategories];
+        const summary = document.querySelector("#categorySelectionSummary");
+        const clearButton = document.querySelector("#clearCategoriesButton");
+        const startButton = document.querySelector("#startSessionButton");
+
+        document.querySelector("#setupQueryCount").textContent = String(filtered.results.length);
+        document.querySelector("#setupReviewedCount").textContent = String(filtered.judgments.length);
+        clearButton.classList.toggle("hidden", selected.length === 0);
+        startButton.disabled = filtered.results.length === 0;
+
+        if (!selected.length) {
+          summary.textContent = "All categories selected. The session will include the full eval pool.";
+          return;
+        }
+
+        summary.textContent = `${selected.length} categor${selected.length === 1 ? "y" : "ies"} selected: ${selected.join(", ")}.`;
+      }
+
+      function renderCategoryOptions() {
+        const list = document.querySelector("#categoryList");
+        const categories = state.availableCategories || [];
+        list.innerHTML = "";
+
+        categories.forEach((category) => {
+          const label = document.createElement("label");
+          const isPriority = ["Lounge Seating", "Multi-use Guest Chairs"].some(
+            (entry) => entry.toLowerCase() === category.toLowerCase()
+          );
+          label.className = `category-option${isPriority ? " priority-category" : ""}`;
+          label.innerHTML = `
+            <input type="checkbox" value="${escapeHtml(category)}" ${state.selectedCategories.has(category) ? "checked" : ""} />
+            <span class="category-option-label">${escapeHtml(category)}</span>
+            <span class="category-option-hint">${isPriority ? "Priority" : "Catalog"}</span>
+          `;
+          const checkbox = label.querySelector("input");
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              state.selectedCategories.add(category);
+            } else {
+              state.selectedCategories.delete(category);
+            }
+            updateSetupSummary();
+          });
+          list.appendChild(label);
+        });
+
+        updateSetupSummary();
+      }
+
+      function prepareEvalData(evalPayload) {
+        const results = (evalPayload?.results || []).map((result) => ({
+          ...result,
+          query_category: normalizeCategoryName(QUERY_CATEGORY_BY_PRODUCT_ID[result.product_id])
+        }));
+
+        return {
+          ...evalPayload,
+          results
+        };
       }
 
       function reviewedCount() {
@@ -1316,6 +1607,9 @@
       }
 
       function renderReview() {
+        document.querySelector("#setupView").classList.add("hidden");
+        document.querySelector("#resultsView").classList.add("hidden");
+        document.querySelector("#reviewView").classList.remove("hidden");
         updateProgressText();
         const result = currentResult();
         if (!result) {
@@ -1624,6 +1918,7 @@
       }
 
       function renderResults() {
+        document.querySelector("#setupView").classList.add("hidden");
         document.querySelector("#reviewView").classList.add("hidden");
         document.querySelector("#resultsView").classList.remove("hidden");
 
@@ -1640,17 +1935,17 @@
 
       }
 
-      async function init() {
-        const payload = await fetchJson("/api/eval-data");
-        state.data = payload;
-        state.judgments = new Map((payload.judgments || []).map((judgment) => [judgment.product_id, judgment]));
-        state.traitReport = payload.trait_report || null;
-        state.sessionRoomSceneFlags = new Set();
+      function startSession() {
+        state.data = buildSessionData();
+        state.judgments = new Map((state.data.judgments || []).map((judgment) => [judgment.product_id, judgment]));
         state.roomSceneFlags = new Set(
-          (payload.results || [])
+          (state.data.results || [])
             .filter((result) => result.is_room_scene)
             .map((result) => result.product_id)
         );
+        state.sessionRoomSceneFlags = new Set();
+        state.consoleEntries = [];
+
         const firstIndex = nextUnreviewedIndex();
         if (firstIndex === -1) {
           renderResults();
@@ -1658,6 +1953,23 @@
         }
         state.currentIndex = firstIndex;
         renderReview();
+      }
+
+      async function init() {
+        const [bootstrapPayload, evalPayload] = await Promise.all([
+          fetchJson("/api/bootstrap"),
+          fetchJson("/api/eval-data")
+        ]);
+
+        state.bootstrap = bootstrapPayload;
+        state.availableCategories = prioritizedCategories(
+          [...new Set((bootstrapPayload?.categories || []).map((category) => normalizeCategoryName(category)).filter(Boolean))]
+        );
+        state.allData = prepareEvalData(evalPayload);
+        state.data = null;
+        state.judgments = new Map();
+        state.traitReport = evalPayload.trait_report || null;
+        renderCategoryOptions();
       }
 
       document.querySelector("#summaryToggle").addEventListener("click", () => {
@@ -1688,7 +2000,23 @@
         window.location.href = "/api/eval-export";
       });
 
+      document.querySelector("#allCategoriesButton").addEventListener("click", () => {
+        state.selectedCategories.clear();
+        renderCategoryOptions();
+      });
+
+      document.querySelector("#clearCategoriesButton").addEventListener("click", () => {
+        state.selectedCategories.clear();
+        renderCategoryOptions();
+      });
+
+      document.querySelector("#startSessionButton").addEventListener("click", startSession);
+
       document.addEventListener("keydown", (event) => {
+        if (!document.querySelector("#setupView").classList.contains("hidden")) {
+          return;
+        }
+
         if (!document.querySelector("#resultsView").classList.contains("hidden")) {
           return;
         }

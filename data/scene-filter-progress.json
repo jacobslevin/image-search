@@ -1,0 +1,110 @@
+{
+  "start_index": 0,
+  "max_products": 238,
+  "total_products": 238,
+  "completed_products": 238,
+  "last_product_id": "product_e3959587fb03_13985877",
+  "images_checked": 1089,
+  "product_photos": 741,
+  "scene_photos": 348,
+  "input_tokens": 2518491,
+  "output_tokens": 4680,
+  "total_tokens": 2523171,
+  "model_version": "gpt-4.1-nano",
+  "detail": "low",
+  "label": "Lounge Seating remaining",
+  "product_ids_file": "data/lounge-seating-remaining-scene-filter-product-ids.json",
+  "running": false,
+  "done": true,
+  "log": [
+    {
+      "status": "done",
+      "product_id": "product_e3959587fb03_13985877",
+      "image_url": "https://content.designerpages.com/assets/82086376/serieswindlinear02.jpg",
+      "result": "scene",
+      "input_tokens": 3956,
+      "output_tokens": 6,
+      "total_tokens": 3962,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_e3959587fb03_13985877",
+      "image_url": "https://content.designerpages.com/assets/82086361/serieswindlinear.jpg",
+      "result": "scene",
+      "input_tokens": 3956,
+      "output_tokens": 6,
+      "total_tokens": 3962,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_a2738837a6b6_13886928",
+      "image_url": "https://content.designerpages.com/assets/81500182/igprdovwarboursofa04.jpg",
+      "result": "scene",
+      "input_tokens": 3754,
+      "output_tokens": 6,
+      "total_tokens": 3760,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_a2738837a6b6_13886928",
+      "image_url": "https://content.designerpages.com/assets/81500173/igprdovwarboursofa03.jpg",
+      "result": "scene",
+      "input_tokens": 3892,
+      "output_tokens": 6,
+      "total_tokens": 3898,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_a2738837a6b6_13886928",
+      "image_url": "https://content.designerpages.com/assets/81500164/igprdovwarboursofa02.jpg",
+      "result": "scene",
+      "input_tokens": 3892,
+      "output_tokens": 6,
+      "total_tokens": 3898,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_a2738837a6b6_13886928",
+      "image_url": "https://content.designerpages.com/assets/81500157/igprdovwarboursofa01.jpg",
+      "result": "scene",
+      "input_tokens": 3754,
+      "output_tokens": 6,
+      "total_tokens": 3760,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_a2738837a6b6_13886928",
+      "image_url": "https://content.designerpages.com/assets/81500149/thprdarboursofaloungeseatingfn.jpg",
+      "result": "product",
+      "input_tokens": 3754,
+      "output_tokens": 6,
+      "total_tokens": 3760,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    },
+    {
+      "status": "done",
+      "product_id": "product_946c49a39237_14006853",
+      "image_url": "https://content.designerpages.com/assets/82201232/HONWestHillHWH1TCS.PBLE02.CWLLA1000001.jpg",
+      "result": "product",
+      "input_tokens": 3914,
+      "output_tokens": 6,
+      "total_tokens": 3920,
+      "detail": "low",
+      "model_version": "gpt-4.1-nano"
+    }
+  ],
+  "updated_at": "2026-04-12T23:59:23.044Z"
+}

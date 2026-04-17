@@ -1,9 +1,25 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
-export const DATA_DIR = path.resolve("data");
+export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+export const ROOT_DIR = path.resolve(__dirname, "..");
+export const DATA_DIR = path.join(ROOT_DIR, "data");
+
+function resolveOverridePath(envName, defaultPath) {
+  const rawValue = String(process.env[envName] || "").trim();
+  if (!rawValue) {
+    return defaultPath;
+  }
+  return path.isAbsolute(rawValue) ? rawValue : path.resolve(ROOT_DIR, rawValue);
+}
+
+export function getImageIndexPath() {
+  return resolveOverridePath("IMAGE_INDEX_PATH", path.join(DATA_DIR, "image-index.json"));
+}
 
 export function slugify(value) {
   return String(value || "")
@@ -54,6 +70,46 @@ export function tokenize(value) {
 
 export function uniqueStrings(values) {
   return [...new Set(values.filter(Boolean).map((value) => String(value).trim()).filter(Boolean))];
+}
+
+function normalizeCategoryList(values = []) {
+  return uniqueStrings(
+    values.filter((value) => {
+      const normalized = String(value || "").trim();
+      return normalized && normalized !== "0";
+    })
+  );
+}
+
+export function getCategoryLevels(record = {}) {
+  if (!record || typeof record !== "object") {
+    return { a_level: [], b_level: [], c_level: [] };
+  }
+
+  const categories = record.categories && typeof record.categories === "object" ? record.categories : {};
+  const a_level = normalizeCategoryList(record.a_level || categories.a || []);
+  const b_level = normalizeCategoryList(record.b_level || categories.b || (record.category ? [record.category] : []));
+  const c_level = normalizeCategoryList(record.c_level || categories.c || []);
+
+  return { a_level, b_level, c_level };
+}
+
+export function getLeafCategories(record = {}) {
+  const { b_level, c_level } = getCategoryLevels(record);
+  return c_level.length ? c_level : b_level;
+}
+
+export function getNavigationCategories(record = {}) {
+  return getCategoryLevels(record).b_level;
+}
+
+export function getAllCategoryTerms(record = {}) {
+  const { a_level, b_level, c_level } = getCategoryLevels(record);
+  return uniqueStrings([...a_level, ...b_level, ...c_level]);
+}
+
+export function getCategoryDisplayLabel(record = {}) {
+  return getNavigationCategories(record).join(" · ");
 }
 
 export function cosineSimilarity(a, b) {

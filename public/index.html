@@ -3,96 +3,159 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visual Furniture Search</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <title>Visual Search</title>
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const url = new URL(window.location.href);
+        const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
+        const isPrivateBrowseRoute = url.pathname === privateBrowsePath;
+        const hasActiveLaunchContext = Boolean(
+          String(url.searchParams.get("q") || "").trim() ||
+          url.searchParams.get("open_image") === "1"
+        );
+        const landingHome = !isPrivateBrowseRoute && !hasActiveLaunchContext;
+        root.classList.toggle("landing-home", landingHome);
+        root.classList.toggle("private-browse", !landingHome);
+        root.classList.toggle("public-route", !isPrivateBrowseRoute);
+        root.classList.toggle("initial-search-pending", Boolean(String(url.searchParams.get("q") || "").trim()));
+      })();
+    </script>
+    <link rel="stylesheet" href="/styles.css?v=20260416-extraction-summary" />
   </head>
   <body>
+    <nav class="site-nav" aria-label="Browse controls">
+      <div class="site-nav-spacer" aria-hidden="true"></div>
+      <div class="site-nav-brand">
+        <a class="site-nav-brand-link" href="/" aria-label="Go to homepage">
+          <img class="site-nav-logo-image" src="/pixelseek-logo.svg" alt="PixelSeek" />
+        </a>
+      </div>
+      <div class="site-nav-end">
+        <button id="copyStructuredTraits" class="site-nav-link" type="button">Structured Traits</button>
+        <button id="openExtractionSummary" class="site-nav-link" type="button">Extraction Summary</button>
+        <button id="openRulesSummary" class="site-nav-link" type="button">Ranking Rules</button>
+        <button id="debugToggle" class="debug-toggle" type="button" aria-haspopup="dialog">
+          <span id="debugToggleLabel">Debug Table</span>
+        </button>
+      </div>
+    </nav>
+
     <div class="page-shell">
       <header class="hero">
-        <div>
-          <p class="eyebrow">Image Search</p>
-          <h1>Visual Furniture Search</h1>
-        </div>
-        <div class="hero-actions">
-          <button id="copyStructuredTraits" class="rules-summary-button" type="button">Structured Traits</button>
-          <button id="openRulesSummary" class="rules-summary-button" type="button">Ranking Rules</button>
-          <button id="debugToggle" class="debug-toggle" type="button" aria-pressed="false">
-            <span class="debug-indicator"></span>
-            <span id="debugToggleLabel">Debug Mode: Off</span>
-          </button>
-        </div>
+        <p class="eyebrow">AI Enabled</p>
+        <h1>Visual Search <span class="hero-sparkle" aria-hidden="true">✦</span></h1>
       </header>
 
       <section class="search-panel">
         <form id="searchForm" class="search-form">
           <label class="search-field" for="searchInput">
-            <span class="search-icon">⌕</span>
-            <input
-              id="searchInput"
-              name="query"
-              type="search"
-              placeholder="Search by visual traits (e.g., chrome sled base, wood arms...)"
-              autocomplete="off"
-            />
+            <div class="search-query-flow">
+              <span class="search-icon">⌕</span>
+              <div
+                id="searchInput"
+                class="search-input"
+                role="textbox"
+                aria-multiline="true"
+                contenteditable="plaintext-only"
+                data-placeholder="Search by visual traits (e.g., chrome sled base, wood arms...)"
+              >
+                <span id="searchCategoryPrefix" class="search-category-prefix" hidden></span>
+                <span id="searchCategoryChipWrap" class="search-category-chip-wrap" hidden contenteditable="false">
+                  <select id="searchCategorySelect" class="search-category-select" aria-label="Search category">
+                    <option value="all">Categories</option>
+                    <option value="task_collab_chair">Work Chairs</option>
+                    <option value="guest_chair">Multi-Use / Guest Chairs</option>
+                    <option value="lounge_chair">Lounge Chairs</option>
+                    <option value="bench">Benches</option>
+                    <option value="ottoman">Ottomans</option>
+                    <option value="stool">Stools</option>
+                    <option value="other_seating">Other Seating</option>
+                  </select>
+                </span>
+                <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
+              </div>
+            </div>
             <button id="openImageSearch" class="search-image-trigger" type="button" aria-label="Search from an inspiration image">
-              <span aria-hidden="true">🖼</span>
+              <img class="button-icon" src="/pixelseek-icons/start-from-image.svg" alt="" aria-hidden="true" />
+              Start from image
             </button>
           </label>
         </form>
+      </section>
 
+      <section class="search-secondary">
         <div class="context-row">
-          <span class="context-label">Searching within:</span>
-          <div id="contextPills" class="context-pills"></div>
+          <span class="context-label">Suggested searches:</span>
+          <div id="seedQueries" class="seed-queries"></div>
         </div>
-
-        <div id="seedQueries" class="seed-queries"></div>
       </section>
     </div>
 
     <main class="results-shell">
       <div class="results-header">
-        <p id="resultCount">Enter a visual query to search the indexed catalog.</p>
+        <div class="results-header-summary">
+          <p id="resultCount"></p>
+          <button id="resetSearchButton" class="rules-summary-button" type="button" hidden>Reset Search</button>
+        </div>
         <button id="refineToggleButton" class="rules-summary-button refine-toggle-button" type="button" hidden>Refine</button>
-        <button id="resetSearchButton" class="rules-summary-button" type="button" hidden>Reset search</button>
-        <label class="results-sort">
-          <span>Sort</span>
-          <select id="sortSelect">
-            <option value="auto">Auto</option>
-            <option value="refreshed_desc">Last AI Refresh</option>
-            <option value="refreshed_asc">Oldest AI Refresh</option>
-            <option value="name">Name</option>
+        <details id="categoryFilterMenu" class="results-sort results-sort-category results-multiselect">
+          <summary id="categoryFilterButton" class="results-multiselect-button">All categories</summary>
+          <div id="categoryFilterOptions" class="results-multiselect-panel"></div>
+        </details>
+        <label class="results-sort results-sort-refresh-age">
+          <select id="refreshAgeFilterSelect">
+            <option value="">Any refresh age</option>
+            <option value="none">No data</option>
+            <option value="1m">Older than 1 min</option>
+            <option value="5m">Older than 5 min</option>
+            <option value="10m">Older than 10 min</option>
+            <option value="30m">Older than 30 min</option>
+            <option value="1h">Older than 1 hour</option>
+            <option value="1d">Older than 1 day</option>
           </select>
         </label>
         <div id="batchManageBar" class="batch-manage-bar" hidden>
-          <button id="manageSelectionButton" class="rules-summary-button batch-manage-trigger" type="button">Manage</button>
-          <div id="manageActions" class="batch-manage-actions" hidden>
-            <div id="manageControls" class="batch-manage-controls">
-              <div class="batch-manage-links">
-                <button id="selectAllButton" class="batch-manage-link" type="button">Select all</button>
-                <button id="selectNoneButton" class="batch-manage-link" type="button">None</button>
-                <button id="doneManagingButton" class="batch-manage-link batch-manage-link-right" type="button">Done</button>
-              </div>
-              <button id="batchRefreshButton" class="upload-button upload-button-strong batch-refresh-primary" type="button">Refresh AI Analysis</button>
-            </div>
-            <div id="batchRefreshProgress" class="batch-refresh-progress" hidden>
-              <p id="batchRefreshHeadline" class="batch-refresh-headline">Analyzing products...</p>
-              <div class="batch-refresh-meter-row">
-                <div class="batch-refresh-meter">
-                  <div id="batchRefreshMeterFill" class="batch-refresh-meter-fill"></div>
-                </div>
-                <span id="batchRefreshCount" class="batch-refresh-count">0 of 0</span>
-              </div>
-              <p id="batchRefreshBatchLabel" class="batch-refresh-meta">Batch 0 of 0</p>
-              <p id="batchRefreshCurrent" class="batch-refresh-current">Currently: waiting to start</p>
-              <div id="batchRefreshLog" class="batch-refresh-log" aria-live="polite"></div>
-              <p id="batchRefreshSummary" class="batch-refresh-summary">Done: 0 Failed: 0 Left: 0</p>
-              <div id="batchRefreshFailures" class="batch-refresh-failures" hidden></div>
-              <button id="batchRefreshCloseButton" class="batch-manage-link batch-refresh-close" type="button" hidden>Done</button>
-            </div>
+          <button id="manageSelectionButton" class="manage-button batch-manage-trigger" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+            </svg>
+            Manage
+          </button>
+        </div>
+      </div>
+      <div id="manageActions" class="batch-manage-actions batch-manage-panel-row" hidden>
+        <div id="manageControls" class="batch-manage-controls">
+          <div class="batch-manage-links">
+            <button id="selectAllButton" class="batch-manage-link" type="button">Select all</button>
+            <button id="selectNoneButton" class="batch-manage-link" type="button">None</button>
+            <button id="doneManagingButton" class="batch-manage-link batch-manage-link-right" type="button">Done</button>
           </div>
+          <button id="batchRefreshButton" class="upload-button upload-button-strong batch-refresh-primary" type="button">Refresh Extraction</button>
+        </div>
+        <div id="batchRefreshProgress" class="batch-refresh-progress" hidden>
+          <p id="batchRefreshHeadline" class="batch-refresh-headline">Analyzing products...</p>
+          <div class="batch-refresh-meter-row">
+            <div class="batch-refresh-meter">
+              <div id="batchRefreshMeterFill" class="batch-refresh-meter-fill"></div>
+            </div>
+            <span id="batchRefreshCount" class="batch-refresh-count">0 of 0</span>
+          </div>
+          <p id="batchRefreshBatchLabel" class="batch-refresh-meta">Batch 0 of 0</p>
+          <p id="batchRefreshCurrent" class="batch-refresh-current">Currently: waiting to start</p>
+          <p id="batchRefreshImage" class="batch-refresh-meta">Current image: waiting to start</p>
+          <p id="batchRefreshImagesPassed" class="batch-refresh-meta">Stage 0 product images: 0</p>
+          <p id="batchRefreshRun" class="batch-refresh-meta">Current run: waiting to start</p>
+          <p id="batchRefreshCost" class="batch-refresh-meta">Running cost: $0.000000</p>
+          <div id="batchRefreshLog" class="batch-refresh-log" aria-live="polite"></div>
+          <p id="batchRefreshSummary" class="batch-refresh-summary">Done: 0 Failed: 0 Left: 0</p>
+          <div id="batchRefreshFailures" class="batch-refresh-failures" hidden></div>
+          <button id="batchRefreshCloseButton" class="batch-manage-link batch-refresh-close" type="button" hidden>Close status</button>
         </div>
       </div>
       <section id="statusPanel" class="status-panel"></section>
+      <section id="clarificationBar" class="clarification-bar" hidden></section>
       <div id="refineDrawerBackdrop" class="refine-drawer-backdrop" hidden></div>
       <div class="results-layout">
         <aside id="resultsSidebar" class="results-sidebar" hidden>
@@ -100,20 +163,34 @@
             <div>
               <p class="eyebrow">Tools</p>
               <h2 class="results-sidebar-title">Refine results</h2>
-              <button id="reopenFocusOverlay" class="results-sidebar-link" type="button" hidden>Re-analyze focus area</button>
+              <div id="refineSelectedImageWrap" class="refine-selected-image-wrap" hidden>
+                <button
+                  id="reopenFocusOverlay"
+                  class="refine-selected-image-action"
+                  type="button"
+                  aria-label="Re-crop selected image"
+                  hidden
+                ></button>
+                <img id="refineSelectedImage" class="refine-selected-image" alt="Selected inspiration" />
+              </div>
             </div>
             <button id="closeRefineSidebar" class="modal-close refine-sidebar-close" type="button" aria-label="Close refine sidebar">✕</button>
           </div>
           <section class="results-sidebar-section">
             <p class="results-sidebar-section-title">Bullet priority</p>
             <div id="refineBulletsList" class="refine-bullets-list"></div>
-          </section>
-          <section class="results-sidebar-section">
-            <p class="results-sidebar-section-title">Refine by product</p>
-            <div id="refineProductsList" class="refine-products-list"></div>
+            <button id="applyRefineBulletsButton" class="upload-button upload-button-strong refine-apply-button" type="button">Apply priorities</button>
           </section>
         </aside>
         <div class="results-main">
+          <section id="resultsLoadingPanel" class="results-loading-panel" hidden aria-live="polite">
+            <div class="results-loading-card">
+              <div class="results-loading-spinner" aria-hidden="true"></div>
+              <p class="results-loading-eyebrow">Searching</p>
+              <h2 id="resultsLoadingTitle" class="results-loading-title">Embedding the visual query and ranking image captions...</h2>
+              <p class="results-loading-copy">Preparing the best matches before the result grid appears.</p>
+            </div>
+          </section>
           <section id="resultsGrid" class="results-grid" aria-live="polite"></section>
         </div>
       </div>
@@ -121,49 +198,100 @@
 
     <div id="imageModal" class="modal-shell" hidden>
       <div class="modal-backdrop" data-role="imageModalClose"></div>
-      <div class="modal-card">
-        <div class="modal-header">
+      <div class="modal-card image-search-modal-card">
+        <div class="modal-header image-search-modal-header">
           <div>
             <p class="modal-eyebrow">Start From An Image</p>
-            <h2 id="modalTitle" class="modal-title">Upload or paste an image</h2>
+            <h2 id="modalTitle" class="modal-title">Visual Search</h2>
           </div>
           <button id="closeImageModal" class="modal-close" type="button" aria-label="Close image search modal">✕</button>
         </div>
 
-        <section id="imageModalUploadStage" class="modal-stage">
-          <p id="uploadSupportNote" class="upload-support-note"></p>
-          <div class="modal-upload-grid">
-            <div class="modal-upload-block">
-              <p class="debug-caption-label">Upload an image file</p>
-              <input id="imageUploadInput" type="file" accept="image/*" hidden />
-              <button id="imageUploadButton" class="upload-button" type="button">Choose Image</button>
-              <p id="selectedFileName" class="modal-helper">No file selected.</p>
+        <section id="imageModalUploadStage" class="modal-stage image-search-upload-stage">
+          <p id="uploadSupportNote" class="upload-support-note image-search-upload-note"></p>
+          <div class="modal-upload-grid image-search-upload-grid">
+            <div class="modal-upload-block image-search-upload-block">
+              <div class="image-search-upload-row">
+                <div class="image-search-upload-icon image-search-upload-icon-upload" aria-hidden="true"></div>
+                <div class="image-search-upload-copy">
+                  <p class="image-search-upload-title">Upload image</p>
+                  <p class="image-search-upload-subtitle">JPG or PNG</p>
+                </div>
+                <input id="imageUploadInput" type="file" accept="image/*" hidden />
+                <button id="imageUploadButton" class="upload-button image-search-choose-button" type="button">Choose Image</button>
+              </div>
+              <p id="selectedFileName" class="modal-helper image-search-file-name" hidden></p>
             </div>
-            <div class="modal-upload-block">
-              <p class="debug-caption-label">Or paste an image URL</p>
-              <input id="imageUrlInput" class="modal-url-input" type="url" placeholder="https://example.com/inspiration.jpg" />
+            <div class="modal-upload-block image-search-upload-block">
+              <div class="image-search-upload-row image-search-upload-row-url">
+                <div class="image-search-upload-icon image-search-upload-icon-url" aria-hidden="true"></div>
+                <div class="image-search-upload-copy image-search-upload-copy-url">
+                  <p class="image-search-upload-title">Paste an image URL</p>
+                  <input id="imageUrlInput" class="modal-url-input image-search-url-input" type="url" placeholder="http://..." />
+                </div>
+              </div>
             </div>
           </div>
-          <div class="modal-actions">
-            <button id="analyzeImageButton" class="upload-button upload-button-strong" type="button">Analyze Image</button>
+          <div class="modal-actions image-search-modal-actions">
+            <button id="analyzeImageButton" class="upload-button upload-button-strong image-search-analyze-button" type="button">Analyze Image</button>
           </div>
           <div id="imageAnalyzeLoading" class="image-analyze-loading" hidden>
-            <span class="image-analyze-spinner" aria-hidden="true"></span>
-            <span>Analyzing image...</span>
+            <div class="image-analyze-loading-card">
+              <div class="image-analyze-loading-header">
+                <div>
+                  <p class="image-analyze-loading-eyebrow">Image Search Progress</p>
+                  <p class="image-analyze-loading-title" data-role="imageAnalyzeTitle">Preparing image...</p>
+                </div>
+                <span class="image-analyze-loading-percent" data-role="imageAnalyzePercent">0%</span>
+              </div>
+              <div class="image-analyze-segmented-track" data-role="imageAnalyzeSteps" aria-label="Image analysis progress">
+                <span class="image-analyze-segment" data-step="prepare">Prepare</span>
+                <span class="image-analyze-segment" data-step="analyze">Analyze</span>
+                <span class="image-analyze-segment" data-step="match">Match</span>
+              </div>
+              <p class="image-analyze-loading-detail" data-role="imageAnalyzeDetail">Getting the image ready for analysis.</p>
+            </div>
           </div>
         </section>
 
         <section id="imageModalResultsStage" class="modal-stage" hidden>
-          <div class="inspiration-preview-wrap focus-stage-card">
-            <p id="focusAreaHint" class="focus-stage-label">Drag to focus on the item you want to search for</p>
-            <div id="previewCanvas" class="inspiration-preview-canvas">
-              <img id="inspirationPreview" class="inspiration-preview" alt="Uploaded inspiration" />
-              <div id="focusBox" class="focus-box" hidden></div>
+          <div class="focus-stage-card">
+            <div class="inspiration-preview-wrap">
+              <div id="previewCanvas" class="inspiration-preview-canvas">
+                <img id="inspirationPreview" class="inspiration-preview" alt="Uploaded inspiration" />
+                <div id="focusBox" class="focus-box" hidden>
+                  <span class="focus-handle focus-handle-nw" data-role="focusHandle" data-handle="nw"></span>
+                  <span class="focus-handle focus-handle-ne" data-role="focusHandle" data-handle="ne"></span>
+                  <span class="focus-handle focus-handle-sw" data-role="focusHandle" data-handle="sw"></span>
+                  <span class="focus-handle focus-handle-se" data-role="focusHandle" data-handle="se"></span>
+                </div>
+              </div>
+            </div>
+            <div id="focusAnalyzeLoading" class="image-analyze-loading focus-analyze-loading" hidden>
+              <div class="image-analyze-loading-card">
+                <div class="image-analyze-loading-header">
+                  <div>
+                    <p class="image-analyze-loading-eyebrow">Image Search Progress</p>
+                    <p class="image-analyze-loading-title" data-role="imageAnalyzeTitle">Preparing image...</p>
+                  </div>
+                  <span class="image-analyze-loading-percent" data-role="imageAnalyzePercent">0%</span>
+                </div>
+                <div class="image-analyze-segmented-track" data-role="imageAnalyzeSteps" aria-label="Image analysis progress">
+                  <span class="image-analyze-segment" data-step="prepare">Prepare</span>
+                  <span class="image-analyze-segment" data-step="analyze">Analyze</span>
+                  <span class="image-analyze-segment" data-step="match">Match</span>
+                </div>
+                <p class="image-analyze-loading-detail" data-role="imageAnalyzeDetail">Getting the image ready for analysis.</p>
+              </div>
             </div>
           </div>
-          <div class="modal-actions">
-            <button id="skipFocusButton" class="upload-button" type="button">Skip — use full image</button>
-            <button id="applyFocusButton" class="upload-button upload-button-strong" type="button">Analyze this area →</button>
+          <div class="modal-actions focus-stage-actions">
+            <p id="focusCropPrompt" class="focus-crop-prompt">Click image to crop</p>
+            <button id="skipFocusButton" class="focus-skip-link" type="button" hidden>
+              <span class="focus-skip-prefix">Skip - </span>
+              <span class="focus-skip-accent">Use Full Image</span>
+            </button>
+            <button id="applyFocusButton" class="upload-button upload-button-strong" type="button">Analyze image</button>
           </div>
         </section>
       </div>
@@ -185,6 +313,26 @@
           <div class="rules-actions">
             <button id="copyStructuredTraitsModalButton" class="rules-summary-button" type="button">Copy</button>
             <span id="copyStructuredTraitsStatus" class="rules-copy-status" hidden>Copied!</span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="extractionSummaryModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="extractionSummaryModalClose"></div>
+      <div class="modal-card rules-modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">Extraction Summary</p>
+            <h2 class="modal-title">Pipeline Diagnostics</h2>
+          </div>
+          <button id="closeExtractionSummaryModal" class="modal-close" type="button" aria-label="Close extraction summary modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content">
+          <p class="rules-summary-intro">Counts come from the current image index. Product-detail overrides are shown under <strong>Unspecified</strong> when stage 1 correctly rejects an image without assigning a seating category.</p>
+          <div id="extractionSummaryContent" class="extraction-summary-content">
+            <p class="rules-summary-intro">Loading extraction summary...</p>
           </div>
         </section>
       </div>
@@ -218,40 +366,61 @@
       </div>
     </div>
 
-    <template id="cardTemplate">
-      <article class="card">
-        <div class="card-image-wrap">
-          <img class="card-image" alt="" loading="lazy" />
-          <span class="score-badge" data-role="scoreBadge"></span>
-          <div class="inspect-control">
-            <label class="card-select-toggle" data-role="manageCheckboxWrap" hidden>
-              <input class="card-select-checkbox" data-role="manageCheckbox" type="checkbox" aria-label="Select product for AI refresh" />
-              <span class="card-select-indicator"></span>
-            </label>
-            <button class="refresh-ai-button" data-role="refreshAiButton" type="button" aria-label="Refresh AI data for this product" title="Refresh AI">
-              ↻
-            </button>
-            <button class="inspect-button" data-role="inspectButton" type="button" aria-label="Inspect result details">
-              AI
-            </button>
+    <div id="debugLightbox" class="modal-shell debug-lightbox-shell" hidden>
+      <div class="modal-backdrop" data-role="debugLightboxClose"></div>
+      <div class="modal-card debug-lightbox-card">
+        <header class="modal-header debug-lightbox-header">
+          <div>
+            <p class="modal-eyebrow">Debug Score Table</p>
+            <h2 class="modal-title">Search Score Breakdown</h2>
+            <p id="debugLightboxSubtitle" class="rules-summary-intro"></p>
           </div>
+          <button id="closeDebugLightbox" class="modal-close" type="button" aria-label="Close score breakdown lightbox">✕</button>
+        </header>
+        <div class="debug-lightbox-actions">
+          <button id="copyDebugTableTsv" class="rules-summary-button" type="button">Copy as TSV</button>
+          <span id="copyDebugTableStatus" class="rules-copy-status" aria-live="polite"></span>
         </div>
-        <div class="thumbnail-strip" data-role="thumbnails"></div>
-        <div class="card-body">
-          <div class="matched-block" data-role="matchedBlock">
-            <p class="matched-label">Matched on:</p>
-            <div class="chip-row chip-row-strong" data-role="matched"></div>
-          </div>
+        <div class="debug-lightbox-table-wrap">
+          <table class="debug-score-table">
+            <thead id="debugScoreTableHead"></thead>
+            <tbody id="debugScoreTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
+    <template id="cardTemplate">
+      <div class="result-tile">
+        <article class="card">
+          <div class="card-image-wrap" data-role="cardImageWrap">
+            <img class="card-image" alt="" loading="lazy" />
+            <span class="score-badge" data-role="scoreBadge"></span>
+            <span class="scene-filter-badge" data-role="sceneBadge" hidden></span>
+            <button class="search-from-image-button" data-role="searchFromImageButton" type="button" aria-label="Search from this image" title="Search from this image">
+              ⌕
+            </button>
+            <div class="inspect-control">
+              <label class="card-select-toggle" data-role="manageCheckboxWrap" hidden>
+                <input class="card-select-checkbox" data-role="manageCheckbox" type="checkbox" aria-label="Select product for extraction refresh" />
+                <span class="card-select-indicator"></span>
+              </label>
+              <button class="inspect-button" data-role="inspectButton" type="button" aria-label="Inspect result details">
+                AI
+              </button>
+            </div>
+          </div>
+        </article>
+        <div class="card-body">
+          <div class="thumbnail-strip" data-role="thumbnails"></div>
           <div class="meta-block">
             <h2 class="product-name"></h2>
+            <p class="brand-name"></p>
+            <div class="chip-row category-chip-row" data-role="categoryTags"></div>
             <div class="card-refinement-actions" data-role="refinementActions">
               <button class="rules-summary-button" data-role="moreLikeThisButton" type="button">More like this +</button>
               <button class="rules-summary-button" data-role="lessLikeThisButton" type="button">Less like this −</button>
             </div>
-            <p class="brand-name"></p>
-            <p class="ai-refresh-time" data-role="aiRefreshTime"></p>
-            <span class="category-pill"></span>
           </div>
 
           <details class="debug-details">
@@ -270,9 +439,9 @@
             </div>
           </details>
         </div>
-      </article>
+      </div>
     </template>
 
-    <script type="module" src="/app.js?v=20260410b"></script>
+    <script type="module" src="/app.js?v=20260416-extraction-summary"></script>
   </body>
-  </html>
+</html>

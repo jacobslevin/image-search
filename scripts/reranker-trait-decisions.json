@@ -421,5 +421,275 @@
     "evidence": 101,
     "net_score": 143,
     "decided_at": "2026-04-11T17:32:00.419Z"
+  },
+  {
+    "trait": "image.shell_base_finish:black enamel",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 671,
+    "net_score": 717,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.shell_base_finish:black enamel",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 671,
+    "net_score": 717,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.arm_configuration:integrated / sculpted",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 526,
+    "net_score": 550,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.arm_configuration:integrated / sculpted",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 526,
+    "net_score": 550,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.seat_upholstery:fabric (specify category)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 281,
+    "net_score": 419,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.seat_upholstery:fabric (specify category)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 281,
+    "net_score": 419,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.configuration:single seat",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 296,
+    "net_score": 400,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.configuration:single seat",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 296,
+    "net_score": 400,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.floor_interface:pedestal base",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 302,
+    "net_score": 394,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.floor_interface:pedestal base",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 302,
+    "net_score": 394,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.shell_base_finish:polished aluminum",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 392,
+    "net_score": 366,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.shell_base_finish:polished aluminum",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 392,
+    "net_score": 366,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.back_height:high",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 382,
+    "net_score": 332,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.back_height:high",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 382,
+    "net_score": 332,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.shell_material:upholstered foam",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 471,
+    "net_score": 293,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.shell_material:upholstered foam",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 471,
+    "net_score": 293,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.back_upholstery:matches seat",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 297,
+    "net_score": 265,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.back_upholstery:matches seat",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 297,
+    "net_score": 265,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.fabric:fabric (specify category)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 241,
+    "net_score": 253,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.fabric:fabric (specify category)",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 241,
+    "net_score": 253,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.design_register:organic",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 201,
+    "net_score": 161,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.design_register:organic",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 201,
+    "net_score": 161,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.configuration:multi-seat / sofa",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 204,
+    "net_score": 148,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.configuration:multi-seat / sofa",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 204,
+    "net_score": 148,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "image.design_register:minimal",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 284,
+    "net_score": 120,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "merged.design_register:minimal",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 284,
+    "net_score": 120,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "catalog.seating_type:guest_chair",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 200,
+    "net_score": 114,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "visual.application_type:guest seating",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 200,
+    "net_score": 114,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "visual.seating_category_visual:guest seating",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 200,
+    "net_score": 114,
+    "decided_at": "2026-04-11T23:30:45.000Z"
+  },
+  {
+    "trait": "catalog.category:multi-use guest seating",
+    "status": "approved",
+    "direction": "up",
+    "proposed_weight": 0.2,
+    "evidence": 220,
+    "net_score": 70,
+    "decided_at": "2026-04-11T23:30:45.000Z"
   }
 ]

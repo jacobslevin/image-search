@@ -1,0 +1,433 @@
+{
+  "generated_at": "2026-04-14T23:39:52.466Z",
+  "prompt_version": "single_seat_plan_shape_parallel_vs_trapezoid_v1",
+  "model": "gpt-4.1",
+  "seed": 20260414,
+  "sample_size": 25,
+  "population_size": 47,
+  "excluded_multi_seat_markers": [
+    "sofa",
+    "loveseat",
+    "settee",
+    "two-seat",
+    "two seat",
+    "three-seat",
+    "three seat",
+    "3-seat",
+    "3 seat",
+    "bench",
+    "modular",
+    "sectional"
+  ],
+  "distribution": {
+    "Round / semicircular": 9,
+    "Trapezoidal": 4,
+    "Square / rectangular": 9,
+    "unknown": 3
+  },
+  "unknown_count": 3,
+  "review_cases": [
+    {
+      "product_id": "product_450e09e0a581_13946112",
+      "product_name": "Mitt",
+      "hero_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "filename": "mitt_Mitt_PH_12_HR.jpg",
+      "reasoning": "The chair features a continuous, curved body with no clear straight edges at the back or sides. Its overall shape appears rounded and symmetrical from all angles, indicating a footprint with curved edges rather than straight lines. The back is not a defined straight edge but part of a round outline.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair features a continuous, curved body with no clear straight edges at the back or sides. Its overall shape appears rounded and symmetrical from all angles, indicating a footprint with curved edges rather than straight lines. The back is not a defined straight edge but part of a round outline.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_3704838b4f42_13946006",
+      "product_name": "Chiara",
+      "hero_url": "https://content.designerpages.com/assets/53054942/chiara_12.jpg",
+      "filename": "chiara_12.jpg",
+      "reasoning": "The chair has a continuous curved backrest and seat, forming a generally rounded shape rather than having straight, parallel sides or a clearly defined back edge. The overall body of the chair appears barrel-like, enclosing the seating area with no distinct straight back line.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair has a continuous curved backrest and seat, forming a generally rounded shape rather than having straight, parallel sides or a clearly defined back edge. The overall body of the chair appears barrel-like, enclosing the seating area with no distinct straight back line.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "reasoning": "The chair has straight, parallel armrests and a back that is roughly the same width as the front edge of the seat. The sides do not splay outward or inward, and the overall shape is boxy without curves at the back.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight, parallel armrests and a back that is roughly the same width as the front edge of the seat. The sides do not splay outward or inward, and the overall shape is boxy without curves at the back.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg",
+      "filename": "cabana-thumbnail.jpg",
+      "reasoning": "The seating surface and back panel both have straight sides that run parallel to each other from front to back, and the width at the back is roughly equal to the width at the front. The plan view would show a rectangular or square shape. The built-in table is not a part of the single-seat lounge footprint.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The seating surface and back panel both have straight sides that run parallel to each other from front to back, and the width at the back is roughly equal to the width at the front. The plan view would show a rectangular or square shape. The built-in table is not a part of the single-seat lounge footprint.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "reasoning": "The seat cushion and backrest have clearly defined straight sides running parallel from front to back, and the front and back widths appear roughly the same. The form is not curved or tapered.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The seat cushion and backrest have clearly defined straight sides running parallel from front to back, and the front and back widths appear roughly the same. The form is not curved or tapered.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_cae9f57cb82f_13945982",
+      "product_name": "Belmont",
+      "hero_url": "https://content.designerpages.com/assets/78877674/BelmontPhoto19HR.jpg",
+      "filename": "BelmontPhoto19HR.jpg",
+      "reasoning": "The sides of the chair run mostly parallel from front to back. The width at the back and the front appear roughly equal, as indicated by the straight armrests and backrest. There is no clear splaying or narrowing, and the backrest is straight rather than curved.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The sides of the chair run mostly parallel from front to back. The width at the back and the front appear roughly equal, as indicated by the straight armrests and backrest. There is no clear splaying or narrowing, and the backrest is straight rather than curved.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_369be2770571_14050009",
+      "product_name": "JP Lounge - Privacy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82365446/621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "filename": "621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "reasoning": "The chair depicted is actually a multi-seat sofa rather than a single-seat lounge chair, so it does not meet the criteria for classification based on the given instructions.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The chair depicted is actually a multi-seat sofa rather than a single-seat lounge chair, so it does not meet the criteria for classification based on the given instructions.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "hero_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg",
+      "filename": "OFSBlush.jpg",
+      "reasoning": "The image shows a two-seat sofa, not a single-seat lounge chair. Therefore, the classification requested cannot be determined for this object.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The image shows a two-seat sofa, not a single-seat lounge chair. Therefore, the classification requested cannot be determined for this object.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "filename": "PreludeLoungeImageGallery183.jpg",
+      "reasoning": "The chair exhibits a continuous, curving back and arms that form a wraparound enclosure. There are no straight back or parallel sides; the overall body appears rounded, which suggests a footprint that is more circular or semicircular rather than angular.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair exhibits a continuous, curving back and arms that form a wraparound enclosure. There are no straight back or parallel sides; the overall body appears rounded, which suggests a footprint that is more circular or semicircular rather than angular.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_4a3593a321bc_13909365",
+      "product_name": "CÄav",
+      "hero_url": "https://content.designerpages.com/assets/80506960/jsicaavcomp00002.jpg",
+      "filename": "jsicaavcomp00002.jpg",
+      "reasoning": "The chair has arms and a seat that run parallel from front to back, and the widths at the front and back appear roughly equal. The armrests form straight lines, indicating a footprint that is square or rectangular when viewed from above.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has arms and a seat that run parallel from front to back, and the widths at the front and back appear roughly equal. The armrests form straight lines, indicating a footprint that is square or rectangular when viewed from above.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "hero_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg",
+      "filename": "LOE_dess_wr_07.jpg",
+      "reasoning": "The chair has straight, parallel sides and the width at the back appears to be roughly the same as the width at the front. The arms do not splay outward or inward, and the back edge is straight, not curved.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight, parallel sides and the width at the back appears to be roughly the same as the width at the front. The arms do not splay outward or inward, and the back edge is straight, not curved.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_75e31df50979_13931105",
+      "product_name": "Ani",
+      "hero_url": "https://content.designerpages.com/assets/78845521/ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "filename": "ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "reasoning": "The chair has straight sides and the width at the back appears roughly equal to the width at the front, as indicated by the parallel armrests and the rectangular form of the seat and backrest.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight sides and the width at the back appears roughly equal to the width at the front, as indicated by the parallel armrests and the rectangular form of the seat and backrest.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_bb5e85c3bec5_13717519",
+      "product_name": "Reframe Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/79337945/ProductImage.PNG",
+      "filename": "ProductImage.PNG",
+      "reasoning": "The chair has parallel sides, with the width at the front appearing roughly equal to the width at the back. The arms do not splay outward or inward significantly, and both the seat and backrest form a mostly rectangular outline when viewed from above.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has parallel sides, with the width at the front appearing roughly equal to the width at the back. The arms do not splay outward or inward significantly, and both the seat and backrest form a mostly rectangular outline when viewed from above.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_735cd52fd346_11612764",
+      "product_name": "MOD Standard Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/77691119/d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "filename": "d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "reasoning": "The chair has straight arms and a straight back, with the sides running parallel from the front to the back. The width at the back (behind the armrests) and the width at the front are roughly equal, indicating a rectangular footprint.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight arms and a straight back, with the sides running parallel from the front to the back. The width at the back (behind the armrests) and the width at the front are roughly equal, indicating a rectangular footprint.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "hero_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg",
+      "filename": "JSITeekanTwoSeat.jpg",
+      "reasoning": "The image shows a two-seat lounge sofa, not a single-seat lounge chair as specified by the instructions. Therefore, the classification does not apply.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The image shows a two-seat lounge sofa, not a single-seat lounge chair as specified by the instructions. Therefore, the classification does not apply.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    }
+  ],
+  "results": [
+    {
+      "product_id": "product_450e09e0a581_13946112",
+      "product_name": "Mitt",
+      "hero_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "filename": "mitt_Mitt_PH_12_HR.jpg",
+      "reasoning": "The chair features a continuous, curved body with no clear straight edges at the back or sides. Its overall shape appears rounded and symmetrical from all angles, indicating a footprint with curved edges rather than straight lines. The back is not a defined straight edge but part of a round outline.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair features a continuous, curved body with no clear straight edges at the back or sides. Its overall shape appears rounded and symmetrical from all angles, indicating a footprint with curved edges rather than straight lines. The back is not a defined straight edge but part of a round outline.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_5cfec51f1afa_13931161",
+      "product_name": "Kasura - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78184394/OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "filename": "OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "reasoning": "The chair's backrest curves in a smooth, continuous arc rather than presenting a straight rear edge, and the arms wrap around to form a semicircular enclosure around the seat. There is no clear distinction between a straight back and front edge, indicating a barrel-like or tub chair form.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair's backrest curves in a smooth, continuous arc rather than presenting a straight rear edge, and the arms wrap around to form a semicircular enclosure around the seat. There is no clear distinction between a straight back and front edge, indicating a barrel-like or tub chair form.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_c9595708db6b_13985761",
+      "product_name": "Driftâ¢",
+      "hero_url": "https://content.designerpages.com/assets/77828771/a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "filename": "a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "reasoning": "The sides of the chair splay outward from the back towards the front, making the front visibly wider than the back. The arms open outwards, leading to a tapered shape between the back and the front edges. Both the seat and overall chair form suggest a trapezoidal footprint.",
+      "plan_shape": "Trapezoidal",
+      "raw_response": "{\n  reasoning: \"The sides of the chair splay outward from the back towards the front, making the front visibly wider than the back. The arms open outwards, leading to a tapered shape between the back and the front edges. Both the seat and overall chair form suggest a trapezoidal footprint.\",\n  plan_shape: \"Trapezoidal\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_d7617cf8df24_13933447",
+      "product_name": "Elara - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80675978/CARElaralounge9821S010.jpg",
+      "filename": "CARElaralounge9821S010.jpg",
+      "reasoning": "The back edge of the chair curves smoothly around to the arms, forming a continuous semicircular or barrel shape typical of tub chairs. There are no straight, parallel sides or obvious taper toward front or back.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The back edge of the chair curves smoothly around to the arms, forming a continuous semicircular or barrel shape typical of tub chairs. There are no straight, parallel sides or obvious taper toward front or back.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_3704838b4f42_13946006",
+      "product_name": "Chiara",
+      "hero_url": "https://content.designerpages.com/assets/53054942/chiara_12.jpg",
+      "filename": "chiara_12.jpg",
+      "reasoning": "The chair has a continuous curved backrest and seat, forming a generally rounded shape rather than having straight, parallel sides or a clearly defined back edge. The overall body of the chair appears barrel-like, enclosing the seating area with no distinct straight back line.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair has a continuous curved backrest and seat, forming a generally rounded shape rather than having straight, parallel sides or a clearly defined back edge. The overall body of the chair appears barrel-like, enclosing the seating area with no distinct straight back line.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_f1b4cb162ed4_13959657",
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "hero_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "filename": "ChairLoungeHightowerNest.JPG",
+      "reasoning": "The chair features a smoothly curved, continuous back that wraps around the seating area, with no straight edge at the rear. The form closely resembles a barrel or tub chair, indicating a curved footprint rather than a rectilinear one.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair features a smoothly curved, continuous back that wraps around the seating area, with no straight edge at the rear. The form closely resembles a barrel or tub chair, indicating a curved footprint rather than a rectilinear one.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "reasoning": "The chair has straight, parallel armrests and a back that is roughly the same width as the front edge of the seat. The sides do not splay outward or inward, and the overall shape is boxy without curves at the back.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight, parallel armrests and a back that is roughly the same width as the front edge of the seat. The sides do not splay outward or inward, and the overall shape is boxy without curves at the back.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg",
+      "filename": "cabana-thumbnail.jpg",
+      "reasoning": "The seating surface and back panel both have straight sides that run parallel to each other from front to back, and the width at the back is roughly equal to the width at the front. The plan view would show a rectangular or square shape. The built-in table is not a part of the single-seat lounge footprint.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The seating surface and back panel both have straight sides that run parallel to each other from front to back, and the width at the back is roughly equal to the width at the front. The plan view would show a rectangular or square shape. The built-in table is not a part of the single-seat lounge footprint.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_274381eca4e4_13890830",
+      "product_name": "Verge",
+      "hero_url": "https://content.designerpages.com/assets/78931170/Verge.jpg",
+      "filename": "Verge.jpg",
+      "reasoning": "The chair has a smoothly curved back and sides, forming a continuous, rounded shape with no straight back edge. The overall form envelops the sitter in a semicircular or barrel-like fashion, which makes it clear the plan view would be round or semicircular rather than any shape with parallel or tapered sides.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair has a smoothly curved back and sides, forming a continuous, rounded shape with no straight back edge. The overall form envelops the sitter in a semicircular or barrel-like fashion, which makes it clear the plan view would be round or semicircular rather than any shape with parallel or tapered sides.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_374f7779ff2b_13890797",
+      "product_name": "Neesh",
+      "hero_url": "https://content.designerpages.com/assets/81066812/Neesh94020WSV2.jpg",
+      "filename": "Neesh94020WSV2.jpg",
+      "reasoning": "The chair arms splay outward from the back towards the front, making the front of the seat visibly wider than the back. The overall shape tapers from narrow in the back to wider in the front, fitting the definition of a trapezoidal footprint.",
+      "plan_shape": "Trapezoidal",
+      "raw_response": "{\n  reasoning: \"The chair arms splay outward from the back towards the front, making the front of the seat visibly wider than the back. The overall shape tapers from narrow in the back to wider in the front, fitting the definition of a trapezoidal footprint.\",\n  plan_shape: \"Trapezoidal\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "reasoning": "The seat cushion and backrest have clearly defined straight sides running parallel from front to back, and the front and back widths appear roughly the same. The form is not curved or tapered.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The seat cushion and backrest have clearly defined straight sides running parallel from front to back, and the front and back widths appear roughly the same. The form is not curved or tapered.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_cae9f57cb82f_13945982",
+      "product_name": "Belmont",
+      "hero_url": "https://content.designerpages.com/assets/78877674/BelmontPhoto19HR.jpg",
+      "filename": "BelmontPhoto19HR.jpg",
+      "reasoning": "The sides of the chair run mostly parallel from front to back. The width at the back and the front appear roughly equal, as indicated by the straight armrests and backrest. There is no clear splaying or narrowing, and the backrest is straight rather than curved.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The sides of the chair run mostly parallel from front to back. The width at the back and the front appear roughly equal, as indicated by the straight armrests and backrest. There is no clear splaying or narrowing, and the backrest is straight rather than curved.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_f6d4146c84dd_13717521",
+      "product_name": "Saiba Lounge Chair and Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/62199121/Herman_Miller_Saiba_1.jpg",
+      "filename": "Herman_Miller_Saiba_1.jpg",
+      "reasoning": "The chair features arms that splay outward and the front edge is visibly wider than the back edge. The body tapers from the front to the back, indicating a trapezoidal plan footprint.",
+      "plan_shape": "Trapezoidal",
+      "raw_response": "{\n  reasoning: \"The chair features arms that splay outward and the front edge is visibly wider than the back edge. The body tapers from the front to the back, indicating a trapezoidal plan footprint.\",\n  plan_shape: \"Trapezoidal\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_369be2770571_14050009",
+      "product_name": "JP Lounge - Privacy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82365446/621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "filename": "621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "reasoning": "The chair depicted is actually a multi-seat sofa rather than a single-seat lounge chair, so it does not meet the criteria for classification based on the given instructions.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The chair depicted is actually a multi-seat sofa rather than a single-seat lounge chair, so it does not meet the criteria for classification based on the given instructions.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "hero_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg",
+      "filename": "OFSBlush.jpg",
+      "reasoning": "The image shows a two-seat sofa, not a single-seat lounge chair. Therefore, the classification requested cannot be determined for this object.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The image shows a two-seat sofa, not a single-seat lounge chair. Therefore, the classification requested cannot be determined for this object.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "filename": "PreludeLoungeImageGallery183.jpg",
+      "reasoning": "The chair exhibits a continuous, curving back and arms that form a wraparound enclosure. There are no straight back or parallel sides; the overall body appears rounded, which suggests a footprint that is more circular or semicircular rather than angular.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair exhibits a continuous, curving back and arms that form a wraparound enclosure. There are no straight back or parallel sides; the overall body appears rounded, which suggests a footprint that is more circular or semicircular rather than angular.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_4a3593a321bc_13909365",
+      "product_name": "CÄav",
+      "hero_url": "https://content.designerpages.com/assets/80506960/jsicaavcomp00002.jpg",
+      "filename": "jsicaavcomp00002.jpg",
+      "reasoning": "The chair has arms and a seat that run parallel from front to back, and the widths at the front and back appear roughly equal. The armrests form straight lines, indicating a footprint that is square or rectangular when viewed from above.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has arms and a seat that run parallel from front to back, and the widths at the front and back appear roughly equal. The armrests form straight lines, indicating a footprint that is square or rectangular when viewed from above.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "hero_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg",
+      "filename": "LOE_dess_wr_07.jpg",
+      "reasoning": "The chair has straight, parallel sides and the width at the back appears to be roughly the same as the width at the front. The arms do not splay outward or inward, and the back edge is straight, not curved.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight, parallel sides and the width at the back appears to be roughly the same as the width at the front. The arms do not splay outward or inward, and the back edge is straight, not curved.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_75e31df50979_13931105",
+      "product_name": "Ani",
+      "hero_url": "https://content.designerpages.com/assets/78845521/ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "filename": "ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "reasoning": "The chair has straight sides and the width at the back appears roughly equal to the width at the front, as indicated by the parallel armrests and the rectangular form of the seat and backrest.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight sides and the width at the back appears roughly equal to the width at the front, as indicated by the parallel armrests and the rectangular form of the seat and backrest.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_bb5e85c3bec5_13717519",
+      "product_name": "Reframe Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/79337945/ProductImage.PNG",
+      "filename": "ProductImage.PNG",
+      "reasoning": "The chair has parallel sides, with the width at the front appearing roughly equal to the width at the back. The arms do not splay outward or inward significantly, and both the seat and backrest form a mostly rectangular outline when viewed from above.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has parallel sides, with the width at the front appearing roughly equal to the width at the back. The arms do not splay outward or inward significantly, and both the seat and backrest form a mostly rectangular outline when viewed from above.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_ea784919b15d_13945968",
+      "product_name": "Astra",
+      "hero_url": "https://content.designerpages.com/assets/77808813/26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "filename": "26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "reasoning": "The chair's backrest is curved, forming an arc rather than running straight across. The armrests and sides also follow a continuous curve, resulting in a form without parallel sides or straight back and front edges. This is characteristic of a round or barrel-shaped chair.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair's backrest is curved, forming an arc rather than running straight across. The armrests and sides also follow a continuous curve, resulting in a form without parallel sides or straight back and front edges. This is characteristic of a round or barrel-shaped chair.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_0164528e3518_11819235",
+      "product_name": "Platner Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78555632/Thumbplatnerloungechairthumb5.png",
+      "filename": "Thumbplatnerloungechairthumb5.png",
+      "reasoning": "The chair features a continuous, curved back and arms that wrap around in a semicircular form. There are no straight sides or distinct corners, and the back edge is clearly rounded rather than straight. This is characteristic of barrel or tub chair designs, which have a round or semicircular footprint when viewed from above.",
+      "plan_shape": "Round / semicircular",
+      "raw_response": "{\n  reasoning: \"The chair features a continuous, curved back and arms that wrap around in a semicircular form. There are no straight sides or distinct corners, and the back edge is clearly rounded rather than straight. This is characteristic of barrel or tub chair designs, which have a round or semicircular footprint when viewed from above.\",\n  plan_shape: \"Round / semicircular\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_2c5a390f0e66_13989642",
+      "product_name": "Poppy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75537041/54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "filename": "54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "reasoning": "The arms of the chair splay outward from the backrest toward the front, and the seat and arm cushions are noticeably wider at the front than at the back. This indicates the chair's plan view footprint is tapered, wider at the front and narrower at the back.",
+      "plan_shape": "Trapezoidal",
+      "raw_response": "{\n  reasoning: \"The arms of the chair splay outward from the backrest toward the front, and the seat and arm cushions are noticeably wider at the front than at the back. This indicates the chair's plan view footprint is tapered, wider at the front and narrower at the back.\",\n  plan_shape: \"Trapezoidal\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_735cd52fd346_11612764",
+      "product_name": "MOD Standard Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/77691119/d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "filename": "d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "reasoning": "The chair has straight arms and a straight back, with the sides running parallel from the front to the back. The width at the back (behind the armrests) and the width at the front are roughly equal, indicating a rectangular footprint.",
+      "plan_shape": "Square / rectangular",
+      "raw_response": "{\n  reasoning: \"The chair has straight arms and a straight back, with the sides running parallel from the front to the back. The width at the back (behind the armrests) and the width at the front are roughly equal, indicating a rectangular footprint.\",\n  plan_shape: \"Square / rectangular\"\n}",
+      "review_flag": "roughly"
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "hero_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg",
+      "filename": "JSITeekanTwoSeat.jpg",
+      "reasoning": "The image shows a two-seat lounge sofa, not a single-seat lounge chair as specified by the instructions. Therefore, the classification does not apply.",
+      "plan_shape": "unknown",
+      "raw_response": "{\n  reasoning: \"The image shows a two-seat lounge sofa, not a single-seat lounge chair as specified by the instructions. Therefore, the classification does not apply.\",\n  plan_shape: \"unknown\"\n}",
+      "review_flag": "unknown"
+    }
+  ]
+}

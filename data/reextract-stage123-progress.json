@@ -1,0 +1,487 @@
+{
+  "started_at": "2026-04-13T18:40:37.240Z",
+  "completed_at": "2026-04-13T19:00:09.401Z",
+  "reextracted_image_records": 82,
+  "reused_scene_records": 30,
+  "total_cost_usd_stage123_only": 1.89399,
+  "note": "Total cost reflects rerun Stage 1-3 calls only. Existing Stage 0 classifications were reused and embedding API cost is not separately tracked by current code.",
+  "prelude_positive_base_values": [
+    {
+      "image_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "floor_interface": "concealed / integrated base",
+      "shell_material": "monolithic upholstered shell"
+    },
+    {
+      "image_url": "https://content.designerpages.com/assets/81882737/PreludeLoungeImageGallery013.jpg",
+      "floor_interface": "concealed / integrated base",
+      "shell_material": "monolithic upholstered shell"
+    },
+    {
+      "image_url": "https://content.designerpages.com/assets/81882755/PreludeLoungeImageGallery203.jpg",
+      "floor_interface": "concealed / integrated base",
+      "shell_material": "monolithic upholstered shell"
+    }
+  ],
+  "seating_type_changes": [
+    {
+      "image_id": "product_e83fa8d91705_14049343_img_002",
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362663/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "before": "lounge_chair",
+      "after": "bench"
+    }
+  ],
+  "negation_language_findings": [
+    {
+      "product_name": "Abra",
+      "image_url": "https://content.designerpages.com/assets/80963498/CLL03.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with a concealed wooden rocker base."
+    },
+    {
+      "product_name": "Abra",
+      "image_url": "https://content.designerpages.com/assets/80972901/CLL04Daviselora.jpg",
+      "field": "structure_type",
+      "text": "Monolithic shell structure with no visible frame or legs."
+    },
+    {
+      "product_name": "Abra",
+      "image_url": "https://content.designerpages.com/assets/80972901/CLL04Daviselora.jpg",
+      "field": "surface_language",
+      "text": "Uniformly upholstered in a textured fabric, with no visible seams or breaks in the surface."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362660/621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "field": "arm_geometry",
+      "text": "No separate arms; the back curves at each end to form low, integrated side panels."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362663/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "field": "visual_summary",
+      "text": "A long, modular, and gently curved bench with a low, continuous backrest, segmented seat and back panels, and slender angled legs. The design is minimal and contemporary, with smooth upholstery and no arms."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362663/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "field": "back_geometry",
+      "text": "Low, straight backrest that follows the curve of the seat, with each segment having its own back panel; no headrests or high-back elements."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362663/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "field": "arm_geometry",
+      "text": "None; the bench is armless throughout its length."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362672/685aed6ac420a9c89af898e5ABenchProducts1.jpg",
+      "field": "visual_summary",
+      "text": "A modular lounge chair system with a sweeping S-curve silhouette, upright backrests, no arms, and angled legs. The design is minimal and contemporary, with smooth upholstery and crisp lines."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362672/685aed6ac420a9c89af898e5ABenchProducts1.jpg",
+      "field": "structured_caption",
+      "text": "Minimal, modular lounge chair system with a sweeping S-curve form, upright backrests, no arms, and angled splayed legs. Upholstered in a smooth, uniform material."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362672/685aed6ac420a9c89af898e5ABenchProducts1.jpg",
+      "field": "arm_geometry",
+      "text": "No arms present; open-ended modules."
+    },
+    {
+      "product_name": "A-Bench - Sofas",
+      "image_url": "https://content.designerpages.com/assets/82362672/685aed6ac420a9c89af898e5ABenchProducts1.jpg",
+      "field": "distinctive_elements",
+      "text": "No arms"
+    },
+    {
+      "product_name": "Driftâ¢",
+      "image_url": "https://content.designerpages.com/assets/77828773/fb97d206-499d-4a6b-8191-a46dca27f7ea.jpg",
+      "field": "arm_geometry",
+      "text": "Integrated, low arms formed by the upward sweep of the shell sides; no discrete armrests."
+    },
+    {
+      "product_name": "Driftâ¢",
+      "image_url": "https://content.designerpages.com/assets/78420405/14992-0.jpg",
+      "field": "arm_geometry",
+      "text": "Integrated, sculpted arms formed by the upward sweep of the shell sides; no discrete armrests."
+    },
+    {
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/80873346/6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "field": "arm_geometry",
+      "text": "Arms are integrated into the back, gently sloping and continuous with the shell, no discrete separation."
+    },
+    {
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82362863/6655ecef07c049dc725f0ef1ArcularLCSofaIndexCrops.jpg",
+      "field": "arm_geometry",
+      "text": "Arms are fully integrated into the back, forming a continuous curve with no separation."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "field": "visual_summary",
+      "text": "A minimal, monolithic lounge chair with a fully upholstered, softly rounded shell. The arms, back, and seat are seamlessly integrated, creating an enveloping and inviting form with no visible structural elements."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78288195/Becca_Drawing_01_LR20200320-29150-1c62dq.jpeg",
+      "field": "structured_caption",
+      "text": "Minimal lounge chair with a monolithic, fully upholstered shell, integrated arms and back, and a concealed base. The form is softly rounded and continuous, emphasizing comfort and simplicity."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78288195/Becca_Drawing_01_LR20200320-29150-1c62dq.jpeg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with integrated base; no visible legs or frame."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78288195/Becca_Drawing_01_LR20200320-29150-1c62dq.jpeg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78381139/Bernhardt_Becca_2.jpg",
+      "field": "visual_summary",
+      "text": "A lounge chair with a monolithic, fully upholstered shell, featuring a soft, rounded silhouette and seamlessly integrated arms and back. The chair sits directly on the floor with no visible legs, emphasizing its sculptural, organic form."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78381139/Bernhardt_Becca_2.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered, monolithic shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78381139/Bernhardt_Becca_2.jpg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78724223/BernhardtBeccaSofa.jpg",
+      "field": "visual_summary",
+      "text": "A low, wide lounge chair with a monolithic, geometric form. The arms and back are seamlessly integrated, and the entire piece is fully upholstered with no visible base or legs."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78724223/BernhardtBeccaSofa.jpg",
+      "field": "structured_caption",
+      "text": "Low, monolithic lounge chair with integrated arms and back, fully upholstered in a smooth fabric, and a concealed base."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78724223/BernhardtBeccaSofa.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered, monolithic shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78724223/BernhardtBeccaSofa.jpg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Becca - Lounge",
+      "image_url": "https://content.designerpages.com/assets/78876628/BeccaDrawing01LR2022030130572ts4l5d.jpeg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with no visible frame or legs; the structure appears integrated and seamless."
+    },
+    {
+      "product_name": "Bombom",
+      "image_url": "https://content.designerpages.com/assets/78336878/Bombom_Drawing_01_LR20200415-2568-122acu2.jpeg",
+      "field": "arm_geometry",
+      "text": "Integrated with the backrest, forming a continuous, enveloping curve with no discrete separation."
+    },
+    {
+      "product_name": "Bombom",
+      "image_url": "https://content.designerpages.com/assets/78593232/BombomDrawing01LR20210105201143moqq4.jpeg",
+      "field": "arm_geometry",
+      "text": "Integrated arms formed by the continuous curve of the shell, no discrete armrests."
+    },
+    {
+      "product_name": "Bombom",
+      "image_url": "https://content.designerpages.com/assets/78967076/bombom161200x1200compact.jpg",
+      "field": "arm_geometry",
+      "text": "Arms are integrated into the shell, forming a continuous curve with the back, no discrete armrests."
+    },
+    {
+      "product_name": "Soft Privacy",
+      "image_url": "https://content.designerpages.com/assets/82367094/61c479edac99d566a67394b9SoftPrivacyLounge.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with integrated base; no visible legs or frame."
+    },
+    {
+      "product_name": "Soft Privacy",
+      "image_url": "https://content.designerpages.com/assets/82367128/62194ddea81363ad4b1c067dSoft20PrivacyProduct06.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Soft Privacy",
+      "image_url": "https://content.designerpages.com/assets/82367128/62194ddea81363ad4b1c067dSoft20PrivacyProduct06.jpg",
+      "field": "arm_geometry",
+      "text": "Integrated arms formed by the upward sweep of the shell, continuous with the backrest, no discrete armrests."
+    },
+    {
+      "product_name": "Soft Privacy",
+      "image_url": "https://content.designerpages.com/assets/82367128/62194ddea81363ad4b1c067dSoft20PrivacyProduct06.jpg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Saiba Lounge Chair and Ottoman",
+      "image_url": "https://content.designerpages.com/assets/77401447/3166a063-9079-4688-8b50-0c04b815828b.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; seat and back are uninterrupted by armrests."
+    },
+    {
+      "product_name": "Seba Lounge",
+      "image_url": "https://content.designerpages.com/assets/80313611/6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg",
+      "field": "structure_type",
+      "text": "Monolithic shell structure with integrated seat and back, no visible frame or legs."
+    },
+    {
+      "product_name": "Seba Lounge",
+      "image_url": "https://content.designerpages.com/assets/81923026/DavisSebaLounge.png",
+      "field": "structure_type",
+      "text": "Monolithic shell structure with integrated seat and back, no visible frame or legs."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "field": "silhouette",
+      "text": "Softly rounded, monolithic form with continuous curves and no visible separation between seat, back, and arms."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "field": "distinctive_elements",
+      "text": "Soft, rounded base with no visible legs"
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882737/PreludeLoungeImageGallery013.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered, monolithic shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882737/PreludeLoungeImageGallery013.jpg",
+      "field": "distinctive_elements",
+      "text": "Soft, rounded base with no visible legs"
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882755/PreludeLoungeImageGallery203.jpg",
+      "field": "visual_summary",
+      "text": "A minimal, monolithic lounge chair with a soft, rounded silhouette, fully upholstered in textured fabric. The arms, back, and seat are seamlessly integrated, creating an enveloping and inviting form with no visible structural elements."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882755/PreludeLoungeImageGallery203.jpg",
+      "field": "structured_caption",
+      "text": "Minimal lounge chair with a monolithic, fully upholstered shell, softly rounded silhouette, integrated arms and backrest, and no visible base."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882755/PreludeLoungeImageGallery203.jpg",
+      "field": "structure_type",
+      "text": "Fully upholstered, monolithic shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Prelude - Lounge",
+      "image_url": "https://content.designerpages.com/assets/81882755/PreludeLoungeImageGallery203.jpg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or base"
+    },
+    {
+      "product_name": "Nordic Lounge",
+      "image_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; open sides."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "field": "visual_summary",
+      "text": "A minimal, high-back lounge chair with a cocooning upholstered shell, no discrete arms, and an integrated side table supported by a black metal frame."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "field": "structured_caption",
+      "text": "Minimalist lounge chair with a tall, rounded upholstered shell, no traditional arms, exposed black metal legs, and an integrated side table."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "field": "arm_geometry",
+      "text": "No traditional arms; sides of the shell curve inward but do not form discrete armrests."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/81944674/PHNE185NestEasyLoungeWithTable01.jpg",
+      "field": "structured_caption",
+      "text": "Minimal high-back lounge chair with a continuous upholstered shell, no discrete arms, slender metal legs, and an attached round side table."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/81944674/PHNE185NestEasyLoungeWithTable01.jpg",
+      "field": "arm_geometry",
+      "text": "No traditional arms; the sides of the backrest curve forward to provide some lateral support. An attached side table is present on one side."
+    },
+    {
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "image_url": "https://content.designerpages.com/assets/81944674/PHNE185NestEasyLoungeWithTable01.jpg",
+      "field": "distinctive_elements",
+      "text": "No discrete armrests"
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "field": "visual_summary",
+      "text": "A sculptural lounge chair with a soft, organic silhouette, fully upholstered in fabric with visible seam lines and no discrete arms or legs. The form is continuous and rounded, with a high, gently sloping back and a wide, deep seat. A subtle handle detail is integrated into the back."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "field": "structured_caption",
+      "text": "Organic, monolithic lounge chair with a continuous upholstered shell, no arms, and a broad, gently sloping back. Features visible seam detailing and an integrated handle on the rear."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "field": "seat_geometry",
+      "text": "Wide, deep, and thickly padded seat integrated into the overall form, with no visible separation from the base."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; the sides curve gently upward but do not form discrete armrests."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178561/Bernhardt_Mitt_1.jpg",
+      "field": "visual_summary",
+      "text": "A low, wide lounge chair with a seamless, rounded form and no visible legs or arms. Upholstery is continuous with accent stitching and a sculptural handle detail on the back."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178561/Bernhardt_Mitt_1.jpg",
+      "field": "structured_caption",
+      "text": "Organic, monolithic lounge chair with a seamless, rounded silhouette, no arms, and a continuous upholstered shell featuring visible seam detailing and an integrated handle on the back."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178561/Bernhardt_Mitt_1.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178561/Bernhardt_Mitt_1.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; the sides curve gently upward but do not form discrete armrests."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178571/Bernhardt_Mitt_1_sm.jpg",
+      "field": "structured_caption",
+      "text": "Sculptural lounge chair with a monolithic, rounded upholstered shell, no arms, and a tall, enveloping back. Features visible stitched seams and a contrasting rear handle detail."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178571/Bernhardt_Mitt_1_sm.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/62178571/Bernhardt_Mitt_1_sm.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; sides curve gently upward but do not form discrete armrests."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/69156561/d346556d-daa1-4965-abfa-ac4be5760ba6.jpg",
+      "field": "structured_caption",
+      "text": "Low, monolithic lounge chair with a rounded, pebble-like silhouette, high enveloping back, no discrete arms, and smooth, continuous upholstery with a stitched handle detail on the back."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/69156561/d346556d-daa1-4965-abfa-ac4be5760ba6.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/69156561/d346556d-daa1-4965-abfa-ac4be5760ba6.jpg",
+      "field": "arm_geometry",
+      "text": "No discrete arms; sides curve upward as part of the continuous shell, but do not form separate armrests."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/78138537/Bernhardt_Mitt.jpg",
+      "field": "visual_summary",
+      "text": "A low, rounded lounge chair with a seamless, organic silhouette, fully upholstered in fabric with visible seam lines and an integrated handle detail on the back. The chair has no arms or visible legs, emphasizing its sculptural, monolithic presence."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/78138537/Bernhardt_Mitt.jpg",
+      "field": "structured_caption",
+      "text": "Low, monolithic lounge chair with a rounded, organic silhouette, fully upholstered in fabric with visible seam detailing, no arms, and an integrated handle on the back."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/78138537/Bernhardt_Mitt.jpg",
+      "field": "structure_type",
+      "text": "Monolithic, fully upholstered shell with no visible frame or legs."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/78138537/Bernhardt_Mitt.jpg",
+      "field": "arm_geometry",
+      "text": "No arms; the sides curve gently upward but do not form discrete armrests."
+    },
+    {
+      "product_name": "Mitt",
+      "image_url": "https://content.designerpages.com/assets/78138537/Bernhardt_Mitt.jpg",
+      "field": "distinctive_elements",
+      "text": "No visible legs or arms"
+    }
+  ],
+  "progress_complete": true
+}

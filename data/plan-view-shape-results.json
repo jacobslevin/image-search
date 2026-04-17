@@ -1,0 +1,312 @@
+{
+  "generated_at": "2026-04-14T23:11:05.541Z",
+  "prompt_version": "plan_view_shape_v1_exact_user_prompt",
+  "model": "gpt-4.1",
+  "seed": 20260414,
+  "sample_size": 25,
+  "population_size": 56,
+  "distribution": {
+    "Circle / oval": 8,
+    "Rectangle — deep": 2,
+    "Rectangle — wide": 7,
+    "Square": 8
+  },
+  "unknown_count": 0,
+  "review_cases": [
+    {
+      "product_name": "Abra",
+      "filename": "CLL03.jpg",
+      "plan_shape": "Circle / oval",
+      "reasoning": "The chair features a rounded, continuous back and arm form that curves around and appears to have no flat sides or back. The base is also smoothly curved, without straight sections, suggesting the overall footprint is round or oval when viewed from above.",
+      "review_flag": "appears"
+    },
+    {
+      "product_name": "ABL",
+      "filename": "Screenshot20251229104933.png",
+      "plan_shape": "Square",
+      "reasoning": "The chair has a prominent, straight-backed design and armrests that extend out to the sides, making the width appear similar to or slightly greater than the depth. The seat cushion is also wide and almost as deep as it is wide, with no strong indication that either dimension dominates the other. The front appears essentially as wide as the distance from the back to the front edge, suggesting a roughly square footprint. The overall shape is angular and not rounded, excluding the possibility of a circle or oval.",
+      "review_flag": "appears"
+    },
+    {
+      "product_name": "Conexus High Back Upholstered Lounge Chair",
+      "filename": "087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "plan_shape": "Rectangle — deep",
+      "reasoning": "The chair has a high back that extends significantly further back than the seat extends side-to-side. The seat base is narrow compared to the depth from the front edge to the backrest. The sides and back are straight-edged rather than rounded, which further suggests a rectangular plan that is deeper than it is wide.",
+      "review_flag": "suggests"
+    },
+    {
+      "product_name": "Nordic Lounge",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "plan_shape": "Rectangle — wide",
+      "reasoning": "The seat and backrest both have a roughly rectangular shape with gently rounded edges. The width of the chair (side-to-side) appears to be greater than the depth (front-to-back), which is typical of lounge chairs designed for comfort. The back legs extend backward but the seat shape appears clearly wider than deep when imagined from above.",
+      "review_flag": "appears"
+    },
+    {
+      "product_name": "Cosima",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "plan_shape": "Square",
+      "reasoning": "The chair has straight arms and back, and the seat appears roughly as deep as it is wide when viewed from the front and side. There are no distinct curves or elongations suggesting a circular, oval, or distinctly rectangular (wide or deep) shape.",
+      "review_flag": "appears"
+    },
+    {
+      "product_name": "Gobi",
+      "filename": "401.JPG",
+      "plan_shape": "Circle / oval",
+      "reasoning": "The chair has a curved front and back with rounded edges, and the arms smoothly transition from the back to the front in one continuous shape. The overall form suggests a rounded, non-rectilinear plan with no straight back or sides, typical of a lounge or barrel chair. This indicates a footprint that is best described as circular or oval.",
+      "review_flag": "suggests"
+    }
+  ],
+  "results": [
+    {
+      "product_id": "product_ea784919b15d_13945968",
+      "product_name": "Astra",
+      "hero_url": "https://content.designerpages.com/assets/77808813/26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "filename": "26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "reasoning": "The chair has a continuous, curved form with no flat back or pronounced straight lines along the sides or rear. The arm and back structure is smoothly rounded, indicating a footprint that wraps in an oval or circular shape. These characteristics are typical of barrel or tub chairs.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair has a continuous, curved form with no flat back or pronounced straight lines along the sides or rear. The arm and back structure is smoothly rounded, indicating a footprint that wraps in an oval or circular shape. These characteristics are typical of barrel or tub chairs.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_9d23ccd3a9ab_13945713",
+      "product_name": "Abra",
+      "hero_url": "https://content.designerpages.com/assets/80963498/CLL03.jpg",
+      "filename": "CLL03.jpg",
+      "reasoning": "The chair features a rounded, continuous back and arm form that curves around and appears to have no flat sides or back. The base is also smoothly curved, without straight sections, suggesting the overall footprint is round or oval when viewed from above.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair features a rounded, continuous back and arm form that curves around and appears to have no flat sides or back. The base is also smoothly curved, without straight sections, suggesting the overall footprint is round or oval when viewed from above.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "filename": "PreludeLoungeImageGallery183.jpg",
+      "reasoning": "The chair has a continuous, rounded form with no flat back or straight sides visible. The base and overall shape appear smoothly curved, typical of barrel or tub chairs, suggesting a round or oval plan. There are no strong cues for a square or rectangular footprint.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair has a continuous, rounded form with no flat back or straight sides visible. The base and overall shape appear smoothly curved, typical of barrel or tub chairs, suggesting a round or oval plan. There are no strong cues for a square or rectangular footprint.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_0164528e3518_11819235",
+      "product_name": "Platner Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78555632/Thumbplatnerloungechairthumb5.png",
+      "filename": "Thumbplatnerloungechairthumb5.png",
+      "reasoning": "The chair features a continuous, curved back and seat with no flat or straight sides visible from any angle. The design wraps around in a smooth, rounded form, typical of barrel or tub chairs. There are no strong rectangular or square cues in its footprint—its widest points transition smoothly into each other.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair features a continuous, curved back and seat with no flat or straight sides visible from any angle. The design wraps around in a smooth, rounded form, typical of barrel or tub chairs. There are no strong rectangular or square cues in its footprint—its widest points transition smoothly into each other.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg",
+      "filename": "cabana-thumbnail.jpg",
+      "reasoning": "The main upholstered seat is long from front to back but not especially wide, and is paired with a low rectangular shelf unit in the corner, all bounded by two straight, perpendicular panels that form an L-shape. The form overall extends more front to back than side to side, creating a footprint that is clearly deeper than it is wide. There are no rounded or square forms present.",
+      "plan_shape": "Rectangle — deep",
+      "raw_response": "{\n  reasoning: \"The main upholstered seat is long from front to back but not especially wide, and is paired with a low rectangular shelf unit in the corner, all bounded by two straight, perpendicular panels that form an L-shape. The form overall extends more front to back than side to side, creating a footprint that is clearly deeper than it is wide. There are no rounded or square forms present.\",\n  plan_shape: \"Rectangle — deep\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_9bbf0f4416cc_13884211",
+      "product_name": "Axial Modular Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81468425/AxialModularSofa0.jpg",
+      "filename": "AxialModularSofa0.jpg",
+      "reasoning": "The furniture piece is a sofa with three seat cushions and a linear form that extends much farther side to side than front to back. The arms and back are straight and align with the seating area, resulting in a footprint that is clearly wider than it is deep.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The furniture piece is a sofa with three seat cushions and a linear form that extends much farther side to side than front to back. The arms and back are straight and align with the seating area, resulting in a footprint that is clearly wider than it is deep.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_fc112c135d70_13890748",
+      "product_name": "ABL",
+      "hero_url": "https://content.designerpages.com/assets/82432460/Screenshot20251229104933.png",
+      "filename": "Screenshot20251229104933.png",
+      "reasoning": "The chair has a prominent, straight-backed design and armrests that extend out to the sides, making the width appear similar to or slightly greater than the depth. The seat cushion is also wide and almost as deep as it is wide, with no strong indication that either dimension dominates the other. The front appears essentially as wide as the distance from the back to the front edge, suggesting a roughly square footprint. The overall shape is angular and not rounded, excluding the possibility of a circle or oval.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has a prominent, straight-backed design and armrests that extend out to the sides, making the width appear similar to or slightly greater than the depth. The seat cushion is also wide and almost as deep as it is wide, with no strong indication that either dimension dominates the other. The front appears essentially as wide as the distance from the back to the front edge, suggesting a roughly square footprint. The overall shape is angular and not rounded, excluding the possibility of a circle or oval.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "hero_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg",
+      "filename": "OFSBlush.jpg",
+      "reasoning": "The furniture in the image is a sofa with straight sides and back. The width (side to side) is clearly greater than its depth (front to back), typical of most sofas. The arms are straight and parallel, and the back is flat, further suggesting a wide rectangular footprint.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The furniture in the image is a sofa with straight sides and back. The width (side to side) is clearly greater than its depth (front to back), typical of most sofas. The arms are straight and parallel, and the back is flat, further suggesting a wide rectangular footprint.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_77f37a7c9e40_14010227",
+      "product_name": "Acre Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/82224394/ac1lngchrma34frontlow.jpg",
+      "filename": "ac1lngchrma34frontlow.jpg",
+      "reasoning": "The seat and overall frame are wider from side to side than they are deep from front to back. The front edge of the seat is noticeably broader than the depth, and the arms flare out to accentuate the width. The back is upright without a rounded or barrel shape. These cues indicate a 'rectangle — wide' footprint.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The seat and overall frame are wider from side to side than they are deep from front to back. The front edge of the seat is noticeably broader than the depth, and the arms flare out to accentuate the width. The back is upright without a rounded or barrel shape. These cues indicate a 'rectangle — wide' footprint.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_c9595708db6b_13985761",
+      "product_name": "Driftâ¢",
+      "hero_url": "https://content.designerpages.com/assets/77828771/a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "filename": "a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "reasoning": "The chair has a seat and backrest that are approximately equal in width and depth, forming a roughly symmetric and compact silhouette. The arms are not strongly flared and the sides are angled but do not suggest a distinctly elongated shape in either direction. The appearance is proportionally balanced between width and depth, typical for a lounge chair with a geometric form.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has a seat and backrest that are approximately equal in width and depth, forming a roughly symmetric and compact silhouette. The arms are not strongly flared and the sides are angled but do not suggest a distinctly elongated shape in either direction. The appearance is proportionally balanced between width and depth, typical for a lounge chair with a geometric form.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_0196e5710d1b_10870591",
+      "product_name": "Conexus High Back Upholstered Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/70745111/087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "filename": "087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "reasoning": "The chair has a high back that extends significantly further back than the seat extends side-to-side. The seat base is narrow compared to the depth from the front edge to the backrest. The sides and back are straight-edged rather than rounded, which further suggests a rectangular plan that is deeper than it is wide.",
+      "plan_shape": "Rectangle — deep",
+      "raw_response": "{\n  reasoning: \"The chair has a high back that extends significantly further back than the seat extends side-to-side. The seat base is narrow compared to the depth from the front edge to the backrest. The sides and back are straight-edged rather than rounded, which further suggests a rectangular plan that is deeper than it is wide.\",\n  plan_shape: \"Rectangle — deep\"\n}",
+      "review_flag": "suggests"
+    },
+    {
+      "product_id": "product_274381eca4e4_13890830",
+      "product_name": "Verge",
+      "hero_url": "https://content.designerpages.com/assets/78931170/Verge.jpg",
+      "filename": "Verge.jpg",
+      "reasoning": "The chair has smoothly curved sides and back, with no flat rear or straight edge visible, wrapping continuously around the seat. These curves suggest a round or oval footprint typical of barrel or tub chairs.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair has smoothly curved sides and back, with no flat rear or straight edge visible, wrapping continuously around the seat. These curves suggest a round or oval footprint typical of barrel or tub chairs.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_07cd4ea59111_14107462",
+      "product_name": "Jovalie",
+      "hero_url": "https://content.designerpages.com/assets/79900300/Jovalie2.png",
+      "filename": "Jovalie2.png",
+      "reasoning": "The chair features continuous curved arms and a rounded back with no flat or straight edges visible around the perimeter. The overall three-dimensional form clearly indicates a footprint that is round rather than square or rectangular. This is typical of barrel chairs and tub chairs.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair features continuous curved arms and a rounded back with no flat or straight edges visible around the perimeter. The overall three-dimensional form clearly indicates a footprint that is round rather than square or rectangular. This is typical of barrel chairs and tub chairs.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "reasoning": "The seat and backrest both have a roughly rectangular shape with gently rounded edges. The width of the chair (side-to-side) appears to be greater than the depth (front-to-back), which is typical of lounge chairs designed for comfort. The back legs extend backward but the seat shape appears clearly wider than deep when imagined from above.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The seat and backrest both have a roughly rectangular shape with gently rounded edges. The width of the chair (side-to-side) appears to be greater than the depth (front-to-back), which is typical of lounge chairs designed for comfort. The back legs extend backward but the seat shape appears clearly wider than deep when imagined from above.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_3e280432f637_91254",
+      "product_name": "Iris",
+      "hero_url": "https://content.designerpages.com/assets/82668660/igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "filename": "igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "reasoning": "The chair has a flat back and straight sides, with overall proportions that appear roughly equal in width and depth. The seat, back, and armrest layout does not indicate pronounced elongation in either direction. There are no curves or rounding that would indicate a circular or oval shape.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has a flat back and straight sides, with overall proportions that appear roughly equal in width and depth. The seat, back, and armrest layout does not indicate pronounced elongation in either direction. There are no curves or rounding that would indicate a circular or oval shape.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "hero_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg",
+      "filename": "LOE_dess_wr_07.jpg",
+      "reasoning": "The chair has straight sides and a flat back, with the width and depth appearing to be roughly equal. The armrests run parallel to each other and are perpendicular to the back, forming a shape that is close to a square when viewed from above.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has straight sides and a flat back, with the width and depth appearing to be roughly equal. The armrests run parallel to each other and are perpendicular to the back, forming a shape that is close to a square when viewed from above.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_4755720d5ee2_13909356",
+      "product_name": "Arwyn",
+      "hero_url": "https://content.designerpages.com/assets/79048787/JSIArwynCrossoverLounge.jpg",
+      "filename": "JSIArwynCrossoverLounge.jpg",
+      "reasoning": "The chair has a seat that is approximately as wide as it is deep when considering the cushion and armrest extensions. The overall footprint is not round or oval, as there are flat surfaces and angular corners, and it does not appear to be elongated in either the wide or deep directions.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has a seat that is approximately as wide as it is deep when considering the cushion and armrest extensions. The overall footprint is not round or oval, as there are flat surfaces and angular corners, and it does not appear to be elongated in either the wide or deep directions.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "hero_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg",
+      "filename": "JSITeekanTwoSeat.jpg",
+      "reasoning": "The furniture piece is a sofa with straight armrests and a straight back, and its form is clearly wider from side to side than it is deep from front to back, as seen from the visible proportions and the rectangular seat base.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The furniture piece is a sofa with straight armrests and a straight back, and its form is clearly wider from side to side than it is deep from front to back, as seen from the visible proportions and the rectangular seat base.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_57ce0e255162_14050067",
+      "product_name": "Sachet Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79004232/C18DAVISSACHETMIDBACK.jpg",
+      "filename": "C18DAVISSACHETMIDBACK.jpg",
+      "reasoning": "The chair’s seat and back form is roughly as wide as it is deep, with the arms and seat creating a shape that is almost equilateral from side to side and front to back. The sides and back are straight or gently faceted, not curved into a continuous oval or round form. The base is centered and symmetrical. Overall, the visible proportions point to a plan shape that is about square.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair’s seat and back form is roughly as wide as it is deep, with the arms and seat creating a shape that is almost equilateral from side to side and front to back. The sides and back are straight or gently faceted, not curved into a continuous oval or round form. The base is centered and symmetrical. Overall, the visible proportions point to a plan shape that is about square.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_c65ef43d7c1d_13959752",
+      "product_name": "Flote Sofa, Two-Seat - Zipper Detail",
+      "hero_url": "https://content.designerpages.com/assets/81944959/HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "filename": "HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "reasoning": "The form visible in the image is a settee or small sofa with a backrest and armrests that wrap slightly around the sides, but the overall width is much greater than its depth. The seat cushion and the overall structure extend more side to side than front to back, typical of a sofa. The sides are rounded, but the general plan shape is not circular or oval; it is distinctly wider than it is deep.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The form visible in the image is a settee or small sofa with a backrest and armrests that wrap slightly around the sides, but the overall width is much greater than its depth. The seat cushion and the overall structure extend more side to side than front to back, typical of a sofa. The sides are rounded, but the general plan shape is not circular or oval; it is distinctly wider than it is deep.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_2e42b4a4a525_14097276",
+      "product_name": "Fuuga Nesting Armchair",
+      "hero_url": "https://content.designerpages.com/assets/82581458/C09.jpg",
+      "filename": "C09.jpg",
+      "reasoning": "The chair has a continuous, curved back and rounded corners that wrap around the seat. The front edge is also curved, and there are no straight vertical or horizontal sides typical of rectangular or square shapes. These cues suggest the overall footprint is more rounded, resembling an oval or circle.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair has a continuous, curved back and rounded corners that wrap around the seat. The front edge is also curved, and there are no straight vertical or horizontal sides typical of rectangular or square shapes. These cues suggest the overall footprint is more rounded, resembling an oval or circle.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_2c5a390f0e66_13989642",
+      "product_name": "Poppy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75537041/54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "filename": "54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "reasoning": "The chair's width (side-to-side) and depth (front-to-back) appear roughly equal when considering the shape of the seat, back, and arms. The front edge is slightly curved, but not significantly enough to create an oval or circular footprint. The overall form is compact with defined corners, indicating a square plan when viewed from above.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair's width (side-to-side) and depth (front-to-back) appear roughly equal when considering the shape of the seat, back, and arms. The front edge is slightly curved, but not significantly enough to create an oval or circular footprint. The overall form is compact with defined corners, indicating a square plan when viewed from above.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": ""
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "reasoning": "The chair has straight arms and back, and the seat appears roughly as deep as it is wide when viewed from the front and side. There are no distinct curves or elongations suggesting a circular, oval, or distinctly rectangular (wide or deep) shape.",
+      "plan_shape": "Square",
+      "raw_response": "{\n  reasoning: \"The chair has straight arms and back, and the seat appears roughly as deep as it is wide when viewed from the front and side. There are no distinct curves or elongations suggesting a circular, oval, or distinctly rectangular (wide or deep) shape.\",\n  plan_shape: \"Square\"\n}",
+      "review_flag": "appears"
+    },
+    {
+      "product_id": "product_aa8462b9e245_14104979",
+      "product_name": "Gobi",
+      "hero_url": "https://content.designerpages.com/assets/79271543/401.JPG",
+      "filename": "401.JPG",
+      "reasoning": "The chair has a curved front and back with rounded edges, and the arms smoothly transition from the back to the front in one continuous shape. The overall form suggests a rounded, non-rectilinear plan with no straight back or sides, typical of a lounge or barrel chair. This indicates a footprint that is best described as circular or oval.",
+      "plan_shape": "Circle / oval",
+      "raw_response": "{\n  reasoning: \"The chair has a curved front and back with rounded edges, and the arms smoothly transition from the back to the front in one continuous shape. The overall form suggests a rounded, non-rectilinear plan with no straight back or sides, typical of a lounge or barrel chair. This indicates a footprint that is best described as circular or oval.\",\n  plan_shape: \"Circle / oval\"\n}",
+      "review_flag": "suggests"
+    },
+    {
+      "product_id": "product_0d66b33a0bf2_14049534",
+      "product_name": "Arcular - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80873346/6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "filename": "6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "reasoning": "The sofa is much wider from side to side than it is deep from front to back, as inferred from the three-seater size and the proportions visible. The arms curve gently but the overall footprint is still predominantly wider than it is deep. This matches typical sofa forms which fit the 'rectangle — wide' category.",
+      "plan_shape": "Rectangle — wide",
+      "raw_response": "{\n  reasoning: \"The sofa is much wider from side to side than it is deep from front to back, as inferred from the three-seater size and the proportions visible. The arms curve gently but the overall footprint is still predominantly wider than it is deep. This matches typical sofa forms which fit the 'rectangle — wide' category.\",\n  plan_shape: \"Rectangle — wide\"\n}",
+      "review_flag": ""
+    }
+  ],
+  "markdown_table": "| Product name | Image filename | Reasoning | Plan shape |\n| --- | --- | --- | --- |\n| Astra | 26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg | The chair has a continuous, curved form with no flat back or pronounced straight lines along the sides or rear. The arm and back structure is smoothly rounded, indicating a footprint that wraps in an oval or circular shape. These characteristics are typical of barrel or tub chairs. | Circle / oval |\n| Abra | CLL03.jpg | The chair features a rounded, continuous back and arm form that curves around and appears to have no flat sides or back. The base is also smoothly curved, without straight sections, suggesting the overall footprint is round or oval when viewed from above. | Circle / oval |\n| Prelude - Lounge | PreludeLoungeImageGallery183.jpg | The chair has a continuous, rounded form with no flat back or straight sides visible. The base and overall shape appear smoothly curved, typical of barrel or tub chairs, suggesting a round or oval plan. There are no strong cues for a square or rectangular footprint. | Circle / oval |\n| Platner Lounge Chair | Thumbplatnerloungechairthumb5.png | The chair features a continuous, curved back and seat with no flat or straight sides visible from any angle. The design wraps around in a smooth, rounded form, typical of barrel or tub chairs. There are no strong rectangular or square cues in its footprint—its widest points transition smoothly into each other. | Circle / oval |\n| Cabana Lounge | cabana-thumbnail.jpg | The main upholstered seat is long from front to back but not especially wide, and is paired with a low rectangular shelf unit in the corner, all bounded by two straight, perpendicular panels that form an L-shape. The form overall extends more front to back than side to side, creating a footprint that is clearly deeper than it is wide. There are no rounded or square forms present. | Rectangle — deep |\n| Axial Modular Sofa | AxialModularSofa0.jpg | The furniture piece is a sofa with three seat cushions and a linear form that extends much farther side to side than front to back. The arms and back are straight and align with the seating area, resulting in a footprint that is clearly wider than it is deep. | Rectangle — wide |\n| ABL | Screenshot20251229104933.png | The chair has a prominent, straight-backed design and armrests that extend out to the sides, making the width appear similar to or slightly greater than the depth. The seat cushion is also wide and almost as deep as it is wide, with no strong indication that either dimension dominates the other. The front appears essentially as wide as the distance from the back to the front edge, suggesting a roughly square footprint. The overall shape is angular and not rounded, excluding the possibility of a circle or oval. | Square |\n| Blush | OFSBlush.jpg | The furniture in the image is a sofa with straight sides and back. The width (side to side) is clearly greater than its depth (front to back), typical of most sofas. The arms are straight and parallel, and the back is flat, further suggesting a wide rectangular footprint. | Rectangle — wide |\n| Acre Lounge Chair | ac1lngchrma34frontlow.jpg | The seat and overall frame are wider from side to side than they are deep from front to back. The front edge of the seat is noticeably broader than the depth, and the arms flare out to accentuate the width. The back is upright without a rounded or barrel shape. These cues indicate a 'rectangle — wide' footprint. | Rectangle — wide |\n| Driftâ¢ | a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg | The chair has a seat and backrest that are approximately equal in width and depth, forming a roughly symmetric and compact silhouette. The arms are not strongly flared and the sides are angled but do not suggest a distinctly elongated shape in either direction. The appearance is proportionally balanced between width and depth, typical for a lounge chair with a geometric form. | Square |\n| Conexus High Back Upholstered Lounge Chair | 087b2706-c7af-41d4-884d-d6cbb544be70.png | The chair has a high back that extends significantly further back than the seat extends side-to-side. The seat base is narrow compared to the depth from the front edge to the backrest. The sides and back are straight-edged rather than rounded, which further suggests a rectangular plan that is deeper than it is wide. | Rectangle — deep |\n| Verge | Verge.jpg | The chair has smoothly curved sides and back, with no flat rear or straight edge visible, wrapping continuously around the seat. These curves suggest a round or oval footprint typical of barrel or tub chairs. | Circle / oval |\n| Jovalie | Jovalie2.png | The chair features continuous curved arms and a rounded back with no flat or straight edges visible around the perimeter. The overall three-dimensional form clearly indicates a footprint that is round rather than square or rectangular. This is typical of barrel chairs and tub chairs. | Circle / oval |\n| Nordic Lounge | 683621bd22824394a2cc63c4nordiclounge.jpg | The seat and backrest both have a roughly rectangular shape with gently rounded edges. The width of the chair (side-to-side) appears to be greater than the depth (front-to-back), which is typical of lounge chairs designed for comfort. The back legs extend backward but the seat shape appears clearly wider than deep when imagined from above. | Rectangle — wide |\n| Iris | igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png | The chair has a flat back and straight sides, with overall proportions that appear roughly equal in width and depth. The seat, back, and armrest layout does not indicate pronounced elongation in either direction. There are no curves or rounding that would indicate a circular or oval shape. | Square |\n| Dess | LOE_dess_wr_07.jpg | The chair has straight sides and a flat back, with the width and depth appearing to be roughly equal. The armrests run parallel to each other and are perpendicular to the back, forming a shape that is close to a square when viewed from above. | Square |\n| Arwyn | JSIArwynCrossoverLounge.jpg | The chair has a seat that is approximately as wide as it is deep when considering the cushion and armrest extensions. The overall footprint is not round or oval, as there are flat surfaces and angular corners, and it does not appear to be elongated in either the wide or deep directions. | Square |\n| Teekan | JSITeekanTwoSeat.jpg | The furniture piece is a sofa with straight armrests and a straight back, and its form is clearly wider from side to side than it is deep from front to back, as seen from the visible proportions and the rectangular seat base. | Rectangle — wide |\n| Sachet Lounge | C18DAVISSACHETMIDBACK.jpg | The chair’s seat and back form is roughly as wide as it is deep, with the arms and seat creating a shape that is almost equilateral from side to side and front to back. The sides and back are straight or gently faceted, not curved into a continuous oval or round form. The base is centered and symmetrical. Overall, the visible proportions point to a plan shape that is about square. | Square |\n| Flote Sofa, Two-Seat - Zipper Detail | HTFE120FloteSofaTwoSeatZipper01.jpg | The form visible in the image is a settee or small sofa with a backrest and armrests that wrap slightly around the sides, but the overall width is much greater than its depth. The seat cushion and the overall structure extend more side to side than front to back, typical of a sofa. The sides are rounded, but the general plan shape is not circular or oval; it is distinctly wider than it is deep. | Rectangle — wide |\n| Fuuga Nesting Armchair | C09.jpg | The chair has a continuous, curved back and rounded corners that wrap around the seat. The front edge is also curved, and there are no straight vertical or horizontal sides typical of rectangular or square shapes. These cues suggest the overall footprint is more rounded, resembling an oval or circle. | Circle / oval |\n| Poppy Lounge | 54523847-f2e3-44f1-bef9-538ed3b49e77.jpg | The chair's width (side-to-side) and depth (front-to-back) appear roughly equal when considering the shape of the seat, back, and arms. The front edge is slightly curved, but not significantly enough to create an oval or circular footprint. The overall form is compact with defined corners, indicating a square plan when viewed from above. | Square |\n| Cosima | OFSCosimav13Chairwr.jpg | The chair has straight arms and back, and the seat appears roughly as deep as it is wide when viewed from the front and side. There are no distinct curves or elongations suggesting a circular, oval, or distinctly rectangular (wide or deep) shape. | Square |\n| Gobi | 401.JPG | The chair has a curved front and back with rounded edges, and the arms smoothly transition from the back to the front in one continuous shape. The overall form suggests a rounded, non-rectilinear plan with no straight back or sides, typical of a lounge or barrel chair. This indicates a footprint that is best described as circular or oval. | Circle / oval |\n| Arcular - Lounge Chairs | 6655f27e87e8a14be5d9e71bArcularProduct11.jpg | The sofa is much wider from side to side than it is deep from front to back, as inferred from the three-seater size and the proportions visible. The arms curve gently but the overall footprint is still predominantly wider than it is deep. This matches typical sofa forms which fit the 'rectangle — wide' category. | Rectangle — wide |"
+}

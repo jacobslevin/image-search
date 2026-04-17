@@ -26,6 +26,8 @@ Standalone prototype for visual-first furniture search. It ingests the supplied 
 2. From this workspace, run `npm run normalize`.
    To normalize a curated single CSV instead of the legacy export folder:
    `npm run normalize -- --source "/Users/jacobslevin/Downloads/sample-project.csv"`
+   When a row has a Designer Pages product URL in `Website` or `Product URL`, normalization now prefers the live page gallery (`default_image` plus `additional_images`) and falls back to CSV image columns if the page fetch or parse fails.
+   For the new two-phase live intake flow, use `npm run intake:designerpages -- --source "/path/to/product-ids.csv"` with a one-column CSV of Designer Pages product IDs. This appends qualifying products into the shared catalog and writes flagged failures to `data/designerpages-intake-flagged.json`.
 3. Build the image index with one of the following:
 
    Production-intent prototype path:
@@ -124,6 +126,8 @@ Example response shape:
 ## Current limitations
 
 - The CSV importer tolerates mixed Latin-1 style exports, but does not attempt advanced schema inference beyond header names and image URL detection.
+- Live image extraction is currently implemented for Designer Pages product URLs only.
+- Designer Pages product-ID intake appends Phase 1-ready products into the shared catalog, but AI enrichment still requires running the separate indexing step.
 - Curated project CSVs are supported when they include at least `Product ID`, `Product Name`, `Image URL`, `Brand`, and `DP Categories`.
 - The local embedding implementation is intentionally simple so the prototype runs without extra dependencies.
 - The `demo` caption provider is for UI/debugging only; use the `openai` provider for actual image understanding.

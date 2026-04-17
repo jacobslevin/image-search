@@ -1,0 +1,533 @@
+{
+  "generated_at": "2026-04-14T19:59:17.159Z",
+  "prompt_version": "shape_character_soft_tapered_vs_boxy_v1",
+  "product_count": 58,
+  "counts": {
+    "Soft / tapered": 48,
+    "Boxy": 10
+  },
+  "results": [
+    {
+      "product_id": "product_c9595708db6b_13985761",
+      "product_name": "Driftâ¢",
+      "hero_url": "https://content.designerpages.com/assets/77828771/a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "filename": "a3292011-e0bd-45ea-9423-1ffc86d18af3.jpg",
+      "reasoning": "The overall body or shell of the chair is curved, especially along the back and sides. The arms also sweep outward as a whole form rather than maintaining a straight line. The back edge is not a perfectly straight horizontal line, and the silhouette narrows and then widens from the backrest to the seat. These characteristics fit the Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body or shell of the chair is curved, especially along the back and sides. The arms also sweep outward as a whole form rather than maintaining a straight line. The back edge is not a perfectly straight horizontal line, and the silhouette narrows and then widens from the backrest to the seat. These characteristics fit the Soft / tapered classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_4805cb71bcfe_13931115",
+      "product_name": "Blush",
+      "hero_url": "https://content.designerpages.com/assets/81130253/OFSBlush.jpg",
+      "filename": "OFSBlush.jpg",
+      "reasoning": "The arms are composed of a single, continuous curve at the front, forming a generous arc that dissolves the corner into a rounded shape. This arm curve is a major structural component and constitutes more than just slightly softened edges. The back edge itself is straight, and the overall body is rectilinear, but the clear presence of fully rounded arm corners and forms triggers classification as Soft / tapered.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms are composed of a single, continuous curve at the front, forming a generous arc that dissolves the corner into a rounded shape. This arm curve is a major structural component and constitutes more than just slightly softened edges. The back edge itself is straight, and the overall body is rectilinear, but the clear presence of fully rounded arm corners and forms triggers classification as Soft / tapered.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_aa8462b9e245_14104979",
+      "product_name": "Gobi",
+      "hero_url": "https://content.designerpages.com/assets/79271543/401.JPG",
+      "filename": "401.JPG",
+      "reasoning": "The chair has multiple curved features: the back edge sweeps in a gentle arc, the arms curve as a whole form rather than being straight or merely softened, and the overall body is smoothly rounded rather than rectilinear. These features all indicate a 'Soft / tapered' silhouette according to the provided rules.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The chair has multiple curved features: the back edge sweeps in a gentle arc, the arms curve as a whole form rather than being straight or merely softened, and the overall body is smoothly rounded rather than rectilinear. These features all indicate a 'Soft / tapered' silhouette according to the provided rules.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_735cd52fd346_11612764",
+      "product_name": "MOD Standard Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/77691119/d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "filename": "d9eb3756-a321-4573-88f9-b4e69e234ea9.jpg",
+      "reasoning": "The back edge is a straight horizontal line, the arms are straight and vertical, the overall body is rectilinear with consistent width and depth, and all corners remain visible and close to a 90 degree angle rather than being dissolved into curves. No major structural area demonstrates soft or tapered qualities.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The back edge is a straight horizontal line, the arms are straight and vertical, the overall body is rectilinear with consistent width and depth, and all corners remain visible and close to a 90 degree angle rather than being dissolved into curves. No major structural area demonstrates soft or tapered qualities.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_450e09e0a581_13946112",
+      "product_name": "Mitt",
+      "hero_url": "https://content.designerpages.com/assets/57290841/mitt_Mitt_PH_12_HR.jpg",
+      "filename": "mitt_Mitt_PH_12_HR.jpg",
+      "reasoning": "The back edge of the chairs curves rather than running in a straight horizontal line, the overall body/shell is fully curved, and the corners have dissolved into smooth, generous arcs with no visible corner points remaining. There are no rectilinear elements, and the forms are organic, not boxy.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The back edge of the chairs curves rather than running in a straight horizontal line, the overall body/shell is fully curved, and the corners have dissolved into smooth, generous arcs with no visible corner points remaining. There are no rectilinear elements, and the forms are organic, not boxy.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_75e31df50979_13931105",
+      "product_name": "Ani",
+      "hero_url": "https://content.designerpages.com/assets/78845521/ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "filename": "ofs02set01img16v02wr20220107299041mqc7hw.jpeg",
+      "reasoning": "The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body maintains consistent width and depth without narrowing or widening as a design feature, and the corners retain visible 90 degree angles rather than dissolving into smooth arcs. All criteria for Boxy are met.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  \"reasoning\": \"The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body maintains consistent width and depth without narrowing or widening as a design feature, and the corners retain visible 90 degree angles rather than dissolving into smooth arcs. All criteria for Boxy are met.\",\n  \"shape_character\": \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_cd2ac565a531_13933444",
+      "product_name": "Dess",
+      "hero_url": "https://content.designerpages.com/assets/64190031/LOE_dess_wr_07.jpg",
+      "filename": "LOE_dess_wr_07.jpg",
+      "reasoning": "The overall body of the chair is rectilinear with consistent width and depth, the back edge is a straight line, and the arms are straight except for a very slight curve where they meet the back (not enough to call the whole arm curved as a form). The corners read closer to 90 degree angles with only minimal softening, not a smooth arc. All criteria for 'Boxy' are met and none of the specific criteria for 'Soft / tapered' are strongly activated.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The overall body of the chair is rectilinear with consistent width and depth, the back edge is a straight line, and the arms are straight except for a very slight curve where they meet the back (not enough to call the whole arm curved as a form). The corners read closer to 90 degree angles with only minimal softening, not a smooth arc. All criteria for 'Boxy' are met and none of the specific criteria for 'Soft / tapered' are strongly activated.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_231fb820f522_13989292",
+      "product_name": "Cabana Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78228738/cabana-thumbnail.jpg",
+      "filename": "cabana-thumbnail.jpg",
+      "reasoning": "The back panel edges and corners are smoothly rounded, with the corner dissolving into a generous arc instead of a defined corner point. The silhouette at the seating and back panels does not read as sharp or strictly rectilinear; instead, the corners are closer to quarter circle arcs and the ends of the seat cushion are also rounded.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back panel edges and corners are smoothly rounded, with the corner dissolving into a generous arc instead of a defined corner point. The silhouette at the seating and back panels does not read as sharp or strictly rectilinear; instead, the corners are closer to quarter circle arcs and the ends of the seat cushion are also rounded.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_170c81b60b01_14010180",
+      "product_name": "Puff Puff 67\" Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78341096/pf1_studio_gy_puff-puff-studio-sofa-edwards-light-grey.jpg",
+      "filename": "pf1_studio_gy_puff-puff-studio-sofa-edwards-light-grey.jpg",
+      "reasoning": "The arms of the sofa curve as a whole form, with a pronounced rounded shape rather than a straight or rectilinear form. The corners of the main structural parts (arms and seat) have dissolved into smooth, generous arcs rather than visible corner points, which means they are closer to a quarter circle than a 90 degree angle.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms of the sofa curve as a whole form, with a pronounced rounded shape rather than a straight or rectilinear form. The corners of the main structural parts (arms and seat) have dissolved into smooth, generous arcs rather than visible corner points, which means they are closer to a quarter circle than a 90 degree angle.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_4e05d6635070_13931090",
+      "product_name": "Heya Retreat",
+      "hero_url": "https://content.designerpages.com/assets/81061614/OFSHeyawr04.jpg",
+      "filename": "OFSHeyawr04.jpg",
+      "reasoning": "The overall body and shell, especially the outer surround, have corners that have dissolved into smooth arcs (closer to a quarter circle than a 90 degree angle), especially in the top and sides. The back edge of the surrounding hood also curves rather than running as a straight line. Despite the seat and table inside being rectilinear, the major outer structure defines the silhouette and is curved.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell, especially the outer surround, have corners that have dissolved into smooth arcs (closer to a quarter circle than a 90 degree angle), especially in the top and sides. The back edge of the surrounding hood also curves rather than running as a straight line. Despite the seat and table inside being rectilinear, the major outer structure defines the silhouette and is curved.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_501f82ca9043_14050069",
+      "product_name": "Seba Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80313611/6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg",
+      "filename": "6476b8989f524689ef1066fcSebaLoungeIndexCrops.jpg",
+      "reasoning": "Both chairs feature an overall body and arms that are distinctly curved, with backs and arms forming a continuous sweep rather than straight lines. The corners transition into smooth arcs instead of visible 90-degree corners. The major structural components (backs, arms, and bases) all exhibit curved forms.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"Both chairs feature an overall body and arms that are distinctly curved, with backs and arms forming a continuous sweep rather than straight lines. The corners transition into smooth arcs instead of visible 90-degree corners. The major structural components (backs, arms, and bases) all exhibit curved forms.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_f6d4146c84dd_13717521",
+      "product_name": "Saiba Lounge Chair and Ottoman",
+      "hero_url": "https://content.designerpages.com/assets/62199121/Herman_Miller_Saiba_1.jpg",
+      "filename": "Herman_Miller_Saiba_1.jpg",
+      "reasoning": "The overall body and back edge of the chair are smoothly curved rather than straight. The arms also sweep upward in a fluid, continuous curve. The corners dissolve into generous arcs rather than forming visible corner points. These traits trigger classification as Soft / tapered.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and back edge of the chair are smoothly curved rather than straight. The arms also sweep upward in a fluid, continuous curve. The corners dissolve into generous arcs rather than forming visible corner points. These traits trigger classification as Soft / tapered.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_9d23ccd3a9ab_13945713",
+      "product_name": "Abra",
+      "hero_url": "https://content.designerpages.com/assets/80963498/CLL03.jpg",
+      "filename": "CLL03.jpg",
+      "reasoning": "The back edge is curved rather than running in a straight horizontal line, and the arms sweep in a continuous curve as part of the overall form. The body of the chair is also decisively curved and the corners dissolve into smooth arcs rather than remaining visible points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge is curved rather than running in a straight horizontal line, and the arms sweep in a continuous curve as part of the overall form. The body of the chair is also decisively curved and the corners dissolve into smooth arcs rather than remaining visible points.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_ef2e358a6a84_14105961",
+      "product_name": "Kithara",
+      "hero_url": "https://content.designerpages.com/assets/82671016/Kithara0.jpg",
+      "filename": "Kithara0.jpg",
+      "reasoning": "The back edge is a straight horizontal line, and the arms are straight and perpendicular to the seat. The overall body is rectilinear with consistent width and depth, and while the corners are slightly softened, they still read as visible corner points closer to a 90 degree angle than a quarter circle arc. There is no significant tapering, curving arms, or shell curvature as a design feature.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The back edge is a straight horizontal line, and the arms are straight and perpendicular to the seat. The overall body is rectilinear with consistent width and depth, and while the corners are slightly softened, they still read as visible corner points closer to a 90 degree angle than a quarter circle arc. There is no significant tapering, curving arms, or shell curvature as a design feature.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_82daa52c758e_13945979",
+      "product_name": "Becca - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/77831551/c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "filename": "c89ade58-8342-4cb5-bd17-6b53f2c34302.jpeg",
+      "reasoning": "The back edge curves rather than running in a straight horizontal line, the arms sweep in a continuous curve as a whole form, the overall body is curved, and there are no visible sharp corners—corners have dissolved into smooth arcs. These features all trigger the Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge curves rather than running in a straight horizontal line, the arms sweep in a continuous curve as a whole form, the overall body is curved, and there are no visible sharp corners—corners have dissolved into smooth arcs. These features all trigger the Soft / tapered classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_374f7779ff2b_13890797",
+      "product_name": "Neesh",
+      "hero_url": "https://content.designerpages.com/assets/81066812/Neesh94020WSV2.jpg",
+      "filename": "Neesh94020WSV2.jpg",
+      "reasoning": "The overall body and back panel are curved rather than rectilinear, and the arms sweep upward in a curved, flowing form. The shell of the chair is not boxy, and corners have dissolved into smooth arcs rather than remaining as visible corners.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and back panel are curved rather than rectilinear, and the arms sweep upward in a curved, flowing form. The shell of the chair is not boxy, and corners have dissolved into smooth arcs rather than remaining as visible corners.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_58f1505a9747_13890787",
+      "product_name": "Hout",
+      "hero_url": "https://content.designerpages.com/assets/81445858/KHHout.jpg",
+      "filename": "KHHout.jpg",
+      "reasoning": "The major structural components—the back panel, seat, and arms—are all curved. The back edge curves rather than being a straight horizontal line, and the overall body/shell is composed of smooth, rounded forms. The corners are also generously curved, dissolving into smooth arcs rather than retaining visible corner points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The major structural components—the back panel, seat, and arms—are all curved. The back edge curves rather than being a straight horizontal line, and the overall body/shell is composed of smooth, rounded forms. The corners are also generously curved, dissolving into smooth arcs rather than retaining visible corner points.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_0196e5710d1b_10870591",
+      "product_name": "Conexus High Back Upholstered Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/70745111/087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "filename": "087b2706-c7af-41d4-884d-d6cbb544be70.png",
+      "reasoning": "The arms of the chair curve as a whole form, sweeping up from the seat in a continuous curved motion rather than a straight line. The overall body also features curved lines rather than being strictly rectilinear. These features fulfill multiple criteria for the Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms of the chair curve as a whole form, sweeping up from the seat in a continuous curved motion rather than a straight line. The overall body also features curved lines rather than being strictly rectilinear. These features fulfill multiple criteria for the Soft / tapered classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_5cfec51f1afa_13931161",
+      "product_name": "Kasura - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/78184394/OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "filename": "OFS_Webb_Tub_v25_WT_Low_Back_Assembly-Glide0001_wr.jpg",
+      "reasoning": "The back edge and arms of the chair curve as a whole form, and the overall body has a rounded, shell-like silhouette. The corners dissolve into smooth arcs rather than remaining visible 90-degree angles. These characteristics fit the Soft / tapered criteria.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge and arms of the chair curve as a whole form, and the overall body has a rounded, shell-like silhouette. The corners dissolve into smooth arcs rather than remaining visible 90-degree angles. These characteristics fit the Soft / tapered criteria.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_cae9f57cb82f_13945982",
+      "product_name": "Belmont",
+      "hero_url": "https://content.designerpages.com/assets/78877674/BelmontPhoto19HR.jpg",
+      "filename": "BelmontPhoto19HR.jpg",
+      "reasoning": "The back edge curves, especially at the top corners, rather than running in a straight horizontal line. The arms also have a pronounced sweep, bending outward in a continuous curve rather than staying rectilinear. Additionally, the overall body appears to taper slightly and feels more sculpted than purely rectilinear. These characteristics trigger the Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge curves, especially at the top corners, rather than running in a straight horizontal line. The arms also have a pronounced sweep, bending outward in a continuous curve rather than staying rectilinear. Additionally, the overall body appears to taper slightly and feels more sculpted than purely rectilinear. These characteristics trigger the Soft / tapered classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_ea784919b15d_13945968",
+      "product_name": "Astra",
+      "hero_url": "https://content.designerpages.com/assets/77808813/26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "filename": "26b604d8-969e-4d4f-a3cf-79873b75142c.jpeg",
+      "reasoning": "The overall body and back edge of the chair are curved, and the arms as a whole sweep in a continuous curve rather than being straight. The silhouette lacks visible corner points, with all corners dissolved into smooth arcs.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and back edge of the chair are curved, and the arms as a whole sweep in a continuous curve rather than being straight. The silhouette lacks visible corner points, with all corners dissolved into smooth arcs.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_f68c5d59f02d_13944731",
+      "product_name": "Parallel Lounge",
+      "hero_url": "https://content.designerpages.com/assets/71079931/4d340b5b-2c33-4d3f-b69c-f14aa8e2d7fd.jpg",
+      "filename": "4d340b5b-2c33-4d3f-b69c-f14aa8e2d7fd.jpg",
+      "reasoning": "The sofa's back edge is a straight horizontal line, the arms are straight without any significant sweeping curve, the overall body is rectilinear and consistent in width, and the corners maintain a visible 90-degree angle rather than dissolving into a smooth arc. No major structural components show curvature or deliberate tapering as a design feature.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The sofa's back edge is a straight horizontal line, the arms are straight without any significant sweeping curve, the overall body is rectilinear and consistent in width, and the corners maintain a visible 90-degree angle rather than dissolving into a smooth arc. No major structural components show curvature or deliberate tapering as a design feature.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_3704838b4f42_13946006",
+      "product_name": "Chiara",
+      "hero_url": "https://content.designerpages.com/assets/53054942/chiara_12.jpg",
+      "filename": "chiara_12.jpg",
+      "reasoning": "The overall body and shell of the chair are distinctly curved, with the back and arms smoothly sweeping in a continuous arc. The silhouette does not present any visible corners, and the form does not have straight lines or rectilinear shapes. The entire back edge curves instead of running straight.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The overall body and shell of the chair are distinctly curved, with the back and arms smoothly sweeping in a continuous arc. The silhouette does not present any visible corners, and the form does not have straight lines or rectilinear shapes. The entire back edge curves instead of running straight.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_57ce0e255162_14050067",
+      "product_name": "Sachet Lounge",
+      "hero_url": "https://content.designerpages.com/assets/79004232/C18DAVISSACHETMIDBACK.jpg",
+      "filename": "C18DAVISSACHETMIDBACK.jpg",
+      "reasoning": "The overall body and shell of the chair are curved, and the arms sweep in a continuous curve rather than being straight. The back edge is also slightly curved rather than running strictly horizontal. These are indicators from the Soft / tapered criteria.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the chair are curved, and the arms sweep in a continuous curve rather than being straight. The back edge is also slightly curved rather than running strictly horizontal. These are indicators from the Soft / tapered criteria.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_9bbf0f4416cc_13884211",
+      "product_name": "Axial Modular Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81468425/AxialModularSofa0.jpg",
+      "filename": "AxialModularSofa0.jpg",
+      "reasoning": "The back edge is a straight line, the arms are straight with no sweeping curves or tapering, the overall body is rectilinear with consistent width and depth, and the corners, while somewhat softened, still read as visible corners much closer to 90 degrees than to a quarter circle arc.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  \"reasoning\": \"The back edge is a straight line, the arms are straight with no sweeping curves or tapering, the overall body is rectilinear with consistent width and depth, and the corners, while somewhat softened, still read as visible corners much closer to 90 degrees than to a quarter circle arc.\",\n  \"shape_character\": \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_99030faaf1a2_13945981",
+      "product_name": "Becca - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78880902/BeccaPhoto18HR.jpg",
+      "filename": "BeccaPhoto18HR.jpg",
+      "reasoning": "The overall body and shell of the sofa are curved, with the back edge and arms sweeping in smooth, continuous arcs rather than forming straight lines. The corners of the sofa have dissolved into smooth, generous curves that resemble quarter circle arcs much more than 90 degree angles. These characteristics clearly meet the criteria for a Soft / tapered silhouette.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The overall body and shell of the sofa are curved, with the back edge and arms sweeping in smooth, continuous arcs rather than forming straight lines. The corners of the sofa have dissolved into smooth, generous curves that resemble quarter circle arcs much more than 90 degree angles. These characteristics clearly meet the criteria for a Soft / tapered silhouette.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_0164528e3518_11819235",
+      "product_name": "Platner Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/78555632/Thumbplatnerloungechairthumb5.png",
+      "filename": "Thumbplatnerloungechairthumb5.png",
+      "reasoning": "The back edge of the chair is clearly curved rather than running in a straight line, the arms sweep as a continuous curve, and the overall shell of the chair is rounded with no visible corner points. The major structural components dissolve into smooth arcs, classifying it as Soft / tapered.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge of the chair is clearly curved rather than running in a straight line, the arms sweep as a continuous curve, and the overall shell of the chair is rounded with no visible corner points. The major structural components dissolve into smooth arcs, classifying it as Soft / tapered.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_e83fa8d91705_14049343",
+      "product_name": "A-Bench - Sofas",
+      "hero_url": "https://content.designerpages.com/assets/82362660/621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "filename": "621ed29fa8676a1bb07648efABenchSofa.jpg",
+      "reasoning": "The arms and back of the piece curve as whole forms rather than being straight lines, and the corners have dissolved into a smooth, generous arc rather than a visible corner point. The overall body also presents a curved shell.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms and back of the piece curve as whole forms rather than being straight lines, and the corners have dissolved into a smooth, generous arc rather than a visible corner point. The overall body also presents a curved shell.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_1f29aaa671ce_14057734",
+      "product_name": "Clipse",
+      "hero_url": "https://content.designerpages.com/assets/82415261/627006600x600.jpg",
+      "filename": "627006600x600.jpg",
+      "reasoning": "The arms and back edges are straight, not curved. The overall body is rectilinear, but the arms appear to angle outward from back to front as a deliberate design feature (not due to camera perspective), creating a tapering effect. The corners are not dissolved into a smooth arc but are slightly softened while remaining visible corner points. The clear taper from back to front arms triggers the 'Soft / tapered' classification by rule.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms and back edges are straight, not curved. The overall body is rectilinear, but the arms appear to angle outward from back to front as a deliberate design feature (not due to camera perspective), creating a tapering effect. The corners are not dissolved into a smooth arc but are slightly softened while remaining visible corner points. The clear taper from back to front arms triggers the 'Soft / tapered' classification by rule.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_07cd4ea59111_14107462",
+      "product_name": "Jovalie",
+      "hero_url": "https://content.designerpages.com/assets/79900300/Jovalie2.png",
+      "filename": "Jovalie2.png",
+      "reasoning": "The overall body and shell are curved, the back edge curves rather than running in a straight horizontal line, and the arms sweep in a continuous curve. The corners have dissolved into smooth arcs rather than remaining visible corner points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell are curved, the back edge curves rather than running in a straight horizontal line, and the arms sweep in a continuous curve. The corners have dissolved into smooth arcs rather than remaining visible corner points.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_387e5dd376f4_13802237",
+      "product_name": "JINX Soft Seating",
+      "hero_url": "https://content.designerpages.com/assets/78687203/jinxsoftseating2018d202104151349715ale3r.jpeg",
+      "filename": "jinxsoftseating2018d202104151349715ale3r.jpeg",
+      "reasoning": "The overall body and back edge of the chair are distinctly rounded and curved, with no straight lines forming the main silhouette. The arms sweep as a whole and the corners have dissolved into smooth, generous arcs rather than retaining a visible corner point. The shape is organic and curved rather than rectilinear.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The overall body and back edge of the chair are distinctly rounded and curved, with no straight lines forming the main silhouette. The arms sweep as a whole and the corners have dissolved into smooth, generous arcs rather than retaining a visible corner point. The shape is organic and curved rather than rectilinear.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_027ab3199241_13946135",
+      "product_name": "Prelude - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80720210/PreludeLoungeImageGallery183.jpg",
+      "filename": "PreludeLoungeImageGallery183.jpg",
+      "reasoning": "The back edge curves rather than running in a straight horizontal line, the arms sweep in a continuous curved form, and the overall body of the chair is curved with no visible 90-degree corners. The corners are dissolved into arcs rather than visible points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The back edge curves rather than running in a straight horizontal line, the arms sweep in a continuous curved form, and the overall body of the chair is curved with no visible 90-degree corners. The corners are dissolved into arcs rather than visible points.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_ec05ab4a8b9a_13946102",
+      "product_name": "Luca - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/78075896/LucaSofa_Drawing_01_LR20191205-26989-1ovvkca.jpeg",
+      "filename": "LucaSofa_Drawing_01_LR20191205-26989-1ovvkca.jpeg",
+      "reasoning": "The arms of the sofa curve as a whole form, sweeping outward in a smooth arc. The overall body or shell is curved, and the corners have dissolved into smooth, generous arcs rather than remaining visible corners. These features trigger the Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms of the sofa curve as a whole form, sweeping outward in a smooth arc. The overall body or shell is curved, and the corners have dissolved into smooth, generous arcs rather than remaining visible corners. These features trigger the Soft / tapered classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_686e4be74777_13945990",
+      "product_name": "Bombom",
+      "hero_url": "https://content.designerpages.com/assets/78044437/Bombom_Drawing_01_LR20191118-956-ba19f2.jpeg",
+      "filename": "Bombom_Drawing_01_LR20191118-956-ba19f2.jpeg",
+      "reasoning": "The back edge and overall shell of the chair are clearly curved rather than straight, and the corners have dissolved into a smooth arc closer to a quarter circle than to a sharp 90 degree angle. The body forms a rounded, enveloping shape rather than a rectilinear box.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge and overall shell of the chair are clearly curved rather than straight, and the corners have dissolved into a smooth arc closer to a quarter circle than to a sharp 90 degree angle. The body forms a rounded, enveloping shape rather than a rectilinear box.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_4a3593a321bc_13909365",
+      "product_name": "CÄav",
+      "hero_url": "https://content.designerpages.com/assets/80506960/jsicaavcomp00002.jpg",
+      "filename": "jsicaavcomp00002.jpg",
+      "reasoning": "The back edge and arms of the chair both curve, not just at the ends but as a whole form. The corners are very rounded, reading much closer to quarter circle arcs than to defined 90-degree corners. The overall silhouette is soft and the body shell is curved.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge and arms of the chair both curve, not just at the ends but as a whole form. The corners are very rounded, reading much closer to quarter circle arcs than to defined 90-degree corners. The overall silhouette is soft and the body shell is curved.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_922c48edb7c8_13958173",
+      "product_name": "Flote Sofa - Three-Seat",
+      "hero_url": "https://content.designerpages.com/assets/81940989/FloteSofaThreeSeat01.jpg",
+      "filename": "FloteSofaThreeSeat01.jpg",
+      "reasoning": "The overall body and shell of the sofa are distinctly curved, with the back and arms forming smooth, sweeping arcs. The corners dissolve into generous curves rather than reading as visible 90-degree points. These features all indicate a 'Soft / tapered' silhouette according to the rules.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the sofa are distinctly curved, with the back and arms forming smooth, sweeping arcs. The corners dissolve into generous curves rather than reading as visible 90-degree points. These features all indicate a 'Soft / tapered' silhouette according to the rules.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_0dbf2f9b5b2c_13909426",
+      "product_name": "Teekan",
+      "hero_url": "https://content.designerpages.com/assets/79052389/JSITeekanTwoSeat.jpg",
+      "filename": "JSITeekanTwoSeat.jpg",
+      "reasoning": "The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body is a consistent width and rectangular form, and the corners are visibly close to 90 degree angles (not dissolved into generous curves). All boxy criteria are met, and none of the soft/tapered triggers are present.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body is a consistent width and rectangular form, and the corners are visibly close to 90 degree angles (not dissolved into generous curves). All boxy criteria are met, and none of the soft/tapered triggers are present.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_2c5a390f0e66_13989642",
+      "product_name": "Poppy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/75537041/54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "filename": "54523847-f2e3-44f1-bef9-538ed3b49e77.jpg",
+      "reasoning": "The overall body and shell of the chair are clearly curved, with the front edge forming a smooth arc and the arms sweeping outward in a rounded form. The back edge is not a strict straight line and the corners are dissolving into generous curves rather than reading as visible corners.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the chair are clearly curved, with the front edge forming a smooth arc and the arms sweeping outward in a rounded form. The back edge is not a strict straight line and the corners are dissolving into generous curves rather than reading as visible corners.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_0f7b9724f200_13958701",
+      "product_name": "Gimbal Lounge Chair, Highback - Rocker Base",
+      "hero_url": "https://content.designerpages.com/assets/81942209/HTGM005GimbalHighbackLoungeRocker01.jpg",
+      "filename": "HTGM005GimbalHighbackLoungeRocker01.jpg",
+      "reasoning": "The overall body and arms are curved, and the corners have dissolved into smooth arcs rather than visible corner points. The silhouette has a soft, rounded character rather than strict rectilinear lines.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The overall body and arms are curved, and the corners have dissolved into smooth arcs rather than visible corner points. The silhouette has a soft, rounded character rather than strict rectilinear lines.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_bb5e85c3bec5_13717519",
+      "product_name": "Reframe Lounge Seating",
+      "hero_url": "https://content.designerpages.com/assets/79337945/ProductImage.PNG",
+      "filename": "ProductImage.PNG",
+      "reasoning": "The arms as a whole curve gently, sweeping upward and outward rather than forming a completely straight or rectilinear profile. The corners, especially at the front of the arms, dissolve into generous arcs rather than distinct 90-degree angles. The overall shell of the chair is more curved than strictly rectilinear.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms as a whole curve gently, sweeping upward and outward rather than forming a completely straight or rectilinear profile. The corners, especially at the front of the arms, dissolve into generous arcs rather than distinct 90-degree angles. The overall shell of the chair is more curved than strictly rectilinear.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_4755720d5ee2_13909356",
+      "product_name": "Arwyn",
+      "hero_url": "https://content.designerpages.com/assets/79048787/JSIArwynCrossoverLounge.jpg",
+      "filename": "JSIArwynCrossoverLounge.jpg",
+      "reasoning": "The overall body and shell of the chair are curved, and the arms sweep upward along a smooth arc rather than forming straight or rectilinear lines. The silhouette noticeably narrows toward the top, and the corners have dissolved into smooth arcs rather than remaining as 90 degree angles. These features clearly meet multiple criteria for Soft / tapered.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the chair are curved, and the arms sweep upward along a smooth arc rather than forming straight or rectilinear lines. The silhouette noticeably narrows toward the top, and the corners have dissolved into smooth arcs rather than remaining as 90 degree angles. These features clearly meet multiple criteria for Soft / tapered.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_d7617cf8df24_13933447",
+      "product_name": "Elara - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/80675978/CARElaralounge9821S010.jpg",
+      "filename": "CARElaralounge9821S010.jpg",
+      "reasoning": "The overall body and arms of the chair curve smoothly, especially at the front corners and upper arms, resulting in a shell that is clearly rounded rather than rectilinear. The corners have dissolved into generous arcs instead of visible 90 degree points. The shape narrows slightly from the front to the back as a design feature. These attributes match multiple criteria for Soft / tapered.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The overall body and arms of the chair curve smoothly, especially at the front corners and upper arms, resulting in a shell that is clearly rounded rather than rectilinear. The corners have dissolved into generous arcs instead of visible 90 degree points. The shape narrows slightly from the front to the back as a design feature. These attributes match multiple criteria for Soft / tapered.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_ba09ac78ec7a_13934283",
+      "product_name": "Cosima",
+      "hero_url": "https://content.designerpages.com/assets/81784754/OFSCosimav13Chairwr.jpg",
+      "filename": "OFSCosimav13Chairwr.jpg",
+      "reasoning": "The back edge of the chair is curved rather than forming a straight horizontal line. The corners of the back also transition into smooth, generous arcs rather than remaining as visible corners. These attributes trigger a classification of Soft / tapered based on the provided rules.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge of the chair is curved rather than forming a straight horizontal line. The corners of the back also transition into smooth, generous arcs rather than remaining as visible corners. These attributes trigger a classification of Soft / tapered based on the provided rules.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_b0bec9ec4ab6_14050073",
+      "product_name": "Soft Privacy",
+      "hero_url": "https://content.designerpages.com/assets/78266072/DAVIS_SOFTPRIVACY.jpg",
+      "filename": "DAVIS_SOFTPRIVACY.jpg",
+      "reasoning": "The overall body and shell of the chair are visibly curved, with both the back edge and the arms forming sweeping curves rather than straight lines. The silhouette is not rectilinear and does not maintain consistent width and depth. The curves are a defining aspect of the design.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the chair are visibly curved, with both the back edge and the arms forming sweeping curves rather than straight lines. The silhouette is not rectilinear and does not maintain consistent width and depth. The curves are a defining aspect of the design.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_0d66b33a0bf2_14049534",
+      "product_name": "Arcular - Lounge Chairs",
+      "hero_url": "https://content.designerpages.com/assets/80873346/6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "filename": "6655f27e87e8a14be5d9e71bArcularProduct11.jpg",
+      "reasoning": "The back edge of the sofa curves rather than running in a straight horizontal line, the arms sweep as a whole form, and the overall body has a curved shell. The corners are also generous arcs rather than visible points. These are clear triggers for the 'Soft / tapered' classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge of the sofa curves rather than running in a straight horizontal line, the arms sweep as a whole form, and the overall body has a curved shell. The corners are also generous arcs rather than visible points. These are clear triggers for the 'Soft / tapered' classification.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_fc112c135d70_13890748",
+      "product_name": "ABL",
+      "hero_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "filename": "ABL.jpg",
+      "reasoning": "The arms as a whole curve outward and downward in a continuous arc, and the overall body/shell of the chair features generous, flowing curves rather than strict rectilinear lines. The seat shell gently dissolves into the armrests, and the major corners (such as where the arms meet the sides and front) read much closer to a quarter circle arc than a defined corner.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms as a whole curve outward and downward in a continuous arc, and the overall body/shell of the chair features generous, flowing curves rather than strict rectilinear lines. The seat shell gently dissolves into the armrests, and the major corners (such as where the arms meet the sides and front) read much closer to a quarter circle arc than a defined corner.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_f9b43e62b30e_13946003",
+      "product_name": "Chapelle - Lounge",
+      "hero_url": "https://content.designerpages.com/assets/81879528/ChapelleImageGallery021.jpg",
+      "filename": "ChapelleImageGallery021.jpg",
+      "reasoning": "The back edge of the sofa curves upward at the corner rather than forming a straight horizontal line. The arm on the left sweeps upward and outward in a continuous curve, and the entire body of the sofa has a curved shell on at least one side. These are clear design-intent curves and not subtle softening or the result of perspective. The corner where the back meets the arm dissolves into a smooth generous arc without a visible corner point.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The back edge of the sofa curves upward at the corner rather than forming a straight horizontal line. The arm on the left sweeps upward and outward in a continuous curve, and the entire body of the sofa has a curved shell on at least one side. These are clear design-intent curves and not subtle softening or the result of perspective. The corner where the back meets the arm dissolves into a smooth generous arc without a visible corner point.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_8257b15cd55d_14097275",
+      "product_name": "Bowie Armchair",
+      "hero_url": "https://content.designerpages.com/assets/82581437/C14B.jpg",
+      "filename": "C14B.jpg",
+      "reasoning": "The back edge and overall body are clearly curved, not straight. The arms also curve as an overall form rather than running straight. The corners are smooth and rounded, dissolving into gentle arcs rather than maintaining visible corners.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The back edge and overall body are clearly curved, not straight. The arms also curve as an overall form rather than running straight. The corners are smooth and rounded, dissolving into gentle arcs rather than maintaining visible corners.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_2e42b4a4a525_14097276",
+      "product_name": "Fuuga Nesting Armchair",
+      "hero_url": "https://content.designerpages.com/assets/82581458/C09.jpg",
+      "filename": "C09.jpg",
+      "reasoning": "The overall body and shell of the chair are curved, with the back edge and arms forming a continuous arc. The corners are smooth and dissolve into a generous curve, with no visible corner points. The design does not follow straight lines and rectilinear forms.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and shell of the chair are curved, with the back edge and arms forming a continuous arc. The corners are smooth and dissolve into a generous curve, with no visible corner points. The design does not follow straight lines and rectilinear forms.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_369be2770571_14050009",
+      "product_name": "JP Lounge - Privacy Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82365446/621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "filename": "621ede96332db81d68d0e355JP20LoungePrivacy.jpg",
+      "reasoning": "The major structural components—the back edge and arms—are straight and form clear 90 degree angles at the corners. The back is a straight horizontal line, the arms are vertical and meet the back at right angles, and the body is rectilinear with consistent width. There are no sweeping curves or major tapers in the silhouette, and the corners read as visible, not generous arcs.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The major structural components—the back edge and arms—are straight and form clear 90 degree angles at the corners. The back is a straight horizontal line, the arms are vertical and meet the back at right angles, and the body is rectilinear with consistent width. There are no sweeping curves or major tapers in the silhouette, and the corners read as visible, not generous arcs.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_3e280432f637_91254",
+      "product_name": "Iris",
+      "hero_url": "https://content.designerpages.com/assets/82668660/igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "filename": "igprdovwnemschoffirisloungechair06.jpg.rendition.1152.1152.png",
+      "reasoning": "The arms of the chair sweep in a continuous curve from the seat up to the back, and the overall body shell has a curved silhouette. These curved features mean it does not maintain the rectilinear, straight-edged requirements for Boxy.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The arms of the chair sweep in a continuous curve from the seat up to the back, and the overall body shell has a curved silhouette. These curved features mean it does not maintain the rectilinear, straight-edged requirements for Boxy.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_274381eca4e4_13890830",
+      "product_name": "Verge",
+      "hero_url": "https://content.designerpages.com/assets/78931170/Verge.jpg",
+      "filename": "Verge.jpg",
+      "reasoning": "The back edge and overall body of the chair are clearly curved, with the form presenting as an enveloping smooth arc. The arms also sweep in a curved trajectory rather than being straight. The corners have dissolved into a smooth shape rather than retaining visible points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge and overall body of the chair are clearly curved, with the form presenting as an enveloping smooth arc. The arms also sweep in a curved trajectory rather than being straight. The corners have dissolved into a smooth shape rather than retaining visible points.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_1d040726e4e3_14038343",
+      "product_name": "Nordic Lounge",
+      "hero_url": "https://content.designerpages.com/assets/82283567/683621bd22824394a2cc63c4nordiclounge.jpg",
+      "filename": "683621bd22824394a2cc63c4nordiclounge.jpg",
+      "reasoning": "The back edge and overall body of the chair are curved, and the corners have dissolved into smooth arcs rather than visible corner points. These features indicate a Soft / tapered silhouette.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge and overall body of the chair are curved, and the corners have dissolved into smooth arcs rather than visible corner points. These features indicate a Soft / tapered silhouette.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_f1b4cb162ed4_13959657",
+      "product_name": "Nest Easy Lounge Chair, Metal Base - with Table",
+      "hero_url": "https://content.designerpages.com/assets/80944883/ChairLoungeHightowerNest.JPG",
+      "filename": "ChairLoungeHightowerNest.JPG",
+      "reasoning": "The overall body and back panel are curved, with the back edge forming a continuous arc rather than a straight line. The arms also curve as part of the overall shell, and the corners have dissolved into smooth arcs rather than remaining visible corner points.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The overall body and back panel are curved, with the back edge forming a continuous arc rather than a straight line. The arms also curve as part of the overall shell, and the corners have dissolved into smooth arcs rather than remaining visible corner points.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_5e3ba5935350_13946067",
+      "product_name": "Harmony Classic - Sofa",
+      "hero_url": "https://content.designerpages.com/assets/77953117/a92ac0b2-b192-49e5-abd3-07518e0fc543.jpg",
+      "filename": "a92ac0b2-b192-49e5-abd3-07518e0fc543.jpg",
+      "reasoning": "The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body is rectilinear with consistent width and depth, and the corners read closer to a 90-degree angle rather than a smooth arc. There are no major curves or design tapers in the main structural components.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The back edge is a straight horizontal line, the arms are straight and rectilinear, the overall body is rectilinear with consistent width and depth, and the corners read closer to a 90-degree angle rather than a smooth arc. There are no major curves or design tapers in the main structural components.\",\n  shape_character: \"Boxy\"\n}"
+    },
+    {
+      "product_id": "product_77f37a7c9e40_14010227",
+      "product_name": "Acre Lounge Chair",
+      "hero_url": "https://content.designerpages.com/assets/82224394/ac1lngchrma34frontlow.jpg",
+      "filename": "ac1lngchrma34frontlow.jpg",
+      "reasoning": "The back edge curves rather than running in a straight line, the arms curve as a whole form, the overall body is curved, and the corners read as smooth arcs rather than visible corners.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  reasoning: \"The back edge curves rather than running in a straight line, the arms curve as a whole form, the overall body is curved, and the corners read as smooth arcs rather than visible corners.\",\n  shape_character: \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_c65ef43d7c1d_13959752",
+      "product_name": "Flote Sofa, Two-Seat - Zipper Detail",
+      "hero_url": "https://content.designerpages.com/assets/81944959/HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "filename": "HTFE120FloteSofaTwoSeatZipper01.jpg",
+      "reasoning": "The back edge and arms of the sofa are both distinctly curved as major features, creating a continuous soft arc. The overall body has a rounded shell, and none of the corners present as visible corner points; instead, they appear as smooth generous curves. These characteristics meet several criteria for Soft / tapered classification.",
+      "shape_character": "Soft / tapered",
+      "raw_response": "{\n  \"reasoning\": \"The back edge and arms of the sofa are both distinctly curved as major features, creating a continuous soft arc. The overall body has a rounded shell, and none of the corners present as visible corner points; instead, they appear as smooth generous curves. These characteristics meet several criteria for Soft / tapered classification.\",\n  \"shape_character\": \"Soft / tapered\"\n}"
+    },
+    {
+      "product_id": "product_a2738837a6b6_13886928",
+      "product_name": "Arbour Sofa",
+      "hero_url": "https://content.designerpages.com/assets/81500149/thprdarboursofaloungeseatingfn.jpg",
+      "filename": "thprdarboursofaloungeseatingfn.jpg",
+      "reasoning": "The major structural components (wooden frame of the back, arms, and base) are all straight lines, forming visible corners that are close to 90 degrees rather than dissolving into smooth arcs. The overall body is rectilinear with consistent width and depth, and there is no clear tapering or curvature as a design feature. The back edge is straight, and the arms are straight as well (not curving as whole forms). The soft cushions do not affect the core silhouette classification, as only the main structural elements count.",
+      "shape_character": "Boxy",
+      "raw_response": "{\n  reasoning: \"The major structural components (wooden frame of the back, arms, and base) are all straight lines, forming visible corners that are close to 90 degrees rather than dissolving into smooth arcs. The overall body is rectilinear with consistent width and depth, and there is no clear tapering or curvature as a design feature. The back edge is straight, and the arms are straight as well (not curving as whole forms). The soft cushions do not affect the core silhouette classification, as only the main structural elements count.\",\n  shape_character: \"Boxy\"\n}"
+    }
+  ]
+}

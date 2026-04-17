@@ -4,11 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseSearchQuery } from "../src/query-parser.js";
 import { searchIndex } from "../src/search.js";
+import { getImageIndexPath } from "../src/utils.js";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const rootDir = path.resolve(path.dirname(scriptPath), "..");
 const evalPath = path.join(rootDir, "eval", "problem-queries.json");
-const indexPath = path.join(rootDir, "data", "image-index.json");
+const indexPath = getImageIndexPath();
 const baseUrl = process.env.EVAL_BASE_URL || "http://127.0.0.1:3001";
 const forceLocalMode = String(process.env.EVAL_LOCAL || "").toLowerCase() === "1";
 

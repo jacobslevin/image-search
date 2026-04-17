@@ -4,12 +4,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isRoomSceneVisualSummary, resolveQueryEmbedding, searchIndex } from "../src/search.js";
-import { writeJson } from "../src/utils.js";
+import { getImageIndexPath, writeJson } from "../src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
-const indexPath = path.join(rootDir, "data", "image-index.json");
+const indexPath = getImageIndexPath();
 const outputPath = path.join(rootDir, "scripts", "eval-results.json");
 const envFiles = [
   path.join(rootDir, ".env.local"),

@@ -3,3 +3,5 @@
 node_modules/
 .DS_Store
 data/image-index.json
+scripts/eval-judgments.json
+scripts/eval-results.json

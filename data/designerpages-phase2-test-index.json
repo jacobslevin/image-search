@@ -1,0 +1,163 @@
+{
+  "generated_at": "2026-04-15T19:22:51.657Z",
+  "provider": "openai",
+  "totals": {
+    "products": 3,
+    "images": 0
+  },
+  "brands": [
+    "Andreu World America Furniture",
+    "Davis Furniture",
+    "Encore"
+  ],
+  "categories": [
+    "Occasional Tables",
+    "Outdoor Tables"
+  ],
+  "products": [
+    {
+      "product_id": "product_dp_13884543",
+      "product_name": "Bolete Occasional Table",
+      "name": "Bolete Occasional Table",
+      "brand": "Andreu World America Furniture",
+      "a_level": [],
+      "b_level": [
+        "Occasional Tables"
+      ],
+      "c_level": [],
+      "image_urls": [
+        "https://content.designerpages.com/assets/81470275/BoleteOccasionalTable0.jpg",
+        "https://content.designerpages.com/assets/81470321/boleteoccasionaltableandreuworld1.jpg",
+        "https://content.designerpages.com/assets/81470331/boleteoccasionaltableandreuworld2.jpg",
+        "https://content.designerpages.com/assets/81470345/boleteoccasionaltableandreuworld3.jpg",
+        "https://content.designerpages.com/assets/81470407/boleteoccasionaltableandreuworld4.jpg",
+        "https://content.designerpages.com/assets/81470494/boleteoccasionaltableandreuworld5.jpg"
+      ],
+      "passing_image_count": 0
+    },
+    {
+      "product_id": "product_dp_14049593",
+      "product_name": "Ginkgo Wire Table - Occasional Tables",
+      "name": "Ginkgo Wire Table - Occasional Tables",
+      "brand": "Davis Furniture",
+      "a_level": [],
+      "b_level": [
+        "Occasional Tables",
+        "Outdoor Tables"
+      ],
+      "c_level": [],
+      "image_urls": [
+        "https://content.designerpages.com/assets/82364312/621ee520bed9c1cf34bed2f5Ginkgo20WireOcc20Table.jpg",
+        "https://content.designerpages.com/assets/82364319/61f458b79d03da2bcb3e6c51GWTProduct02.jpg",
+        "https://content.designerpages.com/assets/82364333/61f458ce9d03da51df3e6c73GWTProduct12.jpg",
+        "https://content.designerpages.com/assets/82364345/61f458ce9d03da6b6c3e6c74GWTProduct13.jpg",
+        "https://content.designerpages.com/assets/82364353/61f458b7da60ebd998b57f42GWTProduct03.jpg",
+        "https://content.designerpages.com/assets/82364363/61f45df587e18a84d9e3a55fGWTPhoto20Gallery03.jpg",
+        "https://content.designerpages.com/assets/82364376/61f458c587e18a5210de9bffGWTProduct08.jpg",
+        "https://content.designerpages.com/assets/82364390/61f458b7da60eba6cdb57f41GWTProduct01.jpg",
+        "https://content.designerpages.com/assets/82364402/61f456ebbffed29e8b7b2a28GWTLifestyle09.jpg",
+        "https://content.designerpages.com/assets/82364418/61f456f3758a435149e9e8d5GWTLifestyle05.jpg",
+        "https://content.designerpages.com/assets/82364428/61f464aa5566de6c026f4031GWTPhoto20Gallery06.jpg",
+        "https://content.designerpages.com/assets/82364439/61f458c087e18af50ade968dGWTProduct07.jpg",
+        "https://content.designerpages.com/assets/82364454/61f456952019828aa6eb435bGWTLifestyle01.jpg",
+        "https://content.designerpages.com/assets/82364465/61f456f3758a43698ce9e8d4GWTLifestyle06.jpg",
+        "https://content.designerpages.com/assets/82364479/61f458c9201982967aec7c3fGWTProduct06.jpg",
+        "https://content.designerpages.com/assets/82364487/61f45debcadb0f56c2dec3a4GWTPhoto20Gallery05.jpg",
+        "https://content.designerpages.com/assets/82364500/61f45e05a1040561942758b3GWTPhoto20Gallery06.jpg",
+        "https://content.designerpages.com/assets/82364513/61f458b1da60eb63e1b57f40GWTProduct05.jpg",
+        "https://content.designerpages.com/assets/82364524/61f456f32210ef2fd79c3da9GWTLifestyle04.jpg",
+        "https://content.designerpages.com/assets/82364534/61f45dfada60eb63aab5969cGWTPhoto20Gallery02.jpg",
+        "https://content.designerpages.com/assets/82364547/61f458cebffed26bb17c98b6GWTProduct09.jpg",
+        "https://content.designerpages.com/assets/82364561/61f456fe758a43ce9ee9e8e4GWTLifestyle11.jpg",
+        "https://content.designerpages.com/assets/82364571/61f458d03f57cc255c78ae9bGWTProduct10.jpg",
+        "https://content.designerpages.com/assets/82364583/61f458ce1fc9f853288dc31cGWTProduct11.jpg",
+        "https://content.designerpages.com/assets/82364592/61f45dfe2a9ac6fc9c7630cfGWTPhoto20Gallery01.jpg",
+        "https://content.designerpages.com/assets/82364605/61f456fd5ff7ee25ef3024fdGWTLifestyle10.jpg",
+        "https://content.designerpages.com/assets/82364617/61f456fe5ff7ee4d833024feGWTLifestyle12.jpg",
+        "https://content.designerpages.com/assets/82364631/61f456f9bffed2d4e97b34beGWTLifestyle08.jpg"
+      ],
+      "passing_image_count": 0
+    },
+    {
+      "product_id": "product_dp_14057761",
+      "product_name": "Loupe Occasional Tables",
+      "name": "Loupe Occasional Tables",
+      "brand": "Encore",
+      "a_level": [],
+      "b_level": [
+        "Occasional Tables"
+      ],
+      "c_level": [],
+      "image_urls": [
+        "https://content.designerpages.com/assets/82415626/LoupeTable06600x600.jpg",
+        "https://content.designerpages.com/assets/79761130/LoupeTable08.jpg",
+        "https://content.designerpages.com/assets/79761132/LoupeTable09600x6002023101054331bxlcn3.jpeg",
+        "https://content.designerpages.com/assets/79761134/LoupeTable02600x6002023101054721wom3pe.jpeg",
+        "https://content.designerpages.com/assets/79761137/LoupeTable06600x600202310105323xjq8c2.jpeg",
+        "https://content.designerpages.com/assets/79761138/LoupeTable05600x600202310105433ttwcx.jpeg",
+        "https://content.designerpages.com/assets/79761139/LoupeOccasionalTable011aspectratio750750600x60020231010547214f86ju.jpeg",
+        "https://content.designerpages.com/assets/82415642/LoupeOccasionalTable011aspectratio1077675.jpg",
+        "https://content.designerpages.com/assets/82415669/LoupeTable02.jpg",
+        "https://content.designerpages.com/assets/82415696/LoupeTable03.jpg",
+        "https://content.designerpages.com/assets/82415708/LoupeTable04.jpg",
+        "https://content.designerpages.com/assets/82415723/LoupeTable05.jpg",
+        "https://content.designerpages.com/assets/82415732/LoupeTable06.jpg",
+        "https://content.designerpages.com/assets/82415745/LoupeTable08.jpg",
+        "https://content.designerpages.com/assets/82415755/LoupeTable09.jpg"
+      ],
+      "passing_image_count": 0
+    }
+  ],
+  "images": [
+    {
+      "image_id": "product_dp_13884543_img_001",
+      "image_url": "https://content.designerpages.com/assets/81470275/BoleteOccasionalTable0.jpg",
+      "product_id": "product_dp_13884543",
+      "product_name": "Bolete Occasional Table",
+      "name": "Bolete Occasional Table",
+      "brand": "Andreu World America Furniture",
+      "a_level": [],
+      "b_level": [
+        "Occasional Tables"
+      ],
+      "c_level": [],
+      "stage_0_result": "scene",
+      "seating_type": "",
+      "enum_fields": {},
+      "field_confidence": {},
+      "free_text": {},
+      "tiebreaker_triggered": false,
+      "confidence_tier": "low",
+      "tokens": {
+        "stage_0": {
+          "prompt_tokens": 1446,
+          "completion_tokens": 6,
+          "total_tokens": 1452
+        },
+        "total": {
+          "prompt_tokens": 1446,
+          "completion_tokens": 6,
+          "total_tokens": 1452
+        }
+      },
+      "cost": {
+        "stage_0_usd": 0.000147,
+        "total_usd": 0.000147
+      },
+      "extraction_timestamp": "2026-04-15T19:22:50.444Z",
+      "excluded": true,
+      "image_traits": {},
+      "visual_summary": "",
+      "structured_caption": "",
+      "stage1": {
+        "seating_type": ""
+      },
+      "stage2": {
+        "visual_summary": ""
+      },
+      "visual_summary_embedding": [],
+      "search_text": "",
+      "search_text_embedding": []
+    }
+  ]
+}

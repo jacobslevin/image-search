@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 import csv
 import hashlib
+import html
 import json
 import os
 import re
 import sys
+import urllib.error
+import urllib.request
 from urllib.parse import urlparse
 
 
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-
-CATEGORY_RULES = [
-    ("Multi-Use Guest Seating", ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chairs"]),
-    ("Lounge Seating", ["lounge seating", "lounge chair", "lounge chairs", "lounge"]),
-    ("Stacking / Nesting Chairs", ["stacking chair", "stacking chairs", "nesting chair", "nesting chairs"]),
-    ("High-Performing Chairs / Stools", ["task chair", "task chairs", "work chair", "work chairs", "office chair", "office chairs"]),
-    ("Bench Seating", ["bench", "bench seating", "benches"]),
-    ("Occasional Tables", ["occasional table", "occasional tables", "side table", "side tables", "coffee table", "coffee tables"]),
-    ("Fixed-Height Stools", ["stool", "stools", "bar stool", "counter stool"]),
-]
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
+DEFAULT_REQUEST_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (compatible; CatalogNormalizer/1.0; +https://designerpages.com)"
+}
 
 
 def normalize_whitespace(value):
@@ -56,6 +52,96 @@ def looks_like_image_url(value):
     return any(path.endswith(extension) for extension in IMAGE_EXTENSIONS)
 
 
+def normalize_dp_image_url(value):
+    url = normalize_whitespace(value)
+    if "content.designerpages.com" not in url.lower():
+        return url
+    return re.sub(r"_large(?=\.[A-Za-z0-9]+(?:[?#].*)?$)", "", url, flags=re.IGNORECASE)
+
+
+def split_image_urls(value):
+    return unique_strings(
+        normalize_dp_image_url(item)
+        for item in str(value or "").split(",")
+    )
+
+
+def is_designerpages_product_url(value):
+    normalized = normalize_whitespace(value)
+    if not normalized:
+        return False
+
+    try:
+        parsed = urlparse(normalized)
+    except Exception:
+        return False
+
+    host = (parsed.netloc or "").lower()
+    path = parsed.path or ""
+    return (
+        host in {"designerpages.com", "www.designerpages.com"}
+        and re.match(r"^/products/\d+(?:/[^/?#]*)?/?$", path) is not None
+    )
+
+
+def fetch_html(url):
+    request = urllib.request.Request(url, headers=DEFAULT_REQUEST_HEADERS)
+    with urllib.request.urlopen(request, timeout=20) as response:
+        charset = response.headers.get_content_charset() or "utf-8"
+        return response.read().decode(charset, errors="replace")
+
+
+def parse_designerpages_gallery_images(page_html):
+    if not page_html:
+        return []
+
+    match = re.search(
+        r'<div[^>]*class="[^"]*\bimage-column\b[^"]*"[^>]*data-source-data=(["\'])(.*?)\1',
+        page_html,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if not match:
+        return []
+
+    raw_payload = html.unescape(match.group(2))
+    try:
+        source_data = json.loads(raw_payload)
+    except json.JSONDecodeError:
+        return []
+
+    images = []
+    default_image = source_data.get("default_image") or {}
+    additional_images = source_data.get("additional_images") or []
+
+    if isinstance(default_image, dict):
+        default_url = normalize_dp_image_url(default_image.get("url"))
+        if looks_like_image_url(default_url):
+            images.append(default_url)
+
+    for image in additional_images:
+        if not isinstance(image, dict):
+            continue
+        image_url = normalize_dp_image_url(image.get("url"))
+        if looks_like_image_url(image_url):
+            images.append(image_url)
+
+    return unique_strings(images)
+
+
+def extract_live_image_urls(website, page_cache):
+    normalized = normalize_whitespace(website)
+    if not is_designerpages_product_url(normalized):
+        return []
+
+    if normalized not in page_cache:
+        try:
+            page_cache[normalized] = parse_designerpages_gallery_images(fetch_html(normalized))
+        except (urllib.error.URLError, TimeoutError, ValueError):
+            page_cache[normalized] = []
+
+    return page_cache[normalized]
+
+
 def create_id(prefix, *parts):
     joined = "::".join([part for part in parts if part])
     digest = hashlib.sha1(joined.encode("utf-8")).hexdigest()[:12]
@@ -66,14 +152,6 @@ def slug_catalog_product_id(brand, name, raw_product_id):
     prefix = create_id("product", brand, name)
     suffix = re.sub(r"[^a-z0-9]+", "-", raw_product_id.lower()).strip("-")
     return f"{prefix}_{suffix}"
-
-
-def canonicalize_category(raw_category):
-    normalized = normalize_whitespace(raw_category).lower()
-    for canonical, phrases in CATEGORY_RULES:
-        if any(phrase in normalized for phrase in phrases):
-            return canonical
-    return normalize_whitespace(raw_category)
 
 
 def load_rows(csv_path):
@@ -98,24 +176,27 @@ def normalize_project_csv(csv_path):
     file_name = os.path.basename(csv_path)
     rows = load_rows(csv_path)
     products = []
+    page_cache = {}
 
     for row in rows:
         raw_product_id = normalize_whitespace(row.get("Product ID"))
         name = normalize_whitespace(row.get("Product Name"))
         brand = normalize_whitespace(row.get("Brand Name") or row.get("Brand"))
-        designer_category = normalize_whitespace(row.get("User Selected Category Name") or row.get("DP Categories"))
-        category_a = split_category_values(row.get("A level Names"))
-        category_b = split_category_values(row.get("B Level Names"))
-        category_c = split_category_values(row.get("C Level Names"))
-        image_url = normalize_whitespace(row.get("Image Url") or row.get("Image URL"))
+        raw_category = normalize_whitespace(row.get("User Selected Category Name") or row.get("DP Categories"))
+        a_level = split_category_values(row.get("A level Names"))
+        b_level = split_category_values(row.get("B Level Names"))
+        c_level = split_category_values(row.get("C Level Names"))
+        website = normalize_whitespace(row.get("Product URL") or row.get("Website"))
+        csv_image_urls = [
+            value for value in split_image_urls(row.get("Image Url") or row.get("Image URL"))
+            if looks_like_image_url(value)
+        ]
+        image_urls = extract_live_image_urls(website, page_cache) or csv_image_urls
+        image_url = image_urls[0] if image_urls else ""
 
-        if not raw_product_id or not name or not brand or not image_url or not looks_like_image_url(image_url):
+        if not raw_product_id or not name or not brand or not image_urls:
             continue
 
-        primary_a = category_a[0] if category_a else ""
-        primary_b = category_b[0] if category_b else ""
-        primary_category = " > ".join(part for part in [primary_a, primary_b] if part)
-        category = canonicalize_category(primary_category or designer_category)
         product_id = slug_catalog_product_id(brand, name, raw_product_id)
 
         products.append(
@@ -124,19 +205,14 @@ def normalize_project_csv(csv_path):
                 "name": name,
                 "brand": brand,
                 "description": "",
-                "category": category,
-                "raw_category": designer_category,
-                "designer_category": designer_category,
-                "primary_category": primary_category,
-                "categories": {
-                    "a": category_a,
-                    "b": category_b,
-                    "c": category_c,
-                },
+                "raw_category": raw_category,
+                "a_level": a_level,
+                "b_level": b_level,
+                "c_level": c_level,
                 "product_image": image_url,
-                "website": normalize_whitespace(row.get("Product URL")),
+                "website": website,
                 "source_file": file_name,
-                "image_urls": [image_url],
+                "image_urls": image_urls,
             }
         )
 
@@ -148,6 +224,7 @@ def normalize_catalog(csv_directory):
     if os.path.isfile(csv_directory):
         products.extend(normalize_project_csv(csv_directory))
     else:
+        page_cache = {}
         for file_name in sorted(os.listdir(csv_directory)):
             if not file_name.lower().endswith(".csv"):
                 continue
@@ -160,7 +237,7 @@ def normalize_catalog(csv_directory):
 
                 brand = normalize_whitespace(row.get("Manufacturer"))
                 raw_category = normalize_whitespace(row.get("Category"))
-                category = canonicalize_category(raw_category)
+                website = normalize_whitespace(row.get("Website"))
                 product_id_value = normalize_whitespace(row.get("Product ID"))
                 product_id = (
                     slug_catalog_product_id(brand, name, product_id_value)
@@ -168,11 +245,12 @@ def normalize_catalog(csv_directory):
                     else create_id("product", file_name, brand, name, raw_category)
                 )
 
-                image_urls = unique_strings(
-                    value
+                csv_image_urls = unique_strings(
+                    normalize_dp_image_url(value)
                     for value in row.values()
                     if normalize_whitespace(value).startswith("http") and looks_like_image_url(value)
                 )
+                image_urls = extract_live_image_urls(website, page_cache) or csv_image_urls
 
                 if not image_urls:
                     continue
@@ -183,9 +261,11 @@ def normalize_catalog(csv_directory):
                         "name": name,
                         "brand": brand,
                         "description": normalize_whitespace(row.get("Description")),
-                        "category": category,
                         "raw_category": raw_category,
-                        "website": normalize_whitespace(row.get("Website")),
+                        "a_level": [],
+                        "b_level": split_category_values(raw_category),
+                        "c_level": [],
+                        "website": website,
                         "source_file": file_name,
                         "image_urls": image_urls,
                     }
@@ -200,7 +280,9 @@ def normalize_catalog(csv_directory):
                     "product_id": product["product_id"],
                     "name": product["name"],
                     "brand": product["brand"],
-                    "category": product["category"],
+                    "a_level": product.get("a_level", []),
+                    "b_level": product.get("b_level", []),
+                    "c_level": product.get("c_level", []),
                     "image_url": image_url,
                     "source_file": product["source_file"],
                 }
@@ -210,7 +292,7 @@ def normalize_catalog(csv_directory):
         "generated_at": __import__("datetime").datetime.utcnow().isoformat() + "Z",
         "totals": {"products": len(products), "images": len(images)},
         "brands": sorted(unique_strings(product["brand"] for product in products)),
-        "categories": sorted(unique_strings(product["category"] for product in products)),
+        "categories": sorted(unique_strings(category for product in products for category in product.get("b_level", []))),
         "products": products,
         "images": images,
     }

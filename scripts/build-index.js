@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 import path from "node:path";
 
-import { generateCaption } from "../src/captioning.js";
+import { generateImageExtractionRecord } from "../src/captioning.js";
 import { normalizeCatalog } from "../src/catalog.js";
-import { DATA_DIR, readJson, writeJson } from "../src/utils.js";
+import { DATA_DIR, getAllCategoryTerms, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
 
 const args = process.argv.slice(2);
 const providerArgIndex = args.indexOf("--provider");
-const maxImagesArgIndex = args.indexOf("--max-images");
 const categoryArgIndex = args.indexOf("--category");
 const categoriesArgIndex = args.indexOf("--categories");
 const brandArgIndex = args.indexOf("--brand");
@@ -15,13 +14,13 @@ const nameArgIndex = args.indexOf("--name");
 const startArgIndex = args.indexOf("--start");
 const maxProductsArgIndex = args.indexOf("--max-products");
 const imagesPerProductArgIndex = args.indexOf("--images-per-product");
+const catalogArgIndex = args.indexOf("--catalog");
 const appendFlag = args.includes("--append");
 const replaceFlag = args.includes("--replace");
 const seatingOnlyFlag = args.includes("--seating-only");
 const provider = providerArgIndex >= 0
   ? args[providerArgIndex + 1]
   : process.env.CAPTION_PROVIDER || (process.env.OPENAI_API_KEY ? "openai" : "demo");
-const maxImages = maxImagesArgIndex >= 0 ? Number(args[maxImagesArgIndex + 1]) : null;
 const categoryFilter = categoryArgIndex >= 0 ? String(args[categoryArgIndex + 1] || "") : "";
 const categoryFilters = categoriesArgIndex >= 0
   ? String(args[categoriesArgIndex + 1] || "")
@@ -36,8 +35,88 @@ const maxProducts = maxProductsArgIndex >= 0 ? Number(args[maxProductsArgIndex +
 const imagesPerProduct = imagesPerProductArgIndex >= 0 ? Number(args[imagesPerProductArgIndex + 1]) : null;
 const seatingCategoryTerms = ["seating", "chair", "chairs", "stool", "stools", "bench"];
 
-const normalizedPath = path.join(DATA_DIR, "normalized-catalog.json");
-const indexPath = path.join(DATA_DIR, "image-index.json");
+const normalizedPath = catalogArgIndex >= 0
+  ? path.resolve(args[catalogArgIndex + 1] || "")
+  : path.join(DATA_DIR, "normalized-catalog.json");
+const indexPath = getImageIndexPath();
+
+function canonicalizeImageUrl(value = "") {
+  const input = String(value || "").trim();
+  if (!input) {
+    return "";
+  }
+
+  try {
+    const url = new URL(input);
+    url.hash = "";
+    url.search = "";
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return input.replace(/[#?].*$/, "").replace(/\/$/, "");
+  }
+}
+
+function buildLightweightProducts(catalog, imageRecords = []) {
+  const byProductId = new Map();
+
+  for (const product of catalog.products || []) {
+    byProductId.set(product.product_id, {
+      product_id: product.product_id,
+      product_name: product.name,
+      name: product.name,
+      brand: product.brand,
+      a_level: product.a_level || [],
+      b_level: product.b_level || [],
+      c_level: product.c_level || [],
+      image_urls: product.image_urls || [],
+      passing_image_count: 0
+    });
+  }
+
+  for (const record of imageRecords) {
+    if (!byProductId.has(record.product_id)) {
+      byProductId.set(record.product_id, {
+        product_id: record.product_id,
+        product_name: record.product_name || record.name || "",
+        name: record.product_name || record.name || "",
+        brand: record.brand || "",
+        a_level: record.a_level || [],
+        b_level: record.b_level || [],
+        c_level: record.c_level || [],
+        image_urls: [],
+        passing_image_count: 0
+      });
+    }
+
+    const product = byProductId.get(record.product_id);
+    product.image_urls = [...new Set([...product.image_urls, record.image_url].filter(Boolean))];
+    if (record.stage_0_result === "product") {
+      product.passing_image_count += 1;
+    }
+  }
+
+  return [...byProductId.values()];
+}
+
+function buildIndexOutput(catalog, imageRecords = []) {
+  const products = buildLightweightProducts(catalog, imageRecords);
+  const searchableImages = imageRecords.filter((image) => image.stage_0_result === "product");
+  const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+
+  return {
+    generated_at: new Date().toISOString(),
+    provider: "openai",
+    totals: {
+      products: products.length,
+      images: searchableImages.length
+    },
+    brands: indexedBrands.length ? indexedBrands : catalog.brands,
+    categories: indexedCategories.length ? indexedCategories : catalog.categories,
+    products,
+    images: imageRecords
+  };
+}
 
 let catalog = await readJson(normalizedPath);
 if (!catalog) {
@@ -45,105 +124,87 @@ if (!catalog) {
   await writeJson(normalizedPath, catalog);
 }
 
-let images = catalog.images
-  .filter((image) => {
-    if (
-      seatingOnlyFlag &&
-      !seatingCategoryTerms.some((term) => image.category.toLowerCase().includes(term))
-    ) {
-      return false;
-    }
-    if (categoryFilter && !image.category.toLowerCase().includes(categoryFilter.toLowerCase())) {
-      return false;
-    }
-    if (categoryFilters.length && !categoryFilters.some((term) => image.category.toLowerCase().includes(term))) {
-      return false;
-    }
-    if (brandFilter && !image.brand.toLowerCase().includes(brandFilter.toLowerCase())) {
-      return false;
-    }
-    if (nameFilter && !image.name.toLowerCase().includes(nameFilter.toLowerCase())) {
-      return false;
-    }
-    return true;
-  })
-  .slice(startIndex, startIndex + (maxImages || catalog.images.length));
-
-if (maxProducts || imagesPerProduct) {
-  const selectedProductIds = new Set();
-  const perProductCounts = new Map();
-  const filteredImages = [];
-
-  for (const image of images) {
-    const currentCount = perProductCounts.get(image.product_id) || 0;
-
-    if (!selectedProductIds.has(image.product_id)) {
-      if (maxProducts && selectedProductIds.size >= maxProducts) {
-        continue;
-      }
-      selectedProductIds.add(image.product_id);
-    }
-
-    if (imagesPerProduct && currentCount >= imagesPerProduct) {
-      continue;
-    }
-
-    filteredImages.push(image);
-    perProductCounts.set(image.product_id, currentCount + 1);
+const imagesByProductId = new Map();
+for (const image of catalog.images || []) {
+  if (!imagesByProductId.has(image.product_id)) {
+    imagesByProductId.set(image.product_id, []);
   }
-
-  images = filteredImages;
+  imagesByProductId.get(image.product_id).push(image);
 }
-const indexedImages = [];
-const existingIndex = !replaceFlag ? await readJson(indexPath) : null;
+
+let products = (catalog.products || []).filter((product) => {
+  const allCategoryTerms = getAllCategoryTerms(product).map((value) => value.toLowerCase());
+  const brandValue = String(product.brand || "").toLowerCase();
+  const nameValue = String(product.name || "").toLowerCase();
+
+  if (seatingOnlyFlag && !allCategoryTerms.some((value) => seatingCategoryTerms.some((term) => value.includes(term)))) {
+    return false;
+  }
+  if (categoryFilter && !allCategoryTerms.some((value) => value.includes(categoryFilter.toLowerCase()))) {
+    return false;
+  }
+  if (categoryFilters.length && !categoryFilters.some((term) => allCategoryTerms.some((value) => value.includes(term)))) {
+    return false;
+  }
+  if (brandFilter && !brandValue.includes(brandFilter.toLowerCase())) {
+    return false;
+  }
+  if (nameFilter && !nameValue.includes(nameFilter.toLowerCase())) {
+    return false;
+  }
+  return true;
+});
+
+const productLimit = maxProducts || products.length;
+products = products.slice(startIndex, startIndex + productLimit);
 
 if (provider !== "openai" || !process.env.OPENAI_API_KEY) {
-  throw new Error("Indexing now requires provider=openai and OPENAI_API_KEY so visual_summary embeddings can be stored.");
+  throw new Error("Indexing now requires provider=openai and OPENAI_API_KEY.");
 }
 
 console.log(
-  `Indexing ${images.length} images with provider=${provider}${appendFlag ? " append" : ""}${seatingOnlyFlag ? " seating-only" : ""}${categoryFilter ? ` category=${categoryFilter}` : ""}${categoryFilters.length ? ` categories=${categoryFilters.join("|")}` : ""}${startIndex ? ` start=${startIndex}` : ""}${maxProducts ? ` maxProducts=${maxProducts}` : ""}${imagesPerProduct ? ` imagesPerProduct=${imagesPerProduct}` : ""}`
+  `Indexing ${products.length} products with provider=${provider}${appendFlag ? " append" : ""}${seatingOnlyFlag ? " seating-only" : ""}${categoryFilter ? ` category=${categoryFilter}` : ""}${categoryFilters.length ? ` categories=${categoryFilters.join("|")}` : ""}${startIndex ? ` start=${startIndex}` : ""}${maxProducts ? ` maxProducts=${maxProducts}` : ""}${imagesPerProduct ? ` imagesPerProduct=${imagesPerProduct}` : ""}`
 );
-for (let index = 0; index < images.length; index += 1) {
-  const image = images[index];
-  const generated = await generateCaption(image, {
-    provider,
-    apiKey: process.env.OPENAI_API_KEY,
-    visionModel: process.env.VISION_MODEL
-  });
 
-  indexedImages.push({
-    ...image,
-    stage1: {
-      seating_type: generated.stage1?.seating_type || generated.seating_type || "other_seating"
-    },
-    stage2: {
-      visual_summary: generated.stage2?.visual_summary || ""
-    },
-    structured_caption: generated.structured_caption,
-    raw_visual_highlights: generated.raw_visual_highlights || [],
-    visual_summary: generated.stage2?.visual_summary || "",
-    visual_highlights: generated.visual_highlights,
-    seating_type: generated.seating_type || "other_seating",
-    image_traits: generated.image_traits || {},
-    spec_traits: generated.spec_traits || {},
-    merged_traits: generated.merged_traits || {},
-    trait_provenance: generated.trait_provenance || {},
-    visual_traits: generated.visual_traits,
-    caption_embedding: generated.caption_embedding,
-    visual_description_embedding: generated.visual_description_embedding,
-    visual_summary_embedding: generated.visual_summary_embedding,
-    caption_model_version: generated.caption_model_version,
-    embedding_model_version: generated.embedding_model_version
-  });
+const existingIndex = !replaceFlag ? await readJson(indexPath) : null;
+const indexedImages = [];
+const existingImageIds = new Set((existingIndex?.images || []).map((image) => String(image?.image_id || "").trim()).filter(Boolean));
+const existingImageUrls = new Set((existingIndex?.images || []).map((image) => canonicalizeImageUrl(image?.image_url)).filter(Boolean));
 
-  if ((index + 1) % 50 === 0 || index === images.length - 1) {
-    console.log(`Indexed ${index + 1}/${images.length} images`);
+for (let index = 0; index < products.length; index += 1) {
+  const product = products[index];
+  const productImages = (imagesByProductId.get(product.product_id) || [])
+    .filter((image) => {
+      if (!appendFlag) {
+        return true;
+      }
+
+      const imageId = String(image?.image_id || "").trim();
+      const imageUrl = canonicalizeImageUrl(image?.image_url);
+      return !(existingImageIds.has(imageId) || (imageUrl && existingImageUrls.has(imageUrl)));
+    })
+    .slice(0, imagesPerProduct || Number.POSITIVE_INFINITY);
+
+  if (!productImages.length) {
+    continue;
+  }
+
+  for (const image of productImages) {
+    const record = await generateImageExtractionRecord(image, {
+      provider,
+      apiKey: process.env.OPENAI_API_KEY,
+      visionModel: process.env.VISION_MODEL,
+      embeddingModel: process.env.EMBEDDING_MODEL
+    });
+    indexedImages.push(record);
+  }
+
+  if ((index + 1) % 10 === 0 || index === products.length - 1) {
+    console.log(`Indexed ${index + 1}/${products.length} products`);
   }
 }
 
 const mergedImageMap = new Map();
-
 if (appendFlag && existingIndex?.images?.length) {
   for (const image of existingIndex.images) {
     mergedImageMap.set(image.image_id || image.image_url, image);
@@ -155,21 +216,7 @@ for (const image of indexedImages) {
 }
 
 const mergedImages = [...mergedImageMap.values()];
-const indexedBrands = [...new Set(mergedImages.map((image) => image.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-const indexedCategories = [...new Set(mergedImages.map((image) => image.category).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-const indexedProducts = new Set(mergedImages.map((image) => image.product_id)).size;
-
-const output = {
-  generated_at: new Date().toISOString(),
-  provider,
-  totals: {
-    products: indexedProducts,
-    images: mergedImages.length
-  },
-  brands: indexedBrands.length ? indexedBrands : catalog.brands,
-  categories: indexedCategories.length ? indexedCategories : catalog.categories,
-  images: mergedImages
-};
+const output = buildIndexOutput(catalog, mergedImages);
 
 await writeJson(indexPath, output);
-console.log(`Wrote ${indexPath} with ${mergedImages.length} images across ${indexedProducts} products`);
+console.log(`Wrote ${indexPath} with ${mergedImages.length} image records across ${output.products.length} products`);

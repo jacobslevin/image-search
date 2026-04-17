@@ -2,7 +2,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { DATA_DIR, readJson, writeJson } from "../src/utils.js";
+import { DATA_DIR, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
 
 const EXPECTED_HEADERS = [
   "Product ID",
@@ -60,7 +60,20 @@ function splitCategoryValues(value) {
   return normalizeCell(value)
     .split("::")
     .map((item) => item.trim())
-    .filter(Boolean);
+    .filter((item) => item && item !== "0");
+}
+
+function normalizeImageUrl(value) {
+  return normalizeCell(value).replace(/_large(?=\.[A-Za-z0-9]+(?:[?#].*)?$)/i, "");
+}
+
+function splitImageUrls(value) {
+  return [...new Set(
+    normalizeCell(value)
+      .split(",")
+      .map((item) => normalizeImageUrl(item))
+      .filter((item) => item.toLowerCase().startsWith("http"))
+  )];
 }
 
 function incrementCounter(map, key) {
@@ -179,7 +192,7 @@ if (!csvPathArg) {
 const csvPath = path.resolve(csvPathArg);
 const queuePath = path.join(DATA_DIR, "import-queue.json");
 const summaryPath = path.join(DATA_DIR, "import-summary.json");
-const indexPath = path.join(DATA_DIR, "image-index.json");
+const indexPath = getImageIndexPath();
 
 console.log(`Reading CSV: ${csvPath}`);
 const csvContent = await fs.readFile(csvPath, "utf8");
@@ -211,7 +224,8 @@ for (let index = 0; index < records.length; index += 1) {
   const productIdValue = normalizeCell(record["Product ID"]);
   const productName = normalizeCell(record["Product Name"]);
   const brandName = normalizeCell(record["Brand Name"]);
-  const imageUrl = normalizeCell(record["Image Url"]);
+  const imageUrls = splitImageUrls(record["Image Url"]);
+  const imageUrl = imageUrls[0] || "";
   const aLevelCategories = splitCategoryValues(record["A level Names"]);
   const bLevelCategories = splitCategoryValues(record["B Level Names"]);
   const cLevelCategories = splitCategoryValues(record["C Level Names"]);
@@ -241,27 +255,22 @@ for (let index = 0; index < records.length; index += 1) {
     continue;
   }
 
-  const primaryCategory = bLevelCategories[0]
-    || aLevelCategories[0]
-    || userSelectedCategory
-    || "Seating & Chairs";
-
   readyProducts.push({
     product_id: productId,
     name: productName,
     brand: brandName,
-    category: primaryCategory,
-    a_level_categories: aLevelCategories,
-    b_level_categories: bLevelCategories,
-    c_level_categories: cLevelCategories,
+    a_level: aLevelCategories,
+    b_level: bLevelCategories,
+    c_level: cLevelCategories,
     user_selected_category: userSelectedCategory,
     image_url: imageUrl,
+    image_urls: imageUrls,
     source: "designerpages",
     imported_at: importedAt
   });
 
   incrementCounter(brandCounts, brandName);
-  incrementCounter(categoryCounts, primaryCategory);
+  (bLevelCategories.length ? bLevelCategories : aLevelCategories).forEach((category) => incrementCounter(categoryCounts, category));
 
   if ((index + 1) % 100 === 0 || index === records.length - 1) {
     console.log(`Processed ${index + 1}/${records.length} rows`);

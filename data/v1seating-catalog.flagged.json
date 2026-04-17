@@ -1,0 +1,5127 @@
+{
+  "generated_at": "2026-04-15T22:29:26.515Z",
+  "total": 38,
+  "products": [
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11602859",
+      "website": "https://designerpages.com/products/11602859",
+      "name": "Cone Chair",
+      "brand": "Vitra",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:24:36.698Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/77641680/54fd604c-79cb-412c-b90f-765d8459b74f.jpg",
+          "width": 1440,
+          "height": 576,
+          "short_side": 576,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11603245",
+      "website": "https://designerpages.com/products/11603245",
+      "name": "Petit Repos",
+      "brand": "Vitra",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:46:36.170Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/77642720/9900a779-bdd0-4063-a484-24b2485aab65.jpg",
+          "width": 1440,
+          "height": 576,
+          "short_side": 576,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11603281",
+      "website": "https://designerpages.com/products/11603281",
+      "name": "Soft Work",
+      "brand": "Vitra",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:16:45.721Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/77642959/ff5a9581-9c34-4b37-9aec-5868fd66fe6a.jpg",
+          "width": 1440,
+          "height": 576,
+          "short_side": 576,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/78563090/419994552020112321163143guyu.jpeg",
+          "width": 277,
+          "height": 208,
+          "short_side": 208,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11603283",
+      "website": "https://designerpages.com/products/11603283",
+      "name": "Softshell Chair - Five-Star Base",
+      "brand": "Vitra",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:16:44.890Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/77642967/f700c4ea-09e2-489d-a36d-536e46fd4039.jpg",
+          "width": 1440,
+          "height": 576,
+          "short_side": 576,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11848908",
+      "website": "https://designerpages.com/products/11848908",
+      "name": "",
+      "brand": "",
+      "reason": "page scrape failed",
+      "checked_at": "2026-04-15T21:41:47.384Z",
+      "error": "Failed to fetch https://designerpages.com/products/11848908 (500)"
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "134125",
+      "website": "https://designerpages.com/products/134125",
+      "name": "Edo Lounge Chair",
+      "brand": "Thos. Moser Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:14:22.386Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/3804371/7481_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 370,
+          "short_side": 370,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804384/7484_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 373,
+          "short_side": 373,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804397/8445_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 372,
+          "short_side": 372,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804410/8847_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 372,
+          "short_side": 372,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804423/7957_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 372,
+          "short_side": 372,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804436/7766_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 343,
+          "short_side": 343,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804449/7483_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 366,
+          "short_side": 366,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804462/7482_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 371,
+          "short_side": 371,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/3804475/7725_bfdd35a2a3c5eed53102216059cc5969.jpg",
+          "width": 490,
+          "height": 367,
+          "short_side": 367,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "13694481",
+      "website": "https://designerpages.com/products/13694481",
+      "name": "Aviera Multi Seating Metal",
+      "brand": "SitOnIt Seating",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:37:07.387Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/80532007/ideonchairbuilderavierametalmultiseatingplp405x475.jpg",
+          "width": 405,
+          "height": 475,
+          "short_side": 405,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532021/ideonpdpavierametalgalleryimage011000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532037/ideonpdpavierametalgalleryimage021000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532057/ideonpdpavierametalgalleryimage031000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532091/ideonpdpavierametalgalleryimage041000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532109/ideonpdpavierametalgalleryimage051000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532124/ideonpdpavierametalgalleryimage061000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532153/ideonpdpavierametalgalleryimage071000x562.png",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/80532167/GalleryAviera20Lobby.jpg",
+          "width": 1000,
+          "height": 562,
+          "short_side": 562,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14104954",
+      "website": "https://designerpages.com/products/14104954",
+      "name": "Cora",
+      "brand": "SitOnIt Seating",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:24:52.221Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82665459/coraplp.jpg.smartthumb.377.395.png",
+          "width": 377,
+          "height": 395,
+          "short_side": 377,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107773",
+      "website": "https://designerpages.com/products/14107773",
+      "name": "Melora",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T20:56:47.500Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82680878/MeloraTaskArmlessPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680888/MeloraSpread01VerticalCropv002.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680898/asuhickory12.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680909/KimballVine7110.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680919/2023FultonShowroomZone20.jpg",
+          "width": 742,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680929/KimballEtarranFootprintv15FootprintMelora0002.1.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680939/MeloraSpread01GrayMesh.jpg",
+          "width": 625,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680948/MeloraSideStoolKORETableHorizontal.jpg",
+          "width": 625,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680958/MeloraKOREPriorityWorkAbleVertical.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680969/Meloraeveryspace.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680979/FootprintMeloraWork7CAbleFundamentalFiles.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680992/MeloraNarrateJoelleAlterna.jpg",
+          "width": 647,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681001/MeloraPriorityHorizontal.jpg",
+          "width": 625,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681010/MeloraCover.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681019/ChicagoShowroomEtarranWorkstationMelora.jpg",
+          "width": 746,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681028/MeloraSpread01BlackMeshEnhancementcopy.jpg",
+          "width": 625,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681037/MeloraTaskArmlessPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681050/MeloraTaskHeavyDutyPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681064/MeloraTask247PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681076/MeloraTask2DAdjustableArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681083/MeloraTask3DAdjustableArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681091/MeloraTaskStaticCArmsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681098/MeloraTaskHalfBackLightTaskChairPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681106/MeloraTaskArmsBlackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681115/melorar25k44tmufa.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681125/MeloraTaskStoolArmlessPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681129/MeloraTaskStool2DAdjustableArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681134/MeloraTaskStool3DAdjustableArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681139/MeloraTaskStoolStaticCArmsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681144/MeloraTaskStoolHalfBackLightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681152/MeloraSideGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681158/MeloraSideCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681162/MeloraStoolCounterHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681166/MeloraStoolBarHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107777",
+      "website": "https://designerpages.com/products/14107777",
+      "name": "Pairings",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:17:12.778Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82680884/PairingsLoungeArmlessWoodLegWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680895/2018ChicagoProJoellePairingsDock.jpg",
+          "width": 730,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680905/2018ChicagoProPairings.jpg",
+          "width": 315,
+          "height": 500,
+          "short_side": 315,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680916/2018ChicagoProPairings2.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680926/2023FultonShowroomZone29.jpg",
+          "width": 739,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680937/AltantaShowroomNoPplPairingsJoelleBloom.jpg",
+          "width": 758,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680947/AltantaShowroomPplPairingsJoelle.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680957/AlternaBloomJoellePairings.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680965/AlternaDockTrainingPepPairingsJoelle.jpg",
+          "width": 381,
+          "height": 500,
+          "short_side": 381,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680975/AlternaGreerPairingsJoelle.jpg",
+          "width": 761,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680985/AlternaPairingsDockWorkTableJoelleFlip.jpg",
+          "width": 1059,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680998/AlternaEnvLounge.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681006/AvelarGallery003.jpg",
+          "width": 749,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681014/Avonplp.jpg",
+          "width": 375,
+          "height": 500,
+          "short_side": 375,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681024/AvonCaseStudy002.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681029/AvonCaseStudy003.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681039/PairingsLoungeArmlessWoodLegWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681054/PairingsLoungeArmless2SeatWoodMetalLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681067/PairingsLoungeArmless3SeatMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681074/PairingsLoungeArmless90CornerMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681082/PairingsLoungeArmless45CrescentWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681090/PairingsLoungeArms1Seat2inchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681097/PairingsLoungeArms2Seat2inchWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681105/PairingsLoungeArms3Seat2inchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681114/PairingsLoungeArms1Seat8inchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681126/PairingsLoungeArms2Seat8InchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681130/PairingsLoungeArms3Seat8InchWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681136/PairingsBench1SeatWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681140/PairingsBenchCornerPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681145/PairingsBench45CrescentPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681155/PairingsBench2SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681159/PairingsBench3SeatMetallegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681163/PairingsNookArmless1SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681167/PairingsNookArmless1SeatCubbyPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681176/PairingsNookArmless1SeatCubbyBacktoBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681179/PairingsNookArmless2SeatArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681182/PairingsNookTwoSeatArmsCubbiesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681185/PairingsNookArmless3SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681188/PairingsNookWorksurfaceExtensionworksurfaceHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681191/PairingsNookWorksurfaceExtensionBarHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681194/PairingsPrivacy1SeatRightBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681197/PairingsPrivacy1SeatFullBackSidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681200/PairingsPrivacy2SeatRightBackWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681208/PairingsPrivacy3SeatLeftBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681210/PairingsPrivacy3SeatFullBackSidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681212/PairingsPerch1SeatLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681214/PairingsPerchOneSeatMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681217/PairingsPerchInsideCornerLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681219/PairingsPerchInsideCornerMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681221/PairingsPerchOutsideCornerLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681223/PairingsPerchOutsideCornerMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681225/PairingsPerch2SeatLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681227/PairingsPerch2SeatMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681229/PairingsWall27InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681231/PairingsWall54InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681233/PairingsWall81InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681235/PairingsWallCornerDividerPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681237/PairingsWallPlusWallPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681239/PairingsWallZWallPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681241/PairingsTableInLineBulletPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681243/PairingsTableInline45WedgePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681245/PairingsTableInlinerectanglePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681246/PairingsTableMagazineWoodlegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681248/PairingsTablePullUpPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681250/PairingsTableRoundWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681252/PairingsTableSquarePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107900",
+      "website": "https://designerpages.com/products/14107900",
+      "name": "Geo",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T20:58:52.012Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82681405/GeoLoungeChairPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681415/KMBLGEOv28FrontLoveseatgrey.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681426/KMBLGEOv28SideLoungegrey.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681436/KMBLGEOv28SideSofagreycopy.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681444/KMBLGEOv28SofaBackgrey.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681456/KMBLGEOv29FrontLoungegrey.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681466/PairingsEverySpaceGeoJoelleJelsenPardoliaAccentPillows.jpg",
+          "width": 694,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681478/everyspaceidaraaspengeocohenprivateofficeworkspace.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681487/everyspaceidaraaspengeocohenprivateofficeworkspace02.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681497/geocohenpchicago2528040.jpg",
+          "width": 357,
+          "height": 500,
+          "short_side": 357,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681506/geocohenwellnesslounge.jpg",
+          "width": 393,
+          "height": 500,
+          "short_side": 393,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681516/geooverview.jpg",
+          "width": 396,
+          "height": 500,
+          "short_side": 396,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681524/GeoLoungeChairPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681533/GeoLoveseatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681545/GeoSofaPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107904",
+      "website": "https://designerpages.com/products/14107904",
+      "name": "Joelle",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:46:16.882Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82681408/JoelleLoungeAngled24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/70865071/b036a5da-8201-422c-88e5-127a5526eca3.jpg",
+          "width": 788,
+          "height": 526,
+          "short_side": 526,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681416/2017ChicagoProNarrateJoelleBloom.jpg",
+          "width": 749,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681422/2018ChicagoProDockHelioJoelle.jpg",
+          "width": 726,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681428/2018ChicagoProJoellePairingsDock.jpg",
+          "width": 730,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681437/2018ChicagoProNarrateJoyaWilder.jpg",
+          "width": 722,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681448/2P1A6979.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681454/AlternaBloomJoellePairings.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681463/AlternaJoellepdcs25413.jpg",
+          "width": 689,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681474/AlternaPairingsDockWorkTableJoelleFlip.jpg",
+          "width": 1059,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681483/AlternafiXtJoelle.jpg",
+          "width": 386,
+          "height": 500,
+          "short_side": 386,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681492/AtlantaColletteHockJoelleMarniaRiffel.jpg",
+          "width": 816,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681501/AtlantaEzzeriAlterna.jpg",
+          "width": 695,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681510/AtlantaEzzeriLochlynMeadowAlterna.jpg",
+          "width": 774,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681520/AtlantaHobsenEagerJoelleEverySpace.jpg",
+          "width": 746,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681529/AtlantaIdaraThatcherJoelleLehr.jpg",
+          "width": 713,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681536/AtlantaSwiftJoelleDockTrainingfiXt.jpg",
+          "width": 751,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681544/JoelleLoungeAngled24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681557/JoelleLoungeAngled30PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681566/JoelleLoungeAngled36PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681575/JoelleLounge48AngledBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681584/JoelleLoungeAngled51PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681593/JoelleLoungeRound24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681602/JoelleLoungeRound30PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681611/JoelleLoungeRound36PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681624/JoelleLounge48RoundBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681633/JoelleLoungeRound51PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681641/JoelleModularOttomanpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681651/JoelleTableTFLModularOttomanCandorPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681660/JoelleRound13h20CastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681668/JoelleRound13h20dglidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681679/JoelleRound13h20dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681692/JoelleRound13h40dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681701/JoelleRound13h40dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681711/JoelleRound13h40dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681724/JoelleROund18h20dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681733/JoelleRound18h20dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681741/JoelleRound18h20dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681750/JoelleRound18h40dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681763/JoelleRound18h40dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681772/JoelleRound18h40dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681780/JoelleTableButcherBlock20x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681789/JoelleTableButcherBlock40x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681797/JoelleSquare13h18dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681807/JoelleSquare13h18dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681817/JoelleSquare13h18dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681824/JoelleSquare13h36dCasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681833/JoelleSquare13h36dGlidespdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681844/JoelleSquare13h36dWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681856/JoelleSquare18h18dCasters.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681865/JoelleSquare18h18dGlides.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681874/JoelleSquare18h18dWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681883/JoelleSquare18h36dGlides.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681892/JoelleSquare18h36dCasters.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681909/JoelleSquare18h36dWoodLeg.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681917/JoelleTableButcherBlock18x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681926/JoelleTableButcherBlock3618GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681935/JoelleTrapezoid13h18Dcasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681945/JoelleTrapezoid18h23dCasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681954/JoelleTrapezoid18h18dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681963/JoelleTrapezoid18h23dglidespdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107912",
+      "website": "https://designerpages.com/products/14107912",
+      "name": "Theo",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:19:23.110Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82681725/TheoHighBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681737/2018ChicagoProTheo.jpg",
+          "width": 347,
+          "height": 500,
+          "short_side": 347,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681745/3Zone2DualDisplayWorkstationFinalR2.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681759/3Zone2DualDisplayWorkstationFinalR3.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681768/AltantaShowroomNoPplTheo.jpg",
+          "width": 320,
+          "height": 500,
+          "short_side": 320,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681777/AltantaShowroomPplTheo.jpg",
+          "width": 328,
+          "height": 500,
+          "short_side": 328,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681787/AltantaShowroomPplTheo2.jpg",
+          "width": 327,
+          "height": 500,
+          "short_side": 327,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681796/Avonplp.jpg",
+          "width": 375,
+          "height": 500,
+          "short_side": 375,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681804/AvonCaseStudy016416905plp.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681813/BESTceismithandwesson023.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681822/BESTceismithandwesson083.jpg",
+          "width": 334,
+          "height": 500,
+          "short_side": 334,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681831/Baptist20HealthPLP.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681839/BaptistHealthGallery005.jpg",
+          "width": 427,
+          "height": 500,
+          "short_side": 427,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681853/Chicago2019Area10003.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681862/TheoHighBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681871/TheoHighBackArmsGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681884/TheoHighBackArmlessCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681893/TheoHighBackArmsCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681910/TheoMidBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681919/TheoMidBackArmsGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681928/TheoMidBackArmlessCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681937/TheoMidBackArmsCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681947/TheoGuestGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681956/TheoGuestCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681971/TheoOttomanGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681985/TheoOttomanCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681993/TheoEndRound24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682002/TheoEndSoftSquare24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682015/TheoEndSquare24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682029/TheoEndRound30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682038/TheoEndSoftSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682051/TheoEndSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682061/TheoChatRound30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682070/TheoChatSoftSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682079/TheoChatSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682087/TheoChatRound36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682097/TheoChatSoftSquare36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682106/TheoChatSquare36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107919",
+      "website": "https://designerpages.com/products/14107919",
+      "name": "Whittaker",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:03:23.745Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82682020/StatementWhittakerArmlessOneSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682032/whittakerbydesignpchicago2528384.jpg",
+          "width": 850,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682043/15KimballHQ4.jpg",
+          "width": 889,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682052/BESTceismithandwesson067.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682060/BESTceismithandwesson079.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682069/BehlJoelleHobsenWilderIdaraPodWhittakerMarniaWhimsyLoungeHub.jpg",
+          "width": 861,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682078/BehlJoelleHobsenWilderIdaraPodWhittakerMarniaWhimsyLoungeHub03.jpg",
+          "width": 861,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682089/DallasShowroom009.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682098/HobsenWhittakerJelsenWhimsyLounge.jpg",
+          "width": 573,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682107/Interior1.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682120/JasperLobby02adj.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682128/KIIChicago4E.jpg",
+          "width": 809,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682143/KIIChicago20221B.jpg",
+          "width": 725,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682150/KMBLFresh201903Whittakerv20.1Updatesv06.1.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682157/KMBLWhittakerHealthFrontCoverv07.1Updatesv02.1.jpg",
+          "width": 386,
+          "height": 500,
+          "short_side": 386,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682166/KMBLWhittakerHealthSpread1v10.1Updatesv04.1.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682174/StatementWhittakerArmlessOneSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682187/StatementWhittakerFullArmsOneSeatOneArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682196/StatementWhittakerConvenienceArmsOneSeatTwoArmsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682205/StatementWhittakerArmlessTwoSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682214/StatementWhittakerPeninsulaTwoSeatArmlessPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682223/StatementWhittakerConvenienceArmsTwoSeatOneArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682232/StatementWhittakerCornerTwoSeatConvenienceArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682240/StatementWhittakerFullArmsTwoSeatTwoArmsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682250/StatementWhittakerArmlessThreeSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682260/StatementWhittakerCornerThreeSeatArmlessPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682279/StatementWhittakerPeninsulaThreeSeatCornerPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682287/StatementWhittakerFullArmsThreeSeatOneArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682295/StatementWhittakerPeninsulaThreeSeatConvenienceArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682303/StatementWhittakerConvenienceArmsThreeSeatTwoArmsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682310/StatementWhittakerBenchOneSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682318/StatementWhittakerBenchTwoSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682328/StatementWhittakerBenchThreeSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107929",
+      "website": "https://designerpages.com/products/14107929",
+      "name": "Villa",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:21:27.322Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82682465/VillaLounge1SeatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682466/150110121003Villa1SeatwithShadeSweepcopycopy.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682467/150110131020VillaEnvironment.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682468/2018ChicagoProfiXtNateNatty.jpg",
+          "width": 330,
+          "height": 500,
+          "short_side": 330,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682469/2023FultonShowroomZone02alt.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682470/AbbotEnv.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682471/AvonCaseStudy015.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682472/BrickHouseBlueCS007.jpg",
+          "width": 654,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682473/EnvBackCover.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682474/EnvCover.jpg",
+          "width": 441,
+          "height": 500,
+          "short_side": 441,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682475/EnvSpread1MeetingSpace.jpg",
+          "width": 708,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682476/EnvSpread2Cafe.jpg",
+          "width": 638,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682477/KIIChicago20226F.jpg",
+          "width": 766,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682478/KimballInternationalDallasVillaMilamSeraphina.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682479/KimballDCShowroom0842.jpg",
+          "width": 863,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682480/KimballDCShowroomHandhelds1120.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682481/VillaLounge1SeatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682483/VillaLounge2Seatarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682484/VillaLounge3seatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682485/VillaLounge1SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682486/VillaLounge2SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682487/VillaLounge3SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682490/VillaLounge1SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682491/VillaLounge2SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682492/VillaLounge3SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682493/VillaLounge1SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682494/VillaLounge2SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682495/VillaLounge3SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682497/VillaPrivacyBack1Seat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682498/VillaPrivacyBack90DegreeCorner.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682499/VillaPrivacyBack2Seat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682500/VillaPrivacy1SeatSemiPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682501/VillaPrivacy1SeatPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682503/VillaPrivacy2SeatSemiPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682504/Villa2SeatPrivateShadePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682505/VillaTallBack2SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682506/VillaTallBack2SeatFloatingSurfacePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682507/VillaBench45DegreeCrescent.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682509/VillaBenchHexagon.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682510/VillaBenchRectangle.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682512/VillaBenchSquareOttoman.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682513/VillaCorner30DegreeInsideWedge.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682515/VillaCorner45.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682516/VillaCorner45DegreeCrescent.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682517/VillaCorner90Degree.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682518/VillaCorner15DegreeOutsideWedge.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682519/VillaCornersPlateau.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682520/VillaTableCornerpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682521/VillaTableRectanglepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682522/VillaTableMagazinepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682523/VillaTableMagazineOpenStoragepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682524/VillaTable90DegreeCrescentpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682525/VillaTables90DegreeTrianglepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682526/VillaTableRoundpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14108699",
+      "website": "https://designerpages.com/products/14108699",
+      "name": "Fringe 2.0",
+      "brand": "National by Kimball International",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:43:23.541Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82692866/Fringe21SeatLowbackArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692869/fringe2.0waveworksmaribenjelsen1590.jpg",
+          "width": 835,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692872/fringe2.00731.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692875/fringe2.01865.jpg",
+          "width": 815,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692877/fringe2.0waveworkswellandgood04342.jpg",
+          "width": 342,
+          "height": 500,
+          "short_side": 342,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692879/fringe2footingspchicago25zone592.jpg",
+          "width": 349,
+          "height": 500,
+          "short_side": 349,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692882/waveworksheliofringe2.0mariben0353.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692885/fringe2.0hooplawaveworkseducation113101.jpg",
+          "width": 892,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692888/fringe2.0whimsywaveworksplanterslounge0614.jpg",
+          "width": 334,
+          "height": 500,
+          "short_side": 334,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692891/fringe2.0joellehooplacollaborationeducation1737.jpg",
+          "width": 713,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692894/fringe2.01842.jpg",
+          "width": 351,
+          "height": 500,
+          "short_side": 351,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692896/fringe2.0marniajoellelounge0496.jpg",
+          "width": 691,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692898/Fringe2ThoughtStarter2GrinFixt.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692901/Fringe2wixlerpdcs25947.jpg",
+          "width": 638,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692904/Fringe2ThoughtStarter1.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692907/Fringe2ThoughtStarter3MaribenJoelle.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692910/Fringe21SeatLowbackArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692912/Fringe21SeatLowbackLowLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692915/Fringe21SeatLowbackLowArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692917/Fringe21SeatMidbackLowArmLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692920/Fringe21SeatMidbackLowArmboth.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692923/Fringe21SeatMidbackMidArmLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692926/Fringe21SeatMidbackMidArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692929/Fringe21SeatHighbackLowArmLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692931/Fringe21SeatHighbackLowArmboth.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692940/Fringe21SeatHighbackMidArmLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692941/Fringe21SeatHighbackMidArmboth.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692943/Fringe21SeatHighbackHighArmLeft.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692945/Fringe21SeatHighbackbotharms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692947/Fringe2SeatLowbackARMLESS.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692949/Fringe2SeatLowbackLowArmBoth.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692951/Fringe2SeatMidbackARMLESS.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692953/Fringe2SeatMidBackLowArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692955/Fringe2SeatMidbackMidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692957/Fringe2SeatHighbackARMLESS.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692958/Fringe2SeatHighbackLowArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692960/Fringe2SeatHighbackMidArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692962/Fringe2SeatHighbackHighBackArmsBoth.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692964/Fringe23SeatLowbackLowarms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692966/Fringe23SeatMidbackLowArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692968/Fringe23SeatMidbackMidArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692970/Fringe23SeatHighbackLowArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692971/Fringe23SeatHighbackMidArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692973/Fringe23SeatHighbackHighArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692982/Fringe2CornerSeatLowback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692983/Fringe2CornerSeatMidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692984/Fringe2CornerSeatHighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692985/Fringe2SeatLowBackCurvedOut90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692986/Fringe22seatmidbackcurvedout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692987/Fringe2SeatHighBackCurvedOut90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692988/Fringe2SeatLowBackCurvedIn90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692989/Fringe2SeatMidBackCurvedIn90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692990/Fringe2SeatHighBackCurvedIn90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692991/Fringe21SeatBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692992/Fringe22SeatBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692993/Fringe23SeatBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692994/Fringe2QuarterRoundBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692995/Fringe2HalfRoundBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692996/Fringe290CornerBench.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692997/Fringe2CurvedBench90.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692998/Fringe2Club5StarBaseARMLESS.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82692999/Fringe25StarClubBaseArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693000/Fringe2Club5StarBase.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693001/Fringe25StarClubBaseArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693002/Fringe2ClubChairARMLESS4LegGuest.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693003/Fringe2ClubChairLegs4legGuest.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693004/Fringe2ClubSwivelARMLESS.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693005/Fringe2ClubSwivel.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693006/Fringe2TableInEndRectangle.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693007/Fringe2TableInEndSquare.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693008/Fringe2TableCorner.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693009/Fringe2TableQuarterRound.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82693010/Fringe2TableHalfRound.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14109123",
+      "website": "https://designerpages.com/products/14109123",
+      "name": "Fringe",
+      "brand": "National by Kimball International",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:12:14.859Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82694522/fringer25modular20loungeoneseatmidbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694525/fringephec2511651.jpg",
+          "width": 878,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694526/fringetarvercircloungecollaborate04.jpg",
+          "width": 869,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694528/NationalFringeIdaraMarniaHorizontal.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694530/NationalFringeGrinIdaraHub.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694531/PortataKitnerFringeVernita.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694533/FultonShowroomHandheld0021.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694535/NatioanalFringeGrinLobby.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694537/NationalFringeMabelWhimsy.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694539/fringecirctoss01.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694541/KimballDCShowroom1008.jpg",
+          "width": 885,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694543/NationalFringeMaribenFootingsCafe.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694545/FringeUniversalLounge.jpg",
+          "width": 371,
+          "height": 500,
+          "short_side": 371,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694546/NationalFringeLobby.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694548/FringeCollaborationRoomDET.jpg",
+          "width": 344,
+          "height": 500,
+          "short_side": 344,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694550/FringeCoves.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694552/fringer25modular20loungeoneseatmidbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694554/fringer25modularloungeoneseatmidbackarmlesscleanout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694556/fringer25modularloungeoneseatmidbackleftrightarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694558/fringer25modularloungeoneseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694560/fringer25modular20loungeone20seatmid20backleft20right20midarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694562/fringer25modularloungeone20seatmid20backmid20arms.jpg",
+          "width": 654,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694564/fringer25modularloungeoneseathigh20backarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694573/fringer25modularloungeoneseathighbackleft20right20arm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694574/fringer25modularloungeoneseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694575/fringer25modularloungeoneseathighbackLRMidArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694576/fringer25modularloungeoneseathighbackmidarms.jpg",
+          "width": 661,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694577/fringer25modularloungeoneseathighbackLRhigharm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694578/fringer25modularloungeoneseathighbackhigharms.jpg",
+          "width": 653,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694579/fringer25modularloungetwoseatmidbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694580/fringer25modularloungetwoseatmidbackarmlesscleanout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694581/fringer25modularloungetwoseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694582/fringer25twoseatmidbackLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694583/fringer25twoseatmidbackLRmidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694585/fringer25twoseatmidbackmidarms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694586/fringer25modularloungetwoseathighbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694587/fringer25modularloungetwoseathighbackarmlesscleanout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694588/fringer25modularloungetwoseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694589/fringer25modularloungetwoseathighbackLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694590/fringer25modularloungetwoseathighbackLRmidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694591/fringer25modularloungetwoseathighbackmidarms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694592/fringer25modularloungetwoseathighbackLRhigharm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694593/fringer25modularloungetwoseathighbackhigharms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694594/fringer25modularloungethreeseatmidbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694595/fringer25modularloungethreeseatmidbackLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694596/fringer25modularloungethreeseatmidbackarmlesscleanout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694597/fringer25modularloungethreeseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694598/fringer25modularloungethreeseatmidbackLRmidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694599/fringer25modularloungethreeseatmidbackmidarms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694600/fringer25modularloungethreeseathighbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694601/fringer25modularloungethreeseathighbackarmlesscleanout.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694602/fringer25modularloungethreeseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694603/fringer25modularloungethreeseathighbackLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694604/fringer25modularloungethreeseathighbackLRmidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694605/fringer25modularloungethreeseathighbackmidarms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694606/fringer25modularloungethreeseathighbackLRhigharm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694607/fringer25modularloungethreeseathighbackhigharms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694608/fringer25modularloungeoutside90wedgemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694609/fringer25modularloungeoutside90roundmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694610/fringer25modularloungeinside90wedgemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694611/fringer25modularloungemidbackinside90round.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694612/fringer25modularloungeoutside90wedgehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694613/fringer25modularloungeoutside90roundhighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694614/fringer25modularloungeinside90wedgehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694615/fringer25modularloungeinside90roundhighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694616/fringer25modularloungedividerpanelmidarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694617/fringer25modularloungedividerpanelhigharm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694618/fringer25modularloungebackpanel.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694619/fringer25modularloungebackpanel90corner.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694620/fringer25covetwoseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694621/fringer25covetwoseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694622/fringer25covethreeseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694623/fringer25covethreeseathighback.jpg",
+          "width": 686,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694624/fringer25boothoneseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694625/fringer25boothoneseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694626/fringer25boothoneseatdoublemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694627/fringer25boothoneseatdoublelegsmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694628/fringer25boothoneseatdoublehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694629/fringer25boothoneseatdoublehighbacklegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694630/fringer25boothtwoseatsinglemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694631/StatementFringeSeatingHighBackBoothPlinthBasePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694632/fringer25boothtwoseatdoublemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694633/fringer25boothtwoseatdoublelegsmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694634/fringer25boothtwoseatdoublehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694635/fringer25boothtwoseatdoublehighbacklegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694636/fringer25benchoneseat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694637/fringer25benchtwoseat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694638/fringer25benchthreeseat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694639/fringer25benchquarterround.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694640/fringer25benchhalfround.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694641/fringer25benches90wedge.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694642/fringer25benches90cornerround.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694643/fringer25clubchairsarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694644/fringer25mobileclubchairarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694645/fringer25clubchairLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694646/fringer24clubchairmobileLRarm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694647/fringer25clubchair.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694648/fringer25mobileclubchair.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694649/fringer25bistrotabletwoseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694650/fringer25bistrotabletwoseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694651/fringer25bistrotablethreeseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694652/fringer25bistrotablethreeseathighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694653/fringer25twoseatcovebistrotable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694654/fringer25threeseatcovebistrotable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694655/fringer2590cornerbistrotable.jpg",
+          "width": 591,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694656/fringer2590insidewedgebistrotable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694657/fringer2590insideroundbistrotable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694658/fringer2590insideroundworksurface.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694659/fringer25endtable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694660/fringer25quarterroundtable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694661/fringer25halfroundtable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694662/fringer25inlinetablemidback.jpg",
+          "width": 666,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694663/fringer25inlinetablehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694664/fringer25inlinecornertablemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694665/fringer25inlinecornertablehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694666/fringer25doubleinlinetablemidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694667/fringer25doubleinlinetablehighback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694668/fringer25doubleinlinetablewithshelfmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694669/StatementFringeTablesDoubleInlineShelfHighBack.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694670/fringer25doubleinlinemediatable.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694671/fringer25doublineinlinemediatablewithshelf.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694672/fringer25mediatablesetonrectangleworksurfaceroundbase.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694673/fringer25mediatablesetonrectangleworksurfacesquarediscbase.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694674/fringer25tablesfreestandingrectangletablerounddiscbase.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694675/fringer25tablesfreestandingtablesquarediscbase.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694676/fringer25modularloungeoneseatmidback.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82694677/fringer25modular20loungeoneseatmidbackarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "1428352",
+      "website": "https://designerpages.com/products/1428352",
+      "name": "CH20 The Elbow Chair",
+      "brand": "Carl Hansen & Son Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:34:08.771Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/32808752/5Kh6x.jpg",
+          "width": 516,
+          "height": 519,
+          "short_side": 516,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32808882/HCCQu.jpg",
+          "width": 509,
+          "height": 504,
+          "short_side": 504,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809012/G61p2.jpg",
+          "width": 1173,
+          "height": 517,
+          "short_side": 517,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809142/RWsrS.jpg",
+          "width": 1172,
+          "height": 517,
+          "short_side": 517,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809272/eYT6j.jpg",
+          "width": 1171,
+          "height": 518,
+          "short_side": 518,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809402/1w1vT.jpg",
+          "width": 1175,
+          "height": 522,
+          "short_side": 522,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809532/8AKlK.jpg",
+          "width": 1174,
+          "height": 520,
+          "short_side": 520,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809662/ch20_front_01.jpg",
+          "width": 1023,
+          "height": 502,
+          "short_side": 502,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809792/ch20_side_01.jpg",
+          "width": 1023,
+          "height": 502,
+          "short_side": 502,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/32809922/ch20_back_01.jpg",
+          "width": 1023,
+          "height": 502,
+          "short_side": 502,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "1451232",
+      "website": "https://designerpages.com/products/1451232",
+      "name": "Hokki",
+      "brand": "VS America School Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:33:32.344Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/34762892/03825-1.jpg",
+          "width": 842,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/34763022/03825-2.jpg",
+          "width": 842,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/34763152/03825-3.jpg",
+          "width": 842,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/34763282/03825-4.jpg",
+          "width": 842,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/34763412/03825-5.jpg",
+          "width": 842,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "1888642",
+      "website": "https://designerpages.com/products/1888642",
+      "name": "Maarten",
+      "brand": "Viccarbe Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:00:48.518Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/50203472/maarten-viccarbe-96.jpg",
+          "width": 715,
+          "height": 477,
+          "short_side": 477,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203482/maarten-viccarbe-_6_-58.jpg",
+          "width": 715,
+          "height": 477,
+          "short_side": 477,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203492/maarten-viccarbe-_5_-74.jpg",
+          "width": 715,
+          "height": 477,
+          "short_side": 477,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203502/maarten-viccarbe-_2_-48.jpg",
+          "width": 358,
+          "height": 477,
+          "short_side": 358,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203512/maarten-viccarbe-_3_-96.jpg",
+          "width": 318,
+          "height": 477,
+          "short_side": 318,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203522/viccarbe-maarten-39.jpg",
+          "width": 715,
+          "height": 488,
+          "short_side": 488,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/50203532/maarten-viccarbe-92.jpg",
+          "width": 428,
+          "height": 195,
+          "short_side": 195,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "3377132",
+      "website": "https://designerpages.com/products/3377132",
+      "name": "Crosshatch",
+      "brand": "GEIGER",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:06:26.189Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/54683232/Crosshatch_20PP_0001_Layer_207.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54683242/Crosshatch_20PP_0000_Layer_208.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54683252/Crosshatch_20PP_0003_Layer_205.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54683262/Crosshatch_20PP_0002_Layer_206.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56019511/Crosshatch_Lounge_3_D.jpg",
+          "width": 489,
+          "height": 489,
+          "short_side": 489,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "3377392",
+      "website": "https://designerpages.com/products/3377392",
+      "name": "Clamshell Conference",
+      "brand": "GEIGER",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T20:56:48.852Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/54685032/clamshell_20conference_20pp_0000_Layer_2018.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54685042/clamshell_20conference_20pp_0001_Layer_2017.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54685052/clamshell_20conference_20pp_0003_Layer_2015.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54685062/clamshell_20conference_20pp_0002_Layer_2016.jpg",
+          "width": 1100,
+          "height": 555,
+          "short_side": 555,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "3808001",
+      "website": "https://designerpages.com/products/3808001",
+      "name": "Move Chair by Steelcase",
+      "brand": "Turnstone",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:24:33.523Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/55445471/Move_Chair_by_Steelcase_0_a.jpg",
+          "width": 538,
+          "height": 717,
+          "short_side": 538,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/77144911/f6f24725-325f-4dfc-8c4b-4104471d2acf.jpg",
+          "width": 318,
+          "height": 422,
+          "short_side": 318,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/77144921/fe0fe41d-7f74-4bee-9ae9-1d62b8c2e8e5.jpg",
+          "width": 272,
+          "height": 335,
+          "short_side": 272,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "42279",
+      "website": "https://designerpages.com/products/42279",
+      "name": "HOLLOW - Armchairs",
+      "brand": "B&B Italia Outdoor",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:37:00.673Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/910414/MD-001_HO80.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910427/MD-002_HO80.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910440/MD-003_HO154.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910453/MD-004_HO230.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910466/MD-005_HO230.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910479/MD-006_hollow.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/910492/MD-007_hollow.jpg",
+          "width": 420,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4257071",
+      "website": "https://designerpages.com/products/4257071",
+      "name": "Slam",
+      "brand": "Leland International",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:14:54.025Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/56557271/slamcollection.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557281/slam-8.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557291/slide4-920x470.png",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557301/slam-11.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557311/Slam-Casters1-920x470.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557321/slam-920x470.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557331/thumb4-920x470.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557341/slam_windows-920x470.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557351/slam-6.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557361/slam-7.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557371/slam-31.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557381/slam-5.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/56557391/thumb-920x470.jpg",
+          "width": 920,
+          "height": 470,
+          "short_side": 470,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4439081",
+      "website": "https://designerpages.com/products/4439081",
+      "name": "Single",
+      "brand": "WCI (West Coast Industries)",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:17:12.917Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/56964941/00.PNG",
+          "width": 618,
+          "height": 462,
+          "short_side": 462,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4494741",
+      "website": "https://designerpages.com/products/4494741",
+      "name": "Karma Multipurpose Seating",
+      "brand": "Krug Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:23:24.892Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/57204351/Karma_Multipurpose_Seating_0.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204361/Karma_Multipurpose_Seating_1.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204371/Karma_Multipurpose_Seating_2.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204381/Karma_Multipurpose_Seating_3.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204391/Karma_Multipurpose_Seating_4.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204401/Karma_Multipurpose_Seating_5.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204411/Karma_Multipurpose_Seating_6.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4494761",
+      "website": "https://designerpages.com/products/4494761",
+      "name": "Zola Modular Soft Seating",
+      "brand": "Krug Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:50:15.504Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/57204551/Zola_Modular_Soft_Seating_0.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204561/Zola_Modular_Soft_Seating_1.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204571/Zola_Modular_Soft_Seating_2.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204581/Zola_Modular_Soft_Seating_3.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204591/Zola_Modular_Soft_Seating_4.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204601/Zola_Modular_Soft_Seating_5.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57204611/Zola_Modular_Soft_Seating_6.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4494931",
+      "website": "https://designerpages.com/products/4494931",
+      "name": "Leyton Soft Seating",
+      "brand": "Krug Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:05:35.266Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/57206101/Leyton_Soft_Seating_0.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206111/Leyton_Soft_Seating_1.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206121/Leyton_Soft_Seating_2.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206131/Leyton_Soft_Seating_3.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206141/Leyton_Soft_Seating_4.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206151/Leyton_Soft_Seating_5.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57206161/Leyton_Soft_Seating_6.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4648661",
+      "website": "https://designerpages.com/products/4648661",
+      "name": "Ski Lounge Seating",
+      "brand": "HBF Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:17:22.436Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/57820051/Ski_Lounge_Seating_0.jpg",
+          "width": 600,
+          "height": 450,
+          "short_side": 450,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820061/Ski_Lounge_Seating_1.jpg",
+          "width": 600,
+          "height": 450,
+          "short_side": 450,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820071/Ski_Lounge_Seating_2.jpg",
+          "width": 150,
+          "height": 150,
+          "short_side": 150,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820081/Ski_Lounge_Seating_3.jpg",
+          "width": 600,
+          "height": 450,
+          "short_side": 450,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820091/Ski_Lounge_Seating_4.jpg",
+          "width": 150,
+          "height": 150,
+          "short_side": 150,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820101/Ski_Lounge_Seating_5.jpg",
+          "width": 465,
+          "height": 618,
+          "short_side": 465,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57820111/Ski_Lounge_Seating_6.jpg",
+          "width": 600,
+          "height": 450,
+          "short_side": 450,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "5840791",
+      "website": "https://designerpages.com/products/5840791",
+      "name": "Series 7™ 3107™ Monochrome",
+      "brand": "Fritz Hansen Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:35:44.538Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/60392401/Series_7__3107__Monochrome_0.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60392411/Series_7__3107__Monochrome_1.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60392421/Series_7__3107__Monochrome_2.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60392431/Series_7__3107__Monochrome_3.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "5842201",
+      "website": "https://designerpages.com/products/5842201",
+      "name": "Ro™ JH2, Ro lounge chair, wooden base, Designer Selections",
+      "brand": "Fritz Hansen Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:27:52.118Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/60408001/Ro__JH2__Ro_lounge_chair__wooden_base__Designer_Selections_0.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408011/Ro__JH2__Ro_lounge_chair__wooden_base__Designer_Selections_1.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408021/Ro__JH2__Ro_lounge_chair__wooden_base__Designer_Selections_2.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408031/Ro__JH2__Ro_lounge_chair__wooden_base__Designer_Selections_3.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408041/Ro__JH2__Ro_lounge_chair__wooden_base__Designer_Selections_4.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408051/Ro___JH1_Light_Blue__Designer_Selections__Blue__Designer_Colours__Light_Blue__Designer_Colours__Oak.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408061/Ro___Light_Grey__Designer_Selections__Grey__Designer_Colours__Light_Grey__Designer_Colours__Oak.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408071/Ro___Light_Pink__Designer_Selections__Light_Beige_Light_Red__Designer_Colours__Pale_Pink__Designer_Colours__Oak.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/60408081/Ro___Black__Designer_Selections__Salt___Pepper_Divina_Melange__Designer_Colours__Ebony__7729_17___Designer_Colours__Oak.jpg",
+          "width": 320,
+          "height": 290,
+          "short_side": 290,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "6587601",
+      "website": "https://designerpages.com/products/6587601",
+      "name": "Liz",
+      "brand": "Walter K",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:20:11.695Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/62071991/Liz_0.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072001/Liz_1.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072011/Liz_2.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072021/Liz_3.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072031/Liz_4.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072041/Liz_5.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072051/Liz_6.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072061/Liz_7.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072071/Liz_8.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072081/Liz_9.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072091/Liz_10.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072101/Liz_11.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62072111/Liz_12.jpg",
+          "width": 510,
+          "height": 510,
+          "short_side": 510,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "6598741",
+      "website": "https://designerpages.com/products/6598741",
+      "name": "CH24 | WISHBONE CHAIR",
+      "brand": "Carl Hansen & Son Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:10:44.881Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/62138691/CH24___WISHBONE_CHAIR.JPG",
+          "width": 264,
+          "height": 264,
+          "short_side": 264,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "6944721",
+      "website": "https://designerpages.com/products/6944721",
+      "name": "Graph",
+      "brand": "Wilkhahn Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T20:45:33.316Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/62798711/csm_004175_WH_Graph_2015-600x920_66c7a3a32a.jpg",
+          "width": 440,
+          "height": 675,
+          "short_side": 440,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798721/csm_002965_WH_Graph_2012-600-920_b239d168f1.jpg",
+          "width": 300,
+          "height": 460,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798731/csm_002960_WH_Graph_2012-600-920_c4854a3ef1.jpg",
+          "width": 300,
+          "height": 460,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798741/csm_004431_WH_Graph_2016-1880-920_c8b4a6cd81.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798751/csm_WILK-2016-Website-Header-Graph-Beauty-Sub_e3055814cb.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798761/csm_003545_WH_Graph_2013_1880-920_ec536f4f32.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "6944731",
+      "website": "https://designerpages.com/products/6944731",
+      "name": "Neos cantilever chair",
+      "brand": "Wilkhahn Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T21:17:37.904Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/62798841/csm_003160_WH_Neos_2012-600-920_cdcf3adb65.jpg",
+          "width": 440,
+          "height": 675,
+          "short_side": 440,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798851/csm_wilkhahn-neos-cantilever-6_a0017ae6b2.jpg",
+          "width": 300,
+          "height": 460,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798861/csm_001282_WH_Neos_2008-600-920_1384f9926d.jpg",
+          "width": 300,
+          "height": 460,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798881/csm_001164_WH_Neos_2008-600-920_639a326d08.jpg",
+          "width": 300,
+          "height": 460,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798901/csm_003149_WH_Neos_Conversa_2012-1240-920_e7715d3a72.jpg",
+          "width": 620,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798911/csm_003267_WH_ON_Neos_Logon_2012-1240-920_6d6e7cac24.jpg",
+          "width": 620,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798921/csm_003153_WH_Neos_Conversa_2012-1240-920_d1b48639ad.jpg",
+          "width": 620,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798941/csm_003154_WH_Neos_Conversa_2012-1240-920_80bf83861b.jpg",
+          "width": 620,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798951/csm_003153_WH_Neos_Conversa_2012-1880-920_3fc021c5c9.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798971/csm_001987_WH_Neos_2009-1880-920_576e5a990d.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798981/csm_003149_WH_Neos_Conversa_2012-1880-920_16daccb4b1.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62798991/csm_003154_WH_Neos_Conversa_2012-1880-920_d49c952308.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/62799001/csm_003267_WH_ON_Neos_Logon_2012-1880-920_08679bbe44.jpg",
+          "width": 940,
+          "height": 460,
+          "short_side": 460,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "7644011",
+      "website": "https://designerpages.com/products/7644011",
+      "name": "Alpha",
+      "brand": "Sitmatic Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T20:57:10.968Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/64096701/CXGmcMCZ6tjzks68NOMgDwCBZB6DOTBHc6k3A3GgRw1NM9hc72H1Bk9c9GxFNxctA.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096711/CXGmcMCZ6tjzks68NOMgDwCBZB6DOTBHc6k3A3GgRw1NM9hc72H1Bk9c9GxFNxctA.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096721/g2zAmapw9GftOzRsnFwXxHDTgj4wWkDGAWhhn9OH5XYbweKDdFwbEkHLDAEqHp7ye.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096731/pwYSOLGdaGqmp4DwLpC1aNrF6WmCXXmpbpMM3hfeQmcMfkwmz6fOHjhcsfw9DjfYS.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096741/cd4dyASGNCG7d6p6D27jQ5xBMRRGWRhLnf9xkyF3CNXaHr8dWnnjX3YtHF2S4WLmB.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096751/LxgALsxf16E7dqhbs7eKHQmrXA8EH5yACL3B9SsDdn26GDYHObqHKOPtaLqt5Fprb.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096761/NgSqyyYYr8jy129nxCyh322hhXAT2cH7PaXfda232mX8BNLNEeqOqcp8eQjB1nmFM.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096771/1aHYmMrwzzsdNrcH8emhfzBBWqgOqcEXcnC9Ake6MZfqbgzTAXMaKytTbPMrrCGLy.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096781/GFECeCWNZzp9WeP22x8O728PRtHg3CtRsTQpjM4tGEYmD4cshp5CLQx2RXtj3XNKj.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096791/8ahfa8zRNrzPrPH5zwyT8m12X6Wp92xw4L1k97zCGkr2RHpqk5yORPTfaNdBmtGcF.jpg",
+          "width": 350,
+          "height": 420,
+          "short_side": 350,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096801/AlphaOptionAL.jpg",
+          "width": 125,
+          "height": 125,
+          "short_side": 125,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096811/AlphaOptionTH.jpg",
+          "width": 125,
+          "height": 125,
+          "short_side": 125,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/64096821/AlphaOptionHR.jpg",
+          "width": 125,
+          "height": 125,
+          "short_side": 125,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "91254",
+      "website": "https://designerpages.com/products/91254",
+      "name": "Iris",
+      "brand": "Nemschoff",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-04-15T22:19:15.568Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/40610282/970_10_by2.jpeg",
+          "width": 375,
+          "height": 320,
+          "short_side": 320,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/2282045/970_10_by2.jpg",
+          "width": 269,
+          "height": 320,
+          "short_side": 269,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/2282058/971_1_dt_s.jpg",
+          "width": 77,
+          "height": 110,
+          "short_side": 77,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/2282071/971_1_DT_Q.jpg",
+          "width": 92,
+          "height": 105,
+          "short_side": 92,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/2282084/971_2_dt.jpg",
+          "width": 132,
+          "height": 110,
+          "short_side": 110,
+          "passed": false
+        }
+      ]
+    }
+  ]
+}

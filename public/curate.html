@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manual Curation Tool</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="curate-body">
+    <main class="curate-shell">
+      <header class="curate-header">
+        <div>
+          <p class="eyebrow">Manual Curation</p>
+          <h1>Ground Truth Builder</h1>
+          <p class="curate-subtitle">Upload an image, review the top 25 matches, pin the ideal results, rank them, and export JSON.</p>
+        </div>
+      </header>
+
+      <section class="curate-upload-panel">
+        <p id="curateUploadSupportNote" class="upload-support-note"></p>
+        <div class="modal-upload-grid">
+          <div class="modal-upload-block">
+            <p class="debug-caption-label">Upload an image file</p>
+            <input id="curateImageUploadInput" type="file" accept="image/*" hidden />
+            <button id="curateImageUploadButton" class="upload-button" type="button">Choose Image</button>
+            <p id="curateSelectedFileName" class="modal-helper">No file selected.</p>
+          </div>
+          <div class="modal-upload-block">
+            <p class="debug-caption-label">Or paste an image URL</p>
+            <input id="curateImageUrlInput" class="modal-url-input" type="url" placeholder="https://example.com/inspiration.jpg" />
+          </div>
+        </div>
+        <div class="curate-upload-actions">
+          <button id="curateAnalyzeButton" class="upload-button upload-button-strong" type="button">Analyze Image</button>
+          <div id="curateAnalyzeLoading" class="image-analyze-loading" hidden>
+            <span class="image-analyze-spinner" aria-hidden="true"></span>
+            <span>Analyzing image and loading results...</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="curateStatus" class="compare-status" aria-live="polite">Upload an image to start a curation session.</section>
+
+      <section id="curateAnalysisSummary" class="compare-analysis-summary" hidden>
+        <div class="compare-analysis-media">
+          <img id="curateAnalysisPreview" class="compare-analysis-preview" alt="Analyzed inspiration" />
+        </div>
+        <div class="compare-analysis-copy">
+          <p class="eyebrow">Image Search Context</p>
+          <h2 id="curateAnalysisQuery" class="compare-analysis-query"></h2>
+          <div id="curateAnalysisBullets" class="compare-analysis-bullets"></div>
+        </div>
+      </section>
+
+      <section class="curate-workspace">
+        <div class="curate-results-column">
+          <div class="curate-section-header">
+            <div>
+              <p class="eyebrow">Top 25</p>
+              <h2>Search Results</h2>
+            </div>
+            <p id="curateResultsMeta" class="compare-meta"></p>
+          </div>
+          <div id="curateResultsGrid" class="curate-results-grid"></div>
+        </div>
+
+        <aside class="curate-sidebar">
+          <div class="curate-section-header">
+            <div>
+              <p class="eyebrow">Pinned</p>
+              <h2>Ideal Results</h2>
+            </div>
+            <p class="compare-meta">Drag to rank 1-N</p>
+          </div>
+          <div id="curateIdealList" class="curate-ideal-list">
+            <p class="curate-empty">No curated results yet.</p>
+          </div>
+          <button id="curateExportButton" class="upload-button upload-button-strong curate-export-button" type="button" disabled>Export</button>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="/curate.js"></script>
+  </body>
+</html>

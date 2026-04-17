@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weighted Search Compare</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="compare-body">
+    <main class="compare-shell">
+      <header class="compare-header">
+        <p class="eyebrow">Validation Tool</p>
+        <h1>Weighted vs. Unweighted Search</h1>
+        <p class="compare-subtitle">Run one query and inspect the top 12 results with trait weights disabled on the left and the app's actual ranking on the right.</p>
+      </header>
+
+      <form id="compareForm" class="compare-form">
+        <label class="compare-search-field" for="compareQuery">
+          <span class="search-icon">⌕</span>
+          <input id="compareQuery" name="query" type="search" placeholder="Search by visual traits" autocomplete="off" />
+        </label>
+        <button class="upload-button upload-button-strong compare-submit" type="submit">Compare</button>
+        <button id="openCompareImageSearch" class="rules-summary-button compare-image-trigger" type="button">Search From Image</button>
+      </form>
+
+      <section id="compareStatus" class="compare-status" aria-live="polite">Enter a query to compare rankings.</section>
+      <section id="compareAnalysisSummary" class="compare-analysis-summary" hidden>
+        <div class="compare-analysis-media">
+          <img id="compareAnalysisPreview" class="compare-analysis-preview" alt="Analyzed inspiration" />
+        </div>
+        <div class="compare-analysis-copy">
+          <p class="eyebrow">Image Search Context</p>
+          <h2 id="compareAnalysisQuery" class="compare-analysis-query"></h2>
+          <div id="compareAnalysisBullets" class="compare-analysis-bullets"></div>
+        </div>
+      </section>
+
+      <section class="compare-columns">
+        <div class="compare-column">
+          <div class="compare-column-header">
+            <p class="eyebrow">Weights Off</p>
+            <h2>No approved trait decisions</h2>
+            <p id="compareMetaOff" class="compare-meta"></p>
+          </div>
+          <div id="compareGridOff" class="compare-grid"></div>
+        </div>
+
+        <div class="compare-column">
+          <div class="compare-column-header">
+            <p class="eyebrow">Weights On</p>
+            <h2>Matches app ranking</h2>
+            <p id="compareMetaOn" class="compare-meta"></p>
+          </div>
+          <div id="compareGridOn" class="compare-grid"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="compareImageModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="compareImageModalClose"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">Compare From Image</p>
+            <h2 id="compareModalTitle" class="modal-title">Upload or paste an image</h2>
+          </div>
+          <button id="closeCompareImageModal" class="modal-close" type="button" aria-label="Close image compare modal">✕</button>
+        </div>
+
+        <section id="compareImageUploadStage" class="modal-stage">
+          <p id="compareUploadSupportNote" class="upload-support-note"></p>
+          <div class="modal-upload-grid">
+            <div class="modal-upload-block">
+              <p class="debug-caption-label">Upload an image file</p>
+              <input id="compareImageUploadInput" type="file" accept="image/*" hidden />
+              <button id="compareImageUploadButton" class="upload-button" type="button">Choose Image</button>
+              <p id="compareSelectedFileName" class="modal-helper">No file selected.</p>
+            </div>
+            <div class="modal-upload-block">
+              <p class="debug-caption-label">Or paste an image URL</p>
+              <input id="compareImageUrlInput" class="modal-url-input" type="url" placeholder="https://example.com/inspiration.jpg" />
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="compareAnalyzeImageButton" class="upload-button upload-button-strong" type="button">Analyze Image</button>
+          </div>
+          <div id="compareImageAnalyzeLoading" class="image-analyze-loading" hidden>
+            <span class="image-analyze-spinner" aria-hidden="true"></span>
+            <span>Analyzing image...</span>
+          </div>
+        </section>
+
+        <section id="compareImageCropStage" class="modal-stage" hidden>
+          <div class="inspiration-preview-wrap focus-stage-card">
+            <p class="focus-stage-label">Adjust the focus area, then analyze the image</p>
+            <div id="comparePreviewCanvas" class="inspiration-preview-canvas">
+              <img id="compareInspirationPreview" class="inspiration-preview" alt="Uploaded inspiration" />
+              <div id="compareFocusBox" class="focus-box" hidden></div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button id="compareSkipFocusButton" class="upload-button" type="button">Skip Focus</button>
+            <button id="compareApplyFocusButton" class="upload-button upload-button-strong" type="button">Analyze This Area</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script type="module" src="/compare.js"></script>
+  </body>
+</html>

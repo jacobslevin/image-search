@@ -3,12 +3,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { embedTextWithOpenAi, readJson, writeJson } from "../src/utils.js";
+import { embedTextWithOpenAi, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, "..");
-const indexPath = path.join(process.cwd(), "data", "image-index.json");
+const indexPath = getImageIndexPath();
 const embeddingModel = "text-embedding-3-small";
 const saveEvery = 10;
 
