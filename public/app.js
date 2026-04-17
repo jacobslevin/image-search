@@ -1269,38 +1269,23 @@ function getDebugTraitGroups(fields = [], selectedBullets = state.currentSelecte
 function formatDebugImageCategory(image = {}) {
   const stage0 = String(image.stage_0_result || "").trim();
   const effectiveClassification = String(image.effective_classification || "").trim();
-  const stage1Result = String(image.stage1?.result || "").trim();
   const seatingType = String(
     image.seating_type ||
     image.stage1?.seating_type ||
     ""
   ).trim();
+  const rawLabel = stage0 || "unknown";
+  const effectiveLabel = effectiveClassification || rawLabel;
+  const parts = [
+    `raw: ${rawLabel}`,
+    `effective: ${effectiveLabel}`
+  ];
 
-  if (stage1Result === "product_detail" || stage0 === "product_detail") {
-    return effectiveClassification && effectiveClassification !== "product_detail"
-      ? `product_detail (effective: ${effectiveClassification})`
-      : "product_detail";
-  }
-  if (stage0 === "scene") {
-    return effectiveClassification && effectiveClassification !== "scene"
-      ? `scene (effective: ${effectiveClassification})`
-      : "scene";
-  }
   if (seatingType) {
-    const prefix = effectiveClassification && effectiveClassification !== "product"
-      ? `${effectiveClassification} -> `
-      : "product -> ";
-    return `${prefix}${formatSeatingCategoryLabel(seatingType)}`;
+    parts.push(`seating: ${formatSeatingCategoryLabel(seatingType)}`);
   }
-  if (effectiveClassification) {
-    return stage0 && stage0 !== effectiveClassification
-      ? `${stage0} (effective: ${effectiveClassification})`
-      : effectiveClassification;
-  }
-  if (stage0) {
-    return stage0;
-  }
-  return "unknown";
+
+  return parts.join(" | ");
 }
 
 async function fetchDebugPayload() {
