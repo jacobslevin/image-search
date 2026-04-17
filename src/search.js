@@ -2,7 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { cosineSimilarity, embedTextWithOpenAi, getAllCategoryTerms, getCategoryDisplayLabel, getLeafCategories } from "./utils.js";
+import {
+  cosineSimilarity,
+  embedTextWithOpenAi,
+  getAllCategoryTerms,
+  getCategoryDisplayLabel,
+  getEffectiveClassification,
+  getLeafCategories
+} from "./utils.js";
 
 const RERANKER_ENABLED = true;
 const RERANKER_MODEL = "gpt-4o-mini";
@@ -892,7 +899,7 @@ export async function searchIndex({
   }
 
   const filteredImages = (index.images || []).filter((record) => {
-    if (record.stage_0_result !== "product" || record.excluded) {
+    if (getEffectiveClassification(record) !== "product" || record.excluded) {
       return false;
     }
 
@@ -1001,6 +1008,7 @@ export async function searchIndex({
       image_id: image.image_id,
       image_url: image.image_url,
       stage_0_result: image.stage_0_result,
+      effective_classification: getEffectiveClassification(image),
       seating_type: image.seating_type,
       score: image.score,
       score_breakdown: image.score_breakdown || [],

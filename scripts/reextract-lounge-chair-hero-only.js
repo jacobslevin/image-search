@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { regenerateImageExtractionRecordWithExistingStage0 } from "../src/captioning.js";
+import { getEffectiveClassification } from "../src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,7 +40,7 @@ function buildProductRecords(images = []) {
     existing.b_level.push(...(image.b_level || []));
     existing.c_level.push(...(image.c_level || []));
     existing.image_urls.push(String(image.image_url || "").trim());
-    if (image.stage_0_result === "product" && !image.excluded) {
+    if (getEffectiveClassification(image) === "product" && !image.excluded) {
       existing.passing_image_count += 1;
     }
 

@@ -1268,6 +1268,7 @@ function getDebugTraitGroups(fields = [], selectedBullets = state.currentSelecte
 
 function formatDebugImageCategory(image = {}) {
   const stage0 = String(image.stage_0_result || "").trim();
+  const effectiveClassification = String(image.effective_classification || "").trim();
   const stage1Result = String(image.stage1?.result || "").trim();
   const seatingType = String(
     image.seating_type ||
@@ -1276,13 +1277,25 @@ function formatDebugImageCategory(image = {}) {
   ).trim();
 
   if (stage1Result === "product_detail" || stage0 === "product_detail") {
-    return "product_detail";
+    return effectiveClassification && effectiveClassification !== "product_detail"
+      ? `product_detail (effective: ${effectiveClassification})`
+      : "product_detail";
   }
   if (stage0 === "scene") {
-    return "scene";
+    return effectiveClassification && effectiveClassification !== "scene"
+      ? `scene (effective: ${effectiveClassification})`
+      : "scene";
   }
   if (seatingType) {
-    return `product -> ${formatSeatingCategoryLabel(seatingType)}`;
+    const prefix = effectiveClassification && effectiveClassification !== "product"
+      ? `${effectiveClassification} -> `
+      : "product -> ";
+    return `${prefix}${formatSeatingCategoryLabel(seatingType)}`;
+  }
+  if (effectiveClassification) {
+    return stage0 && stage0 !== effectiveClassification
+      ? `${stage0} (effective: ${effectiveClassification})`
+      : effectiveClassification;
   }
   if (stage0) {
     return stage0;
@@ -2487,6 +2500,7 @@ function applyActiveSearchContext({
   preserveOriginal = false,
   refinementActive = false
 }) {
+  state.lastQuery = String(query || "").trim();
   state.currentBaseQueryEmbedding = Array.isArray(baseQueryEmbedding) ? [...baseQueryEmbedding] : Array.isArray(payload?.query_embedding) ? payload.query_embedding : [];
   state.currentQueryEmbedding = Array.isArray(payload?.query_embedding) ? payload.query_embedding : [];
   state.currentSelectedBullets = normalizeSelectedBullets(selectedBullets);
@@ -2868,6 +2882,25 @@ function formatImageTraitChips(imageTraits = {}, limit = 6, typeKey = null) {
     .slice(0, limit);
 }
 
+function buildStoredImageSearchBullets(imageTraits = {}, limit = 6, typeKey = null) {
+  return Object.entries(imageTraits || {})
+    .map(([field, value]) => {
+      const fieldConfig = getTraitFieldConfig(typeKey, field);
+      if (fieldConfig?.detectability === "no") {
+        return "";
+      }
+
+      const normalizedValue = String(value ?? "").trim();
+      if (!normalizedValue || ["unknown", "n/a"].includes(normalizedValue.toLowerCase())) {
+        return "";
+      }
+
+      return `${formatTraitFieldLabel(field)}: ${normalizedValue}`;
+    })
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
 function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const source = matchingImage || {};
   const heroSource = result.hero_image || {};
@@ -2878,15 +2911,32 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
     ""
   ).trim();
   const enumFields = source.enum_fields || heroSource.enum_fields || result.debug?.image_traits || {};
-  const bulletTexts = formatImageTraitChips(enumFields, 6, seatingType);
-  const selectedBullets = {
+  const bulletTexts = buildStoredImageSearchBullets(enumFields, 6, seatingType);
+  const fallbackMatchedTraits = Array.isArray(result.matched_traits)
+    ? result.matched_traits.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 6)
+    : [];
+  const selectedBullets = normalizeSelectedBullets({
     essential: [],
-    normal: bulletTexts
-  };
+    normal: bulletTexts.length ? bulletTexts : fallbackMatchedTraits
+  });
   const bulletControls = normalizeBulletControls(
-    bulletTexts.map((text) => ({ text, priority: "normal" }))
+    [
+      ...selectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...selectedBullets.normal.map((text) => ({ text, priority: "normal" })),
+      ...selectedBullets.low.map((text) => ({ text, priority: "low" }))
+    ]
   );
-  const query = buildFallbackQueryFromStructuredBullets(selectedBullets) || result.name || "image search";
+  const query = String(
+    source.free_text?.visual_summary ||
+    heroSource.free_text?.visual_summary ||
+    source.structured_caption ||
+    heroSource.structured_caption ||
+    result.debug?.visual_description ||
+    result.debug?.structured_caption ||
+    buildFallbackQueryFromStructuredBullets(selectedBullets) ||
+    result.name ||
+    "image search"
+  ).trim();
   const embedding = normalizeClientEmbedding(
     source.visual_summary_embedding ||
     heroSource.visual_summary_embedding ||
@@ -2992,7 +3042,7 @@ function applyRefreshedProductToResults(refreshPayload) {
         ])
       );
       const refreshedMatchingImages = (refreshPayload.images || [])
-        .filter((image) => image?.stage_0_result === "product")
+        .filter((image) => normalizeEffectiveClassification(image?.effective_classification || image?.stage_0_result) === "product")
         .map((image) => {
           const normalizedUrl = normalizeDisplayImageUrl(image.image_url);
           const scoreKey = String(image.image_id || normalizedUrl);
@@ -3000,6 +3050,7 @@ function applyRefreshedProductToResults(refreshPayload) {
             image_id: image.image_id,
             image_url: normalizedUrl,
             stage_0_result: normalizeStage0Result(image.stage_0_result),
+            effective_classification: normalizeEffectiveClassification(image.effective_classification || image.stage_0_result),
             score: existingScoreByKey.has(scoreKey)
               ? existingScoreByKey.get(scoreKey)
               : Number(result.score || 0),
@@ -4043,6 +4094,9 @@ function renderRefineSidebar() {
   if (elements.refineSelectedImageWrap && elements.refineSelectedImage) {
     const selectedImageUrl = String(state.currentImageAnalysis?.image_preview_url || state.cropPreviewUrl || "").trim();
     elements.refineSelectedImageWrap.hidden = !selectedImageUrl;
+    if (elements.reopenFocusOverlay) {
+      elements.reopenFocusOverlay.hidden = !selectedImageUrl;
+    }
     if (selectedImageUrl) {
       applyRefineSelectedImageCrop(
         elements.refineSelectedImage,
@@ -4263,6 +4317,10 @@ function normalizeStage0Result(value = "") {
   return normalized === "scene" || normalized === "product" || normalized === "product_detail" ? normalized : "";
 }
 
+function normalizeEffectiveClassification(value = "") {
+  return normalizeStage0Result(value);
+}
+
 function formatStage0ResultLabel(value = "") {
   const normalized = normalizeStage0Result(value);
   if (normalized === "scene") return "Scene";
@@ -4284,9 +4342,11 @@ function findSceneFilterForImage(sceneFilterResults = [], imageUrl = "") {
 }
 
 function applySceneBadge(sceneBadge, imageUrl, sceneFilterResults = [], matchingImage = null) {
-  const stage0Result = normalizeStage0Result(matchingImage?.stage_0_result);
-  const match = stage0Result
-    ? { result: stage0Result, model_version: "stored image record" }
+  const effectiveClassification = normalizeEffectiveClassification(
+    matchingImage?.effective_classification || matchingImage?.stage_0_result
+  );
+  const match = effectiveClassification
+    ? { result: effectiveClassification, model_version: "stored image record" }
     : findSceneFilterForImage(sceneFilterResults, imageUrl);
   if (!match) {
     sceneBadge.hidden = true;
@@ -4314,9 +4374,11 @@ function applySceneBadge(sceneBadge, imageUrl, sceneFilterResults = [], matching
 }
 
 function resolveImagePresentation(imageUrl, sceneFilterResults = [], matchingImage = null) {
-  const stage0Result = normalizeStage0Result(matchingImage?.stage_0_result);
-  const match = stage0Result
-    ? { result: stage0Result }
+  const effectiveClassification = normalizeEffectiveClassification(
+    matchingImage?.effective_classification || matchingImage?.stage_0_result
+  );
+  const match = effectiveClassification
+    ? { result: effectiveClassification }
     : findSceneFilterForImage(sceneFilterResults, imageUrl);
   return match?.result === "scene" ? "scene" : "product";
 }
@@ -4339,16 +4401,19 @@ function normalizeMatchingImages(result = {}) {
     .map((image) => ({
       ...image,
       stage_0_result: normalizeStage0Result(image?.stage_0_result),
+      effective_classification: normalizeEffectiveClassification(image?.effective_classification || image?.stage_0_result),
       image_url: normalizeDisplayImageUrl(image?.image_url)
     }))
     .filter((image) => image.image_url);
   if (normalized.length) {
     const isSearchMode = Boolean(state.lastQuery && !result?.browse_mode);
     if (isSearchMode) {
-      const heroStage0Result = normalizeStage0Result(result.hero_image?.stage_0_result);
+      const heroEffectiveClassification = normalizeEffectiveClassification(
+        result.hero_image?.effective_classification || result.hero_image?.stage_0_result
+      );
       const heroSeatingType = String(result.hero_image?.seating_type || "").trim().toLowerCase();
-      const productOnly = normalized.filter((image) => image.stage_0_result === "product");
-      if (heroStage0Result === "product" && heroSeatingType) {
+      const productOnly = normalized.filter((image) => image.effective_classification === "product");
+      if (heroEffectiveClassification === "product" && heroSeatingType) {
         const sameSeatingType = productOnly.filter((image) => String(image.seating_type || "").trim().toLowerCase() === heroSeatingType);
         if (sameSeatingType.length) {
           return sameSeatingType;
@@ -4367,6 +4432,7 @@ function normalizeMatchingImages(result = {}) {
     .map((imageUrl) => ({
       image_url: imageUrl,
       stage_0_result: "",
+      effective_classification: "",
       score: Number(result.score || 0)
     }));
   if (catalogImages.length) {
@@ -4375,11 +4441,15 @@ function normalizeMatchingImages(result = {}) {
 
   const heroImageUrl = normalizeDisplayImageUrl(result.hero_image?.image_url || result.best_image_url);
   const heroStage0Result = normalizeStage0Result(result.hero_image?.stage_0_result);
+  const heroEffectiveClassification = normalizeEffectiveClassification(
+    result.hero_image?.effective_classification || result.hero_image?.stage_0_result
+  );
   if (heroImageUrl) {
     return [{
       image_id: result.hero_image?.image_id,
       image_url: heroImageUrl,
       stage_0_result: heroStage0Result,
+      effective_classification: heroEffectiveClassification,
       score: Number(result.hero_image?.score ?? result.score ?? 0),
       confidence_tier: result.hero_image?.confidence_tier || result.confidence_tier || "high"
     }];
@@ -4407,13 +4477,8 @@ function syncSearchFromImageButton(button, result, matchingImage = null) {
     return;
   }
 
-  const hasStoredEmbedding = Array.isArray(
-    matchingImage?.visual_summary_embedding ||
-    result.hero_image?.visual_summary_embedding
-  ) && (
-    matchingImage?.visual_summary_embedding?.length > 0 ||
-    result.hero_image?.visual_summary_embedding?.length > 0
-  );
+  const hasStoredEmbedding = Array.isArray(matchingImage?.visual_summary_embedding) &&
+    matchingImage.visual_summary_embedding.length > 0;
   button.hidden = !hasStoredEmbedding;
   button.disabled = !hasStoredEmbedding || state.refinementLoading;
   button.title = hasStoredEmbedding ? "Search from this image" : "No stored embedding for this image";
@@ -4882,6 +4947,35 @@ function renderResults(payload, query) {
     );
     productName.textContent = "";
     const productWebsite = String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id);
+    cardImageWrap.classList.toggle("is-linked", Boolean(productWebsite));
+    cardImageWrap.onclick = null;
+    if (productWebsite) {
+      cardImageWrap.setAttribute("role", "link");
+      cardImageWrap.setAttribute("tabindex", "0");
+      cardImageWrap.setAttribute("aria-label", `Open ${result.name} on Designer Pages`);
+      cardImageWrap.addEventListener("click", (event) => {
+        const target = event.target;
+        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control")) {
+          return;
+        }
+        window.open(productWebsite, "_blank", "noopener,noreferrer");
+      });
+      cardImageWrap.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") {
+          return;
+        }
+        const target = event.target;
+        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control")) {
+          return;
+        }
+        event.preventDefault();
+        window.open(productWebsite, "_blank", "noopener,noreferrer");
+      });
+    } else {
+      cardImageWrap.removeAttribute("role");
+      cardImageWrap.removeAttribute("tabindex");
+      cardImageWrap.removeAttribute("aria-label");
+    }
     if (productWebsite) {
       const productLink = document.createElement("a");
       productLink.href = productWebsite;
@@ -5167,13 +5261,6 @@ function renderResults(payload, query) {
         renderResults(state.lastPayload, state.lastQuery);
       });
       weakSectionWrap.appendChild(toggleButton);
-
-      if (state.weakerMatchesExpanded) {
-        const divider = document.createElement("div");
-        divider.className = "results-cutoff-divider";
-        divider.textContent = "Below the cutoff";
-        weakSectionWrap.appendChild(divider);
-      }
 
       elements.resultsGrid.appendChild(weakSectionWrap);
     }

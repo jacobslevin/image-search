@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 
 import { regenerateImageExtractionRecordWithExistingStage0 } from "../src/captioning.js";
+import { getEffectiveClassification } from "../src/utils.js";
 
 async function main() {
   if (!process.env.OPENAI_API_KEY) {
@@ -9,7 +10,7 @@ async function main() {
 
   const index = JSON.parse(await fs.readFile(new URL("../data/image-index.json", import.meta.url), "utf8"));
   const targets = new Set(["Arwyn", "Sachet Lounge"]);
-  const rows = (index.images || []).filter((record) => targets.has(record.product_name) && record.stage_0_result === "product");
+  const rows = (index.images || []).filter((record) => targets.has(record.product_name) && getEffectiveClassification(record) === "product");
   const results = [];
   let totalCostUsd = 0;
 

@@ -10,7 +10,19 @@ import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, searchIndex } from "./src/search.js";
 import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
-import { createId, ensureDir, getAllCategoryTerms, getCategoryDisplayLabel, getCategoryLevels, getImageIndexPath, getLeafCategories, readJson, writeJson } from "./src/utils.js";
+import {
+  createId,
+  ensureDir,
+  getAllCategoryTerms,
+  getCategoryDisplayLabel,
+  getCategoryLevels,
+  getEffectiveClassification,
+  getImageIndexPath,
+  getLeafCategories,
+  normalizeImageClassification,
+  readJson,
+  writeJson
+} from "./src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -336,10 +348,7 @@ function getResultCutoffConfig() {
 }
 
 function normalizeStage0Result(value = "") {
-  const normalized = String(value || "").trim().toLowerCase();
-  return normalized === "scene" || normalized === "product" || normalized === "product_detail"
-    ? normalized
-    : "";
+  return normalizeImageClassification(value);
 }
 
 function incrementReindexStage0Counts(result = "") {
@@ -1593,10 +1602,21 @@ async function loadSeatingTypes() {
 
 function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString(), extra = {}) {
   const stage0Result = normalizeStage0Result(generated?.stage_0_result || extra?.stage_0_result);
+  const stage1OverrideResult = normalizeImageClassification(
+    generated?.stage_1_override_result || extra?.stage_1_override_result
+  );
+  const effectiveClassification = getEffectiveClassification({
+    ...generated,
+    ...extra,
+    stage_0_result: stage0Result,
+    stage_1_override_result: stage1OverrideResult
+  });
   return {
     ...generated,
     ...extra,
     stage_0_result: stage0Result || String(generated?.stage_0_result || extra?.stage_0_result || "").trim(),
+    stage_1_override_result: stage1OverrideResult,
+    effective_classification: effectiveClassification,
     ai_refreshed_at: refreshedAt
   };
 }
@@ -1636,7 +1656,7 @@ function buildLightweightProductRecords(catalog, imageRecords = []) {
 
     const product = byProductId.get(image.product_id);
     product.image_urls = [...new Set([...product.image_urls, image.image_url].filter(Boolean))];
-    if (normalizeStage0Result(image.stage_0_result) === "product") {
+    if (getEffectiveClassification(image) === "product") {
       product.passing_image_count += 1;
     }
   }
@@ -1645,7 +1665,7 @@ function buildLightweightProductRecords(catalog, imageRecords = []) {
 }
 
 function buildIndexOutput(index, catalog, mergedImages) {
-  const searchableImages = mergedImages.filter((image) => normalizeStage0Result(image.stage_0_result) === "product");
+  const searchableImages = mergedImages.filter((image) => getEffectiveClassification(image) === "product");
   const products = buildLightweightProductRecords(catalog, mergedImages);
   const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
@@ -2138,7 +2158,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
   return productRecords
     .map((product) => {
       const indexedImages = indexedByProductId.get(product.product_id) || [];
-      const passingImages = indexedImages.filter((image) => image.stage_0_result === "product");
+      const passingImages = indexedImages.filter((image) => getEffectiveClassification(image) === "product");
       const browseImages = indexedImages.length ? indexedImages : [];
       const heroImage = passingImages[0] || browseImages[0] || null;
       const imageUrls = (product.image_urls || []).filter(Boolean);
@@ -2172,6 +2192,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
           image_id: image.image_id,
           image_url: image.image_url,
           stage_0_result: image.stage_0_result,
+          effective_classification: getEffectiveClassification(image),
           seating_type: image.seating_type,
           enum_fields: image.enum_fields || image.image_traits || {},
           free_text: image.free_text || {},
@@ -2184,6 +2205,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
               image_id: heroImage.image_id,
               image_url: heroImage.image_url,
               stage_0_result: heroImage.stage_0_result,
+              effective_classification: getEffectiveClassification(heroImage),
               seating_type: heroImage.seating_type,
               enum_fields: heroImage.enum_fields || heroImage.image_traits || {},
               free_text: heroImage.free_text || {},
@@ -2454,7 +2476,7 @@ const server = http.createServer(async (request, response) => {
         }
 
         const targetRecord = (index.images || [])
-          .filter((record) => record.product_id === productId && record.stage_0_result === "product")
+          .filter((record) => record.product_id === productId && getEffectiveClassification(record) === "product")
           .sort((a, b) => String(b.confidence_tier || "").localeCompare(String(a.confidence_tier || "")))[0];
         if (!targetRecord?.visual_summary_embedding?.length) {
           return json(response, 404, { error: "Target product embedding not found." });

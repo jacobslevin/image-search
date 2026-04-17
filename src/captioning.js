@@ -5,7 +5,16 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 
-import { embedTextWithOpenAi, normalizeWhitespace, sentenceCase, tokenize, uniqueStrings, readJson } from "./utils.js";
+import {
+  embedTextWithOpenAi,
+  getEffectiveClassification,
+  normalizeImageClassification,
+  normalizeWhitespace,
+  readJson,
+  sentenceCase,
+  tokenize,
+  uniqueStrings
+} from "./utils.js";
 import { extractQueryTraits } from "./query-traits.js";
 
 const execFileAsync = promisify(execFile);
@@ -33,6 +42,48 @@ const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
 const GPT_41_OUTPUT_COST_PER_TOKEN = 8 / 1_000_000;
 const GPT_41_NANO_INPUT_COST_PER_TOKEN = 0.10 / 1_000_000;
 const GPT_41_NANO_OUTPUT_COST_PER_TOKEN = 0.40 / 1_000_000;
+
+function buildImageDimensionFields(dimensions = null) {
+  const width = Number(dimensions?.width);
+  const height = Number(dimensions?.height);
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return {
+      image_width: null,
+      image_height: null,
+      image_short_side: null
+    };
+  }
+
+  return {
+    image_width: width,
+    image_height: height,
+    image_short_side: Math.min(width, height)
+  };
+}
+
+function buildClassificationFields({
+  stage0Result = "",
+  stage1Override = false,
+  stage1OverrideResult = "",
+  stage1OverrideReason = null,
+  stage1 = {}
+} = {}) {
+  const normalizedStage0Result = normalizeImageClassification(stage0Result);
+  const normalizedOverrideResult = normalizeImageClassification(stage1OverrideResult);
+  const effectiveClassification = getEffectiveClassification({
+    stage_0_result: normalizedStage0Result,
+    stage_1_override_result: normalizedOverrideResult,
+    stage1
+  });
+
+  return {
+    stage_0_result: normalizedStage0Result,
+    stage_1_override: Boolean(stage1Override),
+    stage_1_override_result: normalizedOverrideResult,
+    stage_1_override_reason: stage1OverrideReason || null,
+    effective_classification: effectiveClassification
+  };
+}
 
 const LEGACY_TRAIT_DEFAULTS = {
   product_type: "",
@@ -2813,6 +2864,11 @@ async function embedSearchText(searchText = "", options = {}) {
 export async function generateImageExtractionRecord(imageRecord = {}, options = {}) {
   const extractionTimestamp = new Date().toISOString();
   const categories = normalizeCategories(imageRecord);
+  const imageDimensions = await enforceMatchingSafeResolution(imageRecord.image_url, options);
+  const optionsWithDimensions = {
+    ...options,
+    precomputedImageDimensions: imageDimensions
+  };
   const imageInput = {
     image_url: imageRecord.image_url,
     catalogContext: `Catalog context: name="${imageRecord.name || imageRecord.product_name || ""}", brand="${imageRecord.brand || ""}", categories="${[...categories.a_level, ...categories.b_level, ...categories.c_level].join(" | ")}".`
@@ -2827,7 +2883,7 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     });
   }
 
-  const { data: stage0, usage: stage0Usage } = await classifyStage0ProductSceneWithMeta(imageInput, options);
+  const { data: stage0, usage: stage0Usage } = await classifyStage0ProductSceneWithMeta(imageInput, optionsWithDimensions);
   const stage0Cost = estimateNanoUsageCostUsd(stage0Usage);
 
   if (typeof options.progressCallback === "function") {
@@ -2849,9 +2905,11 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
       name: imageRecord.name || imageRecord.product_name || "",
       brand: imageRecord.brand || "",
       ...categories,
-      stage_0_result: stage0.result,
-      stage_1_override: false,
-      stage_1_override_reason: null,
+      ...buildClassificationFields({
+        stage0Result: stage0.result,
+        stage1Override: false,
+        stage1: { result: "", seating_type: "", override_reason: null }
+      }),
       seating_type: "",
       enum_fields: {},
       field_confidence: {},
@@ -2875,11 +2933,12 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
       stage2: { visual_summary: "" },
       visual_summary_embedding: [],
       search_text: "",
-      search_text_embedding: []
+      search_text_embedding: [],
+      ...buildImageDimensionFields(imageDimensions)
     };
   }
 
-  const run1 = await runStage123Extraction(imageInput, options, imageRecord, "run_1");
+  const run1 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_1");
   if (isStage1ProductDetail(run1.stage1)) {
     const totalUsage = sumUsage(stage0Usage, run1.usage?.total);
     const totalCostUsd = Number((stage0Cost + Number(run1.usage?.estimated_cost_usd || 0)).toFixed(6));
@@ -2891,9 +2950,17 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
       name: imageRecord.name || imageRecord.product_name || "",
       brand: imageRecord.brand || "",
       ...categories,
-      stage_0_result: "product_detail",
-      stage_1_override: true,
-      stage_1_override_reason: run1.stage1?.override_reason || null,
+      ...buildClassificationFields({
+        stage0Result: "product",
+        stage1Override: true,
+        stage1OverrideResult: "product_detail",
+        stage1OverrideReason: run1.stage1?.override_reason || null,
+        stage1: {
+          result: "product_detail",
+          seating_type: "",
+          override_reason: run1.stage1?.override_reason || null
+        }
+      }),
       seating_type: "",
       enum_fields: {},
       field_confidence: {},
@@ -2933,15 +3000,16 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
       stage2: { visual_summary: "" },
       visual_summary_embedding: [],
       search_text: "",
-      search_text_embedding: []
+      search_text_embedding: [],
+      ...buildImageDimensionFields(imageDimensions)
     };
   }
-  const run2 = await runStage123Extraction(imageInput, options, imageRecord, "run_2");
+  const run2 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_2");
   const runs = [run1, run2];
   const tiebreakerTriggered = !allFieldsAgree(run1, run2);
 
   if (tiebreakerTriggered) {
-    runs.push(await runStage123Extraction(imageInput, options, imageRecord, "run_3"));
+    runs.push(await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_3"));
   }
 
   const voted = voteStage123Runs(runs);
@@ -2988,9 +3056,15 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     name: imageRecord.name || imageRecord.product_name || "",
     brand: imageRecord.brand || "",
     ...categories,
-    stage_0_result: "product",
-    stage_1_override: false,
-    stage_1_override_reason: null,
+    ...buildClassificationFields({
+      stage0Result: "product",
+      stage1Override: false,
+      stage1: {
+        result: "product",
+        seating_type: String(voted.stage1?.seating_type || "other_seating"),
+        override_reason: null
+      }
+    }),
     seating_type: String(voted.stage1?.seating_type || "other_seating"),
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
@@ -3028,7 +3102,8 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     },
     visual_summary_embedding: searchTextEmbedding,
     search_text: searchText,
-    search_text_embedding: searchTextEmbedding
+    search_text_embedding: searchTextEmbedding,
+    ...buildImageDimensionFields(imageDimensions)
   };
 
   if (typeof options.progressCallback === "function") {
@@ -3050,6 +3125,14 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
 export async function regenerateImageExtractionRecordWithExistingStage0(imageRecord = {}, existingRecord = {}, options = {}) {
   const extractionTimestamp = new Date().toISOString();
   const categories = normalizeCategories(imageRecord);
+  const imageDimensions = options.precomputedImageDimensions ||
+    (existingRecord.image_width && existingRecord.image_height
+      ? { width: Number(existingRecord.image_width), height: Number(existingRecord.image_height) }
+      : await enforceMatchingSafeResolution(imageRecord.image_url, options));
+  const optionsWithDimensions = {
+    ...options,
+    precomputedImageDimensions: imageDimensions
+  };
   const productName = imageRecord.name || imageRecord.product_name || existingRecord.product_name || existingRecord.name || "";
   const brand = imageRecord.brand || existingRecord.brand || "";
   const normalizedStage0Result = String(existingRecord.stage_0_result || imageRecord.stage_0_result || "").trim().toLowerCase();
@@ -3082,13 +3165,17 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
       name: productName,
       brand,
       ...categories,
-      stage_1_override: false,
-      stage_1_override_reason: null,
-      extraction_timestamp: extractionTimestamp
+      ...buildClassificationFields({
+        stage0Result,
+        stage1Override: false,
+        stage1: existingRecord.stage1 || { result: "", seating_type: "", override_reason: null }
+      }),
+      extraction_timestamp: extractionTimestamp,
+      ...buildImageDimensionFields(imageDimensions)
     };
   }
 
-  const run1 = await runStage123Extraction(imageInput, options, imageRecord, "run_1");
+  const run1 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_1");
   if (isStage1ProductDetail(run1.stage1)) {
     const totalUsage = sumUsage(preservedStage0Usage, run1.usage?.total);
     const totalCostUsd = Number((preservedStage0Cost + Number(run1.usage?.estimated_cost_usd || 0)).toFixed(6));
@@ -3100,9 +3187,17 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
       name: productName,
       brand,
       ...categories,
-      stage_0_result: "product_detail",
-      stage_1_override: true,
-      stage_1_override_reason: run1.stage1?.override_reason || null,
+      ...buildClassificationFields({
+        stage0Result: "product",
+        stage1Override: true,
+        stage1OverrideResult: "product_detail",
+        stage1OverrideReason: run1.stage1?.override_reason || null,
+        stage1: {
+          result: "product_detail",
+          seating_type: "",
+          override_reason: run1.stage1?.override_reason || null
+        }
+      }),
       seating_type: "",
       enum_fields: {},
       field_confidence: {},
@@ -3142,15 +3237,16 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
       stage2: { visual_summary: "" },
       visual_summary_embedding: [],
       search_text: "",
-      search_text_embedding: []
+      search_text_embedding: [],
+      ...buildImageDimensionFields(imageDimensions)
     };
   }
-  const run2 = await runStage123Extraction(imageInput, options, imageRecord, "run_2");
+  const run2 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_2");
   const runs = [run1, run2];
   const tiebreakerTriggered = !allFieldsAgree(run1, run2);
 
   if (tiebreakerTriggered) {
-    runs.push(await runStage123Extraction(imageInput, options, imageRecord, "run_3"));
+    runs.push(await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_3"));
   }
 
   const voted = voteStage123Runs(runs);
@@ -3195,9 +3291,15 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     name: productName,
     brand,
     ...categories,
-    stage_0_result: "product",
-    stage_1_override: false,
-    stage_1_override_reason: null,
+    ...buildClassificationFields({
+      stage0Result: "product",
+      stage1Override: false,
+      stage1: {
+        result: "product",
+        seating_type: String(voted.stage1?.seating_type || "other_seating"),
+        override_reason: null
+      }
+    }),
     seating_type: String(voted.stage1?.seating_type || "other_seating"),
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
@@ -3235,7 +3337,8 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     },
     visual_summary_embedding: searchTextEmbedding,
     search_text: searchText,
-    search_text_embedding: searchTextEmbedding
+    search_text_embedding: searchTextEmbedding,
+    ...buildImageDimensionFields(imageDimensions)
   };
 
   if (typeof options.progressCallback === "function") {

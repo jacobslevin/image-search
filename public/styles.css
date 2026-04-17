@@ -2581,6 +2581,10 @@ body.landing-home .seed-query.is-active {
   box-shadow: 0 8px 20px rgba(64, 49, 26, 0.1);
 }
 
+.card-image-wrap.is-linked {
+  cursor: pointer;
+}
+
 .card-image-wrap.is-empty {
   background:
     linear-gradient(180deg, rgba(245, 246, 248, 0.98), rgba(237, 239, 243, 0.98));

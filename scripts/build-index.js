@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { generateImageExtractionRecord } from "../src/captioning.js";
 import { normalizeCatalog } from "../src/catalog.js";
-import { DATA_DIR, getAllCategoryTerms, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
+import { DATA_DIR, getAllCategoryTerms, getEffectiveClassification, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
 
 const args = process.argv.slice(2);
 const providerArgIndex = args.indexOf("--provider");
@@ -90,7 +90,7 @@ function buildLightweightProducts(catalog, imageRecords = []) {
 
     const product = byProductId.get(record.product_id);
     product.image_urls = [...new Set([...product.image_urls, record.image_url].filter(Boolean))];
-    if (record.stage_0_result === "product") {
+    if (getEffectiveClassification(record) === "product") {
       product.passing_image_count += 1;
     }
   }
@@ -100,7 +100,7 @@ function buildLightweightProducts(catalog, imageRecords = []) {
 
 function buildIndexOutput(catalog, imageRecords = []) {
   const products = buildLightweightProducts(catalog, imageRecords);
-  const searchableImages = imageRecords.filter((image) => image.stage_0_result === "product");
+  const searchableImages = imageRecords.filter((image) => getEffectiveClassification(image) === "product");
   const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 

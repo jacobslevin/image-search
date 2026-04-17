@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { regenerateImageExtractionRecordWithExistingStage0 } from "../src/captioning.js";
+import { getEffectiveClassification } from "../src/utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,7 +42,7 @@ function buildProductRecords(images = []) {
     existing.b_level.push(...(image.b_level || []));
     existing.c_level.push(...(image.c_level || []));
     existing.image_urls.push(String(image.image_url || "").trim());
-    if (image.stage_0_result === "product" && !image.excluded) {
+    if (getEffectiveClassification(image) === "product" && !image.excluded) {
       existing.passing_image_count += 1;
     }
 
@@ -70,7 +71,7 @@ function findNegationLanguage(records = []) {
   const findings = [];
 
   for (const record of records) {
-    if (record.stage_0_result !== "product") {
+    if (getEffectiveClassification(record) !== "product") {
       continue;
     }
 
@@ -106,7 +107,7 @@ async function main() {
   const concurrency = Math.max(1, Number(process.env.REEXTRACT_CONCURRENCY || 4));
   const beforeSeatingType = new Map(
     originalImages
-      .filter((record) => record.stage_0_result === "product")
+      .filter((record) => getEffectiveClassification(record) === "product")
       .map((record) => [record.image_id, String(record.seating_type || "").trim()])
   );
 
@@ -158,7 +159,7 @@ async function main() {
     for (const entry of batchResults) {
       nextImages.push(entry.nextRecord);
 
-      if (entry.existingRecord.stage_0_result === "product") {
+      if (getEffectiveClassification(entry.existingRecord) === "product") {
         productImageCount += 1;
         totalRerunCostUsd += Number(
           (entry.nextRecord.cost?.runs || []).reduce((sum, run) => sum + Number(run?.estimated_cost_usd || 0), 0)
@@ -184,7 +185,7 @@ async function main() {
 
   const nextProducts = buildProductRecords(nextImages);
   const seatingTypeChanges = nextImages
-    .filter((record) => record.stage_0_result === "product")
+    .filter((record) => getEffectiveClassification(record) === "product")
     .map((record) => ({
       image_id: record.image_id,
       product_name: record.product_name,
@@ -194,7 +195,7 @@ async function main() {
     }))
     .filter((entry) => entry.before !== entry.after);
 
-  const preludeRecords = nextImages.filter((record) => record.product_name === "Prelude - Lounge" && record.stage_0_result === "product");
+  const preludeRecords = nextImages.filter((record) => record.product_name === "Prelude - Lounge" && getEffectiveClassification(record) === "product");
   const negationFindings = findNegationLanguage(nextImages);
 
   const nextIndex = {

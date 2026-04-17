@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
+export const IMAGE_CLASSIFICATIONS = new Set(["scene", "product", "product_detail"]);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const ROOT_DIR = path.resolve(__dirname, "..");
@@ -19,6 +20,35 @@ function resolveOverridePath(envName, defaultPath) {
 
 export function getImageIndexPath() {
   return resolveOverridePath("IMAGE_INDEX_PATH", path.join(DATA_DIR, "image-index.json"));
+}
+
+export function normalizeImageClassification(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  return IMAGE_CLASSIFICATIONS.has(normalized) ? normalized : "";
+}
+
+export function getEffectiveClassification(record = {}) {
+  const explicit = normalizeImageClassification(record?.effective_classification);
+  if (explicit) {
+    return explicit;
+  }
+
+  const override = normalizeImageClassification(record?.stage_1_override_result);
+  if (override) {
+    return override;
+  }
+
+  const raw = normalizeImageClassification(record?.stage_0_result);
+  if (raw) {
+    return raw;
+  }
+
+  const stage1Result = normalizeImageClassification(record?.stage1?.result);
+  if (stage1Result) {
+    return stage1Result;
+  }
+
+  return "";
 }
 
 export function slugify(value) {
