@@ -36,7 +36,7 @@ const stage1SeatingTypeEnum = [
   "ottoman",
   "other_seating"
 ];
-const stage1ResultEnum = ["product", "product_detail"];
+const stage1ResultEnum = ["product", "product_detail", "scene"];
 const stage0ResultEnum = ["product", "scene", "product_detail"];
 const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
 const GPT_41_OUTPUT_COST_PER_TOKEN = 8 / 1_000_000;
@@ -82,6 +82,98 @@ function buildClassificationFields({
     stage_1_override_result: normalizedOverrideResult,
     stage_1_override_reason: stage1OverrideReason || null,
     effective_classification: effectiveClassification
+  };
+}
+
+function buildEmptyStage23Payload() {
+  return {
+    stage2: {
+      silhouette: "",
+      proportions: "",
+      structure_type: "",
+      back_geometry: "",
+      seat_geometry: "",
+      arm_geometry: "",
+      surface_language: "",
+      design_register: "",
+      distinctive_elements: [],
+      visual_summary: ""
+    },
+    stage3: {
+      structured_caption: "",
+      raw_visual_highlights: [],
+      image_traits: {}
+    }
+  };
+}
+
+function buildStage1OverrideVoteResult(result = "", overrideReason = null, confidence = "low") {
+  const normalizedResult = normalizeStage1Result(result);
+  return {
+    stage1: {
+      result: normalizedResult,
+      seating_type: "",
+      override_reason: overrideReason || null
+    },
+    ...buildEmptyStage23Payload(),
+    field_confidence: {
+      stage1: {
+        result: confidence,
+        seating_type: 0
+      },
+      stage2: {
+        design_register: 0
+      },
+      stage3: {
+        image_traits: {}
+      },
+      image_traits: {}
+    }
+  };
+}
+
+function buildExcludedImageExtractionResult({
+  baseRecord = {},
+  categories = {},
+  stage0Result = "",
+  stage1OverrideResult = "",
+  stage1OverrideReason = null,
+  stage1 = {},
+  tokens = {},
+  cost = {},
+  extractionTimestamp = "",
+  imageDimensions = null,
+  tiebreakerTriggered = false
+} = {}) {
+  return {
+    ...baseRecord,
+    ...categories,
+    ...buildClassificationFields({
+      stage0Result,
+      stage1Override: Boolean(stage1OverrideResult),
+      stage1OverrideResult,
+      stage1OverrideReason,
+      stage1
+    }),
+    seating_type: "",
+    enum_fields: {},
+    field_confidence: {},
+    free_text: {},
+    tiebreaker_triggered: tiebreakerTriggered,
+    confidence_tier: "low",
+    tokens,
+    cost,
+    extraction_timestamp: extractionTimestamp,
+    excluded: true,
+    image_traits: {},
+    visual_summary: "",
+    structured_caption: "",
+    stage1,
+    stage2: { visual_summary: "" },
+    visual_summary_embedding: [],
+    search_text: "",
+    search_text_embedding: [],
+    ...buildImageDimensionFields(imageDimensions)
   };
 }
 
@@ -405,6 +497,23 @@ function ensureTypeKey(candidate) {
   return defaultSeatingType;
 }
 
+function normalizeStage1Result(result = "") {
+  const normalized = String(result || "").trim().toLowerCase();
+  return stage1ResultEnum.includes(normalized) ? normalized : "product";
+}
+
+function isStage1OverrideResult(stage1 = {}) {
+  return ["product_detail", "scene"].includes(normalizeStage1Result(stage1?.result));
+}
+
+function isStage1ProductDetail(stage1 = {}) {
+  return normalizeStage1Result(stage1?.result) === "product_detail";
+}
+
+function isStage1Scene(stage1 = {}) {
+  return normalizeStage1Result(stage1?.result) === "scene";
+}
+
 function classifySeatingTypeHeuristic(context = "") {
   const value = String(context || "").toLowerCase();
   if (/task|office|ergonomic|lumbar|headrest|executive chair|collaborative|conference chair|meeting chair|stacking chair|nesting chair/.test(value)) return "task_collab_chair";
@@ -620,6 +729,12 @@ function consolidatedExtractionSchema() {
           result: { const: "product_detail" }
         },
         required: ["result", "override_reason"]
+      },
+      {
+        properties: {
+          result: { const: "scene" }
+        },
+        required: ["result", "override_reason"]
       }
     ]
   };
@@ -667,23 +782,28 @@ Step 1: First decide whether this is a product_detail shot.
 - Before category classification, determine whether at least approximately 75% of the full product is visible.
 - Check specifically:
   - Is the base visible?
-  - Is the full silhouette of the product visible?
-  - Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
+- Is the full silhouette of the product visible?
+- Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
 - If less than approximately 75% of the full product is visible, return "result": "product_detail" plus an "override_reason" that briefly explains why this is a detail shot, then stop. Do not classify seating_type. Do not fill visual_form. Do not fill attributes.
 
-Step 2: Determine the seating_type when result is product.
+Step 2: If this is not a product_detail shot, assess whether the image should be treated as a scene.
+- If more than one seating product is substantially visible and the non-primary seating is not just faint background presence, return scene.
+- Do not call it scene merely because it is photographed in a real room. A hero shot in a real room is still product if one seating product is clearly dominant and the room is secondary.
+- If this is a scene, return "result": "scene" plus an "override_reason" that briefly explains why this is a scene, then stop. Do not classify seating_type. Do not fill visual_form. Do not fill attributes.
+
+Step 3: Determine the seating_type when result is product.
 - Choose exactly one seating_type from this enum:
   [${stage1SeatingTypeEnum.join(", ")}]
 - Use catalog context only as a disambiguation hint, never as an override.
 
-Step 3: Based on that seating_type, write visual_form.
+Step 4: Based on that seating_type, write visual_form.
 - visual_form must be a concise but information-dense paragraph describing only the primary seating product's visible form.
 - Focus on silhouette, proportions, support structure, back geometry, seat geometry, arm geometry, surface character, and distinctive visual elements.
 - Ignore room context, secondary objects, styling props, people, and brand/model names.
 - State structural absences explicitly when relevant, such as armless or backless.
 - Never infer material from color alone.
 
-Step 4: Based on both seating_type and visual_form, fill attributes.
+Step 5: Based on both seating_type and visual_form, fill attributes.
 - Include only the photo-detectable attributes relevant to the chosen seating_type.
 - Use only fields defined for that seating_type below.
 - Only fill fields marked YES. Fill MAYBE only if clearly visible.
@@ -712,7 +832,7 @@ ${buildPerTypeFieldGuide()}
 
 Return strict JSON only in this shape:
 {
-  "result": "product" or "product_detail",
+  "result": "product" or "product_detail" or "scene",
   "override_reason": "...",
   "seating_type": "...",
   "visual_form": "...",
@@ -1522,9 +1642,9 @@ async function describeVisualFormOpenAi(imageInput, options = {}) {
 async function analyzeImageStage123OpenAi(imageInput, options = {}) {
   if (!options.apiKey) {
     const stage1 = await classifySeatingTypeOpenAi(imageInput, options);
-    if (isStage1ProductDetail(stage1)) {
+    if (isStage1OverrideResult(stage1)) {
       return {
-        result: "product_detail",
+        result: normalizeStage1Result(stage1?.result),
         override_reason: stage1.override_reason || null,
         seating_type: "",
         visual_form: "",
@@ -1556,9 +1676,9 @@ async function analyzeImageStage123OpenAi(imageInput, options = {}) {
     ]
   });
 
-  if (String(parsed?.result || "").trim().toLowerCase() === "product_detail") {
+  if (isStage1OverrideResult(parsed)) {
     return {
-      result: "product_detail",
+      result: normalizeStage1Result(parsed?.result),
       override_reason: normalizeWhitespace(parsed?.override_reason || "") || null,
       seating_type: "",
       visual_form: "",
@@ -2029,11 +2149,11 @@ async function createTypedCaption(imageInput, options = {}, imageRecord = {}) {
     ? Math.max(2, Number(options.extractionRuns))
     : 3;
   const run1 = await runStage123Extraction(imageInput, options, imageRecord, "run_1");
-  if (isStage1ProductDetail(run1.stage1)) {
+  if (isStage1OverrideResult(run1.stage1)) {
     return {
       image_dimensions: imageDimensions,
       stage1: {
-        result: "product_detail",
+        result: normalizeStage1Result(run1.stage1?.result),
         seating_type: "",
         override_reason: run1.stage1?.override_reason || null
       },
@@ -2301,11 +2421,16 @@ Step 1: First assess whether this is a product_detail shot.
 - Determine whether at least approximately 75% of the full product is visible.
 - Check specifically:
   - Is the base visible?
-  - Is the full silhouette of the product visible?
-  - Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
+- Is the full silhouette of the product visible?
+- Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
 - If less than approximately 75% of the full product is visible, return {"result":"product_detail","seating_type":"","override_reason":"..."} and stop. The override_reason must briefly explain why this is a detail shot.
 
-Step 2: If this is not a product_detail shot, classify the image into a seating type.
+Step 2: If this is not a product_detail shot, assess whether the image should be treated as a scene.
+- If more than one seating product is substantially visible and the non-primary seating is not just faint background presence, return scene.
+- Do not call it scene merely because it is photographed in a real room. A hero shot in a real room is still product if one seating product is clearly dominant and the room is secondary.
+- If this is a scene, return {"result":"scene","seating_type":"","override_reason":"..."} and stop. The override_reason must briefly explain why this is a scene.
+
+Step 3: If this is neither product_detail nor scene, classify the image into a seating type.
 - Return {"result":"product","seating_type":"...","override_reason":""}.
 - Choose exactly one seating_type from the enum.
 
@@ -2348,21 +2473,15 @@ async function classifySeatingTypeOpenAiWithMeta(imageInput, options = {}) {
 }
 
 function normalizeStage1Classification(parsed = {}) {
-  const result = String(parsed?.result || "product").trim().toLowerCase() === "product_detail"
-    ? "product_detail"
-    : "product";
-  const overrideReason = result === "product_detail"
+  const result = normalizeStage1Result(parsed?.result);
+  const overrideReason = result === "product_detail" || result === "scene"
     ? normalizeWhitespace(parsed?.override_reason || "")
     : "";
   return {
     result,
-    seating_type: result === "product_detail" ? "" : ensureTypeKey(parsed?.seating_type),
+    seating_type: result === "product" ? ensureTypeKey(parsed?.seating_type) : "",
     override_reason: overrideReason || null
   };
-}
-
-function isStage1ProductDetail(stage1 = {}) {
-  return String(stage1?.result || "").trim().toLowerCase() === "product_detail";
 }
 
 async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
@@ -2897,25 +3016,18 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
   }
 
   if (stage0.result === "scene" || stage0.result === "product_detail") {
-    return {
-      image_id: imageRecord.image_id,
-      image_url: imageRecord.image_url,
-      product_id: imageRecord.product_id,
-      product_name: imageRecord.name || imageRecord.product_name || "",
-      name: imageRecord.name || imageRecord.product_name || "",
-      brand: imageRecord.brand || "",
-      ...categories,
-      ...buildClassificationFields({
-        stage0Result: stage0.result,
-        stage1Override: false,
-        stage1: { result: "", seating_type: "", override_reason: null }
-      }),
-      seating_type: "",
-      enum_fields: {},
-      field_confidence: {},
-      free_text: {},
-      tiebreaker_triggered: false,
-      confidence_tier: "low",
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: imageRecord.image_id,
+        image_url: imageRecord.image_url,
+        product_id: imageRecord.product_id,
+        product_name: imageRecord.name || imageRecord.product_name || "",
+        name: imageRecord.name || imageRecord.product_name || "",
+        brand: imageRecord.brand || ""
+      },
+      categories,
+      stage0Result: stage0.result,
+      stage1: { result: "", seating_type: "", override_reason: null },
       tokens: {
         stage_0: stage0Usage,
         total: stage0Usage
@@ -2924,49 +3036,33 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
         stage_0_usd: stage0Cost,
         total_usd: stage0Cost
       },
-      extraction_timestamp: extractionTimestamp,
-      excluded: true,
-      image_traits: {},
-      visual_summary: "",
-      structured_caption: "",
-      stage1: { result: "", seating_type: "", override_reason: null },
-      stage2: { visual_summary: "" },
-      visual_summary_embedding: [],
-      search_text: "",
-      search_text_embedding: [],
-      ...buildImageDimensionFields(imageDimensions)
-    };
+      extractionTimestamp,
+      imageDimensions
+    });
   }
 
   const run1 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_1");
   if (isStage1ProductDetail(run1.stage1)) {
     const totalUsage = sumUsage(stage0Usage, run1.usage?.total);
     const totalCostUsd = Number((stage0Cost + Number(run1.usage?.estimated_cost_usd || 0)).toFixed(6));
-    return {
-      image_id: imageRecord.image_id,
-      image_url: imageRecord.image_url,
-      product_id: imageRecord.product_id,
-      product_name: imageRecord.name || imageRecord.product_name || "",
-      name: imageRecord.name || imageRecord.product_name || "",
-      brand: imageRecord.brand || "",
-      ...categories,
-      ...buildClassificationFields({
-        stage0Result: "product",
-        stage1Override: true,
-        stage1OverrideResult: "product_detail",
-        stage1OverrideReason: run1.stage1?.override_reason || null,
-        stage1: {
-          result: "product_detail",
-          seating_type: "",
-          override_reason: run1.stage1?.override_reason || null
-        }
-      }),
-      seating_type: "",
-      enum_fields: {},
-      field_confidence: {},
-      free_text: {},
-      tiebreaker_triggered: false,
-      confidence_tier: "low",
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: imageRecord.image_id,
+        image_url: imageRecord.image_url,
+        product_id: imageRecord.product_id,
+        product_name: imageRecord.name || imageRecord.product_name || "",
+        name: imageRecord.name || imageRecord.product_name || "",
+        brand: imageRecord.brand || ""
+      },
+      categories,
+      stage0Result: stage0.result,
+      stage1OverrideResult: "product_detail",
+      stage1OverrideReason: run1.stage1?.override_reason || null,
+      stage1: {
+        result: "product_detail",
+        seating_type: "",
+        override_reason: run1.stage1?.override_reason || null
+      },
       tokens: {
         stage_0: stage0Usage,
         runs: [
@@ -2987,22 +3083,9 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
         ],
         total_usd: totalCostUsd
       },
-      extraction_timestamp: extractionTimestamp,
-      excluded: true,
-      image_traits: {},
-      visual_summary: "",
-      structured_caption: "",
-      stage1: {
-        result: "product_detail",
-        seating_type: "",
-        override_reason: run1.stage1?.override_reason || null
-      },
-      stage2: { visual_summary: "" },
-      visual_summary_embedding: [],
-      search_text: "",
-      search_text_embedding: [],
-      ...buildImageDimensionFields(imageDimensions)
-    };
+      extractionTimestamp,
+      imageDimensions
+    });
   }
   const run2 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_2");
   const runs = [run1, run2];
@@ -3013,6 +3096,51 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
   }
 
   const voted = voteStage123Runs(runs);
+  if (isStage1OverrideResult(voted.stage1)) {
+    const totalUsage = sumUsage(stage0Usage, ...runs.map((run) => run.usage?.total));
+    const totalCostUsd = Number((
+      stage0Cost +
+      runs.reduce((sum, run) => sum + Number(run.usage?.estimated_cost_usd || 0), 0)
+    ).toFixed(6));
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: imageRecord.image_id,
+        image_url: imageRecord.image_url,
+        product_id: imageRecord.product_id,
+        product_name: imageRecord.name || imageRecord.product_name || "",
+        name: imageRecord.name || imageRecord.product_name || "",
+        brand: imageRecord.brand || ""
+      },
+      categories,
+      stage0Result: stage0.result,
+      stage1OverrideResult: voted.stage1?.result || "",
+      stage1OverrideReason: voted.stage1?.override_reason || null,
+      stage1: {
+        result: normalizeStage1Result(voted.stage1?.result),
+        seating_type: "",
+        override_reason: voted.stage1?.override_reason || null
+      },
+      tokens: {
+        stage_0: stage0Usage,
+        runs: runs.map((run) => ({
+          run: run.run_label,
+          usage: run.usage?.total || normalizeOpenAiUsage()
+        })),
+        total: totalUsage
+      },
+      cost: {
+        stage_0_usd: stage0Cost,
+        runs: runs.map((run) => ({
+          run: run.run_label,
+          estimated_cost_usd: Number(run.usage?.estimated_cost_usd || 0)
+        })),
+        total_usd: totalCostUsd
+      },
+      extractionTimestamp,
+      imageDimensions,
+      tiebreakerTriggered
+    });
+  }
   const freeText = buildFreeText(run1.stage2, run1.stage3);
   const enumFields = {
     design_register: String(voted.stage2?.design_register || "unknown"),
@@ -3057,7 +3185,7 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     brand: imageRecord.brand || "",
     ...categories,
     ...buildClassificationFields({
-      stage0Result: "product",
+      stage0Result: stage0.result,
       stage1Override: false,
       stage1: {
         result: "product",
@@ -3156,54 +3284,48 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
   }
 
   if (stage0Result === "scene" || stage0Result === "product_detail") {
-    return {
-      ...existingRecord,
-      image_id: imageRecord.image_id || existingRecord.image_id,
-      image_url: imageRecord.image_url || existingRecord.image_url,
-      product_id: imageRecord.product_id || existingRecord.product_id,
-      product_name: productName,
-      name: productName,
-      brand,
-      ...categories,
-      ...buildClassificationFields({
-        stage0Result,
-        stage1Override: false,
-        stage1: existingRecord.stage1 || { result: "", seating_type: "", override_reason: null }
-      }),
-      extraction_timestamp: extractionTimestamp,
-      ...buildImageDimensionFields(imageDimensions)
-    };
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        ...existingRecord,
+        image_id: imageRecord.image_id || existingRecord.image_id,
+        image_url: imageRecord.image_url || existingRecord.image_url,
+        product_id: imageRecord.product_id || existingRecord.product_id,
+        product_name: productName,
+        name: productName,
+        brand
+      },
+      categories,
+      stage0Result,
+      stage1: existingRecord.stage1 || { result: "", seating_type: "", override_reason: null },
+      tokens: existingRecord.tokens || {},
+      cost: existingRecord.cost || {},
+      extractionTimestamp,
+      imageDimensions
+    });
   }
 
   const run1 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_1");
   if (isStage1ProductDetail(run1.stage1)) {
     const totalUsage = sumUsage(preservedStage0Usage, run1.usage?.total);
     const totalCostUsd = Number((preservedStage0Cost + Number(run1.usage?.estimated_cost_usd || 0)).toFixed(6));
-    return {
-      image_id: imageRecord.image_id || existingRecord.image_id,
-      image_url: imageRecord.image_url || existingRecord.image_url,
-      product_id: imageRecord.product_id || existingRecord.product_id,
-      product_name: productName,
-      name: productName,
-      brand,
-      ...categories,
-      ...buildClassificationFields({
-        stage0Result: "product",
-        stage1Override: true,
-        stage1OverrideResult: "product_detail",
-        stage1OverrideReason: run1.stage1?.override_reason || null,
-        stage1: {
-          result: "product_detail",
-          seating_type: "",
-          override_reason: run1.stage1?.override_reason || null
-        }
-      }),
-      seating_type: "",
-      enum_fields: {},
-      field_confidence: {},
-      free_text: {},
-      tiebreaker_triggered: false,
-      confidence_tier: "low",
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: imageRecord.image_id || existingRecord.image_id,
+        image_url: imageRecord.image_url || existingRecord.image_url,
+        product_id: imageRecord.product_id || existingRecord.product_id,
+        product_name: productName,
+        name: productName,
+        brand
+      },
+      categories,
+      stage0Result,
+      stage1OverrideResult: "product_detail",
+      stage1OverrideReason: run1.stage1?.override_reason || null,
+      stage1: {
+        result: "product_detail",
+        seating_type: "",
+        override_reason: run1.stage1?.override_reason || null
+      },
       tokens: {
         stage_0: preservedStage0Usage,
         runs: [
@@ -3224,22 +3346,9 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
         ],
         total_usd: totalCostUsd
       },
-      extraction_timestamp: extractionTimestamp,
-      excluded: true,
-      image_traits: {},
-      visual_summary: "",
-      structured_caption: "",
-      stage1: {
-        result: "product_detail",
-        seating_type: "",
-        override_reason: run1.stage1?.override_reason || null
-      },
-      stage2: { visual_summary: "" },
-      visual_summary_embedding: [],
-      search_text: "",
-      search_text_embedding: [],
-      ...buildImageDimensionFields(imageDimensions)
-    };
+      extractionTimestamp,
+      imageDimensions
+    });
   }
   const run2 = await runStage123Extraction(imageInput, optionsWithDimensions, imageRecord, "run_2");
   const runs = [run1, run2];
@@ -3250,6 +3359,49 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
   }
 
   const voted = voteStage123Runs(runs);
+  if (isStage1OverrideResult(voted.stage1)) {
+    const usageTotal = sumUsage(preservedStage0Usage, ...runs.map((run) => run.usage?.total));
+    const rerunCostUsd = Number(runs.reduce((sum, run) => sum + Number(run.usage?.estimated_cost_usd || 0), 0).toFixed(6));
+    const totalCostUsd = Number((preservedStage0Cost + rerunCostUsd).toFixed(6));
+    return buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: imageRecord.image_id || existingRecord.image_id,
+        image_url: imageRecord.image_url || existingRecord.image_url,
+        product_id: imageRecord.product_id || existingRecord.product_id,
+        product_name: productName,
+        name: productName,
+        brand
+      },
+      categories,
+      stage0Result,
+      stage1OverrideResult: voted.stage1?.result || "",
+      stage1OverrideReason: voted.stage1?.override_reason || null,
+      stage1: {
+        result: normalizeStage1Result(voted.stage1?.result),
+        seating_type: "",
+        override_reason: voted.stage1?.override_reason || null
+      },
+      tokens: {
+        stage_0: preservedStage0Usage,
+        runs: runs.map((run) => ({
+          run: run.run_label,
+          usage: run.usage?.total || normalizeOpenAiUsage()
+        })),
+        total: usageTotal
+      },
+      cost: {
+        stage_0_usd: preservedStage0Cost,
+        runs: runs.map((run) => ({
+          run: run.run_label,
+          estimated_cost_usd: Number(run.usage?.estimated_cost_usd || 0)
+        })),
+        total_usd: totalCostUsd
+      },
+      extractionTimestamp,
+      imageDimensions,
+      tiebreakerTriggered
+    });
+  }
   const freeText = buildFreeText(run1.stage2, run1.stage3);
   const enumFields = {
     design_register: String(voted.stage2?.design_register || "unknown"),
@@ -3292,7 +3444,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     brand,
     ...categories,
     ...buildClassificationFields({
-      stage0Result: "product",
+      stage0Result,
       stage1Override: false,
       stage1: {
         result: "product",
@@ -3368,7 +3520,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
     });
   }
   const { data: stage1, usage: stage1Usage } = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
-  if (isStage1ProductDetail(stage1)) {
+  if (isStage1OverrideResult(stage1)) {
     const usageTotal = sumUsage(stage1Usage, normalizeOpenAiUsage());
     return {
       run_label: runLabel,
@@ -3432,45 +3584,14 @@ function allFieldsAgree(runA, runB) {
 }
 
 function voteStage123Runs(runs = []) {
-  const stage1ResultVote = voteFieldValues(runs.map((run) => run.stage1?.result || "product"));
-  if (stage1ResultVote.value === "product_detail") {
-    return {
-    stage1: {
-      result: "product_detail",
-      seating_type: "",
-      override_reason: run1.stage1?.override_reason || null
-    },
-      stage2: {
-        silhouette: "",
-        proportions: "",
-        structure_type: "",
-        back_geometry: "",
-        seat_geometry: "",
-        arm_geometry: "",
-        surface_language: "",
-        design_register: "",
-        distinctive_elements: [],
-        visual_summary: ""
-      },
-      stage3: {
-        structured_caption: "",
-        raw_visual_highlights: [],
-        image_traits: {}
-      },
-      field_confidence: {
-        stage1: {
-          result: stage1ResultVote.confidence,
-          seating_type: 0
-        },
-        stage2: {
-          design_register: 0
-        },
-        stage3: {
-          image_traits: {}
-        },
-        image_traits: {}
-      }
-    };
+  const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
+  if (stage1ResultVote.value === "product_detail" || stage1ResultVote.value === "scene") {
+    const winningRun = runs.find((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value) || {};
+    return buildStage1OverrideVoteResult(
+      stage1ResultVote.value,
+      winningRun.stage1?.override_reason || null,
+      stage1ResultVote.confidence
+    );
   }
   const primary = runs[0] || {};
   const seatingTypeVote = voteFieldValues(runs.map((run) => run.stage1?.seating_type || "other_seating"));
@@ -3735,7 +3856,7 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     throw new QueryImageAnalysisStageError("stage1", "Stage 1 query-time image analysis failed.", { cause: error });
   }
 
-  if (!stage1 || isStage1ProductDetail(stage1)) {
+  if (!stage1 || isStage1OverrideResult(stage1)) {
     throw new QueryImageAnalysisStageError(
       "stage1",
       "Stage 1 query-time image analysis failed to produce a valid seating type."
