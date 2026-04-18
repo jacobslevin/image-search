@@ -138,6 +138,52 @@ export function getAllCategoryTerms(record = {}) {
   return uniqueStrings([...a_level, ...b_level, ...c_level]);
 }
 
+export function getCategoryGroupingKey(record = {}) {
+  return getAllCategoryTerms(record)
+    .sort((left, right) => left.localeCompare(right))
+    .join(" | ");
+}
+
+const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
+  "Lounge Seating": "Lounge Seating",
+  "Lounge Seating | Modular Seating": "Lounge Seating",
+  "Modular Seating": "Lounge Seating",
+  "Lounge Seating | Outdoor Seating": "Lounge Seating",
+  "Multi-use Guest Chairs": "Multi-Use / Guest Chairs",
+  "Stacking / Nesting Chairs": "Multi-Use / Guest Chairs",
+  "Multi-use Guest Chairs | Stacking / Nesting Chairs": "Multi-Use / Guest Chairs",
+  "Multi-use Guest Chairs | Outdoor Seating": "Multi-Use / Guest Chairs",
+  "High-performing Chairs / Stools | Workplace": "Work Chairs",
+  "Other Work Chairs | Workplace": "Work Chairs",
+  "Executive Chairs | Workplace": "Work Chairs",
+  "Fixed-height Stools": "Stools",
+  "Fixed-height Stools | Outdoor Seating": "Stools",
+  "Bench Seating": "Benches",
+  "Bench Seating | Outdoor Seating": "Benches"
+});
+
+export function getPixelSeekType(record = {}) {
+  const grouping = getCategoryGroupingKey(record);
+  if (!grouping) {
+    return "SKIP";
+  }
+  return PIXELSEEK_TYPE_BY_GROUPING[grouping] || "SKIP";
+}
+
+const IMPORT_SKIP_LOG_SOURCES = new Set(["retroactive_cleanup", "import", "manual_skip"]);
+
+export function buildImportSkipLogEntry(record = {}, source = "import", timestamp = new Date().toISOString()) {
+  const normalizedSource = IMPORT_SKIP_LOG_SOURCES.has(source) ? source : "import";
+  return {
+    product_id: String(record.product_id || "").trim(),
+    product_name: String(record.name || record.product_name || "").trim(),
+    brand: String(record.brand || "").trim(),
+    unmapped_grouping: getCategoryGroupingKey(record),
+    skip_timestamp: String(timestamp || "").trim(),
+    source: normalizedSource
+  };
+}
+
 export function getCategoryDisplayLabel(record = {}) {
   return getNavigationCategories(record).join(" · ");
 }
