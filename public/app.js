@@ -26,6 +26,8 @@ const state = {
   copyStructuredTraitsTimer: null,
   copyDebugTableTimer: null,
   extractionSummary: null,
+  searchInputEditedSinceLastSearch: false,
+  categorySelectionTouchedSinceLastSearch: false,
   manageMode: false,
   selectedProductIds: new Set(),
   sortMode: "auto",
@@ -83,7 +85,7 @@ const state = {
 const SEATING_CATEGORY_DISPLAY_NAMES = {
   task_collab_chair: "Work Chairs",
   guest_chair: "Multi-Use / Guest Chairs",
-  lounge_chair: "Lounge Chairs",
+  lounge_chair: "Lounge Seating",
   bench: "Benches",
   ottoman: "Ottomans",
   stool: "Stools",
@@ -584,7 +586,7 @@ function getCategoryPhraseForQuery(value = "", options = {}) {
     : {
         task_collab_chair: "work chairs",
         guest_chair: "guest chairs",
-        lounge_chair: "lounge chairs",
+        lounge_chair: "lounge seating",
         bench: "benches",
         ottoman: "ottomans",
         stool: "stools",
@@ -2499,6 +2501,8 @@ function applyActiveSearchContext({
   state.pendingBulletControls = null;
   state.currentSeatingType = String(seatingType || "").trim().toLowerCase() === "all" ? "" : String(seatingType || "").trim();
   state.categoryScopeMode = String(payload?.seating_type_source || "").trim() || (state.currentSeatingType ? "explicit" : "all");
+  state.searchInputEditedSinceLastSearch = false;
+  state.categorySelectionTouchedSinceLastSearch = false;
   state.currentImageAnalysis = imageAnalysis && typeof imageAnalysis === "object" ? cloneValue(imageAnalysis) : null;
   updateCategoryRequirement(null);
   state.currentProductRefinements = normalizeProductRefinements(productRefinements);
@@ -5996,22 +6000,37 @@ window.addEventListener("keydown", (event) => {
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const selectedCategory = elements.searchCategorySelect?.value || "all";
-  const requestQuery = getSearchComposerRequestQuery();
+  const shouldClearInheritedCategory = Boolean(
+    selectedCategory !== "all" &&
+    state.searchInputEditedSinceLastSearch &&
+    !state.categorySelectionTouchedSinceLastSearch
+  );
+  const requestQuery = shouldClearInheritedCategory
+    ? getSearchComposerTextParts().plain || getSearchInputValue() || state.lastQuery || ""
+    : getSearchComposerRequestQuery();
+  const effectiveCategory = shouldClearInheritedCategory ? "all" : selectedCategory;
+  const effectiveCategoryScopeMode = effectiveCategory === "all" ? "all" : "explicit";
+  if (shouldClearInheritedCategory) {
+    state.resultCategoryScope = ["all"];
+    state.categoryScopeMode = "all";
+    renderSearchComposer(requestQuery);
+  }
   if (state.landingOnlyMode) {
     enterBrowseMode(requestQuery, {
-      seating_type: selectedCategory
+      seating_type: effectiveCategory
     });
   }
   runSearch(requestQuery, {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: selectedCategory,
-    categoryScopeMode: selectedCategory === "all" ? "all" : "explicit"
+    seatingType: effectiveCategory,
+    categoryScopeMode: effectiveCategoryScopeMode
   });
 });
 
 elements.searchInput?.addEventListener("input", () => {
+  state.searchInputEditedSinceLastSearch = true;
   autoResizeSearchInput();
 });
 
@@ -6072,6 +6091,7 @@ elements.searchCategorySelect?.addEventListener("change", async (event) => {
   const previousMatch = state.searchComposerMatch || splitQueryAroundCategoryScope(state.lastQuery, previousCategory).match;
   const nextCategory = normalizeCategoryScopeSelection(target.value, { maxSelections: 1 });
   const nextPrimaryCategory = getPrimaryCategoryScopeSelection(nextCategory);
+  state.categorySelectionTouchedSinceLastSearch = true;
   const nextQuery = nextPrimaryCategory && nextPrimaryCategory !== "all"
     ? previousCategory && previousCategory !== "all"
       ? buildInlineCategoryScopedQuery(

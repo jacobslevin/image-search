@@ -2495,22 +2495,17 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
   const result = await callOpenAiJsonWithMeta({
     apiKey: options.apiKey,
     model: options.stage0Model || "gpt-4.1-nano",
-    systemPrompt: `Classify the image as exactly one of:
-- scene: no single product is the clear subject. Reject.
-- product_detail: a product is identifiable but less than approximately 75% of the full product is visible. Common examples: close-ups of fabric or stitching, a single arm or leg, a headrest or back detail, or any shot where the base or overall silhouette is not visible. Reject.
-- product: approximately 75% or more of the product is visible, including the base and overall silhouette. Pass through to stages 1-3.
-
-Rules:
-- First decide whether a single product is the clear subject.
-- If no single product is the clear subject, return scene.
-- If a single product is the clear subject but less than approximately 75% of the full product is visible, return product_detail.
-- Return product only when approximately 75% or more of the full product is visible and the base plus overall silhouette can be judged.
-- Close-up crops of upholstery, stitching, a single arm, a single leg, a headrest, back detail, or any partial view without the full silhouette should be product_detail even on a neutral background.
-- A full product on a neutral background is product.
-- A full product in a real room can still be product if the single product is clearly the subject and approximately 75% or more of it is visible.
-- A room scene, lifestyle composition, collage, or environment-first image is scene.
-
-Return JSON only.`,
+    systemPrompt: `Look at the image. Answer two questions in order.
+Question 1: Is there exactly one complete furniture product visible that is clearly the main subject of the image?
+A furniture product is a substantial standalone furniture piece - chair, sofa, stool, bench, ottoman, table, desk, shelving, cabinet, storage piece, workstation, booth, pod, or similar. Not small accessories (lamps, vases, plants, cushions, artwork).
+"Complete" means you can see the whole product - its full silhouette, base or legs, and structural form - not a close-up of one component.
+A product counts as one even if it has integrated parts (e.g., a chair with an attached side table, a modular sofa with multiple cushions). Multiple cushions on one sofa is one product. An ottoman sold as part of the same product line as a chair but shown separately in the same image is two products.
+If yes -> return {"result": "product"} and stop.
+If no, continue to Question 2.
+Question 2: Is the "no" because the image is a close-up showing only part of a single product (for example, a detail shot of fabric, stitching, an arm, a leg, hardware, or a joint), rather than the whole product?
+If yes -> return {"result": "product_detail"} and stop.
+If no (the image shows multiple products, or shows no product clearly, or focuses on an environment/room rather than a single product) -> return {"result": "scene"} and stop.
+Return JSON only, no additional commentary.`,
     userParts: [
       ...(imageInput.catalogContext
         ? [{ type: "input_text", text: imageInput.catalogContext }]
@@ -2526,6 +2521,28 @@ Return JSON only.`,
       result: stage0ResultEnum.includes(result.data?.result) ? result.data.result : "scene"
     },
     usage: result.usage
+  };
+}
+
+export async function classifyImageStage0Only(imageRecord = {}, options = {}) {
+  const categories = normalizeCategories(imageRecord);
+  const imageDimensions = options.precomputedImageDimensions ||
+    (imageRecord.image_width && imageRecord.image_height
+      ? { width: Number(imageRecord.image_width), height: Number(imageRecord.image_height) }
+      : await enforceMatchingSafeResolution(imageRecord.image_url, options));
+  const imageInput = {
+    image_url: imageRecord.image_url,
+    catalogContext: `Catalog context: name="${imageRecord.name || imageRecord.product_name || ""}", brand="${imageRecord.brand || ""}", categories="${[...categories.a_level, ...categories.b_level, ...categories.c_level].join(" | ")}".`
+  };
+  const { data, usage } = await classifyStage0ProductSceneWithMeta(imageInput, {
+    ...options,
+    precomputedImageDimensions: imageDimensions
+  });
+  return {
+    stage0_result: data.result,
+    usage,
+    estimated_cost_usd: estimateNanoUsageCostUsd(usage),
+    image_dimensions: imageDimensions
   };
 }
 
