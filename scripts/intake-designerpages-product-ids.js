@@ -5,7 +5,16 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-import { DATA_DIR, looksLikeImageUrl, normalizeWhitespace, readJson, uniqueStrings, writeJson } from "../src/utils.js";
+import {
+  DATA_DIR,
+  buildImportSkipLogEntry,
+  getPixelSeekType,
+  looksLikeImageUrl,
+  normalizeWhitespace,
+  readJson,
+  uniqueStrings,
+  writeJson
+} from "../src/utils.js";
 import {
   buildDesignerPagesProductUrl,
   fetchDesignerPagesProductHtml,
@@ -16,6 +25,7 @@ import {
 const execFileAsync = promisify(execFile);
 const DEFAULT_CATALOG_PATH = path.join(DATA_DIR, "normalized-catalog.json");
 const DEFAULT_FLAGGED_PATH = path.join(DATA_DIR, "designerpages-intake-flagged.json");
+const DEFAULT_SKIP_LOG_PATH = path.join(DATA_DIR, "import-skipped-log.json");
 const MIN_SHORT_SIDE = 591;
 
 function usage() {
@@ -274,6 +284,7 @@ if (!productIds.length) {
 
 const existingCatalog = await readJson(args.catalog, { generated_at: "", totals: { products: 0, images: 0 }, brands: [], categories: [], products: [], images: [] });
 const existingFlagged = await readJson(args.flagged, { generated_at: "", total: 0, products: [] });
+const existingSkipLog = await readJson(DEFAULT_SKIP_LOG_PATH, []);
 const mergedProducts = new Map();
 for (const product of existingCatalog.products || []) {
   const key = buildExistingProductKey(product);
@@ -284,6 +295,7 @@ for (const product of existingCatalog.products || []) {
 
 const acceptedProducts = [];
 const flaggedProducts = [];
+const skippedProducts = [];
 
 for (const [index, productId] of productIds.entries()) {
   const productUrl = buildDesignerPagesProductUrl(productId);
@@ -335,6 +347,11 @@ for (const [index, productId] of productIds.entries()) {
     }
 
     const nextProduct = buildPhase1ProductRecord(scraped, uniqueStrings(passingImageUrls));
+    if (getPixelSeekType(nextProduct) === "SKIP") {
+      skippedProducts.push(buildImportSkipLogEntry(nextProduct, "import", new Date().toISOString()));
+      console.log("  skipped: unmapped category grouping");
+      continue;
+    }
     mergedProducts.set(`designerpages:${productId}`, nextProduct);
     acceptedProducts.push({
       source_product_id: productId,
@@ -367,9 +384,12 @@ await writeJson(args.flagged, {
   total: nextFlaggedProducts.length,
   products: nextFlaggedProducts
 });
+await writeJson(DEFAULT_SKIP_LOG_PATH, [...(Array.isArray(existingSkipLog) ? existingSkipLog : []), ...skippedProducts]);
 
 console.log(`Accepted ${acceptedProducts.length} product(s).`);
 console.log(`Flagged ${flaggedProducts.length} product(s) this run.`);
+console.log(`Skipped ${skippedProducts.length} product(s) for unmapped category grouping.`);
 console.log(`Catalog now has ${nextCatalog.totals.products} product(s) and ${nextCatalog.totals.images} Phase 1 image record(s).`);
 console.log(`Wrote ${args.catalog}`);
 console.log(`Wrote ${args.flagged}`);
+console.log(`Wrote ${DEFAULT_SKIP_LOG_PATH}`);
