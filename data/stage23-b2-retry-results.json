@@ -1,0 +1,113 @@
+{
+  "generated_at": "2026-04-19T18:51:01.967Z",
+  "model": "gpt-4.1",
+  "detail": "high",
+  "variant": "B2",
+  "results": [
+    {
+      "image_id": "product_dp_14049344_img_020",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362778/6673343feba20973c20da3f0AChairLifestyle1.jpg",
+      "expected_safety_classification": "scene",
+      "actual_safety_classification": "scene",
+      "raw_response": {
+        "silhouette": "Crisp, angular silhouette with a clean, geometric outline defined by a four-leg base and a slightly reclined seat-back shell.",
+        "proportions": "Medium height back with a proportionally wide seat; legs splay outward for stability, and the arms are slim and minimal.",
+        "structure_type": "Exposed four-leg frame supporting a single-piece molded seat and back shell.",
+        "back_geometry": "Gently curved, rectangular backrest with rounded corners, continuous with the seat shell.",
+        "seat_geometry": "Flat, slightly contoured seat with a waterfall front edge, integrated with the backrest.",
+        "arm_geometry": "Open arms, formed by extensions of the frame, visually light and minimal.",
+        "surface_language": "Smooth, untextured seat and back with a natural wood finish; frame is matte and monochromatic.",
+        "design_register": "minimal",
+        "distinctive_elements": [
+          "Angular four-leg frame",
+          "Single-piece molded wood shell",
+          "Open, minimal arms",
+          "Slightly reclined backrest"
+        ],
+        "visual_summary": "A minimal guest chair with a molded wood shell, open arms, and a crisp four-leg frame. The design is clean and contemporary, emphasizing lightness and geometric clarity.",
+        "structured_caption": "Minimal guest chair with a molded wood seat and back, open arms, and a white angular four-leg frame.",
+        "raw_visual_highlights": [
+          "White angular four-leg base",
+          "Natural wood shell for seat and back",
+          "Open, minimalistic armrests",
+          "Curved, rectangular backrest"
+        ],
+        "image_traits": {
+          "base_type": "4-leg",
+          "base_finish": "Polished",
+          "arm_option": "Open arm",
+          "back_profile": "Rounded / curved",
+          "frame_openness": "Open / see-through",
+          "mobility": "Non-mobile",
+          "seat_finish": "Wood",
+          "back_finish": "Wood",
+          "design_register": "Minimal"
+        },
+        "safety_classification": "scene"
+      },
+      "usage": {
+        "prompt_tokens": 2358,
+        "completion_tokens": 447,
+        "total_tokens": 2805
+      },
+      "estimated_cost_usd": 0
+    },
+    {
+      "image_id": "product_dp_14049344_img_022",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362793/6673343b4e9277859eae4701AChairLifestyle12.jpg",
+      "expected_safety_classification": "scene",
+      "actual_safety_classification": "scene",
+      "raw_response": {
+        "silhouette": "The chair has a clean, angular silhouette with a continuous seat and back shell mounted on a sharply splayed 4-leg base.",
+        "proportions": "The chair is slim and upright, with a medium-height back and a seat that is relatively thin in profile. The legs are widely angled, giving a stable stance.",
+        "structure_type": "Monoshell seat and back with a separate metal 4-leg base.",
+        "back_geometry": "The back is flat and rectangular with gently rounded top corners, forming a subtle curve for ergonomic support.",
+        "seat_geometry": "The seat is flat with a slight upward curve at the front edge, seamlessly integrated with the backrest.",
+        "arm_geometry": "Armless; there are no side supports or armrests.",
+        "surface_language": "Smooth, untextured surfaces with a matte finish, emphasizing a crisp and minimal appearance.",
+        "design_register": "minimal",
+        "distinctive_elements": [
+          "Splayed metal 4-leg base",
+          "Monoshell seat and back",
+          "Armless design",
+          "Stackable form"
+        ],
+        "visual_summary": "A minimal, armless guest chair with a single-piece seat and back shell, mounted on a sharply angled 4-leg metal base. The chair is slim, upright, and stackable, with a clean, modern profile.",
+        "structured_caption": "Minimal armless guest chair with a continuous molded seat and back, mounted on a splayed metal 4-leg base. The chair features a slim, upright profile and is designed for stacking.",
+        "raw_visual_highlights": [
+          "Angular splayed metal legs",
+          "Continuous seat and back shell",
+          "No armrests",
+          "Stackable configuration"
+        ],
+        "image_traits": {
+          "base_type": "4-leg",
+          "base_finish": "Polished",
+          "arm_option": "Armless",
+          "back_profile": "Square / angular",
+          "frame_openness": "Open / see-through",
+          "mobility": "Non-mobile",
+          "seat_finish": "Molded plastic",
+          "back_finish": "Molded plastic",
+          "design_register": "Minimal"
+        },
+        "safety_classification": "scene"
+      },
+      "usage": {
+        "prompt_tokens": 2018,
+        "completion_tokens": 478,
+        "total_tokens": 2496
+      },
+      "estimated_cost_usd": 0
+    }
+  ],
+  "totals": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "estimated_cost_usd": 0
+  }
+}

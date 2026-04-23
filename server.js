@@ -106,7 +106,6 @@ function buildExtractionSummary(index = { images: [] }) {
     "guest_chair",
     "lounge_chair",
     "bench",
-    "ottoman",
     "stool",
     "other_seating",
     EXTRACTION_SUMMARY_UNSPECIFIED
@@ -2158,8 +2157,9 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
   return productRecords
     .map((product) => {
       const indexedImages = indexedByProductId.get(product.product_id) || [];
-      const passingImages = indexedImages.filter((image) => getEffectiveClassification(image) === "product");
-      const browseImages = indexedImages.length ? indexedImages : [];
+      const includedImages = indexedImages.filter((image) => image.excluded !== true);
+      const passingImages = includedImages.filter((image) => getEffectiveClassification(image) === "product");
+      const browseImages = includedImages;
       const heroImage = passingImages[0] || browseImages[0] || null;
       const imageUrls = (product.image_urls || []).filter(Boolean);
 
@@ -2187,7 +2187,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
             : []
         },
         image_count: imageUrls.length,
-        match_count: browseImages.length || 1,
+        match_count: browseImages.length || imageUrls.length || 1,
         matching_images: browseImages.map((image) => ({
           image_id: image.image_id,
           image_url: image.image_url,

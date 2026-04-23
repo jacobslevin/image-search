@@ -1,0 +1,263 @@
+{
+  "generated_at": "2026-04-19T21:22:39.923Z",
+  "model": "gpt-4.1",
+  "temperature": 0,
+  "image_detail": "high",
+  "note": "Used product_dp_14049554_img_003 (Cape - Lounge Chairs) as the exact recent sofa/room image URL supplied by the user. Prompt used actual combinedStage23Prompt/type schema with the stricter safety block and added safety_classification enum field.",
+  "results": [
+    {
+      "image_id": "product_dp_14049534_img_003",
+      "product_id": "product_dp_14049534",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82362878/6655ed759d4d20cb6add2281ArcularPhotoGallery1.jpg",
+      "expected": "scene",
+      "actual": "product",
+      "note": "Arcular lounge chair with small side table visible",
+      "raw_response": {
+        "silhouette": "The chair has a rounded, enveloping silhouette with a continuous curved back and arms forming a semicircular shape.",
+        "proportions": "The proportions are generous and low, with a wide seat and a backrest that wraps around the user, creating a deep and inviting seating area.",
+        "structure_type": "The chair is supported by four slender legs, with the main body appearing as a continuous upholstered shell.",
+        "back_geometry": "The backrest is high and curves smoothly around the sides, forming an integrated back and arm structure.",
+        "seat_geometry": "The seat is wide, deep, and slightly recessed within the curved shell, with a thick, plush cushion.",
+        "arm_geometry": "The arms are integrated into the backrest, forming a continuous curve with no discrete separation.",
+        "surface_language": "The surface is smooth and uninterrupted, with minimal visible seams and a uniform upholstery finish.",
+        "design_register": "minimal",
+        "distinctive_elements": [
+          "Continuous curved back and arms",
+          "Semicircular plan shape",
+          "Minimalist four-leg base",
+          "Smooth, seamless upholstery"
+        ],
+        "visual_summary": "A minimalist lounge chair with a continuous, curved back and arms forming a semicircular shell, supported by slender legs and featuring smooth, seamless upholstery.",
+        "structured_caption": "Minimalist lounge chair with a rounded, enveloping shell, integrated arms, and a smooth upholstered surface on slender four-leg base.",
+        "raw_visual_highlights": [
+          "Curved, enveloping backrest and arms",
+          "Wide, deep seat cushion",
+          "Smooth, seamless upholstery",
+          "Four slender legs"
+        ],
+        "image_traits": {
+          "arm_configuration": "Integrated / sculpted",
+          "body_construction": "Upholstered",
+          "base_finish": "Black",
+          "base_type": "4-leg",
+          "seat_upholstery": "Leather",
+          "back_upholstery": "Matches seat",
+          "back_height": "High",
+          "configuration": "Single seat",
+          "design_register": "Minimal",
+          "shape_character": "Soft / tapered",
+          "plan_shape": "Round / semicircular"
+        },
+        "safety_classification": "product"
+      },
+      "usage": {
+        "prompt_tokens": 3165,
+        "completion_tokens": 476
+      },
+      "estimated_cost_usd": 0.010138
+    },
+    {
+      "image_id": "product_dp_14049554_img_003",
+      "product_id": "product_dp_14049554",
+      "product_name": "Cape - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82363323/67bcceb1152871084fe89444LifestyleCape17.jpg",
+      "expected": "scene",
+      "actual": "product",
+      "note": "Cape - Lounge Chairs exact recent sofa/room image URL provided by user",
+      "raw_response": {
+        "silhouette": "Long, low, and horizontally oriented with gently flared arms and a continuous backrest that curves outward at the ends.",
+        "proportions": "Wide and low with deep seat cushions and a relatively thin, continuous back and arm structure.",
+        "structure_type": "Upholstered frame with visible slender legs.",
+        "back_geometry": "Straight along the main length with outwardly flared ends, forming a subtle wraparound effect.",
+        "seat_geometry": "Three large, thick, rectangular seat cushions with rounded front edges.",
+        "arm_geometry": "Arms are integrated into the backrest, flaring outward in a continuous, sculpted form.",
+        "surface_language": "Smooth, uniform upholstery with minimal visible seams and soft, rounded edges.",
+        "design_register": "minimal",
+        "distinctive_elements": [
+          "Outwardly flared, continuous back and arm structure",
+          "Deep, plush seat cushions",
+          "Minimalist, slender legs",
+          "Soft, rounded upholstery edges"
+        ],
+        "visual_summary": "A wide, low-profile lounge seating piece with a minimalist aesthetic, featuring a continuous, outwardly flared back and arm structure, deep seat cushions, and slender legs.",
+        "structured_caption": "Minimalist, wide lounge seating with integrated, outwardly flared arms and back, deep seat cushions, and slender legs.",
+        "raw_visual_highlights": [
+          "Continuous back and arm structure flares outward at ends",
+          "Three large, plush seat cushions",
+          "Slender, minimalist legs",
+          "Soft, rounded upholstery"
+        ],
+        "image_traits": {
+          "arm_configuration": "Integrated / sculpted",
+          "body_construction": "Upholstered",
+          "base_finish": "Painted / powder coat",
+          "base_type": "4-leg",
+          "seat_upholstery": "Fabric",
+          "back_upholstery": "Matches seat",
+          "back_height": "Mid",
+          "configuration": "Multi-seat / sofa",
+          "design_register": "Minimal",
+          "shape_character": "Soft / tapered",
+          "plan_shape": "Square / rectangular"
+        },
+        "safety_classification": "product"
+      },
+      "usage": {
+        "prompt_tokens": 3505,
+        "completion_tokens": 466
+      },
+      "estimated_cost_usd": 0.010738
+    },
+    {
+      "image_id": "product_dp_14049344_img_020",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362778/6673343feba20973c20da3f0AChairLifestyle1.jpg",
+      "expected": "scene",
+      "actual": "product",
+      "note": "A-Chair with dining table",
+      "raw_response": {
+        "silhouette": "Angular and geometric with a clean, open profile; the seat and back form a continuous curved shell, supported by a sharply angled four-leg base.",
+        "proportions": "Medium height back, standard seat height, moderate seat width; legs splay outward for stability.",
+        "structure_type": "Exposed frame with a molded shell seat and back, supported by a visible four-leg metal base.",
+        "back_geometry": "Gently curved, single-piece backrest integrated with the seat, providing ergonomic support.",
+        "seat_geometry": "Flat, slightly contoured seat with a waterfall front edge, seamlessly connected to the backrest.",
+        "arm_geometry": "Integrated arms, formed as extensions of the metal frame, with a minimal upward curve.",
+        "surface_language": "Smooth, matte finish on the frame; seat and back have a natural wood grain appearance.",
+        "design_register": "minimal",
+        "distinctive_elements": [
+          "Integrated armrests as part of the frame",
+          "Continuous molded wood shell for seat and back",
+          "Angular, outward-splayed metal legs"
+        ],
+        "visual_summary": "A minimal, contemporary guest chair with a molded wood shell seat and back, integrated armrests, and a sharply angled four-leg metal base.",
+        "structured_caption": "Minimal guest chair with a molded wood shell seat and back, integrated metal armrests, and an angular four-leg base.",
+        "raw_visual_highlights": [
+          "Curved wood shell seat and back",
+          "White angular metal legs",
+          "Integrated armrests",
+          "Matte and wood grain finishes"
+        ],
+        "image_traits": {
+          "back_style": "Upholstered",
+          "arm_option": "Integrated",
+          "base_type": "4-leg",
+          "seat_upholstery": "Wood",
+          "design_register": "Minimal"
+        },
+        "safety_classification": "product"
+      },
+      "usage": {
+        "prompt_tokens": 1856,
+        "completion_tokens": 404
+      },
+      "estimated_cost_usd": 0.006944
+    },
+    {
+      "image_id": "product_dp_13890748_img_001",
+      "product_id": "product_dp_13890748",
+      "product_name": "ABL",
+      "image_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "expected": "product",
+      "actual": "product",
+      "note": "ABL single lounge chair on plain background",
+      "raw_response": {
+        "silhouette": "Broad, slightly reclined backrest with outwardly flared arms and a deep, wide seat; overall form is low and inviting.",
+        "proportions": "Low-slung with a wide seat and back, arms at a comfortable height, and a deep seat cushion; legs are short relative to the body.",
+        "structure_type": "Visible external frame supports an upholstered shell with integrated arms and separate seat/back cushions.",
+        "back_geometry": "Rectangular, slightly curved backrest with a thick, inset cushion.",
+        "seat_geometry": "Wide, deep seat with a thick, rectangular cushion inset into the shell.",
+        "arm_geometry": "Arms are broad, flat, and flare outward as a continuous extension of the shell.",
+        "surface_language": "Contrasting textures: smooth outer shell with soft, textured seat and back cushions.",
+        "design_register": "sculptural",
+        "distinctive_elements": [
+          "Outwardly flared, integrated arms",
+          "Inset seat and back cushions",
+          "Visible external frame",
+          "Contrasting upholstery textures"
+        ],
+        "visual_summary": "A sculptural lounge chair with a broad, low profile, featuring integrated flared arms, a visible external frame, and contrasting soft cushions inset into a smooth upholstered shell.",
+        "structured_caption": "Sculptural lounge chair with integrated flared arms, visible external frame, and contrasting inset seat and back cushions.",
+        "raw_visual_highlights": [
+          "Wide, low stance",
+          "Arms and back form a continuous shell",
+          "External frame supports shell",
+          "Cushions inset into shell"
+        ],
+        "image_traits": {
+          "arm_configuration": "Integrated / sculpted",
+          "body_construction": "Upholstered",
+          "base_finish": "Black",
+          "base_type": "4-leg",
+          "seat_upholstery": "Fabric",
+          "back_upholstery": "Matches seat",
+          "back_height": "Mid",
+          "configuration": "Single seat",
+          "design_register": "Sculptural",
+          "shape_character": "Soft / tapered",
+          "plan_shape": "Square / rectangular"
+        },
+        "safety_classification": "product"
+      },
+      "usage": {
+        "prompt_tokens": 2825,
+        "completion_tokens": 471
+      },
+      "estimated_cost_usd": 0.009418
+    },
+    {
+      "image_id": "product_dp_13885725_img_001",
+      "product_id": "product_dp_13885725",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485214/thprdaeronchairofficechairsfn.jpg",
+      "expected": "product",
+      "actual": "product",
+      "note": "Aeron task chair on plain backdrop",
+      "raw_response": {
+        "silhouette": "Curved, ergonomic profile with a wide, flared backrest tapering towards the seat and a prominent five-point star base.",
+        "proportions": "Medium-height backrest with a broad upper section, relatively deep seat, and balanced armrest height; the base is wide for stability.",
+        "structure_type": "Task chair with a central pedestal and five-star rolling base.",
+        "back_geometry": "Large, contoured mesh backrest with a pronounced lumbar support element and a gently curved upper edge.",
+        "seat_geometry": "Shallowly contoured mesh seat with a waterfall front edge.",
+        "arm_geometry": "Pair of padded, adjustable arms mounted on vertical supports.",
+        "surface_language": "Fine mesh texture on both seat and back, with smooth, matte-finish plastic on the frame and base.",
+        "design_register": "industrial",
+        "distinctive_elements": [
+          "Mesh back and seat",
+          "Prominent lumbar support",
+          "Five-star rolling base",
+          "Adjustable armrests",
+          "Exposed adjustment mechanisms"
+        ],
+        "visual_summary": "A highly ergonomic, mesh task chair with a sculpted back, adjustable arms, and a robust five-star base, emphasizing adjustability and support.",
+        "structured_caption": "Ergonomic task chair with a contoured mesh back, mesh seat, adjustable padded arms, and a five-star rolling base.",
+        "raw_visual_highlights": [
+          "Wide, curved mesh backrest",
+          "Central lumbar support element",
+          "Mesh seat with waterfall edge",
+          "Adjustable, padded armrests",
+          "Five-point star base with casters"
+        ],
+        "image_traits": {
+          "back_style": "Mesh",
+          "arm_option": "Adjustable arms",
+          "base_type": "5-star",
+          "seat_upholstery": "Mesh",
+          "design_register": "Industrial"
+        },
+        "safety_classification": "product"
+      },
+      "usage": {
+        "prompt_tokens": 1510,
+        "completion_tokens": 412
+      },
+      "estimated_cost_usd": 0.006316
+    }
+  ],
+  "totals": {
+    "prompt_tokens": 12861,
+    "completion_tokens": 2229,
+    "estimated_cost_usd": 0.043554
+  }
+}

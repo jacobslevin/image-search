@@ -1119,7 +1119,7 @@ function extractionPrompt(typeKey) {
     ? `- For lounge_chair type: use body_construction "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level. For arm_configuration, use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell/body. Use base_type "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present. For base_finish, classify only the visible finish of the base or support structure using [Black, Polished aluminum, Wood, Painted / powder coat]. For back_upholstery, use "Unupholstered shell" when the outer shell/back surface is exposed rather than upholstered. For seat_upholstery, use "None / unupholstered" only when the visible seat surface is bare plastic, wood, or another molded hard surface rather than upholstered. For configuration, choose exactly one of [Single seat, Multi-seat / sofa, Modular component, Corner unit, Ottoman]. Use "Single seat" for one clearly defined seating position such as a lounge chair, club chair, or armchair. Use "Multi-seat / sofa" for a non-modular sofa or loveseat with two or more attached seating positions. Use "Modular component" for a piece designed to combine or reconfigure with other modules. Use "Corner unit" for an L-shaped or corner-specific modular piece. Use "Ottoman" for a backless, typically low upholstered seat or footrest with no arms or back. ${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRule = typeKey === "task_collab_chair"
-    ? `- For task_collab_chair type: use back_style [Mesh / net, Upholstered, Plastic back, Knit]. Use back_profile "Square / angular" for rectilinear backs with straight-edged geometry and "Rounded / curved" for visibly curved or softened back outlines. For arm_option, look for visible adjustment mechanisms on the arm supports; if any adjustment hardware is visible, return "Adjustable arms". Use "Integrated" only when the arms are formed directly out of the same seat/back shell with no distinct arm-post, side support, or separate side member; the arm shape must read as part of one continuous shell. Use "Fixed arms" for any rigid non-adjustable arms supported by distinct side structures, side members, arm posts, or separate arm supports, even if the form is smooth, molded, or visually continuous. Do not use "Integrated" for molded plastic or upholstered fixed arms if they are carried by distinct side supports or side members. For base_finish, classify the visible finish using [Black, White, Polished aluminum, Painted color, Natural wood]. For frame, return "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
+    ? `- For task_collab_chair type: use back_style [Mesh / net, Upholstered, Plastic back, Knit]. Use back_profile "Square / angular" for rectilinear backs with straight-edged geometry and "Rounded / curved" for visibly curved or softened back outlines. For arm_option, look for visible adjustment mechanisms on the arm supports; if any adjustment hardware is visible, return "Adjustable arms". Only return "Fixed arms" if the arms are rigid with no visible adjustment hardware. For base_finish, classify the visible finish using [Black, White, Polished aluminum, Painted color, Natural wood]. For frame, return "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
     : "";
   const guestChairRule = typeKey === "guest_chair"
     ? `- For guest_chair type: use arm_option "Open arm" when the arm is visually separate and leaves space beneath or beside it, "Closed arm" when the arm and side panel read as a closed side, and "Integrated" when the arm flows directly from the shell or frame. Use frame_openness "Open / see-through" when the chair body or frame has visible negative space and "Closed / solid" when the side/back surfaces read as continuous solids. For mobility, infer "Casters" when wheels are visible on the base and "Non-mobile" when they are not. Use seat_finish and back_finish to describe the visible finished surface rather than the internal structure.\n`
@@ -1255,7 +1255,7 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
             ? "upholstered"
             : "unknown";
     inferred.back_profile = /curved|rounded|wrap/.test(source) ? "rounded / curved" : /square|angular|rectilinear|straight/.test(source) ? "square / angular" : "unknown";
-    inferred.arm_option = /armless|no arms|without arms/.test(source) ? "armless" : /adjustable arms|adjustable arm|4d arms|height-adjustable arms/.test(source) ? "adjustable arms" : /integrated arms|integrated arm|one-piece arm|arms? flow from (the )?(shell|back|seat)|continuous arms?/.test(source) ? "integrated" : /arms?/.test(source) ? "fixed arms" : "unknown";
+    inferred.arm_option = /armless|no arms|without arms/.test(source) ? "armless" : /adjustable arms|adjustable arm|4d arms|height-adjustable arms/.test(source) ? "adjustable arms" : /arms?/.test(source) ? "fixed arms" : "unknown";
     inferred.base_type = /caster|wheel/.test(source)
       ? "5-star with casters"
       : /glide/.test(source)
@@ -1532,7 +1532,7 @@ export function combinedStage23Prompt(typeKey) {
     ? `- For lounge_chair only: use body_construction "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level. For arm_configuration, use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell/body. Use base_type "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present. For base_finish, classify only the visible finish of the base or support structure using [Black, Polished aluminum, Wood, Painted / powder coat]. For back_upholstery, use "Unupholstered shell" when the outer shell/back surface is exposed rather than upholstered. For seat_upholstery, use "None / unupholstered" only when the visible seat surface is bare plastic, wood, or another molded hard surface rather than upholstered. For configuration, choose exactly one of [Single seat, Multi-seat / sofa, Modular component, Corner unit, Ottoman]. Use "Single seat" for one clearly defined seating position such as a lounge chair, club chair, or armchair. Use "Multi-seat / sofa" for a non-modular sofa or loveseat with two or more attached seating positions. Use "Modular component" for a piece designed to combine or reconfigure with other modules. Use "Corner unit" for an L-shaped or corner-specific modular piece. Use "Ottoman" for a backless, typically low upholstered seat or footrest with no arms or back. ${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRules = typeKey === "task_collab_chair"
-    ? `- For task_collab_chair arm_option: visible adjustment hardware means adjustable, not fixed. Use "Integrated" only when the arms are formed directly out of the same seat/back shell with no distinct arm-post, side support, or separate side member; the arm shape must read as part of one continuous shell. Use "Fixed arms" for any rigid non-adjustable arms supported by distinct side structures, side members, arm posts, or separate arm supports, even if the form is smooth, molded, or visually continuous. Do not use "Integrated" for molded plastic or upholstered fixed arms if they are carried by distinct side supports or side members.\n- For task_collab_chair back_profile: use "Rounded / curved" for visibly curved or softened backs and "Square / angular" for rectilinear backs.\n- For task_collab_chair base_finish: classify the visible base finish/color using [Black, White, Polished aluminum, Painted color, Natural wood].\n- For task_collab_chair frame: use "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
+    ? `- For task_collab_chair arm_option: visible adjustment hardware means adjustable, not fixed.\n- For task_collab_chair back_profile: use "Rounded / curved" for visibly curved or softened backs and "Square / angular" for rectilinear backs.\n- For task_collab_chair base_finish: classify the visible base finish/color using [Black, White, Polished aluminum, Painted color, Natural wood].\n- For task_collab_chair frame: use "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
     : "";
   const guestChairRules = typeKey === "guest_chair"
     ? `- For guest_chair arm_option: use "Open arm" for visually open side arms, "Closed arm" for side enclosures, and "Integrated" when the arm flows directly from the shell or frame.\n- For guest_chair frame_openness: use "Open / see-through" when the chair body or frame has obvious negative space and "Closed / solid" when it reads as continuous solid surfaces.\n- For guest_chair mobility: use "Casters" when wheels are visible on the base and "Non-mobile" when they are not.\n`
@@ -2502,84 +2502,35 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
     };
   }
 
-  const model = options.stage0Model || "gpt-4.1";
-  const { data: countData, usage: countUsage } = await callOpenAiJsonWithMeta({
+  const result = await callOpenAiJsonWithMeta({
     apiKey: options.apiKey,
-    model,
-    systemPrompt: `Count the furniture in this photo. Furniture means: chairs, sofas,
-tables, desks, cabinets, shelving, benches, stools, or beds.
-
-Multiple of the same type count as 1.
-
-Return only a number.`,
+    model: options.stage0Model || "gpt-4.1-nano",
+    systemPrompt: `Look at the image. Answer two questions in order.
+Question 1: Is there exactly one complete furniture product visible that is clearly the main subject of the image?
+A furniture product is a substantial standalone furniture piece - chair, sofa, stool, bench, table, desk, shelving, cabinet, storage piece, workstation, booth, pod, or similar. Not small accessories (lamps, vases, plants, cushions, artwork).
+"Complete" means you can see the whole product - its full silhouette, base or legs, and structural form - not a close-up of one component.
+A product counts as one even if it has integrated parts (e.g., a chair with an attached side table, a modular sofa with multiple cushions). Multiple cushions on one sofa is one product. A separate companion footrest shown alongside a chair counts as two products.
+If yes -> return {"result": "product"} and stop.
+If no, continue to Question 2.
+Question 2: Is the "no" because the image is a close-up showing only part of a single product (for example, a detail shot of fabric, stitching, an arm, a leg, hardware, or a joint), rather than the whole product?
+If yes -> return {"result": "product_detail"} and stop.
+If no (the image shows multiple products, or shows no product clearly, or focuses on an environment/room rather than a single product) -> return {"result": "scene"} and stop.
+Return JSON only, no additional commentary.`,
     userParts: [
       ...(imageInput.catalogContext
         ? [{ type: "input_text", text: imageInput.catalogContext }]
         : []),
       { type: "input_image", image_url: imageInput.image_url, detail: "low" }
     ],
-    schemaName: "stage0_product_count",
-    schema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        answer: { type: "string" }
-      },
-      required: ["answer"]
-    }
+    schemaName: "stage0_scene_filter",
+    schema: stage0Schema()
   });
-
-  const rawCount = String(countData?.answer || "").trim();
-  const parsedCountMatch = rawCount.match(/\d+/);
-  const parsedCount = parsedCountMatch ? Number(parsedCountMatch[0]) : Number.NaN;
-  if (!Number.isFinite(parsedCount)) {
-    return {
-      data: { result: "scene" },
-      usage: countUsage
-    };
-  }
-
-  if (parsedCount > 1) {
-    return {
-      data: { result: "scene" },
-      usage: countUsage
-    };
-  }
-
-  const { data: completenessData, usage: completenessUsage } = await callOpenAiJsonWithMeta({
-    apiKey: options.apiKey,
-    model,
-    systemPrompt: `Can you see the full silhouette of the furniture piece in this photo,
-or only part of it?
-
-Return "full" or "partial".`,
-    userParts: [
-      ...(imageInput.catalogContext
-        ? [{ type: "input_text", text: imageInput.catalogContext }]
-        : []),
-      { type: "input_image", image_url: imageInput.image_url, detail: "low" }
-    ],
-    schemaName: "stage0_product_completeness",
-    schema: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        answer: { type: "string" }
-      },
-      required: ["answer"]
-    }
-  });
-
-  const rawCompleteness = String(completenessData?.answer || "").trim().toLowerCase();
-  const result = rawCompleteness.includes("partial")
-    ? "product_detail"
-    : rawCompleteness.includes("full")
-      ? "product"
-      : "product";
 
   return {
-    data: { result },
-    usage: sumUsage(countUsage, completenessUsage)
+    data: {
+      result: stage0ResultEnum.includes(result.data?.result) ? result.data.result : "scene"
+    },
+    usage: result.usage
   };
 }
 
@@ -2600,7 +2551,7 @@ export async function classifyImageStage0Only(imageRecord = {}, options = {}) {
   return {
     stage0_result: data.result,
     usage,
-    estimated_cost_usd: estimateUsageCostUsd(usage),
+    estimated_cost_usd: estimateNanoUsageCostUsd(usage),
     image_dimensions: imageDimensions
   };
 }
@@ -2778,8 +2729,6 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
       enumFields.arm_option = "Armless";
     } else if (heuristicTraits.arm_adjustability === "fully adjustable" || heuristicTraits.arm_adjustability === "height-adjustable") {
       enumFields.arm_option = "Adjustable arms";
-    } else if (/integrated arms|integrated arm|one-piece arm|arms flow from shell|arms flow from back|arms flow from seat|continuous arms|sculpted arm|wrap arm/.test(query)) {
-      enumFields.arm_option = "Integrated";
     } else if (heuristicTraits.arms_present === true) {
       enumFields.arm_option = normalizedSeatingType === "guest_chair" ? "Open arm" : "Fixed arms";
     }
@@ -3079,7 +3028,7 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
   }
 
   const { data: stage0, usage: stage0Usage } = await classifyStage0ProductSceneWithMeta(imageInput, optionsWithDimensions);
-  const stage0Cost = estimateUsageCostUsd(stage0Usage);
+  const stage0Cost = estimateNanoUsageCostUsd(stage0Usage);
 
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
@@ -4029,3 +3978,5 @@ export function selectMatchedTraits(visualQuery, visualTraits, limit = 3) {
     .filter((phrase) => /\bbase|frame|wood|metal|upholster|leather|fabric\b/.test(phrase))
     .slice(0, limit);
 }
+
+export { combinedStage23SchemaForType, callOpenAiJsonWithMeta, normalizeStage2, applyStage3EnumGuardrails, normalizeImageTraits, extractStage23CombinedOpenAi };

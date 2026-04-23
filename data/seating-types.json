@@ -7,7 +7,7 @@
       "fields": [
         { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Mesh / net", "Upholstered", "Plastic back", "Knit"] },
         { "field": "back_profile", "type": "enum", "detectability": "yes", "allowed_values": ["Square / angular", "Rounded / curved"] },
-        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Fixed arms", "Adjustable arms"] },
+        { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Fixed arms", "Adjustable arms", "Integrated"] },
         { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "Sled base", "4-leg"] },
         { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"] },
         { "field": "frame", "type": "enum", "detectability": "yes", "allowed_values": ["Plastic", "Aluminum", "Metal"] },
@@ -39,7 +39,7 @@
         { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "None / unupholstered"] },
         { "field": "back_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Matches seat", "Independent fabric", "Unupholstered shell"] },
         { "field": "back_height", "type": "enum", "detectability": "yes", "allowed_values": ["Low", "Mid", "High", "Full enclosure"] },
-        { "field": "configuration", "type": "enum", "detectability": "yes", "allowed_values": ["Single seat", "Multi-seat / sofa", "Modular component", "Corner unit"] },
+        { "field": "configuration", "type": "enum", "detectability": "yes", "allowed_values": ["Single seat", "Multi-seat / sofa", "Modular component", "Corner unit", "Ottoman"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] },
         { "field": "shape_character", "type": "enum", "detectability": "yes", "allowed_values": ["Soft / tapered", "Boxy"], "weight": "normal" },
         { "field": "plan_shape", "type": "enum", "detectability": "yes", "allowed_values": ["Round / semicircular", "Trapezoidal", "Reverse trapezoidal", "Square / rectangular", "N/A"], "weight": "normal" }

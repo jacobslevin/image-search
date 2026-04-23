@@ -1,0 +1,1579 @@
+{
+  "generated_at": "2026-04-18T19:50:46.708Z",
+  "backup_path": "/Users/jacobslevin/Code/image-search/data/image-index.pre-stage1-test-backup.json",
+  "selection": [
+    {
+      "image_id": "product_dp_13890748_img_001",
+      "product_id": "product_dp_13890748",
+      "product_name": "ABL",
+      "image_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "target_type": "Lounge Seating"
+    },
+    {
+      "image_id": "product_dp_13945713_img_003",
+      "product_id": "product_dp_13945713",
+      "product_name": "Abra",
+      "image_url": "https://content.designerpages.com/assets/81878091/AbraImageGallery021.jpg",
+      "target_type": "Lounge Seating"
+    },
+    {
+      "image_id": "product_dp_14049344_img_014",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362738/6673343d99cf6668ef25d532AChairLifestyle2.jpg",
+      "target_type": "Multi-Use / Guest Chairs"
+    },
+    {
+      "image_id": "product_dp_14049344_img_020",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362778/6673343feba20973c20da3f0AChairLifestyle1.jpg",
+      "target_type": "Multi-Use / Guest Chairs"
+    },
+    {
+      "image_id": "product_dp_13885725_img_001",
+      "product_id": "product_dp_13885725",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485214/thprdaeronchairofficechairsfn.jpg",
+      "target_type": "Work Chairs"
+    },
+    {
+      "image_id": "product_dp_13885725_img_002",
+      "product_id": "product_dp_13885725",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485219/mhprdovwaeronchair.jpg",
+      "target_type": "Work Chairs"
+    },
+    {
+      "image_id": "product_dp_13883665_img_001",
+      "product_id": "product_dp_13883665",
+      "product_name": "Anna - Barstools",
+      "image_url": "https://content.designerpages.com/assets/81463739/Anna0.jpg",
+      "target_type": "Stools"
+    },
+    {
+      "image_id": "product_dp_13883665_img_002",
+      "product_id": "product_dp_13883665",
+      "product_name": "Anna - Barstools",
+      "image_url": "https://content.designerpages.com/assets/81463751/AnnaBQ1385.jpg",
+      "target_type": "Stools"
+    },
+    {
+      "image_id": "product_dp_14049342_img_001",
+      "product_id": "product_dp_14049342",
+      "product_name": "A-Bench - Freestanding Benches",
+      "image_url": "https://content.designerpages.com/assets/82362670/6220d431c4eaa504b40ff061ABenchFreestandingMainThumbnail.jpg",
+      "target_type": "Benches"
+    },
+    {
+      "image_id": "product_dp_14049342_img_002",
+      "product_id": "product_dp_14049342",
+      "product_name": "A-Bench - Freestanding Benches",
+      "image_url": "https://content.designerpages.com/assets/82362676/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "target_type": "Benches"
+    }
+  ],
+  "summary": {
+    "processed_images": 10,
+    "runtime_seconds": 190.1,
+    "old_total_cost_usd": 0.222908,
+    "new_total_cost_usd": 0.171408,
+    "type_agreement_matches": 8,
+    "type_agreement_mismatches": 2,
+    "errors": [],
+    "absolute_savings_usd": 0.0515,
+    "percent_savings": 23.1,
+    "projected_250k_savings_usd": 1287.5
+  },
+  "comparisons": [
+    {
+      "image_id": "product_dp_13890748_img_001",
+      "product_id": "product_dp_13890748",
+      "product_name": "ABL",
+      "image_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "target_type": "Lounge Seating",
+      "type_agreement": true,
+      "old_seating_type": "lounge_chair",
+      "new_seating_type": "lounge_chair",
+      "new_pixelseek_type": "Lounge Seating",
+      "old_cost_usd": 0.023689,
+      "new_cost_usd": 0.028993,
+      "cost_delta_usd": 0.005304,
+      "summary_similarity": 0.5185,
+      "summary_similarity_label": "partial",
+      "caption_similarity": 0.6538,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 13,
+        "new_keys": 13,
+        "shared_exact": 11,
+        "union_keys": 13
+      },
+      "old": {
+        "pixelseek_type": "Lounge Seating",
+        "seating_type": "lounge_chair",
+        "stage1": {
+          "seating_type": "lounge_chair"
+        },
+        "stage2": {
+          "visual_summary": "A sculptural lounge chair with a broad, enveloping backrest, wide flared arms, and plush inset cushions, supported by an exposed leg frame."
+        },
+        "enum_fields": {
+          "design_register": "sculptural",
+          "arm_configuration": "integrated / sculpted",
+          "back_height": "high",
+          "back_upholstery": "matches seat",
+          "base_finish": "black",
+          "base_type": "4-leg",
+          "body_construction": "upholstered",
+          "configuration": "single seat",
+          "plan_shape": "square / rectangular",
+          "seat_upholstery": "fabric",
+          "shape_character": "soft / tapered",
+          "base_material": "other",
+          "base_visibility": "exposed"
+        },
+        "free_text": {
+          "visual_summary": "A sculptural lounge chair with a broad, enveloping backrest, wide flared arms, and plush inset cushions, supported by an exposed leg frame.",
+          "structured_caption": "Sculptural lounge chair with a wide, gently curved backrest, integrated flared arms, plush contrasting cushions, and an exposed four-leg frame.",
+          "silhouette": "Broad, slightly reclined backrest with wide, gently flared arms and a deep seat; overall form is soft with rounded transitions.",
+          "proportions": "Low and wide, with a deep seat and a tall, expansive backrest; arms are set at a comfortable height and extend outward.",
+          "structure_type": "Exposed wood or metal leg frame supporting an upholstered shell with loose seat and back cushions.",
+          "back_geometry": "Rectangular, slightly curved backrest with a thick, inset cushion; backrest is wider than the seat and gently wraps at the corners.",
+          "seat_geometry": "Deep, rectangular seat with a thick, plush cushion inset into the shell.",
+          "arm_geometry": "Wide, flat arms that flare outward and curve gently downward at the ends, integrated into the shell structure.",
+          "surface_language": "Contrasting textures between the smooth outer shell and the soft, textured seat and back cushions; visible seam lines and tailored upholstery.",
+          "distinctive_elements": [
+            "Contrasting seat and back cushions",
+            "Wide, flared arms integrated into the shell",
+            "Exposed structural leg frame",
+            "Soft, sculpted transitions between seat, arms, and back"
+          ]
+        },
+        "visual_summary": "A sculptural lounge chair with a broad, enveloping backrest, wide flared arms, and plush inset cushions, supported by an exposed leg frame.",
+        "structured_caption": "Sculptural lounge chair with a wide, gently curved backrest, integrated flared arms, plush contrasting cushions, and an exposed four-leg frame.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000181,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.011766
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.011742
+            }
+          ],
+          "total_usd": 0.023689
+        }
+      },
+      "new": {
+        "pixelseek_type": "Lounge Seating",
+        "seating_type": "lounge_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "lounge_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A sculptural lounge chair with a broad, curved backrest, flared arms, and deep seat, featuring contrasting cushions and an exposed wood frame."
+        },
+        "enum_fields": {
+          "design_register": "sculptural",
+          "arm_configuration": "integrated / sculpted",
+          "back_height": "high",
+          "back_upholstery": "matches seat",
+          "base_finish": "wood",
+          "base_type": "4-leg",
+          "body_construction": "upholstered",
+          "configuration": "single seat",
+          "plan_shape": "square / rectangular",
+          "seat_upholstery": "fabric",
+          "shape_character": "soft / tapered",
+          "base_material": "wood",
+          "base_visibility": "exposed"
+        },
+        "free_text": {
+          "visual_summary": "A sculptural lounge chair with a broad, curved backrest, flared arms, and deep seat, featuring contrasting cushions and an exposed wood frame.",
+          "structured_caption": "Sculptural lounge chair with a wide, curved backrest, flared integrated arms, deep seat, contrasting inset cushions, and an exposed wood support frame.",
+          "silhouette": "Broad, slightly reclined backrest with outwardly flared arms and a deep, low seat; overall form is wide and inviting.",
+          "proportions": "Low and wide with a deep seat; the backrest is tall relative to the seat height, and the arms are set at a comfortable, slightly lower height than the back.",
+          "structure_type": "Exposed wood frame supporting an upholstered shell with separate seat and back cushions.",
+          "back_geometry": "Rectangular, slightly curved backrest with a thick, inset cushion; the back is wider than the seat and gently wraps at the corners.",
+          "seat_geometry": "Deep, rectangular seat with a thick, plush cushion inset into the shell.",
+          "arm_geometry": "Wide, flat arms that flare outward and curve gently downward at the ends, integrated into the shell but visually distinct from the cushions.",
+          "surface_language": "Contrasting textures between the smooth outer shell and the soft, textured seat and back cushions; visible seams and piping accentuate the form.",
+          "distinctive_elements": [
+            "Contrasting seat and back cushions",
+            "Flared, integrated arms",
+            "Exposed wood frame",
+            "Curved shell with inset cushions"
+          ]
+        },
+        "visual_summary": "A sculptural lounge chair with a broad, curved backrest, flared arms, and deep seat, featuring contrasting cushions and an exposed wood frame.",
+        "structured_caption": "Sculptural lounge chair with a wide, curved backrest, flared integrated arms, deep seat, contrasting inset cushions, and an exposed wood support frame.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000181,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.009564
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.009836
+            },
+            {
+              "run": "run_3",
+              "estimated_cost_usd": 0.009412
+            }
+          ],
+          "total_usd": 0.028993
+        },
+        "runtime_ms": 19249
+      }
+    },
+    {
+      "image_id": "product_dp_13945713_img_003",
+      "product_id": "product_dp_13945713",
+      "product_name": "Abra",
+      "image_url": "https://content.designerpages.com/assets/81878091/AbraImageGallery021.jpg",
+      "target_type": "Lounge Seating",
+      "type_agreement": true,
+      "old_seating_type": "lounge_chair",
+      "new_seating_type": "lounge_chair",
+      "new_pixelseek_type": "Lounge Seating",
+      "old_cost_usd": 0.0273,
+      "new_cost_usd": 0.020408,
+      "cost_delta_usd": -0.006892,
+      "summary_similarity": 0.3514,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.6522,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 13,
+        "new_keys": 13,
+        "shared_exact": 12,
+        "union_keys": 13
+      },
+      "old": {
+        "pixelseek_type": "Lounge Seating",
+        "seating_type": "lounge_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "lounge_chair",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A sculptural lounge chair with a continuous, rounded shell that integrates the arms and back into a single flowing form, finished with smooth upholstery and a wood-accented base."
+        },
+        "enum_fields": {
+          "design_register": "sculptural",
+          "arm_configuration": "integrated / sculpted",
+          "back_height": "mid",
+          "back_upholstery": "matches seat",
+          "base_finish": "wood",
+          "base_type": "integrated base",
+          "body_construction": "upholstered",
+          "configuration": "single seat",
+          "plan_shape": "round / semicircular",
+          "seat_upholstery": "fabric",
+          "shape_character": "soft / tapered",
+          "base_material": "wood",
+          "base_visibility": "integrated"
+        },
+        "free_text": {
+          "visual_summary": "A sculptural lounge chair with a continuous, rounded shell that integrates the arms and back into a single flowing form, finished with smooth upholstery and a wood-accented base.",
+          "structured_caption": "Sculptural lounge chair with a continuous, curved upholstered shell, integrated arms and back, and a contrasting wood-accented base.",
+          "silhouette": "Low, wide, and rounded with a continuous, enveloping form that curves smoothly from the backrest into the arms and down to the base.",
+          "proportions": "Broad and low-slung, with a deep seat and substantial arm and back thickness relative to the overall height.",
+          "structure_type": "Continuous upholstered shell with integrated base.",
+          "back_geometry": "Curved, wraparound back that transitions seamlessly into the arms, forming a partial enclosure.",
+          "seat_geometry": "Wide, thick, and gently contoured seat cushion integrated into the shell.",
+          "arm_geometry": "Arms are fully integrated into the shell, curving outward and downward as part of the continuous form.",
+          "surface_language": "Smooth, tightly upholstered fabric with subtle piping detail along the edges; base edge is visually distinct with a wood accent.",
+          "distinctive_elements": [
+            "Continuous, enveloping shell form",
+            "Integrated arms and back",
+            "Curved, low profile",
+            "Contrasting wood accent at base",
+            "Edge piping detail"
+          ]
+        },
+        "visual_summary": "A sculptural lounge chair with a continuous, rounded shell that integrates the arms and back into a single flowing form, finished with smooth upholstery and a wood-accented base.",
+        "structured_caption": "Sculptural lounge chair with a continuous, curved upholstered shell, integrated arms and back, and a contrasting wood-accented base.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000408,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.013338
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.013554
+            }
+          ],
+          "total_usd": 0.0273
+        }
+      },
+      "new": {
+        "pixelseek_type": "Lounge Seating",
+        "seating_type": "lounge_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "lounge_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A sculptural lounge chair with a continuous, enveloping upholstered shell, integrated arms, and a low, wide profile. The form is accentuated by subtle piping and a curved wood base detail."
+        },
+        "enum_fields": {
+          "design_register": "sculptural",
+          "arm_configuration": "integrated / sculpted",
+          "back_height": "low",
+          "back_upholstery": "matches seat",
+          "base_finish": "wood",
+          "base_type": "integrated base",
+          "body_construction": "upholstered",
+          "configuration": "single seat",
+          "plan_shape": "round / semicircular",
+          "seat_upholstery": "fabric",
+          "shape_character": "soft / tapered",
+          "base_material": "wood",
+          "base_visibility": "integrated"
+        },
+        "free_text": {
+          "visual_summary": "A sculptural lounge chair with a continuous, enveloping upholstered shell, integrated arms, and a low, wide profile. The form is accentuated by subtle piping and a curved wood base detail.",
+          "structured_caption": "Sculptural lounge chair with a continuous, curved upholstered shell, integrated arms, low back, and a wide, low stance. Features subtle piping and a curved wood base.",
+          "silhouette": "Low, wide, and softly rounded with a continuous, enveloping form that curves from the backrest into the arms and down to the base.",
+          "proportions": "Broad and low-slung, with a deep seat and substantial arm and back thickness relative to the overall height.",
+          "structure_type": "Continuous upholstered shell with integrated base.",
+          "back_geometry": "Curved, low back that wraps smoothly into the arms, forming a unified enclosure.",
+          "seat_geometry": "Wide, thickly upholstered seat cushion with a gentle inward curve at the front edge.",
+          "arm_geometry": "Arms are integrated into the shell, flowing seamlessly from the backrest in a continuous curve with no discrete separation.",
+          "surface_language": "Smooth, uninterrupted upholstery with subtle piping along the outer edge, emphasizing the sculptural outline.",
+          "distinctive_elements": [
+            "Continuous wraparound shell",
+            "Integrated arms and back",
+            "Low, wide stance",
+            "Subtle piping accent",
+            "Curved wood base detail"
+          ]
+        },
+        "visual_summary": "A sculptural lounge chair with a continuous, enveloping upholstered shell, integrated arms, and a low, wide profile. The form is accentuated by subtle piping and a curved wood base detail.",
+        "structured_caption": "Sculptural lounge chair with a continuous, curved upholstered shell, integrated arms, low back, and a wide, low stance. Features subtle piping and a curved wood base.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000408,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.010156
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.009844
+            }
+          ],
+          "total_usd": 0.020408
+        },
+        "runtime_ms": 11655
+      }
+    },
+    {
+      "image_id": "product_dp_14049344_img_014",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362738/6673343d99cf6668ef25d532AChairLifestyle2.jpg",
+      "target_type": "Multi-Use / Guest Chairs",
+      "type_agreement": true,
+      "old_seating_type": "guest_chair",
+      "new_seating_type": "guest_chair",
+      "new_pixelseek_type": "Multi-Use / Guest Chairs",
+      "old_cost_usd": 0.022882,
+      "new_cost_usd": 0.01625,
+      "cost_delta_usd": -0.006632,
+      "summary_similarity": 0.4186,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.5517,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 9,
+        "new_keys": 9,
+        "shared_exact": 9,
+        "union_keys": 9
+      },
+      "old": {
+        "pixelseek_type": "Multi-Use / Guest Chairs",
+        "seating_type": "guest_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "guest_chair",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A visually light, contemporary guest chair with a thin, continuous shell seat and back, supported by sharply angled metal legs. The design emphasizes minimalism and openness, with a distinctive A-frame leg structure and a seamless transition between seat and back."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "arm_option": "armless",
+          "back_finish": "",
+          "back_profile": "rounded / curved",
+          "base_finish": "polished",
+          "base_type": "4-leg",
+          "frame_openness": "open / see-through",
+          "mobility": "non-mobile",
+          "seat_finish": ""
+        },
+        "free_text": {
+          "visual_summary": "A visually light, contemporary guest chair with a thin, continuous shell seat and back, supported by sharply angled metal legs. The design emphasizes minimalism and openness, with a distinctive A-frame leg structure and a seamless transition between seat and back.",
+          "structured_caption": "Minimal guest chair with a thin, continuous shell seat and back, splayed polished metal four-leg base, and an armless or open-arm configuration.",
+          "silhouette": "Crisp, angular profile with a continuous seat and back shell, supported by sharply splayed four-leg base.",
+          "proportions": "Medium height back relative to seat, wide seat pan, slender legs with a pronounced outward angle.",
+          "structure_type": "Shell seat and back mounted on a metal four-leg frame.",
+          "back_geometry": "Broad, gently curved backrest with a subtle taper towards the top.",
+          "seat_geometry": "Flat, slightly contoured seat with a thin edge profile, seamlessly integrated with the back.",
+          "arm_geometry": "Armless on the foreground chairs; the background chair features open, upward-projecting arms.",
+          "surface_language": "Smooth, matte or wood-grain shell surfaces with polished metal legs; minimal visible fasteners.",
+          "distinctive_elements": [
+            "A-shaped splayed metal legs",
+            "Thin, continuous seat-back shell",
+            "Minimal joinery",
+            "Open, floating appearance"
+          ]
+        },
+        "visual_summary": "A visually light, contemporary guest chair with a thin, continuous shell seat and back, supported by sharply angled metal legs. The design emphasizes minimalism and openness, with a distinctive A-frame leg structure and a seamless transition between seat and back.",
+        "structured_caption": "Minimal guest chair with a thin, continuous shell seat and back, splayed polished metal four-leg base, and an armless or open-arm configuration.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000402,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.011236
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.011244
+            }
+          ],
+          "total_usd": 0.022882
+        }
+      },
+      "new": {
+        "pixelseek_type": "Multi-Use / Guest Chairs",
+        "seating_type": "guest_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "guest_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A contemporary guest chair with a minimalist, architectural form, featuring a continuous molded shell seat and back atop sharply angled, polished metal legs. The design emphasizes openness and simplicity, with subtle curves and a lightweight appearance."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "arm_option": "armless",
+          "back_finish": "",
+          "back_profile": "rounded / curved",
+          "base_finish": "polished",
+          "base_type": "4-leg",
+          "frame_openness": "open / see-through",
+          "mobility": "non-mobile",
+          "seat_finish": ""
+        },
+        "free_text": {
+          "visual_summary": "A contemporary guest chair with a minimalist, architectural form, featuring a continuous molded shell seat and back atop sharply angled, polished metal legs. The design emphasizes openness and simplicity, with subtle curves and a lightweight appearance.",
+          "structured_caption": "Minimalist guest chair with a continuous molded shell seat and back, sharply angled polished metal four-leg base, and an open, architectural silhouette.",
+          "silhouette": "Crisp, geometric outline with a slightly flared stance; the seat and back form a continuous, gently curved shell.",
+          "proportions": "Medium height back with a wide seat; legs splay outward at a pronounced angle, giving a stable, open stance.",
+          "structure_type": "Exposed metal frame with a molded shell seat and back; four-leg base.",
+          "back_geometry": "Broad, flat backrest with rounded upper corners and a gentle backward curve.",
+          "seat_geometry": "Flat, slightly contoured seat with a thin profile and subtle downward curve at the front edge.",
+          "arm_geometry": "Armless on the foreground chairs; the background chair features open, upward-curving arms attached to the frame.",
+          "surface_language": "Smooth, untextured shell surfaces; visible wood grain on one chair, matte finish on others; polished metal legs.",
+          "distinctive_elements": [
+            "A-shaped angled metal legs",
+            "Continuous seat-back shell",
+            "Minimal joinery",
+            "Open, airy under-seat space"
+          ]
+        },
+        "visual_summary": "A contemporary guest chair with a minimalist, architectural form, featuring a continuous molded shell seat and back atop sharply angled, polished metal legs. The design emphasizes openness and simplicity, with subtle curves and a lightweight appearance.",
+        "structured_caption": "Minimalist guest chair with a continuous molded shell seat and back, sharply angled polished metal four-leg base, and an open, architectural silhouette.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000402,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.007948
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.0079
+            }
+          ],
+          "total_usd": 0.01625
+        },
+        "runtime_ms": 14263
+      }
+    },
+    {
+      "image_id": "product_dp_14049344_img_020",
+      "product_id": "product_dp_14049344",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362778/6673343feba20973c20da3f0AChairLifestyle1.jpg",
+      "target_type": "Multi-Use / Guest Chairs",
+      "type_agreement": true,
+      "old_seating_type": "guest_chair",
+      "new_seating_type": "guest_chair",
+      "new_pixelseek_type": "Multi-Use / Guest Chairs",
+      "old_cost_usd": 0.022674,
+      "new_cost_usd": 0.016034,
+      "cost_delta_usd": -0.00664,
+      "summary_similarity": 0.439,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.6667,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 9,
+        "new_keys": 9,
+        "shared_exact": 9,
+        "union_keys": 9
+      },
+      "old": {
+        "pixelseek_type": "Multi-Use / Guest Chairs",
+        "seating_type": "guest_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "guest_chair",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A minimal guest chair with a thin, molded wood shell for the seat and back, open angular arms, and a crisp, powder-coated 4-leg frame. The design emphasizes lightness and clarity, with a gentle curve to the back and a visually open structure."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "arm_option": "open arm",
+          "back_finish": "wood",
+          "back_profile": "rounded / curved",
+          "base_finish": "polished",
+          "base_type": "4-leg",
+          "frame_openness": "open / see-through",
+          "mobility": "non-mobile",
+          "seat_finish": "wood"
+        },
+        "free_text": {
+          "visual_summary": "A minimal guest chair with a thin, molded wood shell for the seat and back, open angular arms, and a crisp, powder-coated 4-leg frame. The design emphasizes lightness and clarity, with a gentle curve to the back and a visually open structure.",
+          "structured_caption": "Minimal guest chair with a molded wood seat and back, open angular arms, and a white powder-coated 4-leg frame.",
+          "silhouette": "Crisp, angular silhouette with a slightly reclined back and a continuous seat and back shell.",
+          "proportions": "Medium height back, standard seat height, slim profile with a lightweight appearance.",
+          "structure_type": "Exposed 4-leg frame with a visible connection to the seat shell.",
+          "back_geometry": "Gently curved, rectangular backrest with rounded corners, flush with the seat.",
+          "seat_geometry": "Flat, slightly contoured seat with a thin edge profile.",
+          "arm_geometry": "Open arms that angle outward from the frame, visually separated from the seat shell.",
+          "surface_language": "Smooth, untextured seat and back with a natural wood grain; matte, powder-coated frame.",
+          "distinctive_elements": [
+            "Open, angular armrests",
+            "Thin, molded seat and back shell",
+            "Exposed, angular 4-leg frame",
+            "Visible separation between arms and seat shell"
+          ]
+        },
+        "visual_summary": "A minimal guest chair with a thin, molded wood shell for the seat and back, open angular arms, and a crisp, powder-coated 4-leg frame. The design emphasizes lightness and clarity, with a gentle curve to the back and a visually open structure.",
+        "structured_caption": "Minimal guest chair with a molded wood seat and back, open angular arms, and a white powder-coated 4-leg frame.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000402,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.011188
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.011084
+            }
+          ],
+          "total_usd": 0.022674
+        }
+      },
+      "new": {
+        "pixelseek_type": "Multi-Use / Guest Chairs",
+        "seating_type": "guest_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "guest_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A minimal, contemporary guest chair with a molded wood seat and back, open angular metal frame, and open armrests. The design emphasizes lightness and clarity, with a focus on negative space and clean lines."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "arm_option": "open arm",
+          "back_finish": "wood",
+          "back_profile": "rounded / curved",
+          "base_finish": "polished",
+          "base_type": "4-leg",
+          "frame_openness": "open / see-through",
+          "mobility": "non-mobile",
+          "seat_finish": "wood"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary guest chair with a molded wood seat and back, open angular metal frame, and open armrests. The design emphasizes lightness and clarity, with a focus on negative space and clean lines.",
+          "structured_caption": "Minimal guest chair with a molded wood seat and back, open angular white metal frame, and open armrests.",
+          "silhouette": "Crisp, angular silhouette with a slightly reclined back and a continuous seat-back shell.",
+          "proportions": "Medium height back, standard seat height, slim and lightweight appearance with a balanced seat-to-back ratio.",
+          "structure_type": "Exposed 4-leg frame with a visible, angular support structure.",
+          "back_geometry": "Gently curved, rectangular backrest with rounded corners, forming a single plane with the seat.",
+          "seat_geometry": "Flat, slightly contoured seat with a waterfall front edge, integrated with the backrest.",
+          "arm_geometry": "Open arms, formed by the frame extending upward and outward from the front legs, visually separated from the seat shell.",
+          "surface_language": "Smooth, untextured wood shell for seat and back, matte-finished metal frame.",
+          "distinctive_elements": [
+            "Open, angular metal frame",
+            "Single-piece molded wood seat and back",
+            "Open armrests integrated into the frame",
+            "Visible negative space between seat and frame"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary guest chair with a molded wood seat and back, open angular metal frame, and open armrests. The design emphasizes lightness and clarity, with a focus on negative space and clean lines.",
+        "structured_caption": "Minimal guest chair with a molded wood seat and back, open angular white metal frame, and open armrests.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000402,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.007836
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.007796
+            }
+          ],
+          "total_usd": 0.016034
+        },
+        "runtime_ms": 12669
+      }
+    },
+    {
+      "image_id": "product_dp_13885725_img_001",
+      "product_id": "product_dp_13885725",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485214/thprdaeronchairofficechairsfn.jpg",
+      "target_type": "Work Chairs",
+      "type_agreement": false,
+      "old_seating_type": "task_chair",
+      "new_seating_type": "task_collab_chair",
+      "new_pixelseek_type": "Work Chairs",
+      "old_cost_usd": 0.020553,
+      "new_cost_usd": 0.015345,
+      "cost_delta_usd": -0.005208,
+      "summary_similarity": 0.4444,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.4167,
+      "caption_similarity_label": "materially different",
+      "enum_overlap": {
+        "old_keys": 8,
+        "new_keys": 8,
+        "shared_exact": 4,
+        "union_keys": 11
+      },
+      "old": {
+        "pixelseek_type": "Work Chairs",
+        "seating_type": "task_chair",
+        "stage1": {
+          "seating_type": "task_chair"
+        },
+        "stage2": {
+          "visual_summary": "A high-performance ergonomic task chair with a wide, contoured mesh back, matching mesh seat, adjustable arms, and a robust five-star rolling base. The chair's industrial aesthetic is defined by its exposed adjustment mechanisms and technical mesh surfaces."
+        },
+        "enum_fields": {
+          "design_register": "industrial",
+          "arm_option": "adjustable arms",
+          "back_fabric_finish": "matches seat",
+          "back_style": "3d knit / mesh",
+          "base_finish": "black",
+          "caster_floor_interface": "hard wheel casters (carpet)",
+          "frame": "plastic",
+          "seat_fabric": ""
+        },
+        "free_text": {
+          "visual_summary": "A high-performance ergonomic task chair with a wide, contoured mesh back, matching mesh seat, adjustable arms, and a robust five-star rolling base. The chair's industrial aesthetic is defined by its exposed adjustment mechanisms and technical mesh surfaces.",
+          "structured_caption": "Ergonomic task chair with a wide, contoured mesh backrest, matching mesh seat, adjustable arms, and a black five-star base with casters. The chair features visible adjustment hardware and a pronounced lumbar support element.",
+          "silhouette": "Wide, gently curved backrest with a pronounced taper at the lumbar region, broadening at the shoulders; seat is rectilinear with rounded front edge; five-star base with central column.",
+          "proportions": "Backrest is tall and wide relative to the seat, with a deep seat pan; arms are set at mid-height and extend outward from the seat frame.",
+          "structure_type": "Central pedestal with five-star rolling base; visible adjustment mechanisms under seat and at arms.",
+          "back_geometry": "Large, contoured backrest with a pronounced inward curve at the lumbar area and outward flare at the shoulders; mesh surface is taut and transparent.",
+          "seat_geometry": "Flat, rectangular seat pan with rounded front edge; mesh surface matches backrest.",
+          "arm_geometry": "Pair of arms, each with a flat, padded top; arms are height-adjustable with visible adjustment hardware.",
+          "surface_language": "Open mesh texture on both seat and back; matte black frame and base; visible mechanical elements under seat.",
+          "distinctive_elements": [
+            "Full mesh seat and back",
+            "Pronounced lumbar support element",
+            "Visible adjustment levers and mechanisms",
+            "Five-star base with casters",
+            "Curved, ergonomic backrest"
+          ]
+        },
+        "visual_summary": "A high-performance ergonomic task chair with a wide, contoured mesh back, matching mesh seat, adjustable arms, and a robust five-star rolling base. The chair's industrial aesthetic is defined by its exposed adjustment mechanisms and technical mesh surfaces.",
+        "structured_caption": "Ergonomic task chair with a wide, contoured mesh backrest, matching mesh seat, adjustable arms, and a black five-star base with casters. The chair features visible adjustment hardware and a pronounced lumbar support element.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000385,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.010084
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.010084
+            }
+          ],
+          "total_usd": 0.020553
+        }
+      },
+      "new": {
+        "pixelseek_type": "Work Chairs",
+        "seating_type": "task_collab_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "task_collab_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A high-performance task chair with a distinctive mesh back and seat, ergonomic curves, adjustable arms, and a robust industrial aesthetic."
+        },
+        "enum_fields": {
+          "design_register": "industrial",
+          "arm_option": "adjustable arms",
+          "back_profile": "rounded / curved",
+          "back_style": "mesh / net",
+          "base_finish": "black",
+          "base_type": "5-star with casters",
+          "frame": "plastic",
+          "seat_upholstery": "mesh / net"
+        },
+        "free_text": {
+          "visual_summary": "A high-performance task chair with a distinctive mesh back and seat, ergonomic curves, adjustable arms, and a robust industrial aesthetic.",
+          "structured_caption": "Task chair with a curved mesh back, pronounced lumbar support, adjustable arms, and a 5-star caster base. The design emphasizes ergonomic support and industrial functionality.",
+          "silhouette": "Wide, gently curved backrest with a narrow waist, broadening at the shoulders, and a compact, rounded seat. The chair sits on a 5-point star base with casters.",
+          "proportions": "The backrest is tall and broad relative to the seat, with a pronounced taper at the lumbar region. The seat is shallow to medium depth, and the arms are set at a moderate height.",
+          "structure_type": "Central pedestal with 5-star base and casters, visible adjustment mechanisms under the seat, and a mesh backrest supported by a visible frame.",
+          "back_geometry": "Curved, ergonomic backrest with a pronounced lumbar support element and a mesh/net surface. The upper back flares outward, while the lower back narrows for lumbar support.",
+          "seat_geometry": "Shallow, rounded seat with a waterfall front edge and mesh/net upholstery.",
+          "arm_geometry": "Short, padded arms with visible adjustment hardware, mounted on vertical supports.",
+          "surface_language": "Open mesh/net for both seat and back, with a matte black frame and visible adjustment levers and mechanisms.",
+          "distinctive_elements": [
+            "Mesh/net back and seat",
+            "Pronounced lumbar support",
+            "Visible adjustment hardware",
+            "5-star base with casters",
+            "Curved ergonomic backrest"
+          ]
+        },
+        "visual_summary": "A high-performance task chair with a distinctive mesh back and seat, ergonomic curves, adjustable arms, and a robust industrial aesthetic.",
+        "structured_caption": "Task chair with a curved mesh back, pronounced lumbar support, adjustable arms, and a 5-star caster base. The design emphasizes ergonomic support and industrial functionality.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000385,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.007512
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.007448
+            }
+          ],
+          "total_usd": 0.015345
+        },
+        "runtime_ms": 13075
+      }
+    },
+    {
+      "image_id": "product_dp_13883665_img_001",
+      "product_id": "product_dp_13883665",
+      "product_name": "Anna - Barstools",
+      "image_url": "https://content.designerpages.com/assets/81463739/Anna0.jpg",
+      "target_type": "Stools",
+      "type_agreement": true,
+      "old_seating_type": "stool",
+      "new_seating_type": "stool",
+      "new_pixelseek_type": "Stools",
+      "old_cost_usd": 0.017951,
+      "new_cost_usd": 0.012615,
+      "cost_delta_usd": -0.005336,
+      "summary_similarity": 0.9,
+      "summary_similarity_label": "close",
+      "caption_similarity": 0.9412,
+      "caption_similarity_label": "close",
+      "enum_overlap": {
+        "old_keys": 6,
+        "new_keys": 6,
+        "shared_exact": 6,
+        "union_keys": 6
+      },
+      "old": {
+        "pixelseek_type": "Stools",
+        "seating_type": "stool",
+        "stage1": {
+          "result": "product",
+          "seating_type": "stool",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and a metal footrest."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back": "low back",
+          "base_frame_finish": "",
+          "base_type": "4-leg",
+          "seat_geometry": "flat",
+          "seat_material": "upholstered"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and a metal footrest.",
+          "structured_caption": "Minimal barstool with a flat, upholstered seat and low backrest, four straight wooden legs, and a metal footrest.",
+          "silhouette": "Rectilinear with a squared seat and backrest, supported by four straight legs.",
+          "proportions": "Medium-height backrest, deep seat, and long, slender legs typical of a barstool.",
+          "structure_type": "Four-legged stool with a fixed-height frame and integrated footrest.",
+          "back_geometry": "Low, straight backrest that rises just above the seat level.",
+          "seat_geometry": "Flat",
+          "arm_geometry": "none",
+          "surface_language": "Smooth, upholstered seat and back with visible fabric texture; legs have a natural wood finish with a metal footrest.",
+          "distinctive_elements": [
+            "Upholstered seat and back",
+            "Low, squared backrest",
+            "Straight wooden legs",
+            "Metal footrest bar"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and a metal footrest.",
+        "structured_caption": "Minimal barstool with a flat, upholstered seat and low backrest, four straight wooden legs, and a metal footrest.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000159,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.008832
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.00896
+            }
+          ],
+          "total_usd": 0.017951
+        }
+      },
+      "new": {
+        "pixelseek_type": "Stools",
+        "seating_type": "stool",
+        "stage1": {
+          "result": "product",
+          "seating_type": "stool",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and metal footrests."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back": "low back",
+          "base_frame_finish": "",
+          "base_type": "4-leg",
+          "seat_geometry": "flat",
+          "seat_material": "upholstered"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and metal footrests.",
+          "structured_caption": "Minimal barstool with a flat upholstered seat, low straight backrest, four straight wooden legs, and metal footrest supports.",
+          "silhouette": "Rectilinear with a squared seat and backrest, supported by four straight legs.",
+          "proportions": "Tall and slender, with a seat height appropriate for bar use and a low backrest that rises just above the seat.",
+          "structure_type": "Four-legged stool with a low, integrated backrest and metal footrest supports.",
+          "back_geometry": "Low, straight backrest that is slightly angled for comfort.",
+          "seat_geometry": "Flat",
+          "arm_geometry": "none",
+          "surface_language": "Smooth, upholstered seat and back with visible texture; legs are smooth and straight with a natural wood appearance.",
+          "distinctive_elements": [
+            "Low, squared backrest",
+            "Upholstered seat and back",
+            "Straight wooden legs",
+            "Metal footrest supports"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat and low backrest, supported by four straight wooden legs and metal footrests.",
+        "structured_caption": "Minimal barstool with a flat upholstered seat, low straight backrest, four straight wooden legs, and metal footrest supports.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000159,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.006196
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.00626
+            }
+          ],
+          "total_usd": 0.012615
+        },
+        "runtime_ms": 70158
+      }
+    },
+    {
+      "image_id": "product_dp_13883665_img_002",
+      "product_id": "product_dp_13883665",
+      "product_name": "Anna - Barstools",
+      "image_url": "https://content.designerpages.com/assets/81463751/AnnaBQ1385.jpg",
+      "target_type": "Stools",
+      "type_agreement": true,
+      "old_seating_type": "stool",
+      "new_seating_type": "stool",
+      "new_pixelseek_type": "Stools",
+      "old_cost_usd": 0.017983,
+      "new_cost_usd": 0.012599,
+      "cost_delta_usd": -0.005384,
+      "summary_similarity": 0.5385,
+      "summary_similarity_label": "partial",
+      "caption_similarity": 0.5417,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 6,
+        "new_keys": 6,
+        "shared_exact": 6,
+        "union_keys": 6
+      },
+      "old": {
+        "pixelseek_type": "Stools",
+        "seating_type": "stool",
+        "stage1": {
+          "result": "product",
+          "seating_type": "stool",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat, low squared back, and four long, tapered legs connected by slim metal footrests."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back": "low back",
+          "base_frame_finish": "",
+          "base_type": "4-leg",
+          "seat_geometry": "flat",
+          "seat_material": "upholstered"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat, low squared back, and four long, tapered legs connected by slim metal footrests.",
+          "structured_caption": "Minimalist barstool with a flat, upholstered seat and low squared backrest, supported by four slender, tapered legs with integrated metal footrests.",
+          "silhouette": "Rectilinear with a tall, straight back and long, slender legs.",
+          "proportions": "Tall and narrow, with a high seat and a low, squared backrest. The legs are long and taper slightly toward the floor.",
+          "structure_type": "Four-legged stool with a fixed-height frame and integrated footrests.",
+          "back_geometry": "Low, straight backrest that is flush with the seat and extends only slightly above the seat surface.",
+          "seat_geometry": "Flat",
+          "arm_geometry": "none",
+          "surface_language": "Smooth, uniform upholstery on the seat and back; legs have a clean, natural finish with visible grain.",
+          "distinctive_elements": [
+            "Low, squared backrest",
+            "Tall, slender legs",
+            "Integrated metal footrests",
+            "Fully upholstered seat and back"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary barstool with a flat, upholstered seat, low squared back, and four long, tapered legs connected by slim metal footrests.",
+        "structured_caption": "Minimalist barstool with a flat, upholstered seat and low squared backrest, supported by four slender, tapered legs with integrated metal footrests.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000159,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.008952
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.008872
+            }
+          ],
+          "total_usd": 0.017983
+        }
+      },
+      "new": {
+        "pixelseek_type": "Stools",
+        "seating_type": "stool",
+        "stage1": {
+          "result": "product",
+          "seating_type": "stool",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A minimal, contemporary barstool with a flat upholstered seat, low rectangular backrest, and slender wooden legs connected by a metal footrest."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back": "low back",
+          "base_frame_finish": "",
+          "base_type": "4-leg",
+          "seat_geometry": "flat",
+          "seat_material": "upholstered"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary barstool with a flat upholstered seat, low rectangular backrest, and slender wooden legs connected by a metal footrest.",
+          "structured_caption": "Minimalist barstool with a flat upholstered seat, low rectangular backrest, slim tapered wooden legs, and a metal footrest.",
+          "silhouette": "Rectilinear seat and backrest with long, slender legs forming a tall, upright profile.",
+          "proportions": "Tall and narrow, with a high seat and a relatively short backrest; legs are slim and slightly tapered.",
+          "structure_type": "Four-legged stool with a fixed-height frame and integrated footrests.",
+          "back_geometry": "Straight, flat, and rectangular low backrest, fully upholstered.",
+          "seat_geometry": "Flat, rectangular seat with upholstered surface.",
+          "arm_geometry": "none",
+          "surface_language": "Smooth, continuous upholstery on seat and back; legs have a clean, matte finish with visible grain.",
+          "distinctive_elements": [
+            "Upholstered seat and back",
+            "Slim, tapered wooden legs",
+            "Integrated metal footrest"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary barstool with a flat upholstered seat, low rectangular backrest, and slender wooden legs connected by a metal footrest.",
+        "structured_caption": "Minimalist barstool with a flat upholstered seat, low rectangular backrest, slim tapered wooden legs, and a metal footrest.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000159,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.00618
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.00626
+            }
+          ],
+          "total_usd": 0.012599
+        },
+        "runtime_ms": 9900
+      }
+    },
+    {
+      "image_id": "product_dp_14049342_img_001",
+      "product_id": "product_dp_14049342",
+      "product_name": "A-Bench - Freestanding Benches",
+      "image_url": "https://content.designerpages.com/assets/82362670/6220d431c4eaa504b40ff061ABenchFreestandingMainThumbnail.jpg",
+      "target_type": "Benches",
+      "type_agreement": true,
+      "old_seating_type": "bench",
+      "new_seating_type": "bench",
+      "new_pixelseek_type": "Benches",
+      "old_cost_usd": 0.021767,
+      "new_cost_usd": 0.014563,
+      "cost_delta_usd": -0.007204,
+      "summary_similarity": 0.6875,
+      "summary_similarity_label": "partial",
+      "caption_similarity": 0.8,
+      "caption_similarity_label": "close",
+      "enum_overlap": {
+        "old_keys": 8,
+        "new_keys": 8,
+        "shared_exact": 8,
+        "union_keys": 8
+      },
+      "old": {
+        "pixelseek_type": "Benches",
+        "seating_type": "bench",
+        "stage1": {
+          "result": "product",
+          "seating_type": "bench",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by splayed, angular legs. The design is backless and armless, emphasizing simplicity and lightness."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back_option": "backless",
+          "floor_interface": "hard floor rated",
+          "frame_finish": "glacier / light",
+          "frame_material": "steel tube",
+          "seat_finish_fabric": "",
+          "seat_material": "upholstered",
+          "seat_width_capacity": "3-person"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by splayed, angular legs. The design is backless and armless, emphasizing simplicity and lightness.",
+          "structured_caption": "Minimalist backless bench with a slim, three-section upholstered seat and splayed angular legs, finished in a light matte tone.",
+          "silhouette": "Long, low-profile rectangular form with slightly rounded seat corners and splayed legs at each end.",
+          "proportions": "Elongated and slim, with a shallow seat depth and thin seat profile; visually light and airy.",
+          "structure_type": "Freestanding bench with four angled legs supporting the seat at the corners.",
+          "back_geometry": "Backless; no backrest present.",
+          "seat_geometry": "Flat, rectangular seat divided into three subtle sections, each with softly rounded edges.",
+          "arm_geometry": "Armless; no armrests present.",
+          "surface_language": "Smooth, continuous upholstered seat surface with minimal visible seams; legs have a clean, matte finish.",
+          "distinctive_elements": [
+            "Splayed, angular legs",
+            "Three-sectioned seat surface",
+            "Backless and armless design",
+            "Thin, visually light seat profile"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by splayed, angular legs. The design is backless and armless, emphasizing simplicity and lightness.",
+        "structured_caption": "Minimalist backless bench with a slim, three-section upholstered seat and splayed angular legs, finished in a light matte tone.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000411,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.010646
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.01071
+            }
+          ],
+          "total_usd": 0.021767
+        }
+      },
+      "new": {
+        "pixelseek_type": "Benches",
+        "seating_type": "bench",
+        "stage1": {
+          "result": "product",
+          "seating_type": "bench",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by sharply angled, splayed legs. The design is clean and functional, emphasizing simplicity and geometric clarity."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back_option": "backless",
+          "floor_interface": "hard floor rated",
+          "frame_finish": "glacier / light",
+          "frame_material": "steel tube",
+          "seat_finish_fabric": "",
+          "seat_material": "upholstered",
+          "seat_width_capacity": "3-person"
+        },
+        "free_text": {
+          "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by sharply angled, splayed legs. The design is clean and functional, emphasizing simplicity and geometric clarity.",
+          "structured_caption": "Minimalist backless bench with a slim, three-section upholstered seat and splayed, angular legs in a matte finish.",
+          "silhouette": "Long, slim rectangular form with slightly rounded seat corners and sharply angled legs.",
+          "proportions": "Low and elongated, with a thin seat profile and wide span suitable for multiple users.",
+          "structure_type": "Open-frame bench with four splayed legs supporting a continuous seat.",
+          "back_geometry": "Backless; no backrest present.",
+          "seat_geometry": "Flat, rectangular seat divided visually into three sections, with soft, rounded edges.",
+          "arm_geometry": "Armless; no armrests present.",
+          "surface_language": "Smooth, upholstered seat with subtle textural fabric; legs have a matte, uniform finish.",
+          "distinctive_elements": [
+            "Splayed, angular legs",
+            "Segmented seat divisions",
+            "Backless and armless design"
+          ]
+        },
+        "visual_summary": "A minimal, contemporary bench with a slim, upholstered seat divided into three sections and supported by sharply angled, splayed legs. The design is clean and functional, emphasizing simplicity and geometric clarity.",
+        "structured_caption": "Minimalist backless bench with a slim, three-section upholstered seat and splayed, angular legs in a matte finish.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000411,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.007116
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.007036
+            }
+          ],
+          "total_usd": 0.014563
+        },
+        "runtime_ms": 10118
+      }
+    },
+    {
+      "image_id": "product_dp_14049342_img_002",
+      "product_id": "product_dp_14049342",
+      "product_name": "A-Bench - Freestanding Benches",
+      "image_url": "https://content.designerpages.com/assets/82362676/685aed6a26b8f320e8cf8bc8ABenchProducts11.jpg",
+      "target_type": "Benches",
+      "type_agreement": true,
+      "old_seating_type": "bench",
+      "new_seating_type": "bench",
+      "new_pixelseek_type": "Benches",
+      "old_cost_usd": 0.021719,
+      "new_cost_usd": 0.015035,
+      "cost_delta_usd": -0.006684,
+      "summary_similarity": 0.4,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.6,
+      "caption_similarity_label": "partial",
+      "enum_overlap": {
+        "old_keys": 8,
+        "new_keys": 8,
+        "shared_exact": 8,
+        "union_keys": 8
+      },
+      "old": {
+        "pixelseek_type": "Benches",
+        "seating_type": "bench",
+        "stage1": {
+          "result": "product",
+          "seating_type": "bench",
+          "override_reason": null
+        },
+        "stage2": {
+          "visual_summary": "A modular, armless bench with a sweeping curved form, low continuous back, and minimal angled legs. Upholstered in a smooth, dark material, the design is clean and contemporary."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back_option": "",
+          "floor_interface": "hard floor rated",
+          "frame_finish": "black",
+          "frame_material": "steel tube",
+          "seat_finish_fabric": "",
+          "seat_material": "upholstered",
+          "seat_width_capacity": "custom / specify width"
+        },
+        "free_text": {
+          "visual_summary": "A modular, armless bench with a sweeping curved form, low continuous back, and minimal angled legs. Upholstered in a smooth, dark material, the design is clean and contemporary.",
+          "structured_caption": "Curved modular bench with low continuous back, armless design, segmented upholstered seats, and minimal angled legs.",
+          "silhouette": "Long, continuous, gently curved segmented form with a low profile and consistent height along the back.",
+          "proportions": "Wide and shallow, with a low back and deep seat; modular segments create a sweeping arc.",
+          "structure_type": "Modular bench with multiple angled legs supporting each segment.",
+          "back_geometry": "Low, straight backrest that follows the curve of the bench, integrated with each seat segment.",
+          "seat_geometry": "Flat, rectangular seat segments with slight curvature to match the overall arc; each seat is individually defined.",
+          "arm_geometry": "None; the bench is armless throughout.",
+          "surface_language": "Smooth, uniform upholstery with minimal visible seams; clean and tailored appearance.",
+          "distinctive_elements": [
+            "Curved modular configuration",
+            "Segmented seat and back units",
+            "Angled, minimal legs",
+            "Continuous low backrest"
+          ]
+        },
+        "visual_summary": "A modular, armless bench with a sweeping curved form, low continuous back, and minimal angled legs. Upholstered in a smooth, dark material, the design is clean and contemporary.",
+        "structured_caption": "Curved modular bench with low continuous back, armless design, segmented upholstered seats, and minimal angled legs.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000411,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.01063
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.010678
+            }
+          ],
+          "total_usd": 0.021719
+        }
+      },
+      "new": {
+        "pixelseek_type": "Benches",
+        "seating_type": "bench",
+        "stage1": {
+          "result": "product",
+          "seating_type": "bench",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A long, modular, and gently curved bench with a low, continuous backrest, segmented seat and back panels, and angled metal legs, all finished in a smooth, dark upholstery."
+        },
+        "enum_fields": {
+          "design_register": "minimal",
+          "back_option": "",
+          "floor_interface": "hard floor rated",
+          "frame_finish": "black",
+          "frame_material": "steel tube",
+          "seat_finish_fabric": "",
+          "seat_material": "upholstered",
+          "seat_width_capacity": "custom / specify width"
+        },
+        "free_text": {
+          "visual_summary": "A long, modular, and gently curved bench with a low, continuous backrest, segmented seat and back panels, and angled metal legs, all finished in a smooth, dark upholstery.",
+          "structured_caption": "Minimal, modular curved bench with segmented upholstered seat and back, armless, supported by angled metal legs.",
+          "silhouette": "Long, continuous, and gently curved segmented form with a low profile and integrated backrest.",
+          "proportions": "Extended and shallow depth, low seat height, consistent seat and back height across all segments.",
+          "structure_type": "Segmented bench with multiple angled legs supporting each section.",
+          "back_geometry": "Low, linear backrest that follows the curve of the bench, with each segment having its own back panel.",
+          "seat_geometry": "Flat, wide seat panels with slight curvature to match the overall arc of the bench.",
+          "arm_geometry": "None; the bench is armless throughout.",
+          "surface_language": "Smooth, uniform upholstery with crisp edges and minimal visible seams.",
+          "distinctive_elements": [
+            "Curved modular configuration",
+            "Segmented seat and back panels",
+            "Angled metal legs",
+            "Continuous low backrest"
+          ]
+        },
+        "visual_summary": "A long, modular, and gently curved bench with a low, continuous backrest, segmented seat and back panels, and angled metal legs, all finished in a smooth, dark upholstery.",
+        "structured_caption": "Minimal, modular curved bench with segmented upholstered seat and back, armless, supported by angled metal legs.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.000411,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.007244
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.00738
+            }
+          ],
+          "total_usd": 0.015035
+        },
+        "runtime_ms": 12156
+      }
+    },
+    {
+      "image_id": "product_dp_13885725_img_002",
+      "product_id": "product_dp_13885725",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485219/mhprdovwaeronchair.jpg",
+      "target_type": "Work Chairs",
+      "type_agreement": false,
+      "old_seating_type": "task_chair",
+      "new_seating_type": "task_collab_chair",
+      "new_pixelseek_type": "Work Chairs",
+      "old_cost_usd": 0.02639,
+      "new_cost_usd": 0.019566,
+      "cost_delta_usd": -0.006824,
+      "summary_similarity": 0.3043,
+      "summary_similarity_label": "materially different",
+      "caption_similarity": 0.3864,
+      "caption_similarity_label": "materially different",
+      "enum_overlap": {
+        "old_keys": 8,
+        "new_keys": 8,
+        "shared_exact": 3,
+        "union_keys": 11
+      },
+      "old": {
+        "pixelseek_type": "Work Chairs",
+        "seating_type": "task_chair",
+        "stage1": {
+          "seating_type": "task_chair"
+        },
+        "stage2": {
+          "visual_summary": "A highly ergonomic task chair with a distinctive mesh seat and back, pronounced lumbar support, and robust adjustment features. The chair's industrial aesthetic is defined by its exposed structure, articulated arms, and technical detailing."
+        },
+        "enum_fields": {
+          "design_register": "industrial",
+          "arm_option": "adjustable arms",
+          "back_fabric_finish": "matches seat",
+          "back_style": "3d knit / mesh",
+          "base_finish": "black",
+          "caster_floor_interface": "hard wheel casters (carpet)",
+          "frame": "plastic",
+          "seat_fabric": ""
+        },
+        "free_text": {
+          "visual_summary": "A highly ergonomic task chair with a distinctive mesh seat and back, pronounced lumbar support, and robust adjustment features. The chair's industrial aesthetic is defined by its exposed structure, articulated arms, and technical detailing.",
+          "structured_caption": "Ergonomic task chair with a tall, contoured mesh back, wide mesh seat, articulated adjustable armrests, and a five-star rolling base. The chair features a pronounced lumbar curve and visible adjustment hardware, emphasizing an industrial and functional design.",
+          "silhouette": "Curved, ergonomic profile with a pronounced, high backrest and waterfall seat edge. The chair has a five-star base and prominent armrests.",
+          "proportions": "Medium to large scale with a tall back relative to the seat, wide seat pan, and substantial armrests. The base is broad and stable.",
+          "structure_type": "Five-star rolling base with a central column supporting a suspended mesh seat and back, with articulated arm supports.",
+          "back_geometry": "Tall, contoured backrest with a pronounced lumbar curve and a wide upper section that narrows toward the seat. The back is slightly reclined and features a visible mesh tension structure.",
+          "seat_geometry": "Wide, shallow seat pan with a waterfall front edge and a suspended mesh surface. The seat is slightly contoured for ergonomic support.",
+          "arm_geometry": "Pair of thick, curved armrests with visible adjustment hardware, mounted on articulated supports that connect to the seat and back frame.",
+          "surface_language": "Open mesh surfaces on both seat and back, with a visible grid texture. The frame and base have a matte, solid finish.",
+          "distinctive_elements": [
+            "Fully ventilated mesh seat and back",
+            "Pronounced lumbar support contour",
+            "Visible adjustment levers and hardware",
+            "Five-star rolling base",
+            "Articulated, padded armrests"
+          ]
+        },
+        "visual_summary": "A highly ergonomic task chair with a distinctive mesh seat and back, pronounced lumbar support, and robust adjustment features. The chair's industrial aesthetic is defined by its exposed structure, articulated arms, and technical detailing.",
+        "structured_caption": "Ergonomic task chair with a tall, contoured mesh back, wide mesh seat, articulated adjustable armrests, and a five-star rolling base. The chair features a pronounced lumbar curve and visible adjustment hardware, emphasizing an industrial and functional design.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.00039,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.01306
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.01294
+            }
+          ],
+          "total_usd": 0.02639
+        }
+      },
+      "new": {
+        "pixelseek_type": "Work Chairs",
+        "seating_type": "task_collab_chair",
+        "stage1": {
+          "result": "product",
+          "seating_type": "task_collab_chair",
+          "override_reason": null
+        },
+        "stage_1_override": false,
+        "stage_1_override_result": null,
+        "stage_1_override_reason": null,
+        "type_routing_source": "mapping_v1",
+        "stage2": {
+          "visual_summary": "A high-performance task chair with a mesh back and seat, pronounced ergonomic contours, adjustable armrests, and a robust 5-star base. The design is visually light yet technical, emphasizing comfort and adjustability."
+        },
+        "enum_fields": {
+          "design_register": "industrial",
+          "arm_option": "adjustable arms",
+          "back_profile": "rounded / curved",
+          "back_style": "mesh / net",
+          "base_finish": "black",
+          "base_type": "5-star with casters",
+          "frame": "metal",
+          "seat_upholstery": "mesh / net"
+        },
+        "free_text": {
+          "visual_summary": "A high-performance task chair with a mesh back and seat, pronounced ergonomic contours, adjustable armrests, and a robust 5-star base. The design is visually light yet technical, emphasizing comfort and adjustability.",
+          "structured_caption": "Ergonomic task chair with a high, curved mesh back, contoured mesh seat, adjustable padded armrests, and a black 5-star caster base. The design is industrial and sculptural, with a focus on support and breathability.",
+          "silhouette": "The chair has a distinctive, ergonomic silhouette with a high, curved backrest, pronounced lumbar support, and a waterfall seat edge. The overall form is dynamic and sculpted, with a visually light mesh structure.",
+          "proportions": "The proportions are balanced, with a wide seat and back relative to the base, and armrests positioned at a comfortable height. The backrest is tall and broad, tapering slightly towards the top.",
+          "structure_type": "The chair features a 5-star base with casters, a central column for height adjustment, and a visible frame supporting the mesh seat and back.",
+          "back_geometry": "The backrest is high and contoured, with a pronounced curve for lumbar support and a rounded upper edge. The mesh surface is tensioned within a visible frame.",
+          "seat_geometry": "The seat is gently contoured with a waterfall front edge, and the mesh surface is suspended within a rounded frame.",
+          "arm_geometry": "The chair has padded armrests with visible adjustment hardware, allowing for height and possibly angle adjustments.",
+          "surface_language": "The surface is defined by a fine mesh/net texture on both the seat and back, with smooth, matte-finished structural elements and arm pads.",
+          "distinctive_elements": [
+            "Mesh/net back and seat",
+            "Pronounced lumbar support contour",
+            "Adjustable armrests with visible hardware",
+            "5-star base with casters",
+            "Sculpted, ergonomic silhouette"
+          ]
+        },
+        "visual_summary": "A high-performance task chair with a mesh back and seat, pronounced ergonomic contours, adjustable armrests, and a robust 5-star base. The design is visually light yet technical, emphasizing comfort and adjustability.",
+        "structured_caption": "Ergonomic task chair with a high, curved mesh back, contoured mesh seat, adjustable padded armrests, and a black 5-star caster base. The design is industrial and sculptural, with a focus on support and breathability.",
+        "embedding_dimensions": {
+          "visual_summary_embedding": 1536,
+          "search_text_embedding": 1536
+        },
+        "cost": {
+          "stage_0_usd": 0.00039,
+          "runs": [
+            {
+              "run": "run_1",
+              "estimated_cost_usd": 0.009456
+            },
+            {
+              "run": "run_2",
+              "estimated_cost_usd": 0.00972
+            }
+          ],
+          "total_usd": 0.019566
+        },
+        "runtime_ms": 11438
+      }
+    }
+  ],
+  "errors": []
+}

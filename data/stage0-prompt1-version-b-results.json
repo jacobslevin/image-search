@@ -1,0 +1,564 @@
+{
+  "summary": {
+    "prompt_version": "B",
+    "model": "gpt-4.1",
+    "temperature": 0,
+    "detail": "low",
+    "total_input_tokens": 5010,
+    "total_output_tokens": 180
+  },
+  "results": [
+    {
+      "image_id": "product_dp_14049534_img_003",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82362878/6655ed759d4d20cb6add2281ArcularPhotoGallery1.jpg",
+      "expected": ">1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "2": 5
+      },
+      "passed_consistently": true
+    },
+    {
+      "image_id": "product_dp_14049534_img_008",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82362915/6655ed75e64ae6ae420b3094ArcularPhotoGallery7.jpg",
+      "expected": ">1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"4\"}",
+          "answer": "4",
+          "parsed_count": 4,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"4\"}",
+          "answer": "4",
+          "parsed_count": 4,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"4\"}",
+          "answer": "4",
+          "parsed_count": 4,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"4\"}",
+          "answer": "4",
+          "parsed_count": 4,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"4\"}",
+          "answer": "4",
+          "parsed_count": 4,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "4": 5
+      },
+      "passed_consistently": true
+    },
+    {
+      "image_id": "product_dp_14049534_img_006",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82362902/6655f5400e89ae2cd9f3e6c0ArcularLifestyle11.jpg",
+      "expected": ">1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"3\"}",
+          "answer": "3",
+          "parsed_count": 3,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"3\"}",
+          "answer": "3",
+          "parsed_count": 3,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"3\"}",
+          "answer": "3",
+          "parsed_count": 3,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"3\"}",
+          "answer": "3",
+          "parsed_count": 3,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"3\"}",
+          "answer": "3",
+          "parsed_count": 3,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "3": 5
+      },
+      "passed_consistently": true
+    },
+    {
+      "image_id": "product_dp_13890748_img_001",
+      "product_name": "ABL",
+      "image_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "expected": "1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "1": 5
+      },
+      "passed_consistently": true
+    },
+    {
+      "image_id": "product_dp_13885726_img_001",
+      "product_name": "Cosm Chairs",
+      "image_url": "https://content.designerpages.com/assets/81485216/thprdovwcosmchairsfn.jpg",
+      "expected": "1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"1\"}",
+          "answer": "1",
+          "parsed_count": 1,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "1": 5
+      },
+      "passed_consistently": true
+    },
+    {
+      "image_id": "product_dp_14049344_img_022",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362793/6673343b4e9277859eae4701AChairLifestyle12.jpg",
+      "expected": ">1",
+      "runs": [
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        },
+        {
+          "raw_output": "{\"answer\":\"2\"}",
+          "answer": "2",
+          "parsed_count": 2,
+          "usage": {
+            "input_tokens": 167,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 173
+          }
+        }
+      ],
+      "distribution": {
+        "2": 5
+      },
+      "passed_consistently": true
+    }
+  ]
+}

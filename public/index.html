@@ -68,7 +68,6 @@
                     <option value="guest_chair">Multi-Use / Guest Chairs</option>
                     <option value="lounge_chair">Lounge Seating</option>
                     <option value="bench">Benches</option>
-                    <option value="ottoman">Ottomans</option>
                     <option value="stool">Stools</option>
                     <option value="other_seating">Other Seating</option>
                   </select>
@@ -82,6 +81,31 @@
             </button>
           </label>
         </form>
+      </section>
+
+      <section id="browseCategoryScopeBar" class="browse-category-scope-bar" hidden>
+        <label class="browse-category-scope-field" for="browseCategorySelect">
+          <span class="browse-category-scope-label">Browse category</span>
+          <select id="browseCategorySelect" class="browse-category-scope-select" aria-label="Browse category">
+            <option value="all">All seating categories</option>
+            <option value="task_collab_chair">Work Chairs</option>
+            <option value="guest_chair">Multi-Use / Guest Chairs</option>
+            <option value="lounge_chair">Lounge Seating</option>
+            <option value="bench">Benches</option>
+            <option value="stool">Stools</option>
+            <option value="other_seating">Other Seating</option>
+          </select>
+        </label>
+      </section>
+
+      <section id="browseTraitFilterPanel" class="browse-trait-panel" hidden>
+        <div class="browse-trait-panel-header">
+          <div>
+            <p id="browseTraitFilterCount" class="browse-trait-panel-count">Showing 0 of 0</p>
+          </div>
+          <button id="resetBrowseTraitFilters" class="browse-trait-panel-reset" type="button">Clear filters</button>
+        </div>
+        <div id="browseTraitFilterFields" class="browse-trait-panel-fields"></div>
       </section>
 
       <section class="search-secondary">

@@ -1,0 +1,417 @@
+{
+  "generated_at": "2026-04-19T22:03:59.970Z",
+  "model": "gpt-4.1",
+  "temperature": 0,
+  "image_detail": "low",
+  "prompts": {
+    "prompt1": "How many categories of products do you see in this photo?\n\nReturn only a number.",
+    "prompt2": "Can you see the full silhouette of the furniture piece in this photo, or only part of it?\n\nReturn \"full\" or \"partial\"."
+  },
+  "results": [
+    {
+      "group": "product",
+      "image_id": "product_dp_13890748_img_001",
+      "product_name": "ABL",
+      "image_url": "https://content.designerpages.com/assets/81519310/ABL.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product",
+      "image_id": "product_dp_13885725_img_001",
+      "product_name": "Aeron Chair",
+      "image_url": "https://content.designerpages.com/assets/81485214/thprdaeronchairofficechairsfn.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product",
+      "image_id": "product_dp_14049342_img_001",
+      "product_name": "A-Bench - Freestanding Benches",
+      "image_url": "https://content.designerpages.com/assets/82362670/6220d431c4eaa504b40ff061ABenchFreestandingMainThumbnail.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product",
+      "image_id": "product_dp_13883665_img_001",
+      "product_name": "Anna - Barstools",
+      "image_url": "https://content.designerpages.com/assets/81463739/Anna0.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product",
+      "image_id": "product_dp_14105680_img_024",
+      "product_name": "Superkool",
+      "image_url": "https://content.designerpages.com/assets/82670585/SuperkoolSOLSideLowBackSledBase.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product",
+      "image_id": "product_dp_14049344_img_014",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362738/6673343d99cf6668ef25d532AChairLifestyle2.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14049344_img_022",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362793/6673343b4e9277859eae4701AChairLifestyle12.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 2,
+      "prompt2_answer": "full",
+      "combined_classification": "scene",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "2",
+        "prompt2": "full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14105680_img_002",
+      "product_name": "Superkool",
+      "image_url": "https://content.designerpages.com/assets/82670528/2023FultonShowroomZone24.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 5,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": false,
+      "raw_responses": {
+        "prompt1": "5",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14010227_img_002",
+      "product_name": "Acre Lounge Chair",
+      "image_url": "https://content.designerpages.com/assets/82224404/acre1f73fe03edefa4dd6b5d5cc9cff89b6cb.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 4,
+      "prompt2_answer": "full",
+      "combined_classification": "scene",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "4",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14049534_img_021",
+      "product_name": "Arcular - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82363022/6655ed7545a90f91d9914d04ArcularPhotoGallery4.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 4,
+      "prompt2_answer": "full",
+      "combined_classification": "scene",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "4",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14105680_img_006",
+      "product_name": "Superkool",
+      "image_url": "https://content.designerpages.com/assets/82670535/BostonEagerXsite.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 5,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": false,
+      "raw_responses": {
+        "prompt1": "5",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "scene",
+      "image_id": "product_dp_14023772_img_001",
+      "product_name": "Bota Lounge",
+      "image_url": "https://content.designerpages.com/assets/82249276/botalounge3.jpg",
+      "current_classification": "scene",
+      "prompt1_answer": 5,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": false,
+      "raw_responses": {
+        "prompt1": "5",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_14010227_img_008",
+      "product_name": "Acre Lounge Chair",
+      "image_url": "https://content.designerpages.com/assets/82224496/ac1lngchrmadetailongreycrop.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 1,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_14023772_img_011",
+      "product_name": "Bota Lounge",
+      "image_url": "https://content.designerpages.com/assets/82249434/DARRANBota1FullSize.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 1,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_14105680_img_008",
+      "product_name": "Superkool",
+      "image_url": "https://content.designerpages.com/assets/82670540/DESuperkool0.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 1,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_13945992_img_010",
+      "product_name": "Canelle",
+      "image_url": "https://content.designerpages.com/assets/81879296/CanelleImageGallery251.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 1,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_14051105_img_002",
+      "product_name": "Coalesse Ensemble Lounge System - Lounge Chairs",
+      "image_url": "https://content.designerpages.com/assets/82381100/250263082scaled.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 3,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "3",
+        "prompt2": "Partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "product_detail",
+      "image_id": "product_dp_14105680_img_014",
+      "product_name": "Superkool",
+      "image_url": "https://content.designerpages.com/assets/82670561/DESuperkool18.jpg",
+      "current_classification": "product_detail",
+      "prompt1_answer": 1,
+      "prompt2_answer": "partial",
+      "combined_classification": "product_detail",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "partial"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "edge",
+      "image_id": "product_dp_14049344_img_001",
+      "product_name": "A-Chair",
+      "image_url": "https://content.designerpages.com/assets/82362658/61bb9e2ff1e84f6fc9e8c36bAChairChairs.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 1,
+      "prompt2_answer": "full",
+      "combined_classification": "product",
+      "matches_current": true,
+      "raw_responses": {
+        "prompt1": "1",
+        "prompt2": "full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    },
+    {
+      "group": "edge",
+      "image_id": "product_dp_14023772_img_007",
+      "product_name": "Bota Lounge",
+      "image_url": "https://content.designerpages.com/assets/82249354/DARRANBotaWorkShell2Fullsize.jpg",
+      "current_classification": "product",
+      "prompt1_answer": 2,
+      "prompt2_answer": "full",
+      "combined_classification": "scene",
+      "matches_current": false,
+      "raw_responses": {
+        "prompt1": "2",
+        "prompt2": "Full"
+      },
+      "usage": {
+        "prompt_tokens": 229,
+        "completion_tokens": 4
+      },
+      "estimated_cost_usd": 0.00049
+    }
+  ],
+  "totals": {
+    "prompt_tokens": 4580,
+    "completion_tokens": 80,
+    "estimated_cost_usd": 0.0098
+  }
+}

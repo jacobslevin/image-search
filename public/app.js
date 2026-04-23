@@ -73,6 +73,7 @@ const state = {
   batchRefreshPollTimer: null,
   sceneFilterProgress: null,
   sceneFilterPollTimer: null,
+  traitFilters: {},
   imageAnalyzeProgress: null,
   imageAnalyzeProgressTimer: null,
   resultCutoffMeta: null,
@@ -87,7 +88,6 @@ const SEATING_CATEGORY_DISPLAY_NAMES = {
   guest_chair: "Multi-Use / Guest Chairs",
   lounge_chair: "Lounge Seating",
   bench: "Benches",
-  ottoman: "Ottomans",
   stool: "Stools",
   other_seating: "Other Seating"
 };
@@ -99,6 +99,13 @@ const CATEGORY_REQUIREMENT_OPTION_KEYS = Object.keys(SEATING_CATEGORY_DISPLAY_NA
     const rightLabel = SEATING_CATEGORY_DISPLAY_NAMES[right] || right;
     return leftLabel.localeCompare(rightLabel);
   });
+const BROWSE_TRAIT_FILTER_SUPPORTED_TYPES = new Set([
+  "task_collab_chair",
+  "guest_chair",
+  "lounge_chair",
+  "stool",
+  "bench"
+]);
 
 const BATCH_PROGRESS_DISMISS_KEY = "image-search.batch-progress-dismissed";
 const IMAGE_SEARCH_HANDOFF_KEY = "image-search.pending-image-handoff";
@@ -118,6 +125,8 @@ const IMAGE_ANALYZE_PROGRESS_STEPS = [
   { id: "complete", label: "Complete", percent: 100, title: "Results ready", detail: "Opening the ranked results." }
 ];
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
+const QUERY_IMAGE_UPLOAD_MAX_DIMENSION = 1600;
+const QUERY_IMAGE_UPLOAD_JPEG_QUALITY = 0.82;
 
 const focusDrag = {
   active: false,
@@ -241,6 +250,12 @@ const elements = {
   searchCategorySelect: document.querySelector("#searchCategorySelect"),
   searchCategorySuffix: document.querySelector("#searchCategorySuffix"),
   searchInput: document.querySelector("#searchInput"),
+  browseCategoryScopeBar: document.querySelector("#browseCategoryScopeBar"),
+  browseCategorySelect: document.querySelector("#browseCategorySelect"),
+  browseTraitFilterPanel: document.querySelector("#browseTraitFilterPanel"),
+  browseTraitFilterCount: document.querySelector("#browseTraitFilterCount"),
+  browseTraitFilterFields: document.querySelector("#browseTraitFilterFields"),
+  resetBrowseTraitFilters: document.querySelector("#resetBrowseTraitFilters"),
   seedQueries: document.querySelector("#seedQueries"),
   selectedFileName: document.querySelector("#selectedFileName"),
   statusPanel: document.querySelector("#statusPanel"),
@@ -570,6 +585,358 @@ function formatSeatingCategoryLabel(value = "") {
   return SEATING_CATEGORY_DISPLAY_NAMES[normalized] || formatTraitFieldLabel(normalized) || normalized;
 }
 
+function normalizeTraitFilterState(source = {}) {
+  if (!source || typeof source !== "object") {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(source)
+      .map(([field, value]) => [normalizeTraitFieldKey(field), normalizeTraitValue(value)])
+      .filter(([, value]) => Boolean(value))
+  );
+}
+
+function isMissingBrowseTraitValue(value = "") {
+  return new Set(["", "unknown", "n/a"]).has(normalizeTraitValue(value));
+}
+
+function isSupportedBrowseTraitCategory(categoryKey = "") {
+  return BROWSE_TRAIT_FILTER_SUPPORTED_TYPES.has(normalizeSeatingCategoryKey(categoryKey));
+}
+
+function getBrowseScopedCategoryKey(payload = state.lastPayload, query = state.lastQuery) {
+  if (!isBrowsePayload(payload, query)) {
+    return "";
+  }
+  const categoryKey = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
+  return categoryKey && categoryKey !== "all" ? normalizeSeatingCategoryKey(categoryKey) : "";
+}
+
+function getBrowseTraitFieldConfigs(categoryKey = "") {
+  const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
+  const types = state.bootstrap?.seating_types?.types;
+  if (!normalizedCategory || !types?.[normalizedCategory]) {
+    return [];
+  }
+  return (types[normalizedCategory].fields || []).filter((field) => field?.type === "enum");
+}
+
+function getCategoryScopedImages(result = {}, categoryKey = "") {
+  const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
+  if (!normalizedCategory) {
+    return [];
+  }
+  return (Array.isArray(result.matching_images) ? result.matching_images : [])
+    .filter((image) => normalizeSeatingCategoryKey(image?.seating_type) === normalizedCategory);
+}
+
+function imageMatchesTraitFilters(image = {}, traitFilters = {}) {
+  const normalizedFilters = normalizeTraitFilterState(traitFilters);
+  const activeEntries = Object.entries(normalizedFilters);
+  if (!activeEntries.length) {
+    return true;
+  }
+
+  const enumFields = image?.enum_fields && typeof image.enum_fields === "object" ? image.enum_fields : {};
+  return activeEntries.every(([field, value]) => normalizeTraitValue(enumFields[field]) === value);
+}
+
+function getMatchingBrowseTraitImages(result = {}, categoryKey = "", traitFilters = {}) {
+  return getCategoryScopedImages(result, categoryKey)
+    .filter((image) => imageMatchesTraitFilters(image, traitFilters));
+}
+
+function getResultTraitValueMapFromImages(images = []) {
+  const valueMap = new Map();
+
+  for (const image of images) {
+    const enumFields = image?.enum_fields && typeof image.enum_fields === "object" ? image.enum_fields : {};
+    for (const [field, rawValue] of Object.entries(enumFields)) {
+      const normalizedField = normalizeTraitFieldKey(field);
+      const normalizedValue = normalizeTraitValue(rawValue);
+      const displayValue = String(rawValue || "").trim();
+      if (!normalizedField || isMissingBrowseTraitValue(normalizedValue)) {
+        continue;
+      }
+      if (!valueMap.has(normalizedField)) {
+        valueMap.set(normalizedField, new Map());
+      }
+      if (!valueMap.get(normalizedField).has(normalizedValue)) {
+        valueMap.get(normalizedField).set(normalizedValue, displayValue);
+      }
+    }
+  }
+
+  return valueMap;
+}
+
+function resultMatchesBrowseCategoryScope(result = {}, categoryKey = "") {
+  if (!categoryKey) {
+    return true;
+  }
+  return getCategoryScopedImages(result, categoryKey).length > 0;
+}
+
+function resultMatchesTraitFilters(result = {}, categoryKey = "", traitFilters = {}) {
+  return getMatchingBrowseTraitImages(result, categoryKey, traitFilters).length > 0;
+}
+
+function buildBrowseFilterModel(payload = state.lastPayload, query = state.lastQuery) {
+  const allResults = Array.isArray(payload?.results) ? payload.results : [];
+  const browseMode = isBrowsePayload(payload, query);
+  const categoryKey = getBrowseScopedCategoryKey(payload, query);
+  const normalizedTraitFilters = normalizeTraitFilterState(state.traitFilters);
+  const categoryScopedResults = browseMode && categoryKey
+    ? allResults.filter((result) => resultMatchesBrowseCategoryScope(result, categoryKey))
+    : allResults;
+  const visibleResults = browseMode && categoryKey
+    ? categoryScopedResults.filter((result) => resultMatchesTraitFilters(result, categoryKey, normalizedTraitFilters))
+    : allResults;
+
+  if (!browseMode || !isSupportedBrowseTraitCategory(categoryKey)) {
+    return {
+      browseMode,
+      categoryKey,
+      allResults,
+      categoryScopedResults,
+      visibleResults,
+      traitFilters: normalizedTraitFilters,
+      fieldModels: [],
+      panelVisible: false
+    };
+  }
+
+  const fieldConfigs = getBrowseTraitFieldConfigs(categoryKey);
+  const fieldModels = fieldConfigs.map((fieldConfig) => {
+    const fieldKey = normalizeTraitFieldKey(fieldConfig.field);
+    const schemaLabelByValue = new Map(
+      (fieldConfig.allowed_values || []).map((value) => [normalizeTraitValue(value), String(value || "").trim()])
+    );
+    const legacyLabelByValue = new Map();
+
+    for (const result of categoryScopedResults) {
+      const valueMap = getResultTraitValueMapFromImages(getCategoryScopedImages(result, categoryKey));
+      for (const [valueKey, displayValue] of valueMap.get(fieldKey) || []) {
+        if (!schemaLabelByValue.has(valueKey) && !legacyLabelByValue.has(valueKey)) {
+          legacyLabelByValue.set(valueKey, displayValue);
+        }
+      }
+    }
+
+    const comparisonFilters = { ...normalizedTraitFilters };
+    delete comparisonFilters[fieldKey];
+    const remainingResults = categoryScopedResults.filter((result) => (
+      resultMatchesTraitFilters(result, categoryKey, comparisonFilters)
+    ));
+    const counts = new Map();
+
+    for (const result of remainingResults) {
+      const filteredImages = getMatchingBrowseTraitImages(result, categoryKey, comparisonFilters);
+      for (const valueKey of getResultTraitValueMapFromImages(filteredImages).get(fieldKey)?.keys() || []) {
+        counts.set(valueKey, (counts.get(valueKey) || 0) + 1);
+      }
+    }
+
+    const options = [
+      ...(fieldConfig.allowed_values || []).map((value) => {
+        const normalizedValue = normalizeTraitValue(value);
+        return {
+          value: normalizedValue,
+          label: String(value || "").trim(),
+          count: counts.get(normalizedValue) || 0,
+          legacy: false
+        };
+      }),
+      ...[...legacyLabelByValue.entries()]
+        .sort((left, right) => left[1].localeCompare(right[1]))
+        .map(([value, label]) => ({
+          value,
+          label,
+          count: counts.get(value) || 0,
+          legacy: true
+        }))
+    ];
+
+    if (
+      normalizedTraitFilters[fieldKey] &&
+      !options.some((option) => option.value === normalizedTraitFilters[fieldKey])
+    ) {
+      options.push({
+        value: normalizedTraitFilters[fieldKey],
+        label: normalizedTraitFilters[fieldKey],
+        count: counts.get(normalizedTraitFilters[fieldKey]) || 0,
+        legacy: true
+      });
+    }
+
+    return {
+      field: fieldConfig.field,
+      fieldKey,
+      label: formatTraitFieldLabel(fieldConfig.field),
+      selectedValue: normalizedTraitFilters[fieldKey] || "",
+      options
+    };
+  });
+
+  return {
+    browseMode,
+    categoryKey,
+    allResults,
+    categoryScopedResults,
+    visibleResults,
+    traitFilters: normalizedTraitFilters,
+    fieldModels,
+    panelVisible: true
+  };
+}
+
+function getVisibleResults(payload = state.lastPayload, query = state.lastQuery) {
+  return buildBrowseFilterModel(payload, query).visibleResults;
+}
+
+function clearBrowseTraitFilters() {
+  state.traitFilters = {};
+}
+
+function renderBrowseTraitFilters(payload = state.lastPayload, query = state.lastQuery) {
+  if (!elements.browseTraitFilterPanel || !elements.browseTraitFilterFields || !elements.browseTraitFilterCount) {
+    return;
+  }
+
+  const model = buildBrowseFilterModel(payload, query);
+  elements.browseTraitFilterPanel.hidden = !model.panelVisible;
+  elements.browseTraitFilterFields.innerHTML = "";
+
+  if (!model.panelVisible) {
+    if (elements.browseTraitFilterCount) {
+      elements.browseTraitFilterCount.textContent = "";
+    }
+    if (elements.resetBrowseTraitFilters) {
+      elements.resetBrowseTraitFilters.disabled = true;
+    }
+    return;
+  }
+
+  const categoryLabel = formatSeatingCategoryLabel(model.categoryKey);
+  elements.browseTraitFilterCount.textContent = `Showing ${model.visibleResults.length} of ${model.categoryScopedResults.length} ${categoryLabel}`;
+
+  for (const fieldModel of model.fieldModels) {
+    const wrap = document.createElement("label");
+    wrap.className = "browse-trait-field";
+
+    const label = document.createElement("span");
+    label.className = "browse-trait-field-label";
+    label.textContent = fieldModel.label;
+
+    const select = document.createElement("select");
+    select.className = "browse-trait-field-select";
+    select.dataset.field = fieldModel.fieldKey;
+
+    const emptyOption = document.createElement("option");
+    emptyOption.value = "";
+    emptyOption.textContent = `Any ${fieldModel.label}`;
+    select.appendChild(emptyOption);
+
+    for (const optionModel of fieldModel.options) {
+      const option = document.createElement("option");
+      option.value = optionModel.value;
+      option.textContent = `${optionModel.label} (${optionModel.count})${optionModel.legacy ? " [legacy]" : ""}`;
+      option.disabled = optionModel.count === 0;
+      option.selected = optionModel.value === fieldModel.selectedValue;
+      select.appendChild(option);
+    }
+
+    wrap.append(label, select);
+    elements.browseTraitFilterFields.appendChild(wrap);
+  }
+
+  if (elements.resetBrowseTraitFilters) {
+    elements.resetBrowseTraitFilters.disabled = !Object.keys(model.traitFilters).length;
+  }
+}
+
+function syncBrowseCategoryControl(payload = state.lastPayload, query = state.lastQuery) {
+  if (!elements.browseCategoryScopeBar || !elements.browseCategorySelect) {
+    return;
+  }
+  const browseMode = isBrowsePayload(payload, query);
+  const shouldShow = browseMode && !String(query || "").trim() && !state.currentImageAnalysis;
+  elements.browseCategoryScopeBar.hidden = !shouldShow;
+  elements.browseCategorySelect.value = getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all";
+  elements.browseCategorySelect.disabled = state.categoryScopeLoading;
+}
+
+async function handleCategoryScopeSelectionChange(nextRawValue = "") {
+  const previousCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
+  const composerParts = getSearchComposerTextParts();
+  const previousMatch = state.searchComposerMatch || splitQueryAroundCategoryScope(state.lastQuery, previousCategory).match;
+  const nextCategory = normalizeCategoryScopeSelection(nextRawValue, { maxSelections: 1 });
+  const nextPrimaryCategory = getPrimaryCategoryScopeSelection(nextCategory);
+  const categoryChanged = previousCategory !== nextPrimaryCategory;
+  state.categorySelectionTouchedSinceLastSearch = true;
+  const nextQuery = nextPrimaryCategory && nextPrimaryCategory !== "all"
+    ? previousCategory && previousCategory !== "all"
+      ? buildInlineCategoryScopedQuery(
+          nextPrimaryCategory,
+          composerParts.prefix,
+          previousMatch,
+          composerParts.suffix
+        )
+      : stripVagueSeatingReferenceFromQuery(composerParts.plain || state.lastQuery || "", nextPrimaryCategory)
+    : composerParts.plain || state.lastQuery || "";
+  if (categoryChanged) {
+    clearBrowseTraitFilters();
+  }
+  state.resultCategoryScope = nextCategory;
+  state.categoryScopeMode = nextPrimaryCategory === "all" ? "all" : "explicit";
+
+  if (isBrowsePayload(state.lastPayload, state.lastQuery) && !String(state.lastQuery || "").trim() && !state.currentImageAnalysis) {
+    renderSearchComposer(nextQuery);
+    syncBrowseCategoryControl(state.lastPayload, nextQuery);
+    renderBrowseTraitFilters(state.lastPayload, nextQuery);
+    renderResults(state.lastPayload, nextQuery);
+    syncSearchPageUrl();
+    if (categoryChanged) {
+      logEvent("category_scope_changed", {
+        from: previousCategory && previousCategory !== "all" ? previousCategory : null,
+        to: nextPrimaryCategory && nextPrimaryCategory !== "all" ? nextPrimaryCategory : null,
+        resultCount: Number(getVisibleResults(state.lastPayload, nextQuery).length || 0)
+      });
+    }
+    return;
+  }
+
+  state.categoryScopeLoading = true;
+  renderSearchComposer(nextQuery);
+  syncBrowseCategoryControl(state.lastPayload, nextQuery);
+
+  const payload = await runSearch(nextQuery, {
+    sort: state.sortMode,
+    categoryFilter: state.categoryFilter,
+    refreshAgeFilter: state.refreshAgeFilter,
+    seatingType: nextPrimaryCategory || "all",
+    categoryScopeMode: state.categoryScopeMode,
+    sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
+    imageAnalysis: state.currentImageAnalysis,
+    selectedBullets: state.currentSelectedBullets,
+    bulletControls: state.currentBulletControls,
+    preserveOriginal: state.refinementActive,
+    refinementActive: state.refinementActive,
+    productRefinements: state.currentProductRefinements
+  });
+
+  state.categoryScopeLoading = false;
+  renderSearchComposer(state.lastQuery);
+  syncBrowseCategoryControl(state.lastPayload, state.lastQuery);
+  if (payload && categoryChanged) {
+    logEvent("category_scope_changed", {
+      from: previousCategory && previousCategory !== "all" ? previousCategory : null,
+      to: nextPrimaryCategory && nextPrimaryCategory !== "all" ? nextPrimaryCategory : null,
+      resultCount: Number(payload.total_results || payload.results?.length || 0)
+    });
+  }
+}
+
 function getCategoryPhraseForQuery(value = "", options = {}) {
   const normalized = normalizeSeatingCategoryKey(value);
   const singular = options?.singular === true;
@@ -579,7 +946,6 @@ function getCategoryPhraseForQuery(value = "", options = {}) {
         guest_chair: "guest chair",
         lounge_chair: "lounge chair",
         bench: "bench",
-        ottoman: "ottoman",
         stool: "stool",
         other_seating: "other seating"
       }
@@ -588,7 +954,6 @@ function getCategoryPhraseForQuery(value = "", options = {}) {
         guest_chair: "guest chairs",
         lounge_chair: "lounge seating",
         bench: "benches",
-        ottoman: "ottomans",
         stool: "stools",
         other_seating: "other seating"
       };
@@ -600,13 +965,13 @@ function shouldUseSingularCategoryPhrase(matchText = "") {
   if (!normalized) {
     return false;
   }
-  if (/\b(chairs|seats|benches|ottomans|stools)\b/.test(normalized)) {
+  if (/\b(chairs|seats|benches|stools)\b/.test(normalized)) {
     return false;
   }
   if (/\bseating\b/.test(normalized)) {
     return false;
   }
-  return /\b(chair|seat|work chair|guest chair|lounge chair|task chair|collaborative chair|bench|ottoman|stool)\b/.test(normalized);
+  return /\b(chair|seat|work chair|guest chair|lounge chair|task chair|collaborative chair|bench|stool)\b/.test(normalized);
 }
 
 function getCategoryPhraseForComposer(categoryKey = "", matchText = "") {
@@ -2523,6 +2888,9 @@ function applyActiveSearchContext({
   state.debugPayload = null;
   state.inlineRefinementPanel = null;
   state.activeCardImageUrls = {};
+  if (!isBrowsePayload(payload, state.lastQuery)) {
+    clearBrowseTraitFilters();
+  }
 
   if (elements.categoryFilterButton) {
     elements.categoryFilterButton.textContent = formatCategoryFilterLabel(state.categoryFilter);
@@ -2558,6 +2926,8 @@ function applyActiveSearchContext({
       : [],
     { payload, query }
   );
+  syncBrowseCategoryControl(payload, query);
+  renderBrowseTraitFilters(payload, query);
   renderSearchComposer(query);
   syncSearchPageUrl();
   updateResetSearchVisibility();
@@ -3074,7 +3444,7 @@ function applyRefreshedProductToResults(refreshPayload) {
 }
 
 function hasVisibleResults(payload = state.lastPayload) {
-  return Boolean(payload?.results?.length);
+  return Boolean(getVisibleResults(payload, state.lastQuery).length);
 }
 
 function isBrowsePayload(payload = state.lastPayload, query = state.lastQuery) {
@@ -3122,7 +3492,7 @@ function syncManageToolbar() {
   if (elements.batchRefreshProgress) {
     elements.batchRefreshProgress.hidden = !showProgressBlock;
   }
-  const visibleResults = state.lastPayload?.results || [];
+  const visibleResults = getVisibleResults(state.lastPayload, state.lastQuery);
   const visibleIds = visibleResults.map((result) => result.product_id);
   const selectionCount = state.selectedProductIds.size;
   const allVisibleSelected = Boolean(visibleIds.length) && visibleIds.every((productId) => state.selectedProductIds.has(productId));
@@ -3163,7 +3533,7 @@ function exitManageMode() {
 }
 
 function selectAllVisibleResults() {
-  const visibleIds = (state.lastPayload?.results || []).map((result) => result.product_id);
+  const visibleIds = getVisibleResults(state.lastPayload, state.lastQuery).map((result) => result.product_id);
   state.selectedProductIds = new Set(visibleIds);
   syncManageToolbar();
   renderResults(state.lastPayload, state.lastQuery);
@@ -3489,6 +3859,13 @@ function renderContextPills(parsed = {}) {
         event.stopPropagation();
         state.resultCategoryScope = ["all"];
         state.categoryScopeMode = "all";
+        clearBrowseTraitFilters();
+        if (isBrowsePayload(state.lastPayload, state.lastQuery) && !String(state.lastQuery || "").trim()) {
+          renderBrowseTraitFilters(state.lastPayload, state.lastQuery);
+          renderResults(state.lastPayload, state.lastQuery);
+          syncSearchPageUrl();
+          return;
+        }
         runSearch(getSearchComposerRequestQuery(state.lastQuery), {
           sort: state.sortMode,
           categoryFilter: state.categoryFilter,
@@ -4386,7 +4763,7 @@ function applyImagePresentation(cardImageWrap, heroImage, imageUrl, sceneFilterR
 
 function normalizeMatchingImages(result = {}) {
   const matchingImages = Array.isArray(result.matching_images) ? result.matching_images : [];
-  const normalized = matchingImages
+  let normalized = matchingImages
     .map((image) => ({
       ...image,
       stage_0_result: normalizeStage0Result(image?.stage_0_result),
@@ -4394,6 +4771,14 @@ function normalizeMatchingImages(result = {}) {
       image_url: normalizeDisplayImageUrl(image?.image_url)
     }))
     .filter((image) => image.image_url);
+  const browseCategoryKey = getBrowseScopedCategoryKey(state.lastPayload, state.lastQuery);
+  const browseTraitFilters = normalizeTraitFilterState(state.traitFilters);
+  if (isBrowsePayload(state.lastPayload, state.lastQuery) && browseCategoryKey) {
+    normalized = normalized.filter((image) => normalizeSeatingCategoryKey(image?.seating_type) === browseCategoryKey);
+    if (Object.keys(browseTraitFilters).length) {
+      normalized = normalized.filter((image) => imageMatchesTraitFilters(image, browseTraitFilters));
+    }
+  }
   if (normalized.length) {
     const isSearchMode = Boolean(state.lastQuery && !result?.browse_mode);
     if (isSearchMode) {
@@ -4808,6 +5193,8 @@ function renderResults(payload, query) {
   setResultsLoading("");
   state.lastPayload = payload;
   state.lastQuery = query;
+  const visibleResults = getVisibleResults(payload, query);
+  renderBrowseTraitFilters(payload, query);
   renderSearchComposer(query);
   const isBrowseMode = isBrowsePayload(payload, query);
   const cutoffMeta = computeResultCutoffMeta(payload, query, isBrowseMode);
@@ -4819,7 +5206,7 @@ function renderResults(payload, query) {
     elements.sortSelect.value = state.sortMode;
   }
   state.selectedProductIds = new Set(
-    [...state.selectedProductIds].filter((productId) => payload.results.some((result) => result.product_id === productId))
+    [...state.selectedProductIds].filter((productId) => visibleResults.some((result) => result.product_id === productId))
   );
   if (!elements.resultsGrid) {
     return;
@@ -4839,11 +5226,11 @@ function renderResults(payload, query) {
   renderRefineSidebar();
 
   if (!query) {
-    setResultCountMarkup(payload.total_results, "catalog products");
+    setResultCountMarkup(visibleResults.length, "catalog products");
     setStatus("");
   }
 
-  if (!payload.results.length) {
+  if (!visibleResults.length) {
     const activeScopeCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
     setResultCountMarkup(0, "results found");
     setStatus(
@@ -4857,10 +5244,10 @@ function renderResults(payload, query) {
 
   if (query) {
     setStatus("");
-    setResultCountMarkup(payload.total_results || payload.results.length, "results found");
+    setResultCountMarkup(visibleResults.length, "results found");
   }
 
-  payload.results.forEach((result, index) => {
+  visibleResults.forEach((result, index) => {
     const fragment = elements.cardTemplate.content.cloneNode(true);
     const resultTile = fragment.querySelector(".result-tile");
     const image = fragment.querySelector(".card-image");
@@ -4899,9 +5286,10 @@ function renderResults(payload, query) {
       resultTile.hidden = isWeakerMatch && !state.weakerMatchesExpanded;
     }
 
+    const normalizedResultImages = normalizeMatchingImages(result);
     const fallbackImageUrls = [...new Set([
+      ...normalizedResultImages.map((imageRecord) => normalizeDisplayImageUrl(imageRecord.image_url)),
       normalizeDisplayImageUrl(result.best_image_url),
-      ...normalizeMatchingImages(result).map((imageRecord) => normalizeDisplayImageUrl(imageRecord.image_url)),
       ...((result.image_urls || []).map((imageUrl) => normalizeDisplayImageUrl(imageUrl)))
     ].filter(Boolean))];
     let fallbackImageIndex = 0;
@@ -4932,7 +5320,7 @@ function renderResults(payload, query) {
       sceneBadge,
       result.best_image_url,
       result.scene_filter_results || [],
-      normalizeMatchingImages(result).find((imageRecord) => imageRecord.image_url === normalizeDisplayImageUrl(result.best_image_url))
+      normalizedResultImages.find((imageRecord) => imageRecord.image_url === normalizeDisplayImageUrl(result.best_image_url))
     );
     productName.textContent = "";
     const productWebsite = String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id);
@@ -5371,11 +5759,6 @@ async function runSearch(query, options = {}) {
       setStatus("");
       return payload;
     }
-    if (refreshAgeFilter === "none" && Array.isArray(payload?.results)) {
-      payload.results = payload.results.filter((result) => !hasUsableRefreshTimestamp(result?.ai_refreshed_at));
-      payload.total_results = payload.results.length;
-    }
-
     const payloadSelectedBullets = normalizeSelectedBullets(payload?.selected_bullets);
     const effectiveSelectedBullets = hasSelectedBullets(payloadSelectedBullets)
       ? payloadSelectedBullets
@@ -5630,6 +6013,61 @@ async function requestImageAnalysis(body) {
   return payload.analysis;
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Unable to read the selected image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageElement(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Unable to load the selected image."));
+    image.src = src;
+  });
+}
+
+async function prepareUploadImageDataUrl(file, options = {}) {
+  const maxDimension = Number(options.maxDimension || QUERY_IMAGE_UPLOAD_MAX_DIMENSION) || QUERY_IMAGE_UPLOAD_MAX_DIMENSION;
+  const jpegQuality = Number(options.jpegQuality || QUERY_IMAGE_UPLOAD_JPEG_QUALITY) || QUERY_IMAGE_UPLOAD_JPEG_QUALITY;
+  const originalDataUrl = await readFileAsDataUrl(file);
+  const image = await loadImageElement(originalDataUrl);
+  const naturalWidth = Number(image.naturalWidth || image.width || 0);
+  const naturalHeight = Number(image.naturalHeight || image.height || 0);
+
+  if (!naturalWidth || !naturalHeight) {
+    return originalDataUrl;
+  }
+
+  const longestSide = Math.max(naturalWidth, naturalHeight);
+  const scale = longestSide > maxDimension ? maxDimension / longestSide : 1;
+  const targetWidth = Math.max(1, Math.round(naturalWidth * scale));
+  const targetHeight = Math.max(1, Math.round(naturalHeight * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return originalDataUrl;
+  }
+
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, targetWidth, targetHeight);
+  context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+  try {
+    const optimizedDataUrl = canvas.toDataURL("image/jpeg", jpegQuality);
+    return optimizedDataUrl || originalDataUrl;
+  } catch {
+    return originalDataUrl;
+  }
+}
+
 function bulletsFromAnalysis(analysis) {
   if (analysis?.search_bullets && typeof analysis.search_bullets === "object") {
     const structured = normalizeSelectedBullets(analysis.search_bullets);
@@ -5775,12 +6213,7 @@ async function analyzeSelectedImage() {
   let body;
   let previewUrl;
   if (file) {
-    const dataUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error("Unable to read the selected image."));
-      reader.readAsDataURL(file);
-    });
+    const dataUrl = await prepareUploadImageDataUrl(file);
     body = {
       file_name: file.name,
       image_data_url: dataUrl
@@ -5811,6 +6244,7 @@ async function bootstrap() {
     state.resultCategoryScope = ["all"];
     state.categoryScopeMode = "all";
     state.refreshAgeFilter = "";
+    state.traitFilters = {};
     state.originalCategoryFilter = [];
     state.originalResultCategoryScope = ["all"];
     state.originalCategoryScopeMode = "all";
@@ -6080,57 +6514,54 @@ elements.categoryFilterOptions?.addEventListener("change", (event) => {
   });
 });
 
-elements.searchCategorySelect?.addEventListener("change", async (event) => {
+elements.browseTraitFilterFields?.addEventListener("change", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLSelectElement)) {
     return;
   }
 
-  const previousCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
-  const composerParts = getSearchComposerTextParts();
-  const previousMatch = state.searchComposerMatch || splitQueryAroundCategoryScope(state.lastQuery, previousCategory).match;
-  const nextCategory = normalizeCategoryScopeSelection(target.value, { maxSelections: 1 });
-  const nextPrimaryCategory = getPrimaryCategoryScopeSelection(nextCategory);
-  state.categorySelectionTouchedSinceLastSearch = true;
-  const nextQuery = nextPrimaryCategory && nextPrimaryCategory !== "all"
-    ? previousCategory && previousCategory !== "all"
-      ? buildInlineCategoryScopedQuery(
-          nextPrimaryCategory,
-          composerParts.prefix,
-          previousMatch,
-          composerParts.suffix
-        )
-      : stripVagueSeatingReferenceFromQuery(composerParts.plain || state.lastQuery || "", nextPrimaryCategory)
-    : composerParts.plain || state.lastQuery || "";
-  state.resultCategoryScope = nextCategory;
-  state.categoryScopeMode = nextPrimaryCategory === "all" ? "all" : "explicit";
-  state.categoryScopeLoading = true;
-  renderSearchComposer(nextQuery);
-
-  const payload = await runSearch(nextQuery, {
-    sort: state.sortMode,
-    categoryFilter: state.categoryFilter,
-    refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: nextPrimaryCategory || "all",
-    categoryScopeMode: state.categoryScopeMode,
-    sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
-    imageAnalysis: state.currentImageAnalysis,
-    selectedBullets: state.currentSelectedBullets,
-    bulletControls: state.currentBulletControls,
-    preserveOriginal: state.refinementActive,
-    refinementActive: state.refinementActive,
-    productRefinements: state.currentProductRefinements
-  });
-
-  state.categoryScopeLoading = false;
-  renderSearchComposer(state.lastQuery);
-  if (payload && previousCategory !== nextPrimaryCategory) {
-    logEvent("category_scope_changed", {
-      from: previousCategory && previousCategory !== "all" ? previousCategory : null,
-      to: nextPrimaryCategory && nextPrimaryCategory !== "all" ? nextPrimaryCategory : null,
-      resultCount: Number(payload.total_results || payload.results?.length || 0)
-    });
+  const fieldKey = normalizeTraitFieldKey(target.dataset.field || "");
+  if (!fieldKey) {
+    return;
   }
+
+  const nextValue = normalizeTraitValue(target.value);
+  if (!nextValue) {
+    delete state.traitFilters[fieldKey];
+  } else {
+    state.traitFilters[fieldKey] = nextValue;
+  }
+
+  renderBrowseTraitFilters(state.lastPayload, state.lastQuery);
+  renderResults(state.lastPayload, state.lastQuery);
+});
+
+elements.resetBrowseTraitFilters?.addEventListener("click", () => {
+  if (!Object.keys(normalizeTraitFilterState(state.traitFilters)).length) {
+    return;
+  }
+  clearBrowseTraitFilters();
+  renderBrowseTraitFilters(state.lastPayload, state.lastQuery);
+  renderResults(state.lastPayload, state.lastQuery);
+});
+
+elements.searchCategorySelect?.addEventListener("change", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLSelectElement)) {
+    return;
+  }
+  await handleCategoryScopeSelectionChange(target.value);
+});
+
+elements.browseCategorySelect?.addEventListener("change", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (elements.searchCategorySelect && elements.searchCategorySelect.value !== target.value) {
+    elements.searchCategorySelect.value = target.value;
+  }
+  await handleCategoryScopeSelectionChange(target.value);
 });
 
 elements.refreshAgeFilterSelect?.addEventListener("change", () => {
@@ -6175,12 +6606,13 @@ elements.resetSearchButton?.addEventListener("click", () => {
   state.currentBulletControls = normalizeBulletControls(state.originalBulletControls);
   state.currentSeatingType = state.originalSeatingType;
   state.currentImageAnalysis = state.originalImageAnalysis ? cloneValue(state.originalImageAnalysis) : null;
-  state.currentProductRefinements = normalizeProductRefinements(state.originalProductRefinements);
-  state.categoryFilter = normalizeCategoryFilter(state.originalCategoryFilter);
-  state.resultCategoryScope = normalizeCategoryScopeSelection(state.originalResultCategoryScope, { maxSelections: 1 });
-  state.categoryScopeMode = state.originalCategoryScopeMode || "all";
-  state.refreshAgeFilter = state.originalRefreshAgeFilter;
-  state.refinementActive = false;
+    state.currentProductRefinements = normalizeProductRefinements(state.originalProductRefinements);
+    state.categoryFilter = normalizeCategoryFilter(state.originalCategoryFilter);
+    state.resultCategoryScope = normalizeCategoryScopeSelection(state.originalResultCategoryScope, { maxSelections: 1 });
+    state.categoryScopeMode = state.originalCategoryScopeMode || "all";
+    state.refreshAgeFilter = state.originalRefreshAgeFilter;
+    clearBrowseTraitFilters();
+    state.refinementActive = false;
   state.categoryScopeLoading = false;
   if (elements.categoryFilterButton) {
     elements.categoryFilterButton.textContent = formatCategoryFilterLabel(state.categoryFilter);
