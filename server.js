@@ -39,7 +39,6 @@ const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
 const seatingTypesPath = path.join(__dirname, "data", "seating-types.json");
 const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
 const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json");
-const traitSuggestionDecisionsPath = path.join(__dirname, "scripts", "reranker-trait-decisions.json");
 const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
 const traitCorrectionImagesDir = path.join(__dirname, "data", "trait-correction-images");
 const seatingTypesConfig = JSON.parse(fsSync.readFileSync(seatingTypesPath, "utf8"));
@@ -842,131 +841,11 @@ function buildTraitPreferencePayload(
   };
 }
 
-function buildTraitSuggestionReport(judgments = [], decisions = []) {
-  const stats = new Map();
-  const decisionMap = new Map(
-    (Array.isArray(decisions) ? decisions : [])
-      .filter((entry) => entry && typeof entry === "object" && entry.trait)
-      .map((entry) => [String(entry.trait), entry])
-  );
-
-  for (const judgment of Array.isArray(judgments) ? judgments : []) {
-    if (!judgment?.was_corrected) {
-      continue;
-    }
-
-    for (const pair of judgment.preference_pairs || []) {
-      const queryAlignedPreferred = new Set(pair.query_aligned_preferred_traits || []);
-      const queryAlignedDemoted = new Set(pair.query_aligned_demoted_traits || []);
-
-      for (const trait of pair.preferred_only_traits || []) {
-        const entry = stats.get(trait) || {
-          trait,
-          up_count: 0,
-          down_count: 0,
-          query_aligned_up_count: 0,
-          query_aligned_down_count: 0,
-          supporting_pairs: 0
-        };
-        entry.up_count += 1;
-        entry.supporting_pairs += 1;
-        if (queryAlignedPreferred.has(trait)) {
-          entry.query_aligned_up_count += 1;
-        }
-        stats.set(trait, entry);
-      }
-
-      for (const trait of pair.demoted_only_traits || []) {
-        const entry = stats.get(trait) || {
-          trait,
-          up_count: 0,
-          down_count: 0,
-          query_aligned_up_count: 0,
-          query_aligned_down_count: 0,
-          supporting_pairs: 0
-        };
-        entry.down_count += 1;
-        entry.supporting_pairs += 1;
-        if (queryAlignedDemoted.has(trait)) {
-          entry.query_aligned_down_count += 1;
-        }
-        stats.set(trait, entry);
-      }
-    }
-  }
-
-  const suggestions = [...stats.values()]
-    .map((entry) => {
-      const queryAlignedEvidence = entry.query_aligned_up_count + entry.query_aligned_down_count;
-      // If a trait is present on the query product, seeing it on irrelevant results is not
-      // sufficient evidence to push it down. Query alignment should protect against
-      // over-generalizing a shared trait as a negative signal.
-      const weightedUp =
-        entry.up_count +
-        (entry.query_aligned_up_count * 2) +
-        entry.query_aligned_down_count;
-      const weightedDown = Math.max(0, entry.down_count - entry.query_aligned_down_count);
-      const netScore = weightedUp - weightedDown;
-      const evidence = entry.up_count + entry.down_count;
-      let direction = "neutral";
-      if (netScore > 0) {
-        direction = "up";
-      } else if (netScore < 0 && queryAlignedEvidence === 0) {
-        direction = "down";
-      }
-      const proposedWeight = direction === "neutral"
-        ? 0
-        : Number(Math.min(0.2, 0.02 * Math.max(1, Math.abs(netScore))).toFixed(3));
-      const qualifies = direction !== "neutral" && evidence >= 2 && Math.abs(netScore) >= 2;
-      const decision = decisionMap.get(entry.trait) || null;
-
-      return {
-        trait: entry.trait,
-        direction,
-        proposed_weight: proposedWeight,
-        evidence,
-        net_score: netScore,
-        weighted_up: weightedUp,
-        weighted_down: weightedDown,
-        up_count: entry.up_count,
-        down_count: entry.down_count,
-        query_aligned_up_count: entry.query_aligned_up_count,
-        query_aligned_down_count: entry.query_aligned_down_count,
-        status: decision?.status || "pending",
-        decided_at: decision?.decided_at || "",
-        qualifies
-      };
-    })
-    .filter((entry) => entry.qualifies)
-    .sort((a, b) => {
-      if (Math.abs(b.net_score) !== Math.abs(a.net_score)) {
-        return Math.abs(b.net_score) - Math.abs(a.net_score);
-      }
-      if (b.evidence !== a.evidence) {
-        return b.evidence - a.evidence;
-      }
-      return a.trait.localeCompare(b.trait);
-    });
-
-  return {
-    generated_at: new Date().toISOString(),
-    corrected_judgments: (Array.isArray(judgments) ? judgments : []).filter((judgment) => judgment?.was_corrected).length,
-    suggestions,
-    suggested_up: suggestions.filter((entry) => entry.direction === "up"),
-    suggested_down: suggestions.filter((entry) => entry.direction === "down"),
-    approved: suggestions.filter((entry) => entry.status === "approved"),
-    rejected: suggestions.filter((entry) => entry.status === "rejected"),
-    pending: suggestions.filter((entry) => entry.status === "pending"),
-    note: "Suggestion mode only. Query-aligned traits are protected from automatic downweighting; approved trait weights are saved for review and are not applied to live ranking yet."
-  };
-}
-
 async function loadEvalData() {
-  const [evalResults, index, judgments, traitDecisions] = await Promise.all([
+  const [evalResults, index, judgments] = await Promise.all([
     readJson(evalResultsPath),
     readJson(indexPath),
-    readJson(evalJudgmentsPath, []),
-    readJson(traitSuggestionDecisionsPath, [])
+    readJson(evalJudgmentsPath, [])
   ]);
 
   if (!evalResults) {
@@ -1010,8 +889,7 @@ async function loadEvalData() {
   return {
     summary: evalResults.summary || {},
     results: mergedResults,
-    judgments: Array.isArray(judgments) ? judgments : [],
-    trait_report: buildTraitSuggestionReport(judgments, traitDecisions)
+    judgments: Array.isArray(judgments) ? judgments : []
   };
 }
 
@@ -1103,6 +981,53 @@ function normalizeCandidateText(value = "") {
 
 function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType]?.fields || [];
+}
+
+const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
+  ["arms", "arm_option"],
+  ["base", "base_type"],
+  ["design", "design_register"],
+  ["shape", "shape_character"],
+  ["height", "height_category"],
+  ["adjustability", "height_adjustability"]
+]);
+
+function formatStructuredBulletFieldLabel(field = "") {
+  return String(field || "")
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
+  const normalizedField = String(fieldLabel || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  if (!normalizedField) {
+    return "";
+  }
+
+  const typeFields = getTypeFields(typeKey);
+  if (typeFields.some((field) => field.field === normalizedField)) {
+    return normalizedField;
+  }
+
+  const schemaLabelMatch = typeFields.find((field) => (
+    formatStructuredBulletFieldLabel(field.field).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "") === normalizedField
+  ));
+  if (schemaLabelMatch) {
+    return schemaLabelMatch.field;
+  }
+
+  const aliasMatch = STRUCTURED_BULLET_FIELD_ALIASES.get(normalizedField);
+  if (aliasMatch && typeFields.some((field) => field.field === aliasMatch)) {
+    return aliasMatch;
+  }
+
+  return aliasMatch || normalizedField;
 }
 
 function formatDetectedTraits(imageTraits = {}, typeKey, limit = 6) {
@@ -1223,15 +1148,63 @@ function normalizeStructuredBullets(bullets = []) {
   };
 }
 
-function mergeStructuredBullets(...groups) {
-  const merged = { essential: [], normal: [], low: [] };
+function mergeStructuredBullets(seatingType = "", ...groups) {
+  const priorityRank = new Map([
+    ["essential", 3],
+    ["normal", 2],
+    ["low", 1]
+  ]);
+  const mergedByKey = new Map();
+  let order = 0;
+
+  const normalizeBulletValue = (value = "") => String(value || "").trim().toLowerCase();
+  const semanticKeyForBullet = (bullet = "") => {
+    const text = String(bullet || "").trim();
+    const separatorIndex = text.indexOf(":");
+    if (separatorIndex === -1) {
+      return null;
+    }
+    const field = resolveStructuredBulletField(seatingType, text.slice(0, separatorIndex).trim());
+    const value = normalizeBulletValue(text.slice(separatorIndex + 1).trim());
+    if (!field || !value) {
+      return null;
+    }
+    return `${field}::${value}`;
+  };
 
   for (const group of groups) {
     const normalized = normalizeStructuredBullets(group);
-    merged.essential.push(...normalized.essential);
-    merged.normal.push(...normalized.normal);
-    merged.low.push(...normalized.low);
+    for (const priority of ["essential", "normal", "low"]) {
+      for (const bullet of normalized[priority]) {
+        const key = semanticKeyForBullet(bullet) || `raw::${String(bullet || "").trim().toLowerCase()}`;
+        const existing = mergedByKey.get(key);
+        const candidate = {
+          text: bullet,
+          priority,
+          order: order += 1
+        };
+        if (!existing) {
+          mergedByKey.set(key, candidate);
+          continue;
+        }
+        const existingRank = priorityRank.get(existing.priority) || 0;
+        const candidateRank = priorityRank.get(candidate.priority) || 0;
+        if (candidateRank > existingRank) {
+          mergedByKey.set(key, {
+            ...candidate,
+            order: existing.order
+          });
+        }
+      }
+    }
   }
+
+  const merged = { essential: [], normal: [], low: [] };
+  [...mergedByKey.values()]
+    .sort((left, right) => left.order - right.order)
+    .forEach((entry) => {
+      merged[entry.priority].push(entry.text);
+    });
 
   return normalizeStructuredBullets(merged);
 }
@@ -2265,10 +2238,6 @@ const server = http.createServer(async (request, response) => {
     return serveStatic("/eval.html", response);
   }
 
-  if (url.pathname === "/compare") {
-    return serveStatic("/compare.html", response);
-  }
-
   if (url.pathname === "/curate") {
     return serveStatic("/curate.html", response);
   }
@@ -2326,8 +2295,6 @@ const server = http.createServer(async (request, response) => {
     const explicitSeatingType = disableSeatingTypeInference
       ? ""
       : normalizeRequestedSeatingType(rawRequestedSeatingType);
-    const weightedParam = request.method === "POST" ? body.weighted : url.searchParams.get("weighted");
-    const weighted = weightedParam === undefined || weightedParam === null || String(weightedParam).trim().toLowerCase() !== "false";
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
     const selectedBullets = normalizeStructuredBullets(body.selected_bullets);
     if (!query) {
@@ -2340,7 +2307,6 @@ const server = http.createServer(async (request, response) => {
         category_filter: category,
         refresh_age_filter: refreshAge,
         sort,
-        weighted,
         parsed: {
           category: null,
           brand: null,
@@ -2382,14 +2348,20 @@ const server = http.createServer(async (request, response) => {
       model: process.env.QUERY_MODEL
     });
     parsed.seating_type = resolvedSeatingType || "";
-    const textQueryTraits = imageAnalysis
-      ? null
-      : await extractTextQueryTraits(query, {
-        apiKey: process.env.OPENAI_API_KEY,
-        model: "gpt-4.1-mini",
-        seatingType: resolvedSeatingType
-      });
+    let textQueryTraits = null;
+    if (!imageAnalysis) {
+      if (!resolvedSeatingType) {
+        console.warn("[text-query-traits] skipping extraction because seatingType is unresolved");
+      } else {
+        textQueryTraits = await extractTextQueryTraits(query, {
+          apiKey: process.env.OPENAI_API_KEY,
+          model: "gpt-4.1-mini",
+          seatingType: resolvedSeatingType
+        });
+      }
+    }
     const effectiveSelectedBullets = mergeStructuredBullets(
+      resolvedSeatingType,
       textQueryTraits?.search_bullets,
       selectedBullets
     );
@@ -2409,7 +2381,6 @@ const server = http.createServer(async (request, response) => {
       selectedBullets: effectiveSelectedBullets,
       queryEmbedding,
       apiKey: process.env.OPENAI_API_KEY,
-      approvedTraitWeightsEnabled: weighted,
       includeSourceImage: debug
     });
     const results = filterResultsByRefreshAge(
@@ -2422,7 +2393,6 @@ const server = http.createServer(async (request, response) => {
       category_filter: category,
       refresh_age_filter: refreshAge,
       sort,
-      weighted,
       match_mode: matchMode,
       source_image_url: sourceImageUrl,
       debug,
@@ -2697,34 +2667,10 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/eval-export" && request.method === "GET") {
     try {
-      const [judgments, decisions] = await Promise.all([
-        readJson(evalJudgmentsPath, []),
-        readJson(traitSuggestionDecisionsPath, [])
-      ]);
-      const report = buildTraitSuggestionReport(judgments, decisions);
+      const judgments = await readJson(evalJudgmentsPath, []);
       const snapshot = {
         exported_at: new Date().toISOString(),
-        trait_suggestion_report: {
-          generated_at: report.generated_at,
-          corrected_judgments: report.corrected_judgments,
-          note: report.note,
-          suggestions: report.suggestions.map((entry) => ({
-            trait: entry.trait,
-            direction: entry.direction,
-            proposed_weight: entry.proposed_weight,
-            evidence: entry.evidence,
-            net_score: entry.net_score,
-            weighted_up: entry.weighted_up,
-            weighted_down: entry.weighted_down,
-            raw_up: entry.up_count,
-            raw_down: entry.down_count,
-            query_aligned_up: entry.query_aligned_up_count,
-            query_aligned_down: entry.query_aligned_down_count,
-            status: entry.status
-          }))
-        },
-        eval_judgments: Array.isArray(judgments) ? judgments : [],
-        reranker_trait_decisions: Array.isArray(decisions) ? decisions : []
+        eval_judgments: Array.isArray(judgments) ? judgments : []
       };
       response.writeHead(200, {
         "Content-Type": "application/json; charset=utf-8",
@@ -2734,56 +2680,6 @@ const server = http.createServer(async (request, response) => {
       return;
     } catch (error) {
       return json(response, 500, { error: error.message || "Eval export unavailable." });
-    }
-  }
-
-  if (url.pathname === "/api/reranker-trait-report" && request.method === "GET") {
-    try {
-      const [judgments, decisions] = await Promise.all([
-        readJson(evalJudgmentsPath, []),
-        readJson(traitSuggestionDecisionsPath, [])
-      ]);
-      return json(response, 200, buildTraitSuggestionReport(judgments, decisions));
-    } catch (error) {
-      return json(response, 500, { error: error.message || "Trait report unavailable." });
-    }
-  }
-
-  if (url.pathname === "/api/reranker-trait-decision" && request.method === "POST") {
-    try {
-      const body = await readRequestJson(request);
-      const trait = String(body.trait || "").trim();
-      const status = String(body.status || "").trim().toLowerCase();
-      if (!trait) {
-        return json(response, 400, { error: "trait is required." });
-      }
-      if (!["approved", "rejected", "pending"].includes(status)) {
-        return json(response, 400, { error: "status must be approved, rejected, or pending." });
-      }
-
-      const [decisions, judgments] = await Promise.all([
-        readJson(traitSuggestionDecisionsPath, []),
-        readJson(evalJudgmentsPath, [])
-      ]);
-      const nextDecision = {
-        trait,
-        status,
-        direction: String(body.direction || "").trim(),
-        proposed_weight: Number(body.proposed_weight || 0),
-        evidence: Number(body.evidence || 0),
-        net_score: Number(body.net_score || 0),
-        decided_at: new Date().toISOString()
-      };
-      const nextDecisions = (Array.isArray(decisions) ? decisions : []).filter((entry) => String(entry?.trait || "") !== trait);
-      nextDecisions.push(nextDecision);
-      await writeJson(traitSuggestionDecisionsPath, nextDecisions);
-
-      return json(response, 200, {
-        ok: true,
-        report: buildTraitSuggestionReport(judgments, nextDecisions)
-      });
-    } catch (error) {
-      return json(response, 500, { error: error.message || "Failed to save trait decision." });
     }
   }
 

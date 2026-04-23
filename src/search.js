@@ -45,14 +45,59 @@ const ROOM_SCENE_TERMS = [
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const seatingTypesPath = path.join(__dirname, "..", "data", "seating-types.json");
-const traitDecisionPath = path.join(__dirname, "..", "scripts", "reranker-trait-decisions.json");
 const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
-let approvedTraitDecisionCache = { mtimeMs: 0, decisions: [] };
 
 function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType]?.fields || [];
+}
+
+function getTraitFieldConfig(typeKey, fieldName) {
+  return getTypeFields(typeKey).find((field) => field.field === fieldName) || null;
+}
+
+const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
+  ["arms", "arm_option"],
+  ["base", "base_type"],
+  ["design", "design_register"],
+  ["shape", "shape_character"],
+  ["height", "height_category"],
+  ["adjustability", "height_adjustability"]
+]);
+
+function formatStructuredBulletFieldLabel(field = "") {
+  return String(field || "")
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
+  const normalizedField = normalizeBulletFieldLabel(fieldLabel);
+  if (!normalizedField) {
+    return "";
+  }
+
+  const typeFields = getTypeFields(typeKey);
+  if (typeFields.some((field) => field.field === normalizedField)) {
+    return normalizedField;
+  }
+
+  const schemaLabelMatch = typeFields.find((field) => (
+    normalizeBulletFieldLabel(formatStructuredBulletFieldLabel(field.field)) === normalizedField
+  ));
+  if (schemaLabelMatch) {
+    return schemaLabelMatch.field;
+  }
+
+  const aliasMatch = STRUCTURED_BULLET_FIELD_ALIASES.get(normalizedField);
+  if (aliasMatch && typeFields.some((field) => field.field === aliasMatch)) {
+    return aliasMatch;
+  }
+
+  return aliasMatch || normalizedField;
 }
 
 function formatDetectedTraits(imageTraits = {}, typeKey, limit = 6) {
@@ -151,176 +196,6 @@ function buildSceneFilterBadge(record = null, imageUrl = "") {
     label: match.result === "scene" ? "Scene" : "Product",
     result: match.result,
     model_version: String(match.model_version || "").trim()
-  };
-}
-
-function collectTraitTokens(namespace, source, collector) {
-  if (!source || typeof source !== "object") {
-    return;
-  }
-
-  for (const [field, rawValue] of Object.entries(source)) {
-    if (rawValue === null || rawValue === undefined) {
-      continue;
-    }
-
-    if (Array.isArray(rawValue)) {
-      for (const item of rawValue) {
-        const normalized = normalizeTraitValue(item);
-        if (!normalized || normalized === "unknown") {
-          continue;
-        }
-        collector.add(`${namespace}.${field}:${normalized}`);
-      }
-      continue;
-    }
-
-    if (typeof rawValue === "object") {
-      continue;
-    }
-
-    const normalized = normalizeTraitValue(rawValue);
-    if (!normalized || normalized === "unknown") {
-      continue;
-    }
-    collector.add(`${namespace}.${field}:${normalized}`);
-  }
-}
-
-function extractTraitBase(fullTrait = "") {
-  const trait = String(fullTrait || "").trim();
-  const separatorIndex = trait.indexOf(".");
-  return separatorIndex >= 0 ? trait.slice(separatorIndex + 1) : trait;
-}
-
-function buildRecordTraitSet(record = {}) {
-  const traitSet = new Set();
-  collectTraitTokens("image", record.image_traits, traitSet);
-  collectTraitTokens("merged", record.merged_traits, traitSet);
-  collectTraitTokens("visual", record.visual_traits, traitSet);
-
-  for (const category of getAllCategoryTerms(record)) {
-    traitSet.add(`catalog.category:${normalizeTraitValue(category)}`);
-  }
-  if (record.seating_type) {
-    traitSet.add(`catalog.seating_type:${normalizeTraitValue(record.seating_type)}`);
-  }
-
-  return traitSet;
-}
-
-function buildQueryTraitSet({ parsed, imageAnalysis }) {
-  const traitSet = new Set();
-  const analysis = imageAnalysis && typeof imageAnalysis === "object" ? imageAnalysis : {};
-
-  collectTraitTokens("image", analysis.image_traits || analysis.stage3?.image_traits, traitSet);
-  collectTraitTokens("merged", analysis.merged_traits || analysis.stage3?.merged_traits, traitSet);
-  collectTraitTokens("visual", analysis.visual_traits || analysis.stage3?.visual_traits, traitSet);
-
-  const queryCategory = String(parsed?.category || "").trim();
-  if (queryCategory) {
-    traitSet.add(`catalog.category:${normalizeTraitValue(queryCategory)}`);
-  }
-
-  const seatingType = String(
-    parsed?.seating_type ||
-    analysis.stage1?.seating_type ||
-    analysis.seating_type ||
-    ""
-  ).trim();
-  if (seatingType) {
-    traitSet.add(`catalog.seating_type:${normalizeTraitValue(seatingType)}`);
-  }
-
-  return traitSet;
-}
-
-function loadApprovedTraitDecisions() {
-  try {
-    const stat = fs.statSync(traitDecisionPath);
-    if (stat.mtimeMs === approvedTraitDecisionCache.mtimeMs) {
-      return approvedTraitDecisionCache.decisions;
-    }
-
-    const parsed = JSON.parse(fs.readFileSync(traitDecisionPath, "utf8"));
-    const decisions = (Array.isArray(parsed) ? parsed : [])
-      .filter((entry) => entry && entry.status === "approved" && entry.trait)
-      .map((entry) => ({
-        trait: String(entry.trait),
-        base: extractTraitBase(String(entry.trait)),
-        direction: String(entry.direction || "").trim(),
-        proposed_weight: Number(entry.proposed_weight || 0)
-      }))
-      .filter((entry) => entry.direction === "up" || entry.direction === "down");
-
-    approvedTraitDecisionCache = { mtimeMs: stat.mtimeMs, decisions };
-    return decisions;
-  } catch {
-    approvedTraitDecisionCache = { mtimeMs: 0, decisions: [] };
-    return [];
-  }
-}
-
-function computeApprovedTraitDecisionBoost({ parsed, imageAnalysis, record }) {
-  const approvedDecisions = loadApprovedTraitDecisions();
-  if (!approvedDecisions.length) {
-    return { value: 0, applied: [] };
-  }
-
-  const queryTraits = buildQueryTraitSet({ parsed, imageAnalysis });
-  const queryBases = new Set([...queryTraits].map((trait) => extractTraitBase(trait)));
-  const queryText = (parsed?.query || "").toLowerCase();
-  const recordTraits = buildRecordTraitSet(record);
-  const matchedByBase = new Map();
-
-  for (const decision of approvedDecisions) {
-    if (!recordTraits.has(decision.trait)) {
-      continue;
-    }
-    const bucket = matchedByBase.get(decision.base) || { up: null, down: null };
-    if (
-      decision.direction === "up" &&
-      (!bucket.up || decision.proposed_weight > bucket.up.proposed_weight)
-    ) {
-      bucket.up = decision;
-    }
-    if (
-      decision.direction === "down" &&
-      (!bucket.down || decision.proposed_weight > bucket.down.proposed_weight)
-    ) {
-      bucket.down = decision;
-    }
-    matchedByBase.set(decision.base, bucket);
-  }
-
-  let total = 0;
-  const applied = [];
-
-  for (const [base, bucket] of matchedByBase.entries()) {
-    const traitValue = base.includes(":") ? base.split(":").slice(1).join(":").toLowerCase() : base.toLowerCase();
-    const traitWords = traitValue.split(/\s+/).filter((w) => w.length > 3);
-    const queryAligned = queryBases.has(base) || traitWords.some((w) => queryText.includes(w));
-    if (queryAligned && bucket.up) {
-      total += bucket.up.proposed_weight;
-      applied.push({
-        label: `approved trait upweight (${base})`,
-        value: Number(bucket.up.proposed_weight.toFixed(4))
-      });
-      continue;
-    }
-
-    if (!queryAligned && bucket.down) {
-      total -= bucket.down.proposed_weight;
-      applied.push({
-        label: `approved trait downweight (${base})`,
-        value: Number((-bucket.down.proposed_weight).toFixed(4))
-      });
-    }
-  }
-
-  return {
-    value: Number(Math.max(-0.6, Math.min(0.6, total)).toFixed(6)),
-    applied
   };
 }
 
@@ -490,11 +365,11 @@ function normalizePriorityBulletList(values = []) {
   return normalized;
 }
 
-function normalizeSelectedBulletsByPriority(selectedBullets = []) {
+function normalizeSelectedBulletsByPriority(selectedBullets = [], typeKey = "") {
   if (Array.isArray(selectedBullets)) {
     const normalized = { essential: [], normal: [], low: [] };
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
-      const parsedBullet = parseStructuredTraitBullet(bullet);
+      const parsedBullet = parseStructuredTraitBullet(bullet, typeKey);
       const field = parsedBullet?.field || "";
       if (DEFAULT_ESSENTIAL_BULLET_FIELDS.has(field)) {
         normalized.essential.push(bullet);
@@ -533,7 +408,7 @@ const NEAR_MANDATORY_TERMS = [
   "rounded seat cushion"
 ];
 
-function parseStructuredTraitBullet(bullet = "") {
+function parseStructuredTraitBullet(bullet = "", typeKey = "") {
   const rawBullet = String(bullet || "").trim();
   if (!rawBullet) {
     return null;
@@ -546,7 +421,7 @@ function parseStructuredTraitBullet(bullet = "") {
 
   const fieldLabel = rawBullet.slice(0, separatorIndex).trim();
   const valueLabel = rawBullet.slice(separatorIndex + 1).trim();
-  const field = normalizeBulletFieldLabel(fieldLabel);
+  const field = resolveStructuredBulletField(typeKey, fieldLabel);
   const value = normalizeString(valueLabel);
 
   if (!field || !value || value === "unknown") {
@@ -560,15 +435,35 @@ function parseStructuredTraitBullet(bullet = "") {
   };
 }
 
-function essentialMissPenalty(bullet = "") {
+function essentialMissPenalty(bullet = "", options = {}) {
   const normalizedBullet = normalizeString(bullet);
   const hasNearMandatoryPhrase = NEAR_MANDATORY_TERMS.some((term) => normalizedBullet.includes(term));
+  const grouped = Boolean(options.grouped);
 
   if (hasNearMandatoryPhrase) {
-    return -0.55;
+    return grouped ? -0.55 * 0.5 : -0.55;
   }
 
-  return -0.2;
+  return grouped ? -0.2 * 0.5 : -0.2;
+}
+
+function sharesGroup(typeKey = "", field = "", value1 = "", value2 = "") {
+  const fieldConfig = getTraitFieldConfig(typeKey, field);
+  const groups = Array.isArray(fieldConfig?.groups) ? fieldConfig.groups : [];
+  const normalizedValue1 = normalizeString(value1);
+  const normalizedValue2 = normalizeString(value2);
+
+  if (!normalizedValue1 || !normalizedValue2 || normalizedValue1 === normalizedValue2 || !groups.length) {
+    return false;
+  }
+
+  return groups.some((group) => {
+    if (!Array.isArray(group)) {
+      return false;
+    }
+    const normalizedGroup = group.map((value) => normalizeString(value)).filter(Boolean);
+    return normalizedGroup.includes(normalizedValue1) && normalizedGroup.includes(normalizedValue2);
+  });
 }
 
 function isBaseFinishBullet(bullet = "") {
@@ -627,9 +522,10 @@ function traitFieldWeightScale(field = "") {
 
 function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
   const enumFieldValues = collectEnumFieldValueMap(record);
-  const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets);
   const priorityWeights = { essential: 0.35, normal: 0.1, low: 0.05 };
   const isExactSourceImage = Boolean(options.isExactSourceImage);
+  const typeKey = String(record?.stage1?.seating_type || record?.seating_type || "").trim().toLowerCase();
+  const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets, typeKey);
 
   const matched = [];
   const seen = new Set();
@@ -639,7 +535,7 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
     for (const bullet of bulletsByPriority[priority]) {
       const rawBullet = String(bullet || "").trim();
       const normalizedBullet = normalizeString(bullet);
-      const parsedBullet = parseStructuredTraitBullet(rawBullet);
+      const parsedBullet = parseStructuredTraitBullet(rawBullet, typeKey);
       if (!normalizedBullet || seen.has(normalizedBullet)) {
         continue;
       }
@@ -657,7 +553,12 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
       }
 
       if (priority === "essential" && !isExactSourceImage) {
-        weightedBoost += essentialMissPenalty(rawBullet) * weightScale;
+        const groupedMiss = Boolean(
+          parsedBullet &&
+          storedValue &&
+          sharesGroup(typeKey, parsedBullet.field, storedValue, parsedBullet.value)
+        );
+        weightedBoost += essentialMissPenalty(rawBullet, { grouped: groupedMiss }) * weightScale;
       }
     }
   }
@@ -877,7 +778,6 @@ export async function searchIndex({
   apiKey = "",
   embeddingModel = process.env.EMBEDDING_MODEL || "text-embedding-3-small",
   rerankerEnabled = RERANKER_ENABLED,
-  approvedTraitWeightsEnabled = true,
   includeSourceImage = false
 }) {
   const canonicalSourceImageUrl = canonicalizeImageUrl(sourceImageUrl);
@@ -941,17 +841,17 @@ export async function searchIndex({
         ? canonicalizeImageUrl(record.image_url) === canonicalSourceImageUrl
         : false;
       const traitBoost = computeTraitBoost(searchContext.selectedBullets, record, { isExactSourceImage });
-      const approvedTraitBoost = approvedTraitWeightsEnabled
-        ? computeApprovedTraitDecisionBoost({ parsed, imageAnalysis, record })
-        : { value: 0, applied: [] };
       const categoryAdjustment = categoryScoreAdjustment(parsed?.category, record);
       const sourceImageBoost = includeSourceImage && isExactSourceImage ? 2 : 0;
       const roomScenePenalty = record.is_room_scene ? ROOM_SCENE_PENALTY : 0;
       const confidenceValue = confidenceRank(record.confidence_tier || deriveOverallConfidenceFromFields(record.field_confidence));
+      // Approved trait decision system was removed 2026-04-23.
+      // Historical data archived at archive/reranker-trait-decisions-2026-04-23.json.
+      // If reintroducing a learned reranking system, consider interaction with
+      // the trait grouping feature (see computeTraitBoost).
       const finalScore = Number((
         embeddingSimilarity +
         traitBoost.value +
-        approvedTraitBoost.value +
         categoryAdjustment.value +
         sourceImageBoost +
         roomScenePenalty
@@ -965,7 +865,6 @@ export async function searchIndex({
           ...(traitBoost.value
             ? [{ label: "selected bullet boost", value: Number(traitBoost.value.toFixed(4)) }]
             : []),
-        ...approvedTraitBoost.applied,
         ...(categoryAdjustment.label
             ? [{ label: categoryAdjustment.label, value: Number(categoryAdjustment.value.toFixed(4)) }]
             : []),

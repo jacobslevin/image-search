@@ -9,7 +9,7 @@
         const root = document.documentElement;
         const url = new URL(window.location.href);
         const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
-        const isPrivateBrowseRoute = url.pathname === privateBrowsePath;
+        const isPrivateBrowseRoute = url.pathname === privateBrowsePath || url.pathname.startsWith(`${privateBrowsePath}/`);
         const hasActiveLaunchContext = Boolean(
           String(url.searchParams.get("q") || "").trim() ||
           url.searchParams.get("open_image") === "1"
@@ -19,15 +19,16 @@
         root.classList.toggle("private-browse", !landingHome);
         root.classList.toggle("public-route", !isPrivateBrowseRoute);
         root.classList.toggle("initial-search-pending", Boolean(String(url.searchParams.get("q") || "").trim()));
+        window.__PIXELSEEK_HOME_PATH__ = isPrivateBrowseRoute ? privateBrowsePath : "/";
       })();
     </script>
-    <link rel="stylesheet" href="/styles.css?v=20260416-extraction-summary" />
+    <link rel="stylesheet" href="/styles.css?v=20260423-browse-rail-polish" />
   </head>
   <body>
     <nav class="site-nav" aria-label="Browse controls">
       <div class="site-nav-spacer" aria-hidden="true"></div>
       <div class="site-nav-brand">
-        <a class="site-nav-brand-link" href="/" aria-label="Go to homepage">
+        <a class="site-nav-brand-link" href="/velvet-lobster-orbit-773-nebula" aria-label="Go to homepage">
           <img class="site-nav-logo-image" src="/pixelseek-logo.svg" alt="PixelSeek" />
         </a>
       </div>
@@ -81,31 +82,6 @@
             </button>
           </label>
         </form>
-      </section>
-
-      <section id="browseCategoryScopeBar" class="browse-category-scope-bar" hidden>
-        <label class="browse-category-scope-field" for="browseCategorySelect">
-          <span class="browse-category-scope-label">Browse category</span>
-          <select id="browseCategorySelect" class="browse-category-scope-select" aria-label="Browse category">
-            <option value="all">All seating categories</option>
-            <option value="task_collab_chair">Work Chairs</option>
-            <option value="guest_chair">Multi-Use / Guest Chairs</option>
-            <option value="lounge_chair">Lounge Seating</option>
-            <option value="bench">Benches</option>
-            <option value="stool">Stools</option>
-            <option value="other_seating">Other Seating</option>
-          </select>
-        </label>
-      </section>
-
-      <section id="browseTraitFilterPanel" class="browse-trait-panel" hidden>
-        <div class="browse-trait-panel-header">
-          <div>
-            <p id="browseTraitFilterCount" class="browse-trait-panel-count">Showing 0 of 0</p>
-          </div>
-          <button id="resetBrowseTraitFilters" class="browse-trait-panel-reset" type="button">Clear filters</button>
-        </div>
-        <div id="browseTraitFilterFields" class="browse-trait-panel-fields"></div>
       </section>
 
       <section class="search-secondary">
@@ -185,8 +161,8 @@
         <aside id="resultsSidebar" class="results-sidebar" hidden>
           <div class="results-sidebar-header">
             <div>
-              <p class="eyebrow">Tools</p>
-              <h2 class="results-sidebar-title">Refine results</h2>
+              <p id="resultsSidebarEyebrow" class="eyebrow">Tools</p>
+              <h2 id="resultsSidebarTitle" class="results-sidebar-title">Refine results</h2>
               <div id="refineSelectedImageWrap" class="refine-selected-image-wrap" hidden>
                 <button
                   id="reopenFocusOverlay"
@@ -200,7 +176,29 @@
             </div>
             <button id="closeRefineSidebar" class="modal-close refine-sidebar-close" type="button" aria-label="Close refine sidebar">✕</button>
           </div>
-          <section class="results-sidebar-section">
+          <section id="browseCategoryScopeBar" class="results-sidebar-section browse-sidebar-section" hidden>
+            <p class="results-sidebar-section-title">Browse category</p>
+            <label class="browse-category-scope-field" for="browseCategorySelect">
+              <select id="browseCategorySelect" class="browse-category-scope-select" aria-label="Browse category">
+                <option value="all">All seating categories</option>
+                <option value="task_collab_chair">Work Chairs</option>
+                <option value="guest_chair">Multi-Use / Guest Chairs</option>
+                <option value="lounge_chair">Lounge Seating</option>
+                <option value="bench">Benches</option>
+                <option value="stool">Stools</option>
+                <option value="other_seating">Other Seating</option>
+              </select>
+            </label>
+          </section>
+          <section id="browseTraitFilterPanel" class="results-sidebar-section browse-sidebar-section" hidden>
+            <div class="browse-trait-panel-header browse-trait-panel-header-sidebar">
+              <p class="results-sidebar-section-title browse-trait-panel-title">Trait filters</p>
+              <button id="resetBrowseTraitFilters" class="browse-trait-panel-reset" type="button">Clear</button>
+            </div>
+            <p id="browseTraitFilterCount" class="browse-trait-panel-count" hidden>Showing 0 of 0</p>
+            <div id="browseTraitFilterFields" class="browse-trait-panel-fields browse-trait-panel-fields-sidebar"></div>
+          </section>
+          <section id="refineBulletSection" class="results-sidebar-section">
             <p class="results-sidebar-section-title">Bullet priority</p>
             <div id="refineBulletsList" class="refine-bullets-list"></div>
             <button id="applyRefineBulletsButton" class="upload-button upload-button-strong refine-apply-button" type="button">Apply priorities</button>
@@ -466,6 +464,6 @@
       </div>
     </template>
 
-    <script type="module" src="/app.js?v=20260416-extraction-summary"></script>
+    <script type="module" src="/app.js?v=20260423-browse-rail-polish"></script>
   </body>
 </html>

@@ -111,7 +111,10 @@ const BATCH_PROGRESS_DISMISS_KEY = "image-search.batch-progress-dismissed";
 const IMAGE_SEARCH_HANDOFF_KEY = "image-search.pending-image-handoff";
 const PRIVATE_BROWSE_PATH = "/velvet-lobster-orbit-773-nebula";
 const CURRENT_URL = new URL(window.location.href);
-const IS_PRIVATE_BROWSE_ROUTE = CURRENT_URL.pathname === PRIVATE_BROWSE_PATH;
+const IS_PRIVATE_BROWSE_ROUTE = CURRENT_URL.pathname === PRIVATE_BROWSE_PATH || CURRENT_URL.pathname.startsWith(`${PRIVATE_BROWSE_PATH}/`);
+const HOME_PATH = typeof window.__PIXELSEEK_HOME_PATH__ === "string" && window.__PIXELSEEK_HOME_PATH__
+  ? window.__PIXELSEEK_HOME_PATH__
+  : (IS_PRIVATE_BROWSE_ROUTE ? PRIVATE_BROWSE_PATH : "/");
 const HAS_ACTIVE_LAUNCH_CONTEXT = Boolean(
   String(CURRENT_URL.searchParams.get("q") || "").trim() ||
   CURRENT_URL.searchParams.get("open_image") === "1"
@@ -234,6 +237,7 @@ const elements = {
   sortSelect: document.querySelector("#sortSelect"),
   resetSearchButton: document.querySelector("#resetSearchButton"),
   clarificationBar: document.querySelector("#clarificationBar"),
+  refineBulletSection: document.querySelector("#refineBulletSection"),
   refineBulletsList: document.querySelector("#refineBulletsList"),
   refineSelectedImageWrap: document.querySelector("#refineSelectedImageWrap"),
   refineSelectedImage: document.querySelector("#refineSelectedImage"),
@@ -241,6 +245,8 @@ const elements = {
   refineDrawerBackdrop: document.querySelector("#refineDrawerBackdrop"),
   reopenFocusOverlay: document.querySelector("#reopenFocusOverlay"),
   refineToggleButton: document.querySelector("#refineToggleButton"),
+  resultsSidebarEyebrow: document.querySelector("#resultsSidebarEyebrow"),
+  resultsSidebarTitle: document.querySelector("#resultsSidebarTitle"),
   resultsLayout: document.querySelector(".results-layout"),
   resultsSidebar: document.querySelector("#resultsSidebar"),
   resultCount: document.querySelector("#resultCount"),
@@ -288,7 +294,7 @@ function enterBrowseMode(query = "", extraParams = {}) {
     return;
   }
   setLandingOnlyMode(false);
-  const targetPath = IS_PRIVATE_BROWSE_ROUTE ? PRIVATE_BROWSE_PATH : "/";
+  const targetPath = HOME_PATH;
   const nextUrl = buildBrowseUrl(query, extraParams, targetPath);
   window.history.pushState({}, "", nextUrl);
 }
@@ -309,7 +315,7 @@ function buildBrowseUrl(query = "", extraParams = {}, targetPath = CURRENT_URL.p
 }
 
 function redirectToBrowseResults(query = "", extraParams = {}) {
-  const targetPath = IS_PRIVATE_BROWSE_ROUTE ? PRIVATE_BROWSE_PATH : "/";
+  const targetPath = HOME_PATH;
   window.location.assign(buildBrowseUrl(query, extraParams, targetPath));
 }
 
@@ -618,7 +624,9 @@ function getBrowseTraitFieldConfigs(categoryKey = "") {
   if (!normalizedCategory || !types?.[normalizedCategory]) {
     return [];
   }
-  return (types[normalizedCategory].fields || []).filter((field) => field?.type === "enum");
+  return (types[normalizedCategory].fields || []).filter((field) => (
+    field?.type === "enum" && field?.detectability !== "no"
+  ));
 }
 
 function getCategoryScopedImages(result = {}, categoryKey = "") {
@@ -693,7 +701,9 @@ function buildBrowseFilterModel(payload = state.lastPayload, query = state.lastQ
     ? categoryScopedResults.filter((result) => resultMatchesTraitFilters(result, categoryKey, normalizedTraitFilters))
     : allResults;
 
-  if (!browseMode || !isSupportedBrowseTraitCategory(categoryKey)) {
+  const hasSpecificBrowseCategory = Boolean(categoryKey && categoryKey !== "all");
+
+  if (!browseMode || !hasSpecificBrowseCategory || !isSupportedBrowseTraitCategory(categoryKey)) {
     return {
       browseMode,
       categoryKey,
@@ -799,38 +809,32 @@ function clearBrowseTraitFilters() {
 }
 
 function renderBrowseTraitFilters(payload = state.lastPayload, query = state.lastQuery) {
-  if (!elements.browseTraitFilterPanel || !elements.browseTraitFilterFields || !elements.browseTraitFilterCount) {
+  if (!elements.browseTraitFilterPanel || !elements.browseTraitFilterFields) {
     return;
   }
 
   const model = buildBrowseFilterModel(payload, query);
   elements.browseTraitFilterPanel.hidden = !model.panelVisible;
   elements.browseTraitFilterFields.innerHTML = "";
+  if (elements.browseTraitFilterCount) {
+    elements.browseTraitFilterCount.hidden = true;
+  }
 
   if (!model.panelVisible) {
-    if (elements.browseTraitFilterCount) {
-      elements.browseTraitFilterCount.textContent = "";
-    }
     if (elements.resetBrowseTraitFilters) {
       elements.resetBrowseTraitFilters.disabled = true;
     }
     return;
   }
 
-  const categoryLabel = formatSeatingCategoryLabel(model.categoryKey);
-  elements.browseTraitFilterCount.textContent = `Showing ${model.visibleResults.length} of ${model.categoryScopedResults.length} ${categoryLabel}`;
-
   for (const fieldModel of model.fieldModels) {
     const wrap = document.createElement("label");
     wrap.className = "browse-trait-field";
 
-    const label = document.createElement("span");
-    label.className = "browse-trait-field-label";
-    label.textContent = fieldModel.label;
-
     const select = document.createElement("select");
     select.className = "browse-trait-field-select";
     select.dataset.field = fieldModel.fieldKey;
+    select.setAttribute("aria-label", fieldModel.label);
 
     const emptyOption = document.createElement("option");
     emptyOption.value = "";
@@ -846,7 +850,7 @@ function renderBrowseTraitFilters(payload = state.lastPayload, query = state.las
       select.appendChild(option);
     }
 
-    wrap.append(label, select);
+    wrap.append(select);
     elements.browseTraitFilterFields.appendChild(wrap);
   }
 
@@ -860,7 +864,7 @@ function syncBrowseCategoryControl(payload = state.lastPayload, query = state.la
     return;
   }
   const browseMode = isBrowsePayload(payload, query);
-  const shouldShow = browseMode && !String(query || "").trim() && !state.currentImageAnalysis;
+  const shouldShow = browseMode && !state.currentImageAnalysis;
   elements.browseCategoryScopeBar.hidden = !shouldShow;
   elements.browseCategorySelect.value = getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all";
   elements.browseCategorySelect.disabled = state.categoryScopeLoading;
@@ -1226,6 +1230,15 @@ const INLINE_REFINEMENT_LABELS = new Map([
   ["upholstery", "Upholstery"]
 ]);
 
+const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
+  ["arms", "arm_option"],
+  ["base", "base_type"],
+  ["design", "design_register"],
+  ["shape", "shape_character"],
+  ["height", "height_category"],
+  ["adjustability", "height_adjustability"]
+]);
+
 function normalizeTraitFieldKey(value = "") {
   return String(value || "")
     .trim()
@@ -1250,14 +1263,46 @@ function buildTraitSelectionKey(field = "", value = "") {
   return `${normalizeTraitFieldKey(field)}::${normalizeTraitValue(value)}`;
 }
 
-function parseStructuredBulletEntry(bullet = "", priority = "normal") {
+function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
+  const normalizedField = normalizeTraitFieldKey(fieldLabel);
+  if (!normalizedField) {
+    return "";
+  }
+
+  const fieldConfig = getTraitFieldConfig(typeKey, normalizedField);
+  if (fieldConfig) {
+    return normalizedField;
+  }
+
+  const seatingTypes = state.bootstrap?.seating_types;
+  const types = seatingTypes?.types;
+  const fallbackType = seatingTypes?.default_type || "other_seating";
+  const resolvedTypeKey = types?.[typeKey] ? typeKey : fallbackType;
+  const typeFields = types?.[resolvedTypeKey]?.fields || [];
+
+  const schemaLabelMatch = typeFields.find((field) => (
+    normalizeTraitFieldKey(formatTraitFieldLabel(field.field)) === normalizedField
+  ));
+  if (schemaLabelMatch) {
+    return schemaLabelMatch.field;
+  }
+
+  const aliasMatch = STRUCTURED_BULLET_FIELD_ALIASES.get(normalizedField);
+  if (aliasMatch && getTraitFieldConfig(resolvedTypeKey, aliasMatch)) {
+    return aliasMatch;
+  }
+
+  return aliasMatch || normalizedField;
+}
+
+function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = state.currentSeatingType) {
   const raw = String(bullet || "").trim();
   const separatorIndex = raw.indexOf(":");
   if (!raw || separatorIndex === -1) {
     return null;
   }
 
-  const field = normalizeTraitFieldKey(raw.slice(0, separatorIndex));
+  const field = resolveStructuredBulletField(typeKey, raw.slice(0, separatorIndex));
   const value = raw.slice(separatorIndex + 1).trim();
   if (!field || !value) {
     return null;
@@ -1282,26 +1327,26 @@ function defaultPriorityForBulletText(bullet = "") {
   return parsed ? defaultPriorityForBulletField(parsed.field) : "normal";
 }
 
-function buildQueryBulletMap(selectedBullets = []) {
+function buildQueryBulletMap(selectedBullets = [], typeKey = state.currentSeatingType) {
   const normalized = normalizeSelectedBullets(selectedBullets);
   const map = new Map();
 
   normalized.essential.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet, "essential");
+    const parsed = parseStructuredBulletEntry(bullet, "essential", typeKey);
     if (parsed) {
       map.set(parsed.field, parsed);
     }
   });
 
   normalized.normal.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet, "normal");
+    const parsed = parseStructuredBulletEntry(bullet, "normal", typeKey);
     if (parsed && !map.has(parsed.field)) {
       map.set(parsed.field, parsed);
     }
   });
 
   normalized.low.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet, "low");
+    const parsed = parseStructuredBulletEntry(bullet, "low", typeKey);
     if (parsed && !map.has(parsed.field)) {
       map.set(parsed.field, parsed);
     }
@@ -1501,7 +1546,26 @@ function essentialMissPenaltyValue(bulletValue = "") {
   return -0.2;
 }
 
-function computeDebugTraitContribution(queryEntry, storedValue) {
+function debugTraitValuesShareGroup(typeKey = "", field = "", value1 = "", value2 = "") {
+  const fieldConfig = getTraitFieldConfig(typeKey, field);
+  const groups = Array.isArray(fieldConfig?.groups) ? fieldConfig.groups : [];
+  const normalizedValue1 = normalizeTraitValue(value1);
+  const normalizedValue2 = normalizeTraitValue(value2);
+
+  if (!normalizedValue1 || !normalizedValue2 || normalizedValue1 === normalizedValue2 || !groups.length) {
+    return false;
+  }
+
+  return groups.some((group) => {
+    if (!Array.isArray(group)) {
+      return false;
+    }
+    const normalizedGroup = group.map((value) => normalizeTraitValue(value)).filter(Boolean);
+    return normalizedGroup.includes(normalizedValue1) && normalizedGroup.includes(normalizedValue2);
+  });
+}
+
+function computeDebugTraitContribution(queryEntry, storedValue, typeKey = null) {
   if (!queryEntry) {
     return { state: "neutral", contribution: 0 };
   }
@@ -1519,9 +1583,10 @@ function computeDebugTraitContribution(queryEntry, storedValue) {
   }
 
   if (queryEntry.priority === "essential") {
+    const groupedMiss = debugTraitValuesShareGroup(typeKey, queryEntry.field, storedValue, queryEntry.value);
     return {
-      state: "miss",
-      contribution: Number((essentialMissPenaltyValue(queryEntry.value) * weightScale).toFixed(3))
+      state: groupedMiss ? "near-miss" : "miss",
+      contribution: Number(((essentialMissPenaltyValue(queryEntry.value) * (groupedMiss ? 0.5 : 1)) * weightScale).toFixed(3))
     };
   }
 
@@ -1564,6 +1629,12 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
       embeddingScore: scoreBreakdownValue(breakdown, "embedding similarity"),
       traitBoost: scoreBreakdownValue(breakdown, "selected bullet boost"),
       sourceBonus: scoreBreakdownValue(breakdown, "source image exact-match boost"),
+      seatingType: String(
+        heroImage.seating_type ||
+        result.debug?.stage1?.seating_type ||
+        state.currentSeatingType ||
+        ""
+      ).trim(),
       enumFields: heroImage.enum_fields || result.debug?.image_traits || {},
       matchedTraits: heroImage.matched_traits || result.matched_traits || [],
       scoreBreakdown: breakdown
@@ -1804,7 +1875,7 @@ async function renderDebugLightbox() {
       const td = document.createElement("td");
       const queryEntry = queryBulletMap.get(field);
       const storedValue = String(row.enumFields?.[field] || "").trim();
-      const contribution = computeDebugTraitContribution(queryEntry, storedValue);
+      const contribution = computeDebugTraitContribution(queryEntry, storedValue, row.seatingType);
       columnTotals.set(field, Number((columnTotals.get(field) + contribution.contribution).toFixed(3)));
 
       if (!queryEntry) {
@@ -1832,7 +1903,9 @@ async function renderDebugLightbox() {
         value.textContent = storedValue || "unknown";
         const meta = document.createElement("span");
         meta.className = "debug-score-cell-meta";
-        meta.textContent = formatContribution(contribution.contribution);
+        meta.textContent = contribution.state === "near-miss"
+          ? `near ${formatContribution(contribution.contribution)}`
+          : formatContribution(contribution.contribution);
         td.append(value, meta);
       }
 
@@ -1912,7 +1985,7 @@ function buildDebugTableTsv() {
       ...debugScoreFields.map((field) => {
         const queryEntry = queryBulletMap.get(field);
         const storedValue = String(row.enumFields?.[field] || "").trim();
-        const contribution = computeDebugTraitContribution(queryEntry, storedValue);
+        const contribution = computeDebugTraitContribution(queryEntry, storedValue, row.seatingType);
         if (!storedValue && !queryEntry) {
           return "";
         }
@@ -4100,7 +4173,7 @@ function renderCategoryFilterOptions(categories = [], options = {}) {
 }
 
 function syncSearchPageUrl() {
-  const targetPath = IS_PRIVATE_BROWSE_ROUTE ? PRIVATE_BROWSE_PATH : "/";
+  const targetPath = HOME_PATH;
   const search = buildResultsPageSearch({
     query: state.lastQuery,
     categoryFilter: state.categoryFilter,
@@ -4440,13 +4513,47 @@ function renderRefineSidebar() {
     return;
   }
 
-  const showSidebar = Boolean(state.lastQuery && state.currentBulletControls.length);
-  elements.resultsLayout.classList.toggle("has-sidebar", showSidebar);
+  const browseMode = isBrowsePayload(state.lastPayload, state.lastQuery);
+  const showBrowseSidebar = browseMode && !state.currentImageAnalysis;
+  const browseFilterModel = showBrowseSidebar
+    ? buildBrowseFilterModel(state.lastPayload, state.lastQuery)
+    : null;
+  const showRefineSidebar = Boolean(state.lastQuery && state.currentBulletControls.length && !browseMode);
+  const showSidebar = showBrowseSidebar || showRefineSidebar;
+  elements.resultsLayout.classList.toggle("has-sidebar", showRefineSidebar);
+  elements.resultsLayout.classList.toggle("has-browse-sidebar", showBrowseSidebar);
   elements.resultsSidebar.hidden = !showSidebar;
   elements.refineToggleButton.hidden = !showSidebar;
+  elements.refineToggleButton.textContent = browseMode ? "Filters" : "Refine";
   elements.refineBulletsList.innerHTML = "";
+  if (elements.resultsSidebarEyebrow) {
+    elements.resultsSidebarEyebrow.textContent = browseMode ? "Browse" : "Tools";
+  }
+  if (elements.resultsSidebarTitle) {
+    elements.resultsSidebarTitle.textContent = browseMode ? "Refine catalog" : "Refine results";
+  }
+  if (elements.browseCategoryScopeBar) {
+    elements.browseCategoryScopeBar.hidden = !showBrowseSidebar;
+  }
+  if (elements.browseTraitFilterPanel) {
+    elements.browseTraitFilterPanel.hidden = !(showBrowseSidebar && browseFilterModel?.panelVisible);
+  }
+  if (elements.refineBulletSection) {
+    elements.refineBulletSection.hidden = showBrowseSidebar;
+  }
 
   if (!showSidebar) {
+    if (elements.refineSelectedImageWrap) {
+      elements.refineSelectedImageWrap.hidden = true;
+    }
+    if (elements.applyRefineBulletsButton) {
+      elements.applyRefineBulletsButton.hidden = true;
+    }
+    syncRefineDrawer();
+    return;
+  }
+
+  if (showBrowseSidebar) {
     if (elements.refineSelectedImageWrap) {
       elements.refineSelectedImageWrap.hidden = true;
     }
@@ -5216,6 +5323,12 @@ function renderResults(payload, query) {
   if (resultsHeader) {
     resultsHeader.hidden = Boolean(state.categoryRequirement);
     resultsHeader.classList.toggle("is-search-mode", !isBrowseMode);
+  }
+  if (elements.resultsGrid) {
+    elements.resultsGrid.classList.toggle("is-browse-grid", isBrowseMode);
+  }
+  if (elements.categoryFilterMenu) {
+    elements.categoryFilterMenu.hidden = false;
   }
   if (elements.refreshAgeFilterWrap) {
     elements.refreshAgeFilterWrap.hidden = !isBrowseMode;

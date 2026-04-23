@@ -1119,20 +1119,9 @@
             <p id="improvementRate" class="stat-value">0%</p>
           </article>
         </div>
-        <section class="trait-report">
-          <p class="eyebrow">Trait Suggestions</p>
-          <h2>Suggested reranker trait weights</h2>
-          <p id="traitReportNote" class="muted" style="margin-top:8px;"></p>
-          <div class="trait-report-actions">
-            <button id="exportButton" class="export-button" type="button">Export review snapshot</button>
-          </div>
-          <div class="trait-report-grid">
-            <div class="trait-column">
-              <p class="eyebrow">Suggestions With Inline Evidence</p>
-              <div id="traitSuggestionList" class="trait-list"></div>
-            </div>
-          </div>
-        </section>
+        <div class="trait-report-actions">
+          <button id="exportButton" class="export-button" type="button">Export review snapshot</button>
+        </div>
       </section>
     </div>
 
@@ -1155,7 +1144,6 @@
         belowLineAfterRank: null,
         summaryExpanded: false,
         viewMode: "horizontal",
-        traitReport: null,
         consoleEntries: []
       };
 
@@ -1763,160 +1751,6 @@
         });
       }
 
-      function buildSuggestionEvidenceCases(suggestion, judgments, resultMap) {
-        const trait = String(suggestion?.trait || "");
-        return judgments
-          .filter((judgment) => judgment?.was_corrected)
-          .map((judgment) => {
-            const matchingPairs = (judgment.preference_pairs || []).filter((pair) =>
-              (pair.preferred_only_traits || []).includes(trait) ||
-              (pair.demoted_only_traits || []).includes(trait)
-            );
-            if (!matchingPairs.length) {
-              return null;
-            }
-
-            const result = resultMap.get(judgment.product_id);
-            if (!result) {
-              return null;
-            }
-
-            const lookup = buildLookup(result);
-            const belowLineSet = new Set(judgment.below_line_product_ids || []);
-            const afterItems = (judgment.human_corrected_order || [])
-              .filter((id) => !belowLineSet.has(id))
-              .slice(0, 5)
-              .map((id) => lookup.get(id))
-              .filter(Boolean);
-            const beforeItems = (judgment.reranker_order || [])
-              .slice(0, 5)
-              .map((id) => lookup.get(id))
-              .filter(Boolean);
-            const queryAlignedPairs = matchingPairs.filter((pair) =>
-              (pair.query_aligned_preferred_traits || []).includes(trait) ||
-              (pair.query_aligned_demoted_traits || []).includes(trait)
-            ).length;
-
-            return {
-              judgment,
-              result,
-              beforeItems,
-              afterItems,
-              pairCount: matchingPairs.length,
-              queryAlignedPairs
-            };
-          })
-          .filter(Boolean);
-      }
-
-      async function saveTraitDecision(suggestion, status) {
-        const payload = await fetchJson("/api/reranker-trait-decision", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            trait: suggestion.trait,
-            status,
-            direction: suggestion.direction,
-            proposed_weight: suggestion.proposed_weight,
-            evidence: suggestion.evidence,
-            net_score: suggestion.net_score
-          })
-        });
-        state.traitReport = payload.report;
-        renderTraitReport();
-      }
-
-      function renderTraitSuggestions(container, suggestions, judgments, resultMap) {
-        container.innerHTML = "";
-
-        if (!suggestions.length) {
-          container.innerHTML = '<p class="muted">No suggestions yet.</p>';
-          return;
-        }
-
-        suggestions.slice(0, 20).forEach((suggestion) => {
-          const item = document.createElement("article");
-          item.className = "trait-item";
-          const queryAligned = (suggestion.query_aligned_up_count || 0) + (suggestion.query_aligned_down_count || 0) > 0;
-          item.innerHTML = `
-            <div class="trait-item-header">
-              <div class="trait-header-main">
-                <div class="trait-name">${suggestion.trait}</div>
-                <div class="trait-flags">
-                  ${queryAligned ? '<span class="trait-flag query-aligned">Present in query product</span>' : ""}
-                  <span class="trait-flag">${suggestion.direction === "up" ? "Suggest upweight" : "Suggest downweight"}</span>
-                </div>
-              </div>
-              <span class="status-chip">${suggestion.status}</span>
-            </div>
-            <p class="trait-meta">Proposed weight: ${suggestion.proposed_weight} | Evidence: ${suggestion.evidence} | Net: ${suggestion.net_score}</p>
-            <p class="trait-meta">Weighted up: ${suggestion.weighted_up ?? "n/a"} | Weighted down: ${suggestion.weighted_down ?? "n/a"}</p>
-            <p class="trait-meta">Raw up: ${suggestion.up_count} | Raw down: ${suggestion.down_count}</p>
-            <p class="trait-meta">Query-aligned up: ${suggestion.query_aligned_up_count} | Query-aligned down: ${suggestion.query_aligned_down_count}</p>
-            <div class="trait-actions">
-              <button class="approve-button" type="button">Approve</button>
-              <button class="reject-button" type="button">Reject</button>
-            </div>
-            <div class="trait-evidence-list"></div>
-          `;
-          item.querySelector(".approve-button").addEventListener("click", () => {
-            saveTraitDecision(suggestion, "approved").catch((error) => alert(error.message));
-          });
-          item.querySelector(".reject-button").addEventListener("click", () => {
-            saveTraitDecision(suggestion, "rejected").catch((error) => alert(error.message));
-          });
-
-          const evidenceCases = buildSuggestionEvidenceCases(suggestion, judgments, resultMap);
-          const evidenceList = item.querySelector(".trait-evidence-list");
-          if (!evidenceCases.length) {
-            evidenceList.innerHTML = '<p class="trait-evidence-empty">No corrected cases linked to this suggestion.</p>';
-          } else {
-            evidenceCases.forEach((entry) => {
-              const caseNode = document.createElement("article");
-              caseNode.className = "trait-evidence-case";
-              caseNode.innerHTML = `
-                <div class="trait-evidence-header">
-                  <img class="trait-evidence-image" src="${entry.result.image_url || ""}" alt="${entry.result.product_name}" />
-                  <div>
-                    <div class="trait-evidence-title">${entry.result.product_name}</div>
-                    <div class="trait-evidence-meta">${entry.result.brand || ""}</div>
-                    <div class="trait-evidence-meta">Matched pairs: ${entry.pairCount} | Query-aligned pairs: ${entry.queryAlignedPairs} | Cutoff after rank ${entry.judgment.below_line_after_rank ?? "none"}</div>
-                  </div>
-                </div>
-                <div class="trait-evidence-lists">
-                  <section>
-                    <p class="eyebrow">Before</p>
-                    <div class="mini-list" data-before></div>
-                  </section>
-                  <section>
-                    <p class="eyebrow">After</p>
-                    <div class="mini-list" data-after></div>
-                  </section>
-                </div>
-              `;
-              renderMiniList(caseNode.querySelector("[data-before]"), entry.beforeItems);
-              renderMiniList(caseNode.querySelector("[data-after]"), entry.afterItems);
-              evidenceList.appendChild(caseNode);
-            });
-          }
-
-          container.appendChild(item);
-        });
-      }
-
-      function renderTraitReport() {
-        const report = state.traitReport || { suggested_up: [], suggested_down: [], note: "" };
-        document.querySelector("#traitReportNote").textContent = report.note || "";
-        const judgments = [...state.judgments.values()];
-        const resultMap = new Map((state.data?.results || []).map((result) => [result.product_id, result]));
-        renderTraitSuggestions(
-          document.querySelector("#traitSuggestionList"),
-          report.suggestions || [],
-          judgments,
-          resultMap
-        );
-      }
-
       function renderResults() {
         document.querySelector("#setupView").classList.add("hidden");
         document.querySelector("#reviewView").classList.add("hidden");
@@ -1931,7 +1765,6 @@
 
         document.querySelector("#correctionRate").textContent = `${correctionRate}%`;
         document.querySelector("#improvementRate").textContent = `${improvementRate}%`;
-        renderTraitReport();
 
       }
 
@@ -1968,7 +1801,6 @@
         state.allData = prepareEvalData(evalPayload);
         state.data = null;
         state.judgments = new Map();
-        state.traitReport = evalPayload.trait_report || null;
         renderCategoryOptions();
       }
 

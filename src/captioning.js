@@ -277,6 +277,14 @@ function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType].fields || [];
 }
 
+function resolveTextQueryTraitType(typeKey = "") {
+  const normalized = String(typeKey || "").trim();
+  if (!normalized || !seatingTypes[normalized]) {
+    return defaultSeatingType;
+  }
+  return normalized;
+}
+
 function getFieldMap(typeKey) {
   return new Map(getTypeFields(typeKey).map((item) => [item.field, item]));
 }
@@ -2788,41 +2796,6 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
   return enumFields;
 }
 
-const TEXT_QUERY_TRAIT_SYSTEM_PROMPT = `You are a furniture attribute extractor. Given a text description or search query for seating, extract any structured traits that are clearly stated or strongly implied. Return JSON only with these fields. Only populate traits relevant to the described seating_type. Return unknown for anything not mentioned or strongly implied. Never guess.
-
-Fields to extract:
-- seating_type: task_collab_chair | lounge_chair | stool | guest_chair | bench | other_seating
-- back_style: Mesh / net | Upholstered | Plastic back | Knit
-- back_profile: Square / angular | Rounded / curved
-- arm_option: Armless | Fixed arms | Adjustable arms | Open arm | Closed arm | Integrated
-- body_construction: Upholstered | Molded plastic shell | Molded plywood shell | Suspended / sling | Panel / privacy enclosure
-- arm_configuration: Armless | One arm | Two arms | Integrated / sculpted
-- back_height: Low | Mid | High | Full enclosure
-- back: Backless | Low back | Full back
-- configuration: Single seat | Multi-seat / sofa | Modular component | Corner unit
-- seat_upholstery: Fabric | Leather | None / unupholstered
-- seat_geometry: Flat | Angled / perch | Saddle | Wobble / balance
-- seat_material: Upholstered | Solid wood | Molded plastic
-- seat_finish: Fabric | Leather | Molded plastic | Wood
-- back_upholstery: Matches seat | Independent fabric | Unupholstered shell
-- back_finish: Fabric | Leather | Mesh / net | Molded plastic | Wood | Unupholstered
-- mobility: Casters | Non-mobile
-- design_register: Minimal | Organic | Industrial | Traditional | Sculptural | Utilitarian
-- frame: Plastic | Aluminum | Metal
-- frame_openness: Open / see-through | Closed / solid
-- base_visibility: Exposed | Integrated
-- base_type: 5-star with casters | 5-star with glides | Sled base | 4-leg | Sled | Cantilever | Pedestal | Molded one-piece | Square plate / plinth | Integrated base | Casters
-- base_material: Wood | Other
-- base_finish: Black | White | Polished aluminum | Painted color | Natural wood | Polished | Wood | Painted / powder coat
-- base_frame_finish: Black | White | Polished aluminum | Painted color | Natural wood
-- shape_character: Soft / tapered | Boxy
-- plan_shape: Round / semicircular | Trapezoidal | Reverse trapezoidal | Square / rectangular | N/A
-
-Mapping guidance:
-- "no base", "without base", "floating", "no visible legs", "concealed base", "integrated base" -> Integrated
-- "visible base", "exposed legs" -> Exposed
-- Not mentioned -> unknown`;
-
 const TEXT_QUERY_TRAIT_FIELDS = new Set([
   "seating_type",
   "back_style",
@@ -2851,6 +2824,45 @@ const TEXT_QUERY_TRAIT_FIELDS = new Set([
   "shape_character",
   "plan_shape"
 ]);
+
+const TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD = Object.freeze({
+  base_visibility: [
+    '- "no base", "without base", "floating", "no visible legs", "concealed base", "integrated base" -> Integrated',
+    '- "visible base", "exposed legs" -> Exposed'
+  ]
+});
+
+function buildTextQueryTraitPrompt(seatingType = "") {
+  const resolvedType = resolveTextQueryTraitType(seatingType);
+  const fields = getTypeFields(resolvedType);
+  const fieldSet = new Set(fields.map((field) => field.field));
+  const fieldLines = [
+    `- seating_type: ${resolvedType}`,
+    ...fields.map((field) => `- ${field.field}: ${(field.allowed_values || []).join(" | ")}`)
+  ];
+  const mappingGuidance = [];
+
+  for (const [field, lines] of Object.entries(TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD)) {
+    if (!fieldSet.has(field)) {
+      continue;
+    }
+    mappingGuidance.push(...lines);
+  }
+  mappingGuidance.push("- Not mentioned -> unknown");
+
+  return [
+    "You are a furniture attribute extractor. Given a text description or search query for seating, extract any structured traits that are clearly stated or strongly implied. Return JSON only with these fields. Only populate traits relevant to the specified seating_type. Return unknown for anything not mentioned or strongly implied. Never guess.",
+    "",
+    "The seating_type is fixed for this request:",
+    `- seating_type: ${resolvedType}`,
+    "",
+    `Fields to extract for ${resolvedType} only:`,
+    ...fieldLines,
+    "",
+    "Mapping guidance:",
+    ...mappingGuidance
+  ].join("\n");
+}
 
 export const TEXT_QUERY_CATEGORY_KEYS = [
   "task_collab_chair",
@@ -2949,9 +2961,10 @@ export async function inferTextQueryCategory(query = "", options = {}) {
 
 export async function extractTextQueryTraits(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query);
+  const resolvedType = resolveTextQueryTraitType(options.seatingType);
   const deterministicEnumFields = buildDeterministicTextQueryEnumFields(
     normalizedQuery,
-    options.seatingType
+    resolvedType
   );
   if (!normalizedQuery || !options.apiKey) {
     return {
@@ -2975,7 +2988,7 @@ export async function extractTextQueryTraits(query = "", options = {}) {
         messages: [
           {
             role: "system",
-            content: TEXT_QUERY_TRAIT_SYSTEM_PROMPT
+            content: buildTextQueryTraitPrompt(resolvedType)
           },
           {
             role: "user",
@@ -2996,8 +3009,12 @@ export async function extractTextQueryTraits(query = "", options = {}) {
     }
     const parsed = JSON.parse(raw);
     const enumFields = {};
+    const allowedFields = new Set(getTypeFields(resolvedType).map((field) => field.field));
 
     for (const field of TEXT_QUERY_TRAIT_FIELDS) {
+      if (field !== "seating_type" && !allowedFields.has(field)) {
+        continue;
+      }
       const value = normalizeWhitespace(parsed?.[field]);
       if (!value || value.toLowerCase() === "unknown") {
         continue;
