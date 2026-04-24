@@ -83,17 +83,6 @@
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
-    "ottoman": {
-      "label": "Ottoman",
-      "fields": [
-        { "field": "shape", "type": "enum", "detectability": "yes", "allowed_values": ["Rectangular", "Round / oval", "Irregular / free-form"] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Pedestal", "Sled", "Skirted / concealed base"] },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished metal", "Wood", "Concealed / skirted"] },
-        { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Molded plastic", "Wood", "Tufted"] },
-        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric (specify category)", "Leather", "COM", "COL"] },
-        { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
-      ]
-    },
     "other_seating": {
       "label": "Other Seating",
       "fields": [
