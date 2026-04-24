@@ -8,10 +8,10 @@
         { "field": "back_style", "type": "enum", "detectability": "yes", "allowed_values": ["Mesh / net", "Upholstered", "Plastic back", "Knit"] },
         { "field": "back_profile", "type": "enum", "detectability": "yes", "allowed_values": ["Square / angular", "Rounded / curved"] },
         { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Fixed arms", "Adjustable arms", "Integrated"], "groups": [["Fixed arms", "Adjustable arms"]] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "Sled base", "4-leg"] },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "Sled base", "4-leg"], "groups": [["5-star with casters", "5-star with glides"]] },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"], "groups": [["Black", "White", "Polished aluminum", "Painted color"]] },
         { "field": "frame", "type": "enum", "detectability": "yes", "allowed_values": ["Plastic", "Aluminum", "Metal"] },
-        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net"] },
+        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net"], "groups": [["Fabric", "Leather"]] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
@@ -34,9 +34,9 @@
             "Panel / privacy enclosure": "high side panels form a three-sided or four-sided enclosure, rising above shoulder or head level"
           }
         },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished aluminum", "Wood", "Painted / powder coat"] },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished aluminum", "Wood", "Painted / powder coat"], "groups": [["Black", "Polished aluminum", "Painted / powder coat"]] },
         { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "Pedestal", "Square plate / plinth", "Integrated base", "Casters"] },
-        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "None / unupholstered"] },
+        { "field": "seat_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "None / unupholstered"], "groups": [["Fabric", "Leather"]] },
         { "field": "back_upholstery", "type": "enum", "detectability": "yes", "allowed_values": ["Matches seat", "Independent fabric", "Unupholstered shell"] },
         { "field": "back_height", "type": "enum", "detectability": "yes", "allowed_values": ["Low", "Mid", "High", "Full enclosure"], "groups": [["Low", "Mid"], ["Mid", "High"]] },
         { "field": "configuration", "type": "enum", "detectability": "yes", "allowed_values": ["Single seat", "Multi-seat / sofa", "Modular component", "Corner unit", "Ottoman"] },
@@ -49,9 +49,9 @@
       "label": "Stool",
       "fields": [
         { "field": "seat_geometry", "type": "enum", "detectability": "yes", "allowed_values": ["Flat", "Angled / perch", "Saddle", "Wobble / balance"] },
-        { "field": "back", "type": "enum", "detectability": "yes", "allowed_values": ["Backless", "Low back", "Full back"] },
-        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "4-leg", "Pedestal", "Molded one-piece"] },
-        { "field": "base_frame_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"] },
+        { "field": "back", "type": "enum", "detectability": "yes", "allowed_values": ["Backless", "Low back", "Full back"], "groups": [["Low back", "Full back"]] },
+        { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["5-star with casters", "5-star with glides", "4-leg", "Pedestal", "Molded one-piece"], "groups": [["5-star with casters", "5-star with glides"]] },
+        { "field": "base_frame_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "White", "Polished aluminum", "Painted color", "Natural wood"], "groups": [["Black", "White", "Polished aluminum", "Painted color"]] },
         { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Solid wood", "Molded plastic"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
@@ -60,13 +60,13 @@
       "label": "Side & Guest Chair",
       "fields": [
         { "field": "base_type", "type": "enum", "detectability": "yes", "allowed_values": ["4-leg", "Sled", "Cantilever", "Pedestal"] },
-        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished", "Natural wood"] },
+        { "field": "base_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Polished", "Natural wood"], "groups": [["Black", "Polished"]] },
         { "field": "arm_option", "type": "enum", "detectability": "yes", "allowed_values": ["Armless", "Open arm", "Closed arm", "Integrated"] },
         { "field": "back_profile", "type": "enum", "detectability": "yes", "allowed_values": ["Square / angular", "Rounded / curved"] },
         { "field": "frame_openness", "type": "enum", "detectability": "yes", "allowed_values": ["Open / see-through", "Closed / solid"] },
         { "field": "mobility", "type": "enum", "detectability": "yes", "allowed_values": ["Casters", "Non-mobile"] },
-        { "field": "seat_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Molded plastic", "Wood"] },
-        { "field": "back_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net", "Molded plastic", "Wood", "Unupholstered"] },
+        { "field": "seat_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Molded plastic", "Wood"], "groups": [["Fabric", "Leather"]] },
+        { "field": "back_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Fabric", "Leather", "Mesh / net", "Molded plastic", "Wood", "Unupholstered"], "groups": [["Fabric", "Leather"]] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
@@ -79,7 +79,7 @@
         { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Solid wood"] },
         { "field": "seat_finish_fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Walnut", "White oak", "Fabric (specify category)", "Leather", "COM", "COL"] },
         { "field": "back_option", "type": "enum", "detectability": "yes", "allowed_values": ["Backless", "Upholstered back", "Wood back"] },
-        { "field": "floor_interface", "type": "enum", "detectability": "maybe", "allowed_values": ["Polymer glides", "Felt glides", "Hard floor rated", "Carpet rated"] },
+        { "field": "floor_interface", "type": "enum", "detectability": "no", "allowed_values": ["Polymer glides", "Felt glides", "Hard floor rated", "Carpet rated"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
       ]
     },
