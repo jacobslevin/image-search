@@ -77,7 +77,7 @@
         { "field": "frame_material", "type": "enum", "detectability": "yes", "allowed_values": ["Steel tube", "Solid wood", "Wood + steel"] },
         { "field": "frame_finish", "type": "enum", "detectability": "yes", "allowed_values": ["Black", "Warm grey", "Glacier / light", "Natural wood"] },
         { "field": "seat_material", "type": "enum", "detectability": "yes", "allowed_values": ["Upholstered", "Solid wood"] },
-        { "field": "seat_finish_fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Walnut", "White oak", "Fabric (specify category)", "Leather", "COM", "COL"] },
+        { "field": "seat_finish_fabric", "type": "enum", "detectability": "yes", "allowed_values": ["Natural wood", "Fabric", "Leather"], "groups": [["Fabric", "Leather"]] },
         { "field": "back_option", "type": "enum", "detectability": "yes", "allowed_values": ["Backless", "Upholstered back", "Wood back"] },
         { "field": "floor_interface", "type": "enum", "detectability": "no", "allowed_values": ["Polymer glides", "Felt glides", "Hard floor rated", "Carpet rated"] },
         { "field": "design_register", "type": "enum", "detectability": "yes", "allowed_values": ["Minimal", "Organic", "Industrial", "Traditional", "Sculptural", "Utilitarian"] }
