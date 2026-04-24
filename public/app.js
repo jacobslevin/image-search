@@ -1113,63 +1113,12 @@ function renderSearchComposer(fullQuery = state.lastQuery) {
   }
 }
 
-const DEBUG_HIGH_PRIORITY_FIELDS = [
-  "body_construction",
-  "arm_configuration",
-  "back_height",
-  "configuration",
-  "base_visibility"
-];
-
-const DEBUG_NORMAL_PRIORITY_FIELDS = [
-  "back_upholstery",
-  "design_register",
-  "shape_character",
-  "plan_shape",
-  "base_material"
-];
-
-const DEBUG_LOW_PRIORITY_FIELDS = [
-  "seat_upholstery",
-  "base_type",
-  "base_finish"
-];
-
-const DEBUG_SCORE_TRAIT_FIELDS = [
-  ...DEBUG_HIGH_PRIORITY_FIELDS,
-  ...DEBUG_NORMAL_PRIORITY_FIELDS,
-  ...DEBUG_LOW_PRIORITY_FIELDS
-];
-
-const DEBUG_HIGH_WEIGHT_TRAIT_FIELDS = new Set(DEBUG_HIGH_PRIORITY_FIELDS);
-
-const DEBUG_LOW_WEIGHT_TRAIT_FIELDS = new Set(DEBUG_LOW_PRIORITY_FIELDS);
-
-const DEFAULT_ESSENTIAL_BULLET_FIELDS = new Set([
-  "body_construction",
-  "arm_configuration",
-  "back_height",
-  "configuration",
-  "base_visibility"
-]);
-
-const DEFAULT_LOW_PRIORITY_BULLET_FIELDS = new Set([
-  "base_type",
-  "base_finish"
-]);
-
 const BULLET_PRIORITY_LABELS = {
   essential: "essential",
   normal: "normal",
   low: "low",
   off: "off"
 };
-
-const DEBUG_TRAIT_GROUPS = [
-  { label: "High Priority", fields: DEBUG_HIGH_PRIORITY_FIELDS },
-  { label: "Normal Priority", fields: DEBUG_NORMAL_PRIORITY_FIELDS },
-  { label: "Low Priority", fields: DEBUG_LOW_PRIORITY_FIELDS }
-];
 
 const DEBUG_SCORE_CORE_HEADERS = [
   { key: "rank", label: "Rank", className: "debug-score-number" },
@@ -1197,9 +1146,7 @@ const DEBUG_NEAR_MANDATORY_TERMS = [
   "rounded seat cushion"
 ];
 
-const INLINE_REFINEMENT_EXCLUDED_FIELDS = new Set([
-  "base_material"
-]);
+const INLINE_REFINEMENT_EXCLUDED_FIELDS = new Set([]);
 
 const INLINE_REFINEMENT_LABELS = new Map([
   ["height_category", "Height"],
@@ -1259,6 +1206,33 @@ function normalizeTraitValue(value = "") {
   return String(value || "").trim().toLowerCase();
 }
 
+function buildTraitFieldConfigIndex(seatingTypes) {
+  const index = new Map();
+  Object.entries(seatingTypes?.types || {}).forEach(([typeKey, typeConfig]) => {
+    const fieldMap = new Map();
+    (typeConfig?.fields || []).forEach((fieldConfig) => {
+      const fieldName = String(fieldConfig?.field || "").trim();
+      if (fieldName) {
+        fieldMap.set(fieldName, fieldConfig);
+      }
+    });
+    index.set(typeKey, fieldMap);
+  });
+  return index;
+}
+
+function getTraitFieldConfigIndex() {
+  if (!state.bootstrap?.seating_types) {
+    return new Map();
+  }
+  const version = String(state.bootstrap?.seating_types?.version || "");
+  if (!state.traitFieldConfigIndex || state.traitFieldConfigIndexVersion !== version) {
+    state.traitFieldConfigIndex = buildTraitFieldConfigIndex(state.bootstrap.seating_types);
+    state.traitFieldConfigIndexVersion = version;
+  }
+  return state.traitFieldConfigIndex;
+}
+
 function buildTraitSelectionKey(field = "", value = "") {
   return `${normalizeTraitFieldKey(field)}::${normalizeTraitValue(value)}`;
 }
@@ -1311,20 +1285,14 @@ function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = 
   return { field, value, priority };
 }
 
-function defaultPriorityForBulletField(field = "") {
+function defaultPriorityForBulletField(field = "", typeKey = state.currentSeatingType) {
   const normalizedField = normalizeTraitFieldKey(field);
-  if (DEFAULT_ESSENTIAL_BULLET_FIELDS.has(normalizedField)) {
-    return "essential";
-  }
-  if (DEFAULT_LOW_PRIORITY_BULLET_FIELDS.has(normalizedField)) {
-    return "low";
-  }
-  return "normal";
+  return getFieldPriority(typeKey, normalizedField);
 }
 
-function defaultPriorityForBulletText(bullet = "") {
-  const parsed = parseStructuredBulletEntry(bullet);
-  return parsed ? defaultPriorityForBulletField(parsed.field) : "normal";
+function defaultPriorityForBulletText(bullet = "", typeKey = state.currentSeatingType) {
+  const parsed = parseStructuredBulletEntry(bullet, "normal", typeKey);
+  return parsed ? defaultPriorityForBulletField(parsed.field, typeKey) : "normal";
 }
 
 function buildQueryBulletMap(selectedBullets = [], typeKey = state.currentSeatingType) {
@@ -1393,15 +1361,6 @@ function getPrimaryClarificationConflict(analysis = state.currentImageAnalysis) 
   return conflicts.length ? cloneValue(conflicts[0]) : null;
 }
 
-function getStage2ClarificationText(analysis = state.currentImageAnalysis) {
-  return String(
-    analysis?.stage2?.visual_summary ||
-    analysis?.visual_summary ||
-    analysis?.free_text?.visual_summary ||
-    ""
-  ).trim();
-}
-
 function updateClarificationConflict(conflict = null) {
   state.clarificationConflict = conflict && typeof conflict === "object" ? cloneValue(conflict) : null;
   renderClarificationBar();
@@ -1410,99 +1369,6 @@ function updateClarificationConflict(conflict = null) {
 function updateCategoryRequirement(requirement = null) {
   state.categoryRequirement = requirement && typeof requirement === "object" ? cloneValue(requirement) : null;
   renderClarificationBar();
-}
-
-function buildClarificationSnapshot(conflict = state.clarificationConflict) {
-  if (!conflict || !state.currentImageAnalysis) {
-    return null;
-  }
-
-  return {
-    image_url: String(state.currentImageAnalysis?.image_preview_url || "").trim(),
-    focus_area: state.focusArea ? cloneValue(state.focusArea) : null,
-    source_file_name: String(state.lastAnalyzeInput?.file_name || "").trim(),
-    field: String(conflict.field || "").trim(),
-    model_extracted_value: String(conflict.extracted_value || "").trim(),
-    stage2_free_text: getStage2ClarificationText(state.currentImageAnalysis),
-    conflict_evidence: String(conflict.evidence || "").trim(),
-    search_query: getSearchComposerRequestQuery(state.lastQuery),
-    active_bullets: normalizeSelectedBullets(state.currentSelectedBullets)
-  };
-}
-
-async function persistTraitCorrection(snapshot = {}, userSelectedValue = null, wasSkipped = false) {
-  const normalizedSnapshot = snapshot && typeof snapshot === "object" ? snapshot : {};
-  await fetchJson("/api/trait-correction", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...normalizedSnapshot,
-      user_selected_value: userSelectedValue,
-      was_skipped: Boolean(wasSkipped)
-    })
-  });
-}
-
-function applyClarificationToBulletControls(value, bulletControls = state.currentBulletControls) {
-  const normalizedValue = normalizeTraitValue(value);
-  let nextControls = normalizeBulletControls(
-    (bulletControls || []).filter((entry) => {
-      const parsed = parseStructuredBulletEntry(entry.text, entry.priority);
-      if (!parsed) {
-        return true;
-      }
-      if (parsed.field === "base_visibility") {
-        return false;
-      }
-      if (normalizedValue === "integrated" && parsed.field === "base_type") {
-        return false;
-      }
-      if (normalizedValue === "exposed" && parsed.field === "base_type" && normalizeTraitValue(parsed.value) === "integrated base") {
-        return false;
-      }
-      return true;
-    })
-  );
-
-  nextControls = normalizeBulletControls([
-    ...nextControls,
-    {
-      text: `base visibility: ${normalizedValue === "integrated" ? "integrated" : "exposed"}`,
-      priority: "essential"
-    },
-    ...(normalizedValue === "integrated"
-      ? [{ text: "base type: integrated base", priority: "low" }]
-      : [])
-  ]);
-
-  return nextControls;
-}
-
-function applyClarificationToImageAnalysis(value, selectedBullets) {
-  const nextAnalysis = cloneValue(state.currentImageAnalysis || {});
-  if (!nextAnalysis.image_traits || typeof nextAnalysis.image_traits !== "object") {
-    nextAnalysis.image_traits = {};
-  }
-
-  const normalizedValue = normalizeTraitValue(value) === "integrated" ? "integrated" : "exposed";
-  nextAnalysis.image_traits.base_visibility = normalizedValue;
-  if (normalizedValue === "integrated") {
-    nextAnalysis.image_traits.base_type = "integrated base";
-  } else if (normalizeTraitValue(nextAnalysis.image_traits.base_type) === "integrated base") {
-    delete nextAnalysis.image_traits.base_type;
-  }
-
-  nextAnalysis.search_bullets = normalizeSelectedBullets(selectedBullets);
-  nextAnalysis.trait_conflicts = [];
-  nextAnalysis.clarification_conflict = null;
-  return nextAnalysis;
-}
-
-function clearImageAnalysisConflicts(analysis = state.currentImageAnalysis) {
-  const nextAnalysis = cloneValue(analysis || {});
-  nextAnalysis.trait_conflicts = [];
-  nextAnalysis.clarification_conflict = null;
-  return nextAnalysis;
 }
 
 function extractImageFilename(imageUrl = "") {
@@ -1524,15 +1390,16 @@ function scoreBreakdownValue(breakdown = [], label = "") {
   return Number(item?.value || 0);
 }
 
-function traitFieldWeightScale(field = "") {
+function traitFieldWeightScale(typeKey = "", field = "") {
   const normalizedField = normalizeTraitFieldKey(field);
   if (!normalizedField) {
     return 1;
   }
-  if (DEBUG_HIGH_WEIGHT_TRAIT_FIELDS.has(normalizedField)) {
+  const priority = getFieldPriority(typeKey, normalizedField);
+  if (priority === "essential") {
     return 2;
   }
-  if (DEBUG_LOW_WEIGHT_TRAIT_FIELDS.has(normalizedField)) {
+  if (priority === "low") {
     return 0.5;
   }
   return 1;
@@ -1572,7 +1439,7 @@ function computeDebugTraitContribution(queryEntry, storedValue, typeKey = null) 
 
   const normalizedStored = String(storedValue || "").trim().toLowerCase();
   const normalizedExpected = String(queryEntry.value || "").trim().toLowerCase();
-  const weightScale = traitFieldWeightScale(queryEntry.field);
+  const weightScale = traitFieldWeightScale(typeKey, queryEntry.field);
 
   if (normalizedStored && normalizedStored === normalizedExpected) {
     const base = queryEntry.priority === "essential" ? 0.35 : queryEntry.priority === "low" ? 0.05 : 0.1;
@@ -1646,62 +1513,22 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
 
 function getDebugScoreFields(selectedBullets = state.currentSelectedBullets) {
   const normalized = normalizeSelectedBullets(selectedBullets);
-  const ordered = [
-    ...normalized.essential,
-    ...normalized.normal,
-    ...normalized.low
-  ];
-  const seen = new Set();
-  const fields = [];
+  const activeTypeKey = String(state.currentSeatingType || "").trim();
+  const orderedSchemaFields = getOrderedSchemaFieldsForType(activeTypeKey);
+  const selectedFieldSet = new Set();
 
-  ordered.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet);
-    if (!parsed?.field || seen.has(parsed.field)) {
-      return;
-    }
-    seen.add(parsed.field);
-    fields.push(parsed.field);
-  });
-
-  return fields.length ? fields : [...DEBUG_SCORE_TRAIT_FIELDS];
-}
-
-function getDebugTraitGroups(fields = [], selectedBullets = state.currentSelectedBullets) {
-  const normalized = normalizeSelectedBullets(selectedBullets);
-  const priorityByField = new Map();
-
-  normalized.essential.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet);
-    if (parsed?.field && !priorityByField.has(parsed.field)) {
-      priorityByField.set(parsed.field, "High Priority");
-    }
-  });
-  normalized.normal.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet);
-    if (parsed?.field && !priorityByField.has(parsed.field)) {
-      priorityByField.set(parsed.field, "Normal Priority");
-    }
-  });
-  normalized.low.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet);
-    if (parsed?.field && !priorityByField.has(parsed.field)) {
-      priorityByField.set(parsed.field, "Low Priority");
+  [...normalized.essential, ...normalized.normal, ...normalized.low].forEach((bullet) => {
+    const parsed = parseStructuredBulletEntry(bullet, "normal", activeTypeKey);
+    if (parsed?.field) {
+      selectedFieldSet.add(parsed.field);
     }
   });
 
-  const groups = [
-    { label: "High Priority", fields: [] },
-    { label: "Normal Priority", fields: [] },
-    { label: "Low Priority", fields: [] }
-  ];
+  if (!selectedFieldSet.size) {
+    return orderedSchemaFields;
+  }
 
-  fields.forEach((field) => {
-    const label = priorityByField.get(field) || "Normal Priority";
-    const group = groups.find((entry) => entry.label === label);
-    group.fields.push(field);
-  });
-
-  return groups.filter((group) => group.fields.length);
+  return orderedSchemaFields.filter((field) => selectedFieldSet.has(field));
 }
 
 function formatDebugImageCategory(image = {}) {
@@ -1774,7 +1601,8 @@ async function renderDebugLightbox() {
   const rows = buildDebugScoreRows(payload);
   const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets);
   const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
-  const debugTraitGroups = getDebugTraitGroups(debugScoreFields, state.currentSelectedBullets);
+  const debugTypeKey = String(state.currentSeatingType || rows[0]?.seatingType || "").trim();
+  const debugTraitGroups = getDebugTraitGroupsForType(debugTypeKey, debugScoreFields);
   const queryText = state.lastQuery || "Current search";
   const columnTotals = new Map(debugScoreFields.map((field) => [field, 0]));
 
@@ -2202,8 +2030,7 @@ function getSearchComposerTextParts() {
 }
 
 function isQueryComposableBullet(bullet = "") {
-  const parsed = parseStructuredBulletEntry(bullet);
-  return parsed ? parsed.field !== "base_material" : true;
+  return Boolean(parseStructuredBulletEntry(bullet) || bullet);
 }
 
 function filterQueryComposableBullets(bullets = []) {
@@ -3090,80 +2917,6 @@ async function rerankResults({
   }
 }
 
-async function dismissClarificationPrompt() {
-  const snapshot = buildClarificationSnapshot();
-  if (state.currentImageAnalysis && typeof state.currentImageAnalysis === "object") {
-    state.currentImageAnalysis = clearImageAnalysisConflicts(state.currentImageAnalysis);
-  }
-  updateClarificationConflict(null);
-  if (!snapshot) {
-    return;
-  }
-
-  try {
-    await persistTraitCorrection(snapshot, null, true);
-  } catch (error) {
-    setStatus(error.message || "Failed to store clarification dismissal.", "error");
-  }
-}
-
-async function applyClarificationSelection(selectedValue) {
-  const normalizedValue = normalizeTraitValue(selectedValue);
-  if (!["integrated", "exposed"].includes(normalizedValue)) {
-    return;
-  }
-
-  const snapshot = buildClarificationSnapshot();
-  const previousPayloadSnapshot = cloneValue(state.lastPayload);
-  const nextControls = applyClarificationToBulletControls(normalizedValue, state.currentBulletControls);
-  const nextSelectedBullets = deriveSelectedBulletsFromControls(nextControls);
-  const nextImageAnalysis = applyClarificationToImageAnalysis(normalizedValue, nextSelectedBullets);
-  const nextQuery = await composeQueryWithFallback(nextSelectedBullets, { silent: true });
-
-  setSearchInputValue(nextQuery);
-  updateClarificationConflict(null);
-  void persistTraitCorrection(snapshot, normalizedValue, false).catch((error) => {
-    setStatus(error.message || "Failed to store trait correction.", "error");
-  });
-
-  const basePayload = await runSearch(nextQuery, {
-    sort: state.sortMode,
-    sourceImageUrl: nextImageAnalysis?.image_preview_url || state.currentImageAnalysis?.image_preview_url || "",
-    imageAnalysis: nextImageAnalysis,
-    selectedBullets: nextSelectedBullets,
-    bulletControls: nextControls,
-    preserveOriginal: true,
-    refinementActive: true,
-    productRefinements: []
-  });
-  if (!basePayload) {
-    return;
-  }
-
-  let payload = basePayload;
-  let previousPayload = cloneValue(state.originalPayload);
-
-  if (state.currentProductRefinements.length) {
-    previousPayload = cloneValue(state.lastPayload);
-    const nextEmbedding = computeQueryEmbeddingFromRefinements(basePayload?.query_embedding || [], state.currentProductRefinements);
-    const reranked = await rerankResults({
-      queryEmbedding: nextEmbedding,
-      query: nextQuery,
-      bulletControls: nextControls,
-      baseQueryEmbedding: basePayload?.query_embedding || [],
-      productRefinements: state.currentProductRefinements,
-      statusMessage: "Applying clarification..."
-    });
-    payload = reranked.payload;
-    previousPayload = reranked.previousPayload;
-  } else {
-    previousPayload = previousPayloadSnapshot;
-    setStatus("Applying clarification...");
-  }
-
-  setStatus("");
-}
-
 async function updateBulletPriority(index, priority) {
   const sourceControls = normalizeBulletControls(state.pendingBulletControls || state.currentBulletControls);
   state.pendingBulletControls = normalizeBulletControls(
@@ -3271,9 +3024,52 @@ function getTraitFieldConfig(typeKey, fieldName) {
     return null;
   }
 
+  const fieldIndex = getTraitFieldConfigIndex();
   const fallbackType = seatingTypes.default_type || "other_seating";
   const resolvedTypeKey = types[typeKey] ? typeKey : fallbackType;
-  return (types[resolvedTypeKey]?.fields || []).find((field) => field.field === fieldName) || null;
+  return fieldIndex.get(resolvedTypeKey)?.get(fieldName) || null;
+}
+
+function getFieldPriority(typeKey = "", fieldName = "") {
+  const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
+    .trim()
+    .toLowerCase();
+  return priority === "essential" || priority === "low" || priority === "normal"
+    ? priority
+    : "normal";
+}
+
+function getTypeFields(typeKey = "") {
+  const seatingTypes = state.bootstrap?.seating_types;
+  const types = seatingTypes?.types;
+  if (!types || !Object.keys(types).length) {
+    return [];
+  }
+  const fallbackType = seatingTypes.default_type || "other_seating";
+  const resolvedTypeKey = types[typeKey] ? typeKey : fallbackType;
+  return types[resolvedTypeKey]?.fields || [];
+}
+
+function getOrderedSchemaFieldsForType(typeKey = "") {
+  const groups = { essential: [], normal: [], low: [] };
+  getTypeFields(typeKey).forEach((fieldConfig) => {
+    groups[getFieldPriority(typeKey, fieldConfig.field)].push(fieldConfig.field);
+  });
+  return [...groups.essential, ...groups.normal, ...groups.low];
+}
+
+function getDebugTraitGroupsForType(typeKey = "", fields = []) {
+  const groupLabels = {
+    essential: "Essential",
+    normal: "Normal",
+    low: "Low"
+  };
+  return ["essential", "normal", "low"]
+    .map((priority) => ({
+      label: groupLabels[priority],
+      fields: fields.filter((field) => getFieldPriority(typeKey, field) === priority)
+    }))
+    .filter((group) => group.fields.length);
 }
 
 function formatImageTraitChips(imageTraits = {}, limit = 6, typeKey = null) {
@@ -3997,21 +3793,13 @@ function renderClarificationBar() {
   }
 
   const categoryRequirement = state.categoryRequirement;
-  const conflict = state.clarificationConflict;
   const shouldShowCategoryRequirement = Boolean(
     categoryRequirement &&
     Array.isArray(categoryRequirement.options) &&
     categoryRequirement.options.length &&
     state.lastQuery
   );
-  const shouldShowConflict = Boolean(
-    conflict &&
-    conflict.field === "base_visibility" &&
-    state.currentImageAnalysis?.image_preview_url &&
-    state.lastPayload &&
-    Array.isArray(state.lastPayload.results)
-  );
-  const shouldShow = shouldShowCategoryRequirement || shouldShowConflict;
+  const shouldShow = shouldShowCategoryRequirement;
 
   elements.clarificationBar.innerHTML = "";
   elements.clarificationBar.hidden = !shouldShow;
@@ -4021,73 +3809,61 @@ function renderClarificationBar() {
   }
 
   const card = document.createElement("div");
-  card.className = `clarification-card${shouldShowCategoryRequirement ? " clarification-card-category" : ""}`;
+  card.className = "clarification-card clarification-card-category";
 
   const text = document.createElement("p");
-  text.className = `clarification-text${shouldShowCategoryRequirement ? " clarification-text-category" : ""}`;
-  if (shouldShowCategoryRequirement) {
-    const message = String(categoryRequirement.message || `Choose a category to narrow "${state.lastQuery}".`);
-    const normalizedMessage = message.replace(/\n+/g, "\n").trim();
-    const [firstLine, ...remainingLines] = normalizedMessage.split("\n");
-    const trailingText = remainingLines.join(" ").trim();
-    text.textContent = "";
-    const firstLineNode = document.createElement("span");
-    firstLineNode.textContent = firstLine || normalizedMessage;
-    text.appendChild(firstLineNode);
-    if (trailingText) {
-      text.appendChild(document.createElement("br"));
-      const secondLineNode = document.createElement("span");
-      secondLineNode.className = "clarification-subtext";
-      secondLineNode.textContent = trailingText;
-      text.appendChild(secondLineNode);
-    }
-  } else {
-    text.textContent = String(conflict.clarification_question || "We weren't sure about this trait — which best describes it?");
+  text.className = "clarification-text clarification-text-category";
+  const message = String(categoryRequirement.message || `Choose a category to narrow "${state.lastQuery}".`);
+  const normalizedMessage = message.replace(/\n+/g, "\n").trim();
+  const [firstLine, ...remainingLines] = normalizedMessage.split("\n");
+  const trailingText = remainingLines.join(" ").trim();
+  text.textContent = "";
+  const firstLineNode = document.createElement("span");
+  firstLineNode.textContent = firstLine || normalizedMessage;
+  text.appendChild(firstLineNode);
+  if (trailingText) {
+    text.appendChild(document.createElement("br"));
+    const secondLineNode = document.createElement("span");
+    secondLineNode.className = "clarification-subtext";
+    secondLineNode.textContent = trailingText;
+    text.appendChild(secondLineNode);
   }
 
   const options = document.createElement("div");
-  options.className = `clarification-options${shouldShowCategoryRequirement ? " clarification-options-category" : ""}`;
-  const optionEntries = shouldShowCategoryRequirement
-    ? categoryRequirement.options
-      .map((option) => normalizeSeatingCategoryKey(option))
-      .filter((option) => option && option !== "all" && option !== "other_seating")
-      .sort((left, right) => {
-        const leftLabel = formatSeatingCategoryLabel(left);
-        const rightLabel = formatSeatingCategoryLabel(right);
-        return leftLabel.localeCompare(rightLabel);
-      })
-      .map((option) => ({ value: option, label: formatSeatingCategoryLabel(option) }))
-    : (Array.isArray(conflict.options) ? conflict.options : []);
+  options.className = "clarification-options clarification-options-category";
+  const optionEntries = categoryRequirement.options
+    .map((option) => normalizeSeatingCategoryKey(option))
+    .filter((option) => option && option !== "all" && option !== "other_seating")
+    .sort((left, right) => {
+      const leftLabel = formatSeatingCategoryLabel(left);
+      const rightLabel = formatSeatingCategoryLabel(right);
+      return leftLabel.localeCompare(rightLabel);
+    })
+    .map((option) => ({ value: option, label: formatSeatingCategoryLabel(option) }));
 
   optionEntries.forEach((option) => {
     const pill = document.createElement("button");
     pill.type = "button";
-    pill.className = `clarification-pill${shouldShowCategoryRequirement ? " clarification-pill-category" : ""}`;
+    pill.className = "clarification-pill clarification-pill-category";
     pill.textContent = String(option?.label || "").trim();
     pill.addEventListener("click", () => {
-      if (shouldShowCategoryRequirement) {
-        const categoryKey = String(option?.value || "").trim();
-        const nextQuery = stripVagueSeatingReferenceFromQuery(state.lastQuery || "", categoryKey);
-        updateCategoryRequirement(null);
-        state.resultCategoryScope = [categoryKey];
-        state.categoryScopeMode = "explicit";
-        runSearch(nextQuery, {
-          sort: state.sortMode,
-          categoryFilter: state.categoryFilter,
-          refreshAgeFilter: state.refreshAgeFilter,
-          seatingType: categoryKey,
-          categoryScopeMode: "explicit",
-          sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
-          imageAnalysis: state.currentImageAnalysis,
-          selectedBullets: state.currentSelectedBullets,
-          bulletControls: state.currentBulletControls
-        }).catch((error) => {
-          setStatus(error.message || "Failed to apply category selection.", "error");
-        });
-        return;
-      }
-      applyClarificationSelection(String(option?.value || "").trim()).catch((error) => {
-        setStatus(error.message || "Failed to apply clarification.", "error");
+      const categoryKey = String(option?.value || "").trim();
+      const nextQuery = stripVagueSeatingReferenceFromQuery(state.lastQuery || "", categoryKey);
+      updateCategoryRequirement(null);
+      state.resultCategoryScope = [categoryKey];
+      state.categoryScopeMode = "explicit";
+      runSearch(nextQuery, {
+        sort: state.sortMode,
+        categoryFilter: state.categoryFilter,
+        refreshAgeFilter: state.refreshAgeFilter,
+        seatingType: categoryKey,
+        categoryScopeMode: "explicit",
+        sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
+        imageAnalysis: state.currentImageAnalysis,
+        selectedBullets: state.currentSelectedBullets,
+        bulletControls: state.currentBulletControls
+      }).catch((error) => {
+        setStatus(error.message || "Failed to apply category selection.", "error");
       });
     });
     options.appendChild(pill);
@@ -4095,18 +3871,12 @@ function renderClarificationBar() {
 
   const close = document.createElement("button");
   close.type = "button";
-  close.className = `clarification-close${shouldShowCategoryRequirement ? " clarification-close-category" : ""}`;
-  close.setAttribute("aria-label", shouldShowCategoryRequirement ? "Dismiss category prompt" : "Dismiss clarification prompt");
+  close.className = "clarification-close clarification-close-category";
+  close.setAttribute("aria-label", "Dismiss category prompt");
   close.textContent = "✕";
   close.addEventListener("click", () => {
-    if (shouldShowCategoryRequirement) {
-      updateCategoryRequirement(null);
-      setStatus("Select a category from the search field to continue.", "info");
-      return;
-    }
-    dismissClarificationPrompt().catch((error) => {
-      setStatus(error.message || "Failed to dismiss clarification prompt.", "error");
-    });
+    updateCategoryRequirement(null);
+    setStatus("Select a category from the search field to continue.", "info");
   });
 
   card.append(text, options, close);
@@ -4294,11 +4064,15 @@ function formatStructuredTraitsSummary() {
     if (!type.fields?.length) {
       sectionLines.push("No field constraints.");
     } else {
-      sectionLines.push(
-        ...(type.fields || []).map((field) => (
+      for (const field of (type.fields || [])) {
+        sectionLines.push(
           `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`
-        ))
-      );
+        );
+        const groupsLine = formatStructuredTraitGroupsLine(field);
+        if (groupsLine) {
+          sectionLines.push(groupsLine);
+        }
+      }
     }
 
     if (index < orderedTypeKeys.length - 1) {
@@ -4320,14 +4094,35 @@ function formatStructuredTraitCategorySummary(typeKey, type) {
   if (!type.fields?.length) {
     sectionLines.push("No field constraints.");
   } else {
-    sectionLines.push(
-      ...(type.fields || []).map((field) => (
+    for (const field of (type.fields || [])) {
+      sectionLines.push(
         `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`
-      ))
-    );
+      );
+      const groupsLine = formatStructuredTraitGroupsLine(field);
+      if (groupsLine) {
+        sectionLines.push(groupsLine);
+      }
+    }
   }
 
   return sectionLines.join("\n");
+}
+
+function formatStructuredTraitGroupsLine(field = {}) {
+  const groups = Array.isArray(field?.groups) ? field.groups : [];
+  const renderedGroups = groups
+    .filter((group) => Array.isArray(group))
+    .map((group) => group
+      .map((value) => String(value || "").trim())
+      .filter(Boolean))
+    .filter((group) => group.length > 1)
+    .map((group) => `[${group.join(" + ")}]`);
+
+  if (!renderedGroups.length) {
+    return "";
+  }
+
+  return `  near-miss groups: ${renderedGroups.join(" ")}`;
 }
 
 function structuredTraitTypeEntries() {
@@ -4430,6 +4225,14 @@ function renderStructuredTraitsModalContent() {
         line.className = "structured-traits-field";
         line.textContent = `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`;
         body.appendChild(line);
+
+        const groupsLine = formatStructuredTraitGroupsLine(field);
+        if (groupsLine) {
+          const groups = document.createElement("p");
+          groups.className = "structured-traits-field";
+          groups.textContent = groupsLine;
+          body.appendChild(groups);
+        }
       }
     }
 
@@ -6107,7 +5910,6 @@ async function composeQueryWithFallback(selectedBullets = [], options = {}) {
 
 function buildTraitChangePayload(traits = []) {
   return (traits || [])
-    .filter((trait) => trait?.field !== "base_material")
     .map((trait) => ({
       field: trait.field,
       label: formatInlineRefinementFieldLabel(trait.field),

@@ -277,6 +277,39 @@ function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType].fields || [];
 }
 
+function buildTraitFieldConfigIndex(types = {}) {
+  const index = new Map();
+  Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
+    const fieldMap = new Map();
+    (typeConfig?.fields || []).forEach((fieldConfig) => {
+      const fieldName = String(fieldConfig?.field || "").trim();
+      if (fieldName) {
+        fieldMap.set(fieldName, fieldConfig);
+      }
+    });
+    index.set(typeKey, fieldMap);
+  });
+  return index;
+}
+
+const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
+
+function getTraitFieldConfig(typeKey, fieldName) {
+  const normalizedTypeKey = String(typeKey || "").trim();
+  const normalizedFieldName = String(fieldName || "").trim();
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
+}
+
+function getFieldPriority(typeKey = "", fieldName = "") {
+  const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
+    .trim()
+    .toLowerCase();
+  return priority === "essential" || priority === "low" || priority === "normal"
+    ? priority
+    : "normal";
+}
+
 function resolveTextQueryTraitType(typeKey = "") {
   const normalized = String(typeKey || "").trim();
   if (!normalized || !seatingTypes[normalized]) {
@@ -995,20 +1028,7 @@ export async function generateSearchQuery(seatingType, selectedBullets, options 
   const normalizePriorityList = (values = []) => [...new Set(
     (values || []).map((value) => String(value || "").trim()).filter(Boolean)
   )];
-  const isComposableBullet = (bullet = "") => {
-    const text = String(bullet || "").trim();
-    const separatorIndex = text.indexOf(":");
-    if (separatorIndex === -1) {
-      return true;
-    }
-    const field = text
-      .slice(0, separatorIndex)
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "");
-    return field !== "base_material";
-  };
+  const isComposableBullet = () => true;
   const bulletsByPriority = Array.isArray(selectedBullets)
     ? { essential: [], normal: normalizePriorityList(selectedBullets).filter((bullet) => isComposableBullet(bullet)) }
     : {
@@ -1187,32 +1207,6 @@ function normalizeStage2(stage2 = {}) {
     distinctive_elements: uniqueStrings(Array.isArray(stage2.distinctive_elements) ? stage2.distinctive_elements : []).slice(0, 5),
     visual_summary: normalizeWhitespace(stage2.visual_summary || "")
   };
-}
-
-function deriveBaseMaterialFromBaseFinish(seatingType = "", enumFields = {}) {
-  if (String(seatingType || "").trim().toLowerCase() !== "lounge_chair") {
-    return "";
-  }
-
-  const baseFinish = String(enumFields?.base_finish || "").trim().toLowerCase();
-  if (!baseFinish || baseFinish === "unknown") {
-    return "unknown";
-  }
-
-  return baseFinish === "wood" ? "wood" : "other";
-}
-
-function deriveBaseVisibilityFromBaseType(seatingType = "", enumFields = {}) {
-  if (String(seatingType || "").trim().toLowerCase() !== "lounge_chair") {
-    return "";
-  }
-
-  const baseType = String(enumFields?.base_type || "").trim().toLowerCase();
-  if (!baseType || baseType === "unknown") {
-    return "unknown";
-  }
-
-  return baseType === "integrated base" ? "integrated" : "exposed";
 }
 
 function applyStage3EnumGuardrails(typeKey, stage3Response = {}) {
@@ -2695,33 +2689,12 @@ const SEARCH_TIME_BULLET_FIELD_PRIORITY = [
   "frame_openness",
   "shape_character",
   "plan_shape",
-  "base_material",
-  "base_visibility",
   "base_type",
   "base_finish",
   "base_frame_finish"
 ];
 
-const SEARCH_TIME_ESSENTIAL_FIELDS = new Set([
-  "body_construction",
-  "arm_configuration",
-  "arm_option",
-  "back_height",
-  "back_style",
-  "back_profile",
-  "back",
-  "configuration",
-  "seat_geometry",
-  "base_visibility"
-]);
-
-const SEARCH_TIME_LOW_PRIORITY_FIELDS = new Set([
-  "base_type",
-  "base_finish",
-  "base_frame_finish"
-]);
-
-function buildSearchTimeBullets(enumFields = {}) {
+function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
   const priorityIndex = new Map(
     SEARCH_TIME_BULLET_FIELD_PRIORITY.map((field, index) => [field, index])
   );
@@ -2754,9 +2727,10 @@ function buildSearchTimeBullets(enumFields = {}) {
     .filter(Boolean)
     .forEach((bullet) => {
       const field = bullet.split(":")[0].trim().replace(/\s+/g, "_");
-      if (SEARCH_TIME_ESSENTIAL_FIELDS.has(field)) {
+      const priority = getFieldPriority(typeKey, field);
+      if (priority === "essential") {
         selectedBullets.essential.push(bullet);
-      } else if (SEARCH_TIME_LOW_PRIORITY_FIELDS.has(field)) {
+      } else if (priority === "low") {
         selectedBullets.low.push(bullet);
       } else {
         selectedBullets.normal.push(bullet);
@@ -2816,21 +2790,14 @@ const TEXT_QUERY_TRAIT_FIELDS = new Set([
   "design_register",
   "frame",
   "frame_openness",
-  "base_visibility",
   "base_type",
-  "base_material",
   "base_finish",
   "base_frame_finish",
   "shape_character",
   "plan_shape"
 ]);
 
-const TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD = Object.freeze({
-  base_visibility: [
-    '- "no base", "without base", "floating", "no visible legs", "concealed base", "integrated base" -> Integrated',
-    '- "visible base", "exposed legs" -> Exposed'
-  ]
-});
+const TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD = Object.freeze({});
 
 function buildTextQueryTraitPrompt(seatingType = "") {
   const resolvedType = resolveTextQueryTraitType(seatingType);
@@ -2969,7 +2936,7 @@ export async function extractTextQueryTraits(query = "", options = {}) {
   if (!normalizedQuery || !options.apiKey) {
     return {
       enum_fields: deterministicEnumFields,
-      search_bullets: buildSearchTimeBullets(deterministicEnumFields)
+      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
     };
   }
 
@@ -3029,13 +2996,13 @@ export async function extractTextQueryTraits(query = "", options = {}) {
 
     return {
       enum_fields: mergedEnumFields,
-      search_bullets: buildSearchTimeBullets(mergedEnumFields)
+      search_bullets: buildSearchTimeBullets(mergedEnumFields, resolvedType)
     };
   } catch (error) {
     console.error("Text-query trait extraction failed; continuing without generated bullets:", error);
     return {
       enum_fields: deterministicEnumFields,
-      search_bullets: buildSearchTimeBullets(deterministicEnumFields)
+      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
     };
   }
 }
@@ -3182,21 +3149,7 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     design_register: String(voted.stage2?.design_register || "unknown"),
     ...(voted.stage3?.image_traits || {})
   };
-  const derivedBaseMaterial = deriveBaseMaterialFromBaseFinish(routingTypeKey, enumFields);
-  if (derivedBaseMaterial) {
-    enumFields.base_material = derivedBaseMaterial;
-  }
-  const derivedBaseVisibility = deriveBaseVisibilityFromBaseType(routingTypeKey, enumFields);
-  if (derivedBaseVisibility) {
-    enumFields.base_visibility = derivedBaseVisibility;
-  }
   const fieldConfidence = flattenFieldConfidence(voted);
-  if (derivedBaseMaterial) {
-    fieldConfidence.base_material = fieldConfidence.base_finish || "high";
-  }
-  if (derivedBaseVisibility) {
-    fieldConfidence.base_visibility = fieldConfidence.base_type || "high";
-  }
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(stage0Usage, ...runs.map((run) => run.usage?.total));
   const searchText = buildSearchableText({
@@ -3381,21 +3334,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     design_register: String(voted.stage2?.design_register || "unknown"),
     ...(voted.stage3?.image_traits || {})
   };
-  const derivedBaseMaterial = deriveBaseMaterialFromBaseFinish(routingTypeKey, enumFields);
-  if (derivedBaseMaterial) {
-    enumFields.base_material = derivedBaseMaterial;
-  }
-  const derivedBaseVisibility = deriveBaseVisibilityFromBaseType(routingTypeKey, enumFields);
-  if (derivedBaseVisibility) {
-    enumFields.base_visibility = derivedBaseVisibility;
-  }
   const fieldConfidence = flattenFieldConfidence(voted);
-  if (derivedBaseMaterial) {
-    fieldConfidence.base_material = fieldConfidence.base_finish || "high";
-  }
-  if (derivedBaseVisibility) {
-    fieldConfidence.base_visibility = fieldConfidence.base_type || "high";
-  }
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(preservedStage0Usage, ...runs.map((run) => run.usage?.total));
   const searchText = buildSearchableText({
@@ -3921,21 +3860,7 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
 
   const visualSummary = normalizeWhitespace(stage23.stage2.visual_summary || "");
   const imageTraits = normalizeImageTraits(seatingType, stage23.stage3.image_traits || {});
-  const derivedBaseMaterial = deriveBaseMaterialFromBaseFinish(seatingType, imageTraits);
-  if (derivedBaseMaterial) {
-    imageTraits.base_material = derivedBaseMaterial;
-  }
-  const derivedBaseVisibility = deriveBaseVisibilityFromBaseType(seatingType, imageTraits);
-  if (derivedBaseVisibility) {
-    imageTraits.base_visibility = derivedBaseVisibility;
-  }
   const fieldConfidence = buildSinglePassFieldConfidence(seatingType, imageTraits);
-  if (derivedBaseMaterial) {
-    fieldConfidence.base_material = fieldConfidence.base_finish || "high";
-  }
-  if (derivedBaseVisibility) {
-    fieldConfidence.base_visibility = fieldConfidence.base_type || "high";
-  }
   const searchText = buildSearchableText({
     productName: "",
     brand: "",
@@ -3971,7 +3896,7 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     image_traits: imageTraits,
     visual_form: visualSummary,
     search_text: searchText,
-    search_bullets: buildSearchTimeBullets(imageTraits),
+    search_bullets: buildSearchTimeBullets(imageTraits, seatingType),
     query_embedding: queryEmbedding,
     visual_summary_embedding: queryEmbedding,
     raw_visual_highlights: Array.isArray(stage23.stage3.raw_visual_highlights) ? stage23.stage3.raw_visual_highlights : [],

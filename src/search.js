@@ -49,12 +49,41 @@ const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"))
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
 
+function buildTraitFieldConfigIndex(types = {}) {
+  const index = new Map();
+  Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
+    const fieldMap = new Map();
+    (typeConfig?.fields || []).forEach((fieldConfig) => {
+      const fieldName = String(fieldConfig?.field || "").trim();
+      if (fieldName) {
+        fieldMap.set(fieldName, fieldConfig);
+      }
+    });
+    index.set(typeKey, fieldMap);
+  });
+  return index;
+}
+
+const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
+
 function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType]?.fields || [];
 }
 
 function getTraitFieldConfig(typeKey, fieldName) {
-  return getTypeFields(typeKey).find((field) => field.field === fieldName) || null;
+  const normalizedTypeKey = String(typeKey || "").trim();
+  const normalizedFieldName = String(fieldName || "").trim();
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
+}
+
+function getFieldPriority(typeKey = "", fieldName = "") {
+  const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
+    .trim()
+    .toLowerCase();
+  return priority === "essential" || priority === "low" || priority === "normal"
+    ? priority
+    : "normal";
 }
 
 const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
@@ -371,9 +400,10 @@ function normalizeSelectedBulletsByPriority(selectedBullets = [], typeKey = "") 
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
       const parsedBullet = parseStructuredTraitBullet(bullet, typeKey);
       const field = parsedBullet?.field || "";
-      if (DEFAULT_ESSENTIAL_BULLET_FIELDS.has(field)) {
+      const priority = getFieldPriority(typeKey, field);
+      if (priority === "essential") {
         normalized.essential.push(bullet);
-      } else if (DEFAULT_LOW_PRIORITY_BULLET_FIELDS.has(field)) {
+      } else if (priority === "low") {
         normalized.low.push(bullet);
       } else {
         normalized.normal.push(bullet);
@@ -479,42 +509,16 @@ function isBaseFinishBullet(bullet = "") {
     /\bpowder coat\b/.test(normalizedBullet);
 }
 
-const HIGH_WEIGHT_TRAIT_FIELDS = new Set([
-  "body_construction",
-  "arm_configuration",
-  "configuration",
-  "back_height",
-  "base_visibility"
-]);
-
-const DEFAULT_ESSENTIAL_BULLET_FIELDS = new Set([
-  "body_construction",
-  "arm_configuration",
-  "configuration",
-  "back_height",
-  "base_visibility"
-]);
-
-const LOW_WEIGHT_TRAIT_FIELDS = new Set([
-  "seat_upholstery",
-  "base_type",
-  "base_finish"
-]);
-
-const DEFAULT_LOW_PRIORITY_BULLET_FIELDS = new Set([
-  "base_type",
-  "base_finish"
-]);
-
-function traitFieldWeightScale(field = "") {
+function traitFieldWeightScale(typeKey = "", field = "") {
   const normalizedField = normalizeBulletFieldLabel(field);
   if (!normalizedField) {
     return 1;
   }
-  if (HIGH_WEIGHT_TRAIT_FIELDS.has(normalizedField)) {
+  const priority = getFieldPriority(typeKey, normalizedField);
+  if (priority === "essential") {
     return 2;
   }
-  if (LOW_WEIGHT_TRAIT_FIELDS.has(normalizedField)) {
+  if (priority === "low") {
     return 0.5;
   }
   return 1;
@@ -540,7 +544,7 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
         continue;
       }
       seen.add(normalizedBullet);
-      const weightScale = parsedBullet ? traitFieldWeightScale(parsedBullet.field) : (isBaseFinishBullet(rawBullet) ? 0.5 : 1);
+      const weightScale = parsedBullet ? traitFieldWeightScale(typeKey, parsedBullet.field) : (isBaseFinishBullet(rawBullet) ? 0.5 : 1);
       const storedValue = parsedBullet ? enumFieldValues.get(parsedBullet.field) : "";
       const matchesTraitValue = Boolean(parsedBullet && storedValue === parsedBullet.value);
 

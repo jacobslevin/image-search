@@ -277,6 +277,39 @@ function getTypeFields(typeKey) {
   return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType].fields || [];
 }
 
+function buildTraitFieldConfigIndex(types = {}) {
+  const index = new Map();
+  Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
+    const fieldMap = new Map();
+    (typeConfig?.fields || []).forEach((fieldConfig) => {
+      const fieldName = String(fieldConfig?.field || "").trim();
+      if (fieldName) {
+        fieldMap.set(fieldName, fieldConfig);
+      }
+    });
+    index.set(typeKey, fieldMap);
+  });
+  return index;
+}
+
+const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
+
+function getTraitFieldConfig(typeKey, fieldName) {
+  const normalizedTypeKey = String(typeKey || "").trim();
+  const normalizedFieldName = String(fieldName || "").trim();
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
+}
+
+function getFieldPriority(typeKey = "", fieldName = "") {
+  const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
+    .trim()
+    .toLowerCase();
+  return priority === "essential" || priority === "low" || priority === "normal"
+    ? priority
+    : "normal";
+}
+
 function getFieldMap(typeKey) {
   return new Map(getTypeFields(typeKey).map((item) => [item.field, item]));
 }
@@ -2645,26 +2678,7 @@ const SEARCH_TIME_BULLET_FIELD_PRIORITY = [
   "base_frame_finish"
 ];
 
-const SEARCH_TIME_ESSENTIAL_FIELDS = new Set([
-  "body_construction",
-  "arm_configuration",
-  "arm_option",
-  "back_height",
-  "back_style",
-  "back_profile",
-  "back",
-  "configuration",
-  "seat_geometry",
-  "base_visibility"
-]);
-
-const SEARCH_TIME_LOW_PRIORITY_FIELDS = new Set([
-  "base_type",
-  "base_finish",
-  "base_frame_finish"
-]);
-
-function buildSearchTimeBullets(enumFields = {}) {
+function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
   const priorityIndex = new Map(
     SEARCH_TIME_BULLET_FIELD_PRIORITY.map((field, index) => [field, index])
   );
@@ -2697,9 +2711,10 @@ function buildSearchTimeBullets(enumFields = {}) {
     .filter(Boolean)
     .forEach((bullet) => {
       const field = bullet.split(":")[0].trim().replace(/\s+/g, "_");
-      if (SEARCH_TIME_ESSENTIAL_FIELDS.has(field)) {
+      const priority = getFieldPriority(typeKey, field);
+      if (priority === "essential") {
         selectedBullets.essential.push(bullet);
-      } else if (SEARCH_TIME_LOW_PRIORITY_FIELDS.has(field)) {
+      } else if (priority === "low") {
         selectedBullets.low.push(bullet);
       } else {
         selectedBullets.normal.push(bullet);

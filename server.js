@@ -47,6 +47,39 @@ const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
 const EXTRACTION_SUMMARY_UNSPECIFIED = "unspecified";
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 
+function buildTraitFieldConfigIndex(types = {}) {
+  const index = new Map();
+  Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
+    const fieldMap = new Map();
+    (typeConfig?.fields || []).forEach((fieldConfig) => {
+      const fieldName = String(fieldConfig?.field || "").trim();
+      if (fieldName) {
+        fieldMap.set(fieldName, fieldConfig);
+      }
+    });
+    index.set(typeKey, fieldMap);
+  });
+  return index;
+}
+
+const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
+
+function getTraitFieldConfig(typeKey = "", fieldName = "") {
+  const normalizedTypeKey = String(typeKey || "").trim();
+  const normalizedFieldName = String(fieldName || "").trim();
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
+}
+
+function getFieldPriority(typeKey = "", fieldName = "") {
+  const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
+    .trim()
+    .toLowerCase();
+  return priority === "essential" || priority === "low" || priority === "normal"
+    ? priority
+    : "normal";
+}
+
 function normalizeExtractionSummaryCategory(value = "") {
   const normalized = String(value || "").trim().toLowerCase();
   if (!normalized) {
@@ -1100,7 +1133,7 @@ function dedupeVisualBullets(bullets = []) {
   return kept.reverse();
 }
 
-function normalizeStructuredBullets(bullets = []) {
+function normalizeStructuredBullets(bullets = [], seatingType = "") {
   const normalizeList = (values = []) => {
     const seen = new Set();
     const normalized = [];
@@ -1126,9 +1159,10 @@ function normalizeStructuredBullets(bullets = []) {
       const field = separatorIndex === -1
         ? ""
         : text.slice(0, separatorIndex).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
-      if (["body_construction", "arm_configuration", "back_height", "configuration", "base_visibility"].includes(field)) {
+      const priority = getFieldPriority(seatingType, field);
+      if (priority === "essential") {
         normalized.essential.push(text);
-      } else if (["base_type", "base_finish"].includes(field)) {
+      } else if (priority === "low") {
         normalized.low.push(text);
       } else {
         normalized.normal.push(text);
@@ -1173,7 +1207,7 @@ function mergeStructuredBullets(seatingType = "", ...groups) {
   };
 
   for (const group of groups) {
-    const normalized = normalizeStructuredBullets(group);
+    const normalized = normalizeStructuredBullets(group, seatingType);
     for (const priority of ["essential", "normal", "low"]) {
       for (const bullet of normalized[priority]) {
         const key = semanticKeyForBullet(bullet) || `raw::${String(bullet || "").trim().toLowerCase()}`;
@@ -1206,7 +1240,7 @@ function mergeStructuredBullets(seatingType = "", ...groups) {
       merged[entry.priority].push(entry.text);
     });
 
-  return normalizeStructuredBullets(merged);
+  return normalizeStructuredBullets(merged, seatingType);
 }
 
 function normalizeComposedQueryText(value = "") {
@@ -2296,7 +2330,7 @@ const server = http.createServer(async (request, response) => {
       ? ""
       : normalizeRequestedSeatingType(rawRequestedSeatingType);
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
-    const selectedBullets = normalizeStructuredBullets(body.selected_bullets);
+    const rawSelectedBullets = body.selected_bullets;
     if (!query) {
       const results = filterResultsByRefreshAge(
         buildBrowseResults(catalog, index, Infinity, sort, category),
@@ -2342,6 +2376,8 @@ const server = http.createServer(async (request, response) => {
     if (disableSeatingTypeInference) {
       seatingTypeSource = "all";
     }
+
+    const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedSeatingType);
 
     const parsed = await parseSearchQuery(query, index.brands || [], {
       apiKey: process.env.OPENAI_API_KEY,
@@ -2426,8 +2462,8 @@ const server = http.createServer(async (request, response) => {
       const refreshAge = String(body.refresh_age || "").trim();
       const sourceImageUrl = String(body.source_image_url || "").trim();
       const debug = body.debug === true || String(body.debug || "").trim().toLowerCase() === "true";
-      const selectedBullets = normalizeStructuredBullets(body.selected_bullets);
       const seatingType = String(body.seating_type || "").trim();
+      const selectedBullets = normalizeStructuredBullets(body.selected_bullets, seatingType);
       const rerankerEnabled = body.reranker_enabled !== false;
       const action = String(body.action || "").trim();
       const productId = String(body.product_id || "").trim();
@@ -2777,7 +2813,7 @@ const server = http.createServer(async (request, response) => {
         user_selected_value: body.user_selected_value == null ? null : String(body.user_selected_value).trim(),
         was_skipped: Boolean(body.was_skipped),
         search_query: String(body.search_query || "").trim(),
-        active_bullets: normalizeStructuredBullets(body.active_bullets),
+        active_bullets: normalizeStructuredBullets(body.active_bullets, String(body.seating_type || "").trim()),
         training_example_version: 1
       };
 
@@ -2900,8 +2936,8 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/api/compose-query" && request.method === "POST") {
     try {
       const body = await readRequestJson(request);
-      const bullets = normalizeStructuredBullets(body.bullets);
       const seatingType = String(body.seating_type || "seating").trim() || "seating";
+      const bullets = normalizeStructuredBullets(body.bullets, seatingType);
       const query = await generateSearchQuery(seatingType, bullets, {
         apiKey: process.env.OPENAI_API_KEY,
         visionModel: process.env.VISION_MODEL
