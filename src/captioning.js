@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   embedTextWithOpenAi,
+  EXTRACTION_IMAGE_HARD_CAP,
+  getEffectiveExtractionImageCap,
   getEffectiveClassification,
   getPixelSeekType,
   normalizeImageClassification,
@@ -252,6 +254,154 @@ const LOUNGE_CHAIR_SHAPE_RULES = `- For lounge_chair shape_character: classify t
     plan_shape: 'Round / semicircular' or 'Trapezoidal' or 'Reverse trapezoidal' or 'Square / rectangular' or 'unknown'
   }`;
 
+const LOUNGE_CHAIR_CONFIGURATION_RULES = `For configuration, choose exactly one of [Single seat, Double seat, Triple seat (or larger), Modular component, Corner unit, Ottoman].
+Single seat: A standalone seat intended for one occupant. Examples include lounge chairs, club chairs, and armchairs. Single seats are typically as deep as they are wide, or deeper than they are wide. They have one arm on each side (or no arms) with no continuous seating space between distinct seating zones.
+Double seat: A non-modular piece clearly proportioned for two occupants. This includes loveseats and similar two-person lounge pieces. It does not need visible cushion divisions or seams; many modern double seats have a single continuous upholstered surface.
+Triple seat (or larger): A non-modular piece clearly proportioned for three or more occupants. This includes sofas and larger lounge pieces. Visual indicators include width substantially greater than depth, multiple occupant zones, and overall proportions where three adults could reasonably sit side by side.
+Modular component: A piece designed to combine or reconfigure with other modules. Modular components often have asymmetric or non-standard arm configurations (one arm only, no arms, or arms only on certain sides), flat sides where they would join other modules, or proportions that suggest they are part of a larger sectional or system rather than a complete standalone seat. Products that appear to be part of a system, collection, or sectional set should be classified as Modular component even if the individual piece looks chair-like or sofa-like in isolation. If a piece appears designed to combine with other pieces rather than stand alone as a complete seating element, classify it as Modular component, not Single seat, Double seat, or Triple seat (or larger).
+Corner unit: An L-shaped or corner-specific modular piece designed to fit at the intersection of other seating elements.
+Ottoman: A backless, typically low upholstered seat or footrest with no arms or back.
+Decision rule for ambiguous cases: when a piece could plausibly be either a wide lounge chair or a small loveseat, default to Double seat if the width-to-depth ratio is greater than roughly 1.5:1 and the seat surface is wide enough to comfortably seat two adults. Use Triple seat (or larger) only when the piece clearly reads as a sofa or otherwise proportioned for three or more adults. Only classify as Single seat if the piece reads proportionally as deeper than wide, or as roughly square in plan view, indicating it is designed for one occupant. When choosing between Single seat and Modular component for a piece that could read as either, prefer Modular component if the piece has structural cues suggesting it is part of a larger system, such as asymmetric arms, flat joinable sides, or unusual proportions for a standalone chair.`;
+
+const LOUNGE_CHAIR_CANONICAL_RULES = `- For lounge_chair arm_option: use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell or body.
+- For lounge_chair body_construction: use "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level.
+- For lounge_chair base_type: use "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present.
+- For lounge_chair base_finish: classify only the visible finish of the base or support structure using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for visible wood legs, wood bases, oak, walnut, ash, maple, or other natural wood tones. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for non-black painted or powder-coated finishes and colored coated metal bases. Return "unknown" only when the base or support structure is genuinely not visible in the image.
+- For lounge_chair back_finish: use "Unupholstered shell" when the visible outer shell or back surface is exposed rather than upholstered. Use "Matches seat" when the visible back finish clearly matches the seat upholstery. Use "Independent fabric" when the back surface is upholstered in a visibly distinct fabric treatment from the seat.
+- For lounge_chair seat_finish: use "Unupholstered" only when the visible seat surface is bare plastic, exposed wood, molded shell, or another non-upholstered hard surface rather than upholstered. Use "Fabric" or "Leather" only when that finish is clearly visible.
+- For lounge_chair configuration: choose exactly one of [Single seat, Double seat, Triple seat (or larger), Modular component, Corner unit, Ottoman]. Use "Double seat" for a non-modular piece clearly proportioned for two occupants. Use "Triple seat (or larger)" for sofas or other non-modular pieces clearly proportioned for three or more occupants. Use "Modular component" for pieces designed to connect with other modules. Use "Corner unit" for an L-shaped or corner-specific modular piece. Use "Ottoman" for a backless, typically low upholstered seat or footrest with no arms or back.`;
+
+const STOOL_CANONICAL_RULES = `- For stool only: if there is no physical backrest, set back to "Backless". Use "Low back" when a physical back support rises only modestly above the seat, and "Full back" when the back support rises substantially above the seat.
+- For stool seat_geometry: use "Flat" for standard flat seats, "Angled / perch" for forward-tilted perch seats, "Saddle" for saddle seats, and "Wobble / balance" for active stools designed to flex or rock.
+- For stool base_finish: classify only the visible finish of the base, legs, or support frame using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for visible wood legs or wood base structures. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for coated or powder-coated colored finishes that are neither black nor natural wood. Return "unknown" only when the base or support structure is genuinely not visible in the image.
+- For stool seat_finish: classify the visible seat surface finish using [Fabric, Leather, Molded plastic, Natural wood]. Use "Natural wood" when the visible seat surface is solid or exposed wood. Use "Molded plastic" only when the visible seat surface is clearly plastic. Use "Fabric" or "Leather" only when that finish is clearly visible on the seat.`;
+
+const TASK_COLLAB_CHAIR_CANONICAL_RULES = `- For task_collab_chair back_finish: use [Mesh / net, Upholstered, Plastic, Knit]. Use "Plastic" when the visible back surface is a hard plastic back rather than mesh, knit, or upholstered.
+- For task_collab_chair back_profile: use "Rounded / curved" for visibly curved or softened backs and "Square / angular" for rectilinear backs.
+- For task_collab_chair arm_option: visible adjustment hardware means "Adjustable arms", not fixed. Use "Integrated" only when the arms are formed directly out of the same seat or back shell with no distinct arm-post, side support, or separate side member. Use "Fixed arms" for any rigid non-adjustable arms carried by distinct side supports or side members.
+- For task_collab_chair base_type: use "Sled" for a continuous sled frame and never return "Sled base".
+- For task_collab_chair base_finish: classify the visible base finish using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for visible wood bases or legs. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for coated or powder-coated colored finishes that are neither black nor natural wood. Return "unknown" only when the base is genuinely not visible.
+- For task_collab_chair seat_finish: use [Fabric, Leather, Mesh / net]. Use "Mesh / net" only when the visible seat surface itself is mesh or netting.`;
+
+const GUEST_CHAIR_CANONICAL_RULES = `- For guest_chair arm_option: use "Open arm" when the arm is visually separate and leaves space beneath or beside it, "Closed arm" when the arm and side panel read as a closed side, and "Integrated" when the arm flows directly from the shell or frame.
+- For guest_chair frame_openness: use "Open / see-through" when the chair body or frame has obvious negative space and "Closed / solid" when the side or back surfaces read as continuous solid surfaces.
+- For guest_chair mobility: use "Casters" when wheels are visible on the base and "Non-mobile" when they are not.
+- For guest_chair base_finish: classify only the visible finish of the base, legs, or support frame using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" when the visible base or legs are wood or read as a natural wood finish, including oak, walnut, ash, maple, or other natural wood tones. Use "Polished chrome / aluminum" when the visible base reads as chrome, polished metal, or another bright reflective aluminum finish. Use "White" when the visible base, legs, or support frame read as white. Use "Painted color" when the visible base, legs, or support frame read as painted or powder-coated color rather than black, white, polished metal, or natural wood. Use "Black" when the visible base, legs, or support frame read as black or very dark coated metal. Return "unknown" only when the base or support structure is genuinely not visible in the image.
+- For guest_chair seat_finish: use [Fabric, Leather, Molded plastic, Natural wood]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Molded plastic" only when the visible seat surface is clearly molded plastic.
+- For guest_chair back_finish: use [Fabric, Leather, Mesh / net, Molded plastic, Natural wood, Unupholstered]. Use "Natural wood" when the visible back surface is wood. Use "Unupholstered" when the visible back surface is a bare shell with no upholstery.`;
+
+const BENCH_CANONICAL_RULES = `- For bench configuration: choose exactly one of [Double seat, Triple seat (or larger), Custom width]. Use "Double seat" for benches clearly sized for two occupants, "Triple seat (or larger)" for benches clearly sized for three or more occupants, and "Custom width" only when the bench reads as custom-length or unusually extended without a clear standard occupancy count.
+- For bench base_finish: classify only the visible finish of the base or support structure using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for exposed wood bases or legs. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for coated or powder-coated colored finishes that are neither black nor natural wood. Return "unknown" only when the base or support structure is genuinely not visible.
+- For bench seat_finish: use [Fabric, Leather, Natural wood]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Fabric" or "Leather" only when that finish is clearly visible on the seat.
+- For bench back_height: classify the physical back support height using [Backless, Low back, Full back]. Use "Backless" when no physical back support is present. Use "Low back" when a back support rises only modestly above the seat. Use "Full back" when the back support rises substantially above the seat and reads as a full backrest.
+- For bench back_finish: classify the visible finish of the back surface using [Upholstered, Natural wood, Unupholstered]. Use "Natural wood" when the back surface is exposed wood. Use "Unupholstered" when the back support is a bare shell or hard surface with no upholstery.`;
+
+const OTHER_SEATING_CANONICAL_RULES = `- For other_seating back_height: classify the physical back support using [Backless, Low, Mid, High, Full enclosure]. Use "Backless" when no back support is present. Use "Full enclosure" when enclosing panels wrap above shoulder or head level. Use "Low", "Mid", and "High" based on the visible vertical extent of the back support.
+- For other_seating back_finish: classify the visible back surface using [Upholstered, Mesh / net, Unupholstered]. Use "Mesh / net" only when the visible back surface is mesh or netting. Use "Unupholstered" when the visible back surface is a bare shell or hard surface with no upholstery.
+- For other_seating arm_option: use "Armless" when no arms are present. Use "Fixed arms" for rigid non-adjustable arms, "Adjustable arms" only when visible adjustment hardware is present, and "Integrated" only when the arms flow directly from the same shell or side structure.
+- For other_seating base_type: use [4-leg, Sled, 5-star with casters, 5-star with glides, Pedestal, Cantilever, Wall-mounted, Integrated base]. Split generic five-star bases into casters versus glides based on whether wheels are visible. Use "Integrated base" when the base is visually absorbed into the body with no discrete leg structure.
+- For other_seating seat_finish: use [Fabric, Leather, Mesh / net, Molded plastic, Natural wood]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Mesh / net" only when the visible seat surface itself is mesh or netting.`;
+
+function getVisualSummaryCategoryList(typeKey = "") {
+  const categories = seatingTypes[String(typeKey || "").trim()]?.visual_summary_categories;
+  return Array.isArray(categories)
+    ? categories.map((value) => String(value || "").trim()).filter(Boolean)
+    : [];
+}
+
+const VISUAL_SUMMARY_PROMPT_CONFIG = {
+  lounge_chair: {
+    decision_rules: [
+      "If a piece is wide enough to seat two adults side-by-side (roughly 1.5x the width of a typical chair seat or more), use a multi-person category (sofa, loveseat, multi-person bench), not a single-occupant category.",
+      "If a piece has asymmetric arms, flat sides designed for connection, or otherwise reads as part of a larger system, use a modular category if available.",
+      "Avoid the generic word \"seat\" when a more specific category applies."
+    ],
+    good_example: "A low-slung two-seat sofa with a continuous curved back and integrated rounded arms, supported on slender splayed metal legs. The seat surface is unbroken and softly upholstered, with a single horizontal seam at the cushion edge."
+  },
+  task_collab_chair: {
+    decision_rules: [
+      "If the chair reads primarily as a height-adjustable work chair with a five-star base and visible ergonomic intent, use \"task chair\" rather than a meeting-oriented category.",
+      "Use \"executive task chair\" only when the chair reads broader, fuller, and more managerial than a standard task chair, with a more substantial upholstered body or higher-back presence.",
+      "If the chair has a lighter meeting-room silhouette with a sled or simple four-leg base and less visible ergonomic complexity, prefer \"conference chair,\" \"collaborative chair,\" \"sled-base meeting chair,\" or \"four-leg work chair\" as appropriate.",
+      "If the seat sits visibly higher than a normal desk chair and reads intended for elevated work surfaces, prefer \"drafting chair\"."
+    ],
+    good_example: "An ergonomic task chair with a tall mesh back, adjustable armrests, and a five-star caster base. The seat is tightly upholstered and the frame reads as light but technical, with a pronounced lumbar curve that distinguishes it from simpler meeting chairs."
+  },
+  guest_chair: {
+    decision_rules: [
+      "If the form is clearly visitor or side seating on a fixed base, use \"guest chair\" or \"side chair,\" not a task-chair category, even if it resembles office seating.",
+      "If the base is a single continuous side frame with no rear legs, prefer \"cantilever guest chair.\" If the support reads as a continuous sled, prefer \"sled-base guest chair.\"",
+      "Use arm-based categories only when arm treatment is a dominant structural feature: \"arm guest chair,\" \"armless guest chair,\" or \"closed-arm guest chair.\" Keep material in the prose rather than the category noun."
+    ],
+    good_example: "A cantilever guest chair with a rounded upholstered seat and back, supported by a polished tubular side frame. The body reads as open and lightweight, with gently curved edges and no heavy enclosure around the sitter."
+  },
+  stool: {
+    decision_rules: [
+      "If there is no backrest, commit to \"backless stool\" rather than the generic word \"stool.\" Use \"low-back stool\" or \"full-back stool\" only when the backrest is structurally obvious.",
+      "If the seat pitches forward or reads designed for leaning rather than full sitting, prefer \"perching stool.\" If the seat has a clearly straddled profile, prefer \"saddle stool.\"",
+      "If the base or seat visibly suggests active rocking or flex behavior, prefer \"wobble stool.\" If the stool reads taller and more work-surface oriented, prefer \"drafting stool.\""
+    ],
+    good_example: "A backless perching stool with a forward-tilted seat, slim pedestal support, and compact footprint. The seat reads as designed for leaning support rather than deep sitting, which distinguishes it from a conventional flat stool."
+  },
+  bench: {
+    decision_rules: [
+      "If the piece has no back at all, commit to \"backless bench\" rather than the generic word \"bench.\" Use \"backed bench\" only when the back structure is clearly present.",
+      "If the seating span clearly supports multiple occupants and reads longer than a side chair or ottoman, prefer \"two-person bench\" or \"three-person bench\" when that capacity is visually plausible.",
+      "If the form is heavily upholstered and proportioned more like shared relaxed seating, prefer \"lounge bench\"; if it reads more infrastructural or public-facing, prefer \"public seating bench.\""
+    ],
+    good_example: "A two-person upholstered bench with a long, rectilinear seat and a slim exposed steel frame. The profile is low and linear, with clean edges and no backrest, giving it a lighter appearance than a lounge sofa."
+  },
+  other_seating: {
+    decision_rules: [
+      "Use the broadest accurate category noun available here rather than borrowing lounge-chair terminology. Prefer \"specialty seating,\" \"hybrid seating piece,\" or \"non-standard seating form\" when the object does not fit a cleaner family.",
+      "If the piece reads built-in, infrastructural, or attached to surrounding architecture rather than freestanding furniture, prefer \"architectural seating element\" or \"integrated seating element.\"",
+      "If the unit is clearly meant to connect with other pieces but does not fit the lounge or bench families cleanly, prefer \"modular seating unit.\" Use \"wall-mounted seat\" only when the mounting condition is visually obvious."
+    ],
+    good_example: "An enclosed architectural seating element with a deep seat, integrated side panels, and a partially screened profile. The form reads as a specialty seating piece rather than a conventional chair, with the enclosure doing most of the visual work."
+  }
+};
+
+function buildVisualSummaryInstruction(typeKey = "") {
+  const categoryList = getVisualSummaryCategoryList(typeKey);
+  const config = VISUAL_SUMMARY_PROMPT_CONFIG[String(typeKey || "").trim()] || {};
+  const categoryCommitmentLine = categoryList.length
+    ? `  CATEGORY COMMITMENT: Begin with a specific category noun chosen from the list below. Use the most accurate term based on what you see, not a generic hedge. Available categories for this seating type: ${categoryList.map((value) => `"${value}"`).join(", ")}.`
+    : `  CATEGORY COMMITMENT: Begin with a specific category noun appropriate to this seating type. Use the most accurate term based on what you see, not a generic hedge. Avoid the generic word "seat" when a more specific category applies.`;
+  const decisionRules = Array.isArray(config.decision_rules) && config.decision_rules.length
+    ? config.decision_rules
+    : [
+      "Prefer the most structurally specific category noun that is clearly supported by the image.",
+      "Avoid the generic word \"seat\" when a more specific category applies."
+    ];
+  const goodExample = String(config.good_example || "A clearly categorized seating piece with a distinct silhouette, observable support structure, and one specific detail that distinguishes it from similar products.").trim();
+
+  return `- visual_summary: A 2-3 sentence description of this seating product for use in semantic search. Follow these rules strictly:
+
+${categoryCommitmentLine}
+
+  When choosing between categories, decide based on visual evidence:
+${decisionRules.map((rule) => `  - ${rule}`).join("\n")}
+
+  STRUCTURE: After the category, follow this order:
+  1. Overall silhouette and proportional character (one phrase)
+  2. Seat and back character (one phrase)
+  3. Arm style and base or support relationship (one phrase)
+  4. One distinctive surface, material, or proportional detail that distinguishes this from similar products
+
+  LANGUAGE:
+  - Use specific, observable descriptors: "low-slung," "wide-set," "tapered," "splayed," "continuous curved," "tightly upholstered."
+  - Avoid vague style words without specifics. "Modern," "contemporary," and "stylish" are filler unless paired with a specific descriptor.
+  - Avoid hedging: "appears to be," "looks like," "seemingly." Commit to what you observe.
+  - Avoid marketing language: "stunning," "elegant," "timeless." Describe what is visible.
+  - Lead with form, not color. Color may appear at the end if structurally relevant (such as "exposed black metal base"), but do not lead with it.
+
+  EXTERNAL CONTEXT: If catalog context is provided (product name, brand, categories), use it only to resolve genuine visual ambiguity, not to override visual evidence. If the image clearly shows a sofa but the product name suggests a chair, describe what you see, not what the name says.
+
+  EXAMPLE (good): "${goodExample}"
+
+  EXAMPLE (bad — do not produce output like this): "A modern, stylish seating piece with a soft, rounded silhouette and a metal base." This is too vague: no commitment to a specific category, "modern" and "stylish" are filler, and "soft, rounded" lacks specificity.`;
+}
+
 export class ResolutionGateError extends Error {
   constructor(shortSide, width, height) {
     super(`Image rejected: short side ${shortSide}px is below the ${MATCHING_SAFE_MIN_SHORT_SIDE}px matching-safe minimum.`);
@@ -467,11 +617,15 @@ function normalizeEnum(value, allowedValues = []) {
   if (!raw) {
     return allowed.has("unknown") ? "unknown" : "";
   }
+  if (allowed.has(raw)) {
+    return raw;
+  }
   const aliases = new Map([
     ["none - backless", "backless"],
     ["none — backless", "backless"],
     ["non-upholstered", "unupholstered shell"],
     ["unupholstered", "unupholstered shell"],
+    ["none / unupholstered", "unupholstered"],
     ["no visible base / skirted", "skirted / concealed base"],
     ["none visible", "integrated base"],
     ["molded plywood veneer", "molded plywood shell"],
@@ -483,21 +637,26 @@ function normalizeEnum(value, allowedValues = []) {
     ["wrapped shell", "upholstered"],
     ["frame and cushion", "upholstered"],
     ["black enamel", "black"],
-    ["natural / wood", "wood"],
-    ["natural wood", "wood"],
-    ["natural timber", "wood"],
-    ["graphite", "painted / powder coat"],
-    ["painted color", "painted / powder coat"],
-    ["painted finish", "painted / powder coat"],
-    ["powder coat", "painted / powder coat"],
-    ["white enamel", "painted / powder coat"],
+    ["wood", "natural wood"],
+    ["natural / wood", "natural wood"],
+    ["natural wood", "natural wood"],
+    ["natural timber", "natural wood"],
+    ["solid wood", "natural wood"],
+    ["graphite", "painted color"],
+    ["painted / powder coat", "painted color"],
+    ["painted finish", "painted color"],
+    ["powder coat", "painted color"],
+    ["white enamel", "white"],
+    ["polished aluminum", "polished chrome / aluminum"],
     ["pedestal base", "pedestal"],
+    ["sled base", "sled"],
     ["square plate / plinth base", "square plate / plinth"],
     ["concealed / integrated base", "integrated base"],
     ["concealed / integrated", "integrated base"],
     ["integrated base", "integrated base"],
-    ["concealed", "integrated"],
+    ["concealed", "integrated base"],
     ["visible", "exposed"],
+    ["none", "armless"],
     ["no arms", "armless"],
     ["without arms", "armless"],
     ["open arms", "open arm"],
@@ -507,7 +666,8 @@ function normalizeEnum(value, allowedValues = []) {
     ["integrated arms", "integrated"],
     ["integrated arm", "integrated"],
     ["exposed shell / no upholstery", "unupholstered shell"],
-    ["plastic back", "plastic back"],
+    ["plastic back", "plastic"],
+    ["mesh", "mesh / net"],
     ["mesh / net back", "mesh / net"],
     ["upholstered back", "upholstered"],
     ["knit back", "knit"],
@@ -522,11 +682,17 @@ function normalizeEnum(value, allowedValues = []) {
     ["angular", "square / angular"],
     ["square", "square / angular"],
     ["casters", "casters"],
+    ["2-person", "double seat"],
+    ["3-person", "triple seat (or larger)"],
+    ["custom / specify width", "custom width"],
     ["fabric (specify category)", "fabric"],
     ["com", "unknown"],
     ["col", "unknown"]
   ]);
-  raw = aliases.get(raw) || raw;
+  const aliased = aliases.get(raw);
+  if (aliased && allowed.has(aliased)) {
+    raw = aliased;
+  }
   if (raw === "unknown") {
     return "unknown";
   }
@@ -650,6 +816,7 @@ function combinedStage23SchemaForType(typeKey) {
     additionalProperties: false,
     properties: {
       ...visualDescriptionSchema().properties,
+      reasoning: { type: "string" },
       structured_caption: { type: "string" },
       raw_visual_highlights: {
         type: "array",
@@ -659,6 +826,7 @@ function combinedStage23SchemaForType(typeKey) {
     },
     required: [
       ...visualDescriptionSchema().required,
+      "reasoning",
       "structured_caption",
       "raw_visual_highlights",
       "image_traits"
@@ -683,6 +851,7 @@ function extractionSchemaForType(typeKey) {
     type: "object",
     additionalProperties: false,
     properties: {
+      reasoning: { type: "string" },
       structured_caption: { type: "string" },
       raw_visual_highlights: {
         type: "array",
@@ -695,7 +864,7 @@ function extractionSchemaForType(typeKey) {
         required
       }
     },
-    required: ["structured_caption", "raw_visual_highlights", "image_traits"]
+    required: ["reasoning", "structured_caption", "raw_visual_highlights", "image_traits"]
   };
 }
 
@@ -861,19 +1030,13 @@ Step 5: Based on both seating_type and visual_form, fill attributes.
 - Ignore spec-only traits and any field not listed for the selected seating_type.
 
 Special rules:
-- For lounge_chair body_construction: use "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level.
-- For lounge_chair base_type: use "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present.
-- For lounge_chair base_finish: classify only the visible finish of the base or support structure using [Black, Polished aluminum, Wood, Painted / powder coat].
-- For lounge_chair seat_upholstery: use "None / unupholstered" only when the visible seat surface is bare plastic, wood, or another molded hard surface rather than upholstered.
+- ${LOUNGE_CHAIR_CANONICAL_RULES}
 - ${LOUNGE_CHAIR_SHAPE_RULES}
-- For stool: the back field refers to presence of a physical backrest. A backless stool must return "Backless". Use seat_geometry "Flat" for standard flat seats, "Angled / perch" for forward-tilted perch seats, "Saddle" for saddle seats, and "Wobble / balance" for active stools designed to flex or rock.
-- For task_collab_chair arm_option: visible adjustment hardware means "Adjustable arms", not fixed.
-- For task_collab_chair back_profile: use "Rounded / curved" for visibly curved or softened backs and "Square / angular" for rectilinear backs.
-- For task_collab_chair base_finish: classify the visible base finish/color using [Black, White, Polished aluminum, Painted color, Natural wood].
-- For task_collab_chair frame: return "Plastic" only when the visible structural frame is visibly and predominantly plastic with no visible metal structure.
-- For guest_chair arm_option: use "Open arm" for visually open side arms, "Closed arm" for side enclosures, and "Integrated" when the arm flows directly from the shell or frame.
-- For guest_chair frame_openness: use "Open / see-through" when the chair body or frame has obvious negative space and "Closed / solid" when it reads as continuous solid surfaces.
-- For guest_chair mobility: use "Casters" when wheels are visible on the base. Use "Non-mobile" when wheels are not visible.
+- ${STOOL_CANONICAL_RULES}
+- ${TASK_COLLAB_CHAIR_CANONICAL_RULES}
+- ${GUEST_CHAIR_CANONICAL_RULES}
+- ${BENCH_CANONICAL_RULES}
+- ${OTHER_SEATING_CANONICAL_RULES}
 
 Relevant attribute fields by seating type:
 ${buildPerTypeFieldGuide()}
@@ -1110,7 +1273,7 @@ async function classifySeatingTypeOpenAi(imageInput, options = {}) {
   return normalizeStage1Classification(parsed);
 }
 
-function visualDescriptionPrompt() {
+function visualDescriptionPrompt(typeKey = "") {
   return `You are a furniture visual analyst. Describe the physical form of the primary seating item in the image in precise, searchable language.
 
 Rules:
@@ -1131,7 +1294,7 @@ Return JSON only with these fields:
 - surface_language: texture, sheen, material character visible on dominant surfaces
 - design_register: one of [minimal, organic, industrial, traditional, sculptural, utilitarian]
 - distinctive_elements: up to 5 short visual details that would distinguish this from similar items. Each item must be 8 words or fewer. Focus on what is visually unique — do not describe standard ergonomic features that appear on most task or collaborative chairs.
-- visual_summary: 2-3 sentence embedding-ready description combining the above. No brand names. Lead with form, not color.`;
+${buildVisualSummaryInstruction(typeKey)}`;
 }
 
 function extractionPrompt(typeKey) {
@@ -1141,16 +1304,22 @@ function extractionPrompt(typeKey) {
     .map((entry) => `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]`)
     .join("\n");
   const stoolBackRule = typeKey === "stool"
-    ? `- For stool type only: the back field refers to whether a physical backrest is present on the stool, not the material of the seat or legs. A stool with no backrest must return "Backless" regardless of what materials are visible. Use seat_geometry "Flat" for standard flat seats, "Angled / perch" for forward-tilted perch seats, "Saddle" for saddle-like seats, and "Wobble / balance" for active stools designed to flex or rock.\n`
+    ? `${STOOL_CANONICAL_RULES}\n`
     : "";
   const loungeChairBaseRule = typeKey === "lounge_chair"
-    ? `- For lounge_chair type: use body_construction "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level. For arm_configuration, use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell/body. Use base_type "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present. For base_finish, classify only the visible finish of the base or support structure using [Black, Polished aluminum, Wood, Painted / powder coat]. For back_upholstery, use "Unupholstered shell" when the outer shell/back surface is exposed rather than upholstered. For seat_upholstery, use "None / unupholstered" only when the visible seat surface is bare plastic, wood, or another molded hard surface rather than upholstered. For configuration, choose exactly one of [Single seat, Multi-seat / sofa, Modular component, Corner unit, Ottoman]. Use "Single seat" for one clearly defined seating position such as a lounge chair, club chair, or armchair. Use "Multi-seat / sofa" for a non-modular sofa or loveseat with two or more attached seating positions. Use "Modular component" for a piece designed to combine or reconfigure with other modules. Use "Corner unit" for an L-shaped or corner-specific modular piece. Use "Ottoman" for a backless, typically low upholstered seat or footrest with no arms or back. ${LOUNGE_CHAIR_SHAPE_RULES}\n`
+    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES} ${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRule = typeKey === "task_collab_chair"
-    ? `- For task_collab_chair type: use back_style [Mesh / net, Upholstered, Plastic back, Knit]. Use back_profile "Square / angular" for rectilinear backs with straight-edged geometry and "Rounded / curved" for visibly curved or softened back outlines. For arm_option, look for visible adjustment mechanisms on the arm supports; if any adjustment hardware is visible, return "Adjustable arms". Use "Integrated" only when the arms are formed directly out of the same seat/back shell with no distinct arm-post, side support, or separate side member; the arm shape must read as part of one continuous shell. Use "Fixed arms" for any rigid non-adjustable arms supported by distinct side structures, side members, arm posts, or separate arm supports, even if the form is smooth, molded, or visually continuous. Do not use "Integrated" for molded plastic or upholstered fixed arms if they are carried by distinct side supports or side members. For base_finish, classify the visible finish using [Black, White, Polished aluminum, Painted color, Natural wood]. For frame, return "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
+    ? `${TASK_COLLAB_CHAIR_CANONICAL_RULES}\n`
     : "";
   const guestChairRule = typeKey === "guest_chair"
-    ? `- For guest_chair type: use arm_option "Open arm" when the arm is visually separate and leaves space beneath or beside it, "Closed arm" when the arm and side panel read as a closed side, and "Integrated" when the arm flows directly from the shell or frame. Use frame_openness "Open / see-through" when the chair body or frame has visible negative space and "Closed / solid" when the side/back surfaces read as continuous solids. For mobility, infer "Casters" when wheels are visible on the base and "Non-mobile" when they are not. Use seat_finish and back_finish to describe the visible finished surface rather than the internal structure.\n`
+    ? `${GUEST_CHAIR_CANONICAL_RULES}\n`
+    : "";
+  const benchRule = typeKey === "bench"
+    ? `${BENCH_CANONICAL_RULES}\n`
+    : "";
+  const otherSeatingRule = typeKey === "other_seating"
+    ? `${OTHER_SEATING_CANONICAL_RULES}\n`
     : "";
 
   return `Analyze one furniture image and answer only schema-routed questions. Type route: ${type.label} (${typeKey}). Return strict JSON only.
@@ -1162,7 +1331,7 @@ Rules:
 - If a feature is structurally absent (e.g. no back, no arms), use "none" not "unknown".
 - Never invent values outside allowed enum values.
 - Ignore non-primary products and scene decor.
-${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRule}${guestChairRule}- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with form and distinctive geometry. This replaces the previous visual_description field.
+${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRule}${guestChairRule}${benchRule}${otherSeatingRule}- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with form and distinctive geometry. This replaces the previous visual_description field.
 - raw_visual_highlights is optional debug only, max 8 bullets.
 Fields: ${fieldLines}`;
 }
@@ -1184,7 +1353,7 @@ function applyLoungeChairPlanShapeGuardrails(typeKey, imageTraits = {}) {
   }
 
   const configuration = String(imageTraits?.configuration || "").trim().toLowerCase();
-  if (["multi-seat / sofa", "modular component", "corner unit"].includes(configuration)) {
+  if (["double seat", "triple seat (or larger)", "modular component", "corner unit"].includes(configuration)) {
     return {
       ...imageTraits,
       plan_shape: "N/A"
@@ -1247,12 +1416,12 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
   const inferred = {};
 
   if (typeKey === "task_collab_chair") {
-    inferred.back_style = /knit/.test(source)
+    inferred.back_finish = /knit/.test(source)
       ? "knit"
       : /mesh|net/.test(source)
         ? "mesh / net"
         : /plastic/.test(source)
-          ? "plastic back"
+          ? "plastic"
           : /upholster|fabric|leather|cushion/.test(source)
             ? "upholstered"
             : "unknown";
@@ -1263,12 +1432,12 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
       : /glide/.test(source)
         ? "5-star with glides"
         : /sled/.test(source)
-          ? "sled base"
+          ? "sled"
           : /four[- ]leg|4-leg|legs/.test(source)
             ? "4-leg"
             : "unknown";
     inferred.base_finish = /polished aluminum|chrome|brushed aluminum/.test(source)
-      ? "polished aluminum"
+      ? "polished chrome / aluminum"
       : /natural wood|oak|walnut|ash|maple/.test(source)
         ? "natural wood"
         : /white/.test(source)
@@ -1276,22 +1445,15 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
           : /black|charcoal/.test(source)
             ? "black"
             : /painted|powder coat|color/.test(source)
-              ? "painted color"
+            ? "painted color"
               : "unknown";
-    inferred.frame = /aluminum|aluminium/.test(source)
-      ? "aluminum"
-      : /metal|steel|chrome/.test(source)
-        ? "metal"
-        : /plastic|poly/.test(source)
-          ? "plastic"
-          : "unknown";
-    inferred.seat_upholstery = /mesh|net/.test(source)
+    inferred.seat_finish = /mesh|net/.test(source)
       ? "mesh / net"
       : /leather/.test(source)
         ? "leather"
         : /fabric|upholster|textile/.test(source)
           ? "fabric"
-          : "unknown";
+              : "unknown";
   } else if (typeKey === "stool") {
     inferred.seat_geometry = /wobble|balance|rock/.test(source)
       ? "wobble / balance"
@@ -1314,8 +1476,8 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
             : /four[- ]leg|4-leg|legs/.test(source)
               ? "4-leg"
               : "unknown";
-    inferred.base_frame_finish = /polished aluminum|chrome|brushed aluminum/.test(source)
-      ? "polished aluminum"
+    inferred.base_finish = /polished aluminum|chrome|brushed aluminum/.test(source)
+      ? "polished chrome / aluminum"
       : /natural wood|oak|walnut|ash|maple/.test(source)
         ? "natural wood"
         : /white/.test(source)
@@ -1323,12 +1485,14 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
           : /black|charcoal/.test(source)
             ? "black"
             : /painted|powder coat|color/.test(source)
-              ? "painted color"
+            ? "painted color"
               : "unknown";
-    inferred.seat_material = /upholster|fabric|leather|cushion/.test(source)
-      ? "upholstered"
+    inferred.seat_finish = /leather/.test(source)
+      ? "leather"
+      : /upholster|fabric|cushion|textile/.test(source)
+        ? "fabric"
       : /solid wood|wooden/.test(source)
-        ? "solid wood"
+        ? "natural wood"
         : /plastic|poly/.test(source)
           ? "molded plastic"
           : "unknown";
@@ -1345,7 +1509,11 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
     inferred.base_finish = /natural wood|oak|walnut|ash|maple/.test(source)
       ? "natural wood"
       : /polished|chrome|aluminum|aluminium/.test(source)
-        ? "polished"
+        ? "polished chrome / aluminum"
+        : /white/.test(source)
+          ? "white"
+          : /painted|powder coat|color/.test(source)
+            ? "painted color"
         : /black|charcoal/.test(source)
           ? "black"
           : "unknown";
@@ -1356,11 +1524,11 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
     inferred.seat_finish = /leather/.test(source)
       ? "leather"
       : /fabric|upholster|textile/.test(source)
-        ? "fabric"
+          ? "fabric"
         : /plastic|poly/.test(source)
           ? "molded plastic"
           : /wood/.test(source)
-            ? "wood"
+            ? "natural wood"
             : "unknown";
     inferred.back_finish = /mesh|net/.test(source)
       ? "mesh / net"
@@ -1368,10 +1536,10 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
         ? "leather"
         : /fabric|upholster|textile/.test(source)
           ? "fabric"
-          : /plastic|poly/.test(source)
-            ? "molded plastic"
-            : /wood/.test(source)
-              ? "wood"
+        : /plastic|poly/.test(source)
+          ? "molded plastic"
+          : /wood/.test(source)
+              ? "natural wood"
               : /unupholster|bare shell/.test(source)
                 ? "unupholstered"
                 : "unknown";
@@ -1387,7 +1555,7 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
             : /upholster|fabric|leather|cushion/.test(source)
               ? "upholstered"
               : "unknown";
-    inferred.arm_configuration = /armless|no arms|without arms/.test(source) ? "armless" : /one arm/.test(source) ? "one arm" : /integrated|wrap arm|sculpted arm/.test(source) ? "integrated / sculpted" : /arms?/.test(source) ? "two arms" : "unknown";
+    inferred.arm_option = /armless|no arms|without arms/.test(source) ? "armless" : /one arm/.test(source) ? "one arm" : /integrated|wrap arm|sculpted arm/.test(source) ? "integrated / sculpted" : /arms?/.test(source) ? "two arms" : "unknown";
     inferred.base_type = /caster|wheel/.test(source)
       ? "casters"
       : /integrated base|concealed base|monolithic base/.test(source)
@@ -1402,22 +1570,24 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
                 ? "4-leg"
                 : "unknown";
     inferred.base_finish = /polished aluminum|chrome|brushed aluminum/.test(source)
-      ? "polished aluminum"
+      ? "polished chrome / aluminum"
       : /wood|oak|walnut|ash|maple/.test(source)
-        ? "wood"
-        : /painted|powder coat|color|white/.test(source)
-          ? "painted / powder coat"
+        ? "natural wood"
+        : /white/.test(source)
+          ? "white"
+          : /painted|powder coat|color/.test(source)
+            ? "painted color"
           : /black|charcoal/.test(source)
             ? "black"
             : "unknown";
-    inferred.seat_upholstery = /leather/.test(source)
+    inferred.seat_finish = /leather/.test(source)
       ? "leather"
       : /plastic|wood|shell/.test(source) && !/upholster|fabric|leather|cushion/.test(source)
-        ? "none / unupholstered"
+        ? "unupholstered"
         : /fabric|upholster|textile|cushion/.test(source)
           ? "fabric"
           : "unknown";
-    inferred.back_upholstery = /unupholster|bare shell/.test(source)
+    inferred.back_finish = /unupholster|bare shell/.test(source)
       ? "unupholstered shell"
       : /independent fabric|contrasting back/.test(source)
         ? "independent fabric"
@@ -1425,7 +1595,7 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
           ? "matches seat"
           : "unknown";
     inferred.back_height = /full enclosure|privacy/.test(source) ? "full enclosure" : /high back/.test(source) ? "high" : /mid back|medium back/.test(source) ? "mid" : /low back/.test(source) ? "low" : "unknown";
-    inferred.configuration = /sofa|loveseat|settee/.test(source) ? "multi-seat / sofa" : /modular/.test(source) ? "modular component" : /corner/.test(source) ? "corner unit" : /ottoman|pouf|footrest/.test(source) ? "ottoman" : /chair|lounge/.test(source) ? "single seat" : "unknown";
+    inferred.configuration = /sectional sofa|three-seat|3-seat|three seater|sofa/.test(source) ? "triple seat (or larger)" : /loveseat|two-seat|2-seat|settee/.test(source) ? "double seat" : /modular/.test(source) ? "modular component" : /corner/.test(source) ? "corner unit" : /ottoman|pouf|footrest/.test(source) ? "ottoman" : /chair|lounge/.test(source) ? "single seat" : "unknown";
     inferred.shape_character = /boxy|rectilinear|straight/.test(source) ? "boxy" : /curved|rounded|tapered|organic/.test(source) ? "soft / tapered" : "unknown";
     inferred.plan_shape = /round|semicircular|curved back/.test(source) ? "round / semicircular" : /reverse trapezoid/.test(source) ? "reverse trapezoidal" : /trapezoid/.test(source) ? "trapezoidal" : /rectangular|square/.test(source) ? "square / rectangular" : "unknown";
   }
@@ -1449,6 +1619,71 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
   return output;
 }
 
+function applyGuestChairBaseFinishFallback(typeKey, imageTraits = {}, imageInput = {}) {
+  if (typeKey !== "guest_chair") {
+    return imageTraits;
+  }
+
+  const currentValue = String(imageTraits.base_finish || "").trim().toLowerCase();
+  if (currentValue && currentValue !== "unknown") {
+    return imageTraits;
+  }
+
+  const source = `${imageInput.catalogContext || ""} ${imageInput.image_url || ""}`.toLowerCase();
+  const inferredValue = /natural wood|wood base|wood legs|wooden|oak|walnut|ash|maple|reclaimed|4legwood/.test(source)
+    ? "Natural wood"
+    : /polished|chrome|aluminum|aluminium/.test(source)
+      ? "Polished chrome / aluminum"
+      : /white/.test(source)
+        ? "White"
+        : /painted|powder coat|color/.test(source)
+          ? "Painted color"
+      : /black|charcoal/.test(source)
+        ? "Black"
+        : "";
+  if (!inferredValue || inferredValue.toLowerCase() === "unknown") {
+    return imageTraits;
+  }
+
+  return {
+    ...imageTraits,
+    base_finish: inferredValue
+  };
+}
+
+function applyGuestChairBaseFinishRecordFallback(typeKey, enumFields = {}, imageRecord = {}, productName = "") {
+  if (typeKey !== "guest_chair") {
+    return enumFields;
+  }
+
+  const currentValue = String(enumFields.base_finish || "").trim().toLowerCase();
+  if (currentValue && currentValue !== "unknown") {
+    return enumFields;
+  }
+
+  const source = `${productName || ""} ${imageRecord.image_url || ""}`.toLowerCase();
+  const inferredValue = /natural wood|wood base|wood legs|wooden|oak|walnut|ash|maple|reclaimed|4legwood/.test(source)
+    ? "Natural wood"
+    : /polished|chrome|aluminum|aluminium/.test(source)
+      ? "Polished chrome / aluminum"
+      : /white/.test(source)
+        ? "White"
+        : /painted|powder coat|color/.test(source)
+          ? "Painted color"
+      : /black|charcoal/.test(source)
+        ? "Black"
+        : "";
+
+  if (!inferredValue) {
+    return enumFields;
+  }
+
+  return {
+    ...enumFields,
+    base_finish: inferredValue
+  };
+}
+
 async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, options = {}) {
   if (!options.apiKey) {
     const heuristicTraits = heuristicImageTraits(
@@ -1457,6 +1692,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
       { productId: imageInput.product_id || imageInput.productId || options.productId || options.product_id }
     );
     return {
+      reasoning: "",
       structured_caption: sentenceCase(`${seatingTypes[typeKey]?.label || "Seating"} from inspiration image.`).replace(/\.*$/, "."),
       raw_visual_highlights: cleanVisualHighlights(buildDeterministicBulletsFromMergedTraits(typeKey, heuristicTraits)),
       image_traits: normalizeImageTraits(typeKey, heuristicTraits)
@@ -1514,30 +1750,38 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
     typeKey,
     normalizeImageTraits(typeKey, guardedParsed.image_traits || {})
   );
+  const finalTraitsWithFallbacks = applyGuestChairBaseFinishFallback(typeKey, finalTraits, imageInput);
   if (process.env.DEBUG_CAPTION_HANDOFF === "1") {
-    console.log("HANDOFF 3 - post-normalization image_traits:", JSON.stringify(finalTraits, null, 2));
+    console.log("HANDOFF 3 - post-normalization image_traits:", JSON.stringify(finalTraitsWithFallbacks, null, 2));
   }
 
   return {
+    reasoning: normalizeWhitespace(guardedParsed.reasoning || ""),
     structured_caption: sentenceCase(guardedParsed.structured_caption || "Structured seating result.").replace(/\.*$/, "."),
     raw_visual_highlights: uniqueStrings(Array.isArray(guardedParsed.raw_visual_highlights) ? guardedParsed.raw_visual_highlights : []).slice(0, 8),
-    image_traits: finalTraits
+    image_traits: finalTraitsWithFallbacks
   };
 }
 
 export function combinedStage23Prompt(typeKey) {
   const typeConfig = seatingTypes[typeKey] || seatingTypes[defaultSeatingType];
   const stoolBackRule = typeKey === "stool"
-    ? `- For stool only: if there is no physical backrest, set back to "Backless". Use seat_geometry "Flat" for standard flat seats, "Angled / perch" for forward-tilted perch seats, "Saddle" for saddle seats, and "Wobble / balance" for active stools designed to flex or rock.\n`
+    ? `${STOOL_CANONICAL_RULES}\n`
     : "";
   const loungeChairBaseRule = typeKey === "lounge_chair"
-    ? `- For lounge_chair only: use body_construction "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level. For arm_configuration, use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell/body. Use base_type "Integrated base" when the base is visually absorbed into the shell with no discrete leg structure. Use "Pedestal" for a central column or star base, "Square plate / plinth" for a square or plate-like base, "4-leg" for four discrete legs, "Sled" for a continuous sled frame, and "Casters" only when visible wheels are present. For base_finish, classify only the visible finish of the base or support structure using [Black, Polished aluminum, Wood, Painted / powder coat]. For back_upholstery, use "Unupholstered shell" when the outer shell/back surface is exposed rather than upholstered. For seat_upholstery, use "None / unupholstered" only when the visible seat surface is bare plastic, wood, or another molded hard surface rather than upholstered. For configuration, choose exactly one of [Single seat, Multi-seat / sofa, Modular component, Corner unit, Ottoman]. Use "Single seat" for one clearly defined seating position such as a lounge chair, club chair, or armchair. Use "Multi-seat / sofa" for a non-modular sofa or loveseat with two or more attached seating positions. Use "Modular component" for a piece designed to combine or reconfigure with other modules. Use "Corner unit" for an L-shaped or corner-specific modular piece. Use "Ottoman" for a backless, typically low upholstered seat or footrest with no arms or back. ${LOUNGE_CHAIR_SHAPE_RULES}\n`
+    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES} ${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRules = typeKey === "task_collab_chair"
-    ? `- For task_collab_chair arm_option: visible adjustment hardware means adjustable, not fixed. Use "Integrated" only when the arms are formed directly out of the same seat/back shell with no distinct arm-post, side support, or separate side member; the arm shape must read as part of one continuous shell. Use "Fixed arms" for any rigid non-adjustable arms supported by distinct side structures, side members, arm posts, or separate arm supports, even if the form is smooth, molded, or visually continuous. Do not use "Integrated" for molded plastic or upholstered fixed arms if they are carried by distinct side supports or side members.\n- For task_collab_chair back_profile: use "Rounded / curved" for visibly curved or softened backs and "Square / angular" for rectilinear backs.\n- For task_collab_chair base_finish: classify the visible base finish/color using [Black, White, Polished aluminum, Painted color, Natural wood].\n- For task_collab_chair frame: use "Plastic" only when the visible structural frame is predominantly plastic with no visible metal structure.\n`
+    ? `${TASK_COLLAB_CHAIR_CANONICAL_RULES}\n`
     : "";
   const guestChairRules = typeKey === "guest_chair"
-    ? `- For guest_chair arm_option: use "Open arm" for visually open side arms, "Closed arm" for side enclosures, and "Integrated" when the arm flows directly from the shell or frame.\n- For guest_chair frame_openness: use "Open / see-through" when the chair body or frame has obvious negative space and "Closed / solid" when it reads as continuous solid surfaces.\n- For guest_chair mobility: use "Casters" when wheels are visible on the base and "Non-mobile" when they are not.\n`
+    ? `${GUEST_CHAIR_CANONICAL_RULES}\n`
+    : "";
+  const benchRules = typeKey === "bench"
+    ? `${BENCH_CANONICAL_RULES}\n`
+    : "";
+  const otherSeatingRules = typeKey === "other_seating"
+    ? `${OTHER_SEATING_CANONICAL_RULES}\n`
     : "";
 
   return `You are a furniture visual analyst. Analyze only the primary seating product in the image. The seating type has already been determined by stage 1: ${typeConfig.label} (${typeKey}).
@@ -1558,7 +1802,7 @@ Stage 3: attributes
 - If a trait is not visible or not applicable, use "unknown".
 - If a feature is structurally absent, use "none" when "none" is an allowed value.
 - Never invent values outside the allowed enums.
-${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRules}${guestChairRules}Relevant attribute fields for this seating type only:
+${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRules}${guestChairRules}${benchRules}${otherSeatingRules}Relevant attribute fields for this seating type only:
 ${buildFieldGuideForType(typeKey)}
 
 Return JSON with:
@@ -1571,7 +1815,7 @@ Return JSON with:
 - surface_language
 - design_register
 - distinctive_elements
-- visual_summary
+${buildVisualSummaryInstruction(typeKey)}
 - structured_caption
 - raw_visual_highlights
 - image_traits`;
@@ -1579,7 +1823,7 @@ Return JSON with:
 
 async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, options = {}) {
   if (!options.apiKey) {
-    const stage2 = await describeVisualFormOpenAi(imageInput, options);
+    const stage2 = await describeVisualFormOpenAi(imageInput, { ...options, typeKey });
     const stage3 = await extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, options);
     return {
       stage2,
@@ -1610,10 +1854,16 @@ async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, options
 
   const stage2 = normalizeStage2(parsed);
   const guardedParsed = applyStage3EnumGuardrails(typeKey, parsed);
+  const finalTraits = applyLoungeChairPlanShapeGuardrails(
+    typeKey,
+    normalizeImageTraits(typeKey, guardedParsed.image_traits || {})
+  );
+  const finalTraitsWithFallbacks = applyGuestChairBaseFinishFallback(typeKey, finalTraits, imageInput);
   const stage3 = {
+    reasoning: normalizeWhitespace(guardedParsed.reasoning || ""),
     structured_caption: sentenceCase(guardedParsed.structured_caption || "Structured seating result.").replace(/\.*$/, "."),
     raw_visual_highlights: uniqueStrings(Array.isArray(guardedParsed.raw_visual_highlights) ? guardedParsed.raw_visual_highlights : []).slice(0, 8),
-    image_traits: normalizeImageTraits(typeKey, guardedParsed.image_traits || {})
+    image_traits: finalTraitsWithFallbacks
   };
 
   return { stage2, stage3, usage };
@@ -1638,7 +1888,7 @@ async function describeVisualFormOpenAi(imageInput, options = {}) {
   const parsed = await callOpenAiJson({
     apiKey: options.apiKey,
     model: options.visionModel,
-    systemPrompt: visualDescriptionPrompt(),
+    systemPrompt: visualDescriptionPrompt(options.typeKey || ""),
     userParts: [
       ...(imageInput.catalogContext
         ? [{ type: "input_text", text: imageInput.catalogContext }]
@@ -1665,7 +1915,7 @@ async function analyzeImageStage123OpenAi(imageInput, options = {}) {
       };
     }
     const seatingType = ensureTypeKey(stage1.seating_type);
-    const stage2 = await describeVisualFormOpenAi(imageInput, options);
+    const stage2 = await describeVisualFormOpenAi(imageInput, { ...options, typeKey: seatingType });
     const stage3 = await extractImageTraitsOpenAi(imageInput, seatingType, stage1, stage2, options);
 
     return {
@@ -1833,8 +2083,8 @@ function toLegacyVisualTraits(typeKey, mergedTraits = {}) {
   const dominantColor = mergedTraits.dominant_color === "unknown" ? "" : mergedTraits.dominant_color;
   const baseType = mergedTraits.base_type === "unknown" ? "" : mergedTraits.base_type;
   const frameMaterial = (mergedTraits.frame === "unknown" ? "" : mergedTraits.frame) || (mergedTraits.frame_material === "unknown" ? "" : mergedTraits.frame_material);
-  const seatMaterial = (mergedTraits.seat_material === "unknown" ? "" : mergedTraits.seat_material) || (mergedTraits.seat_finish === "unknown" ? "" : mergedTraits.seat_finish) || (mergedTraits.seat_upholstery === "unknown" ? "" : mergedTraits.seat_upholstery);
-  const backConstruction = (mergedTraits.back_style === "unknown" ? "" : mergedTraits.back_style) || (mergedTraits.back_finish === "unknown" ? "" : mergedTraits.back_finish) || (mergedTraits.body_construction === "unknown" ? "" : mergedTraits.body_construction);
+  const seatMaterial = (mergedTraits.seat_finish === "unknown" ? "" : mergedTraits.seat_finish) || (mergedTraits.seat_material === "unknown" ? "" : mergedTraits.seat_material) || (mergedTraits.seat_upholstery === "unknown" ? "" : mergedTraits.seat_upholstery);
+  const backConstruction = (mergedTraits.back_finish === "unknown" ? "" : mergedTraits.back_finish) || (mergedTraits.back_style === "unknown" ? "" : mergedTraits.back_style) || (mergedTraits.body_construction === "unknown" ? "" : mergedTraits.body_construction);
   const armOption = (mergedTraits.arm_option === "unknown" ? "" : mergedTraits.arm_option) || (mergedTraits.arm_configuration === "unknown" ? "" : mergedTraits.arm_configuration);
   const armsPresent = Boolean(armOption) && !["armless", "none"].includes(String(armOption).toLowerCase());
   const armType = String(armOption || "").toLowerCase();
@@ -2630,6 +2880,7 @@ function buildSinglePassFieldConfidence(seatingType = "", enumFields = {}) {
 
 function buildFreeText(stage2 = {}, stage3 = {}) {
   return {
+    reasoning: String(stage3?.reasoning || "").trim(),
     visual_summary: String(stage2?.visual_summary || "").trim(),
     structured_caption: String(stage3?.structured_caption || "").trim(),
     silhouette: String(stage2?.silhouette || "").trim(),
@@ -2671,27 +2922,20 @@ function buildSearchableText({ productName = "", brand = "", seatingType = "", e
 
 const SEARCH_TIME_BULLET_FIELD_PRIORITY = [
   "body_construction",
-  "arm_configuration",
   "arm_option",
   "back_height",
-  "back_style",
+  "back_finish",
   "back_profile",
   "back",
   "configuration",
-  "seat_upholstery",
   "seat_geometry",
-  "seat_material",
   "seat_finish",
-  "back_upholstery",
-  "back_finish",
   "design_register",
-  "frame",
   "frame_openness",
   "shape_character",
   "plan_shape",
   "base_type",
-  "base_finish",
-  "base_frame_finish"
+  "base_finish"
 ];
 
 function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
@@ -2751,9 +2995,9 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
 
   if (normalizedSeatingType === "lounge_chair") {
     if (heuristicTraits.arms_present === false) {
-      enumFields.arm_configuration = "Armless";
+      enumFields.arm_option = "Armless";
     } else if (heuristicTraits.arms_present === true) {
-      enumFields.arm_configuration = "Two arms";
+      enumFields.arm_option = "Two arms";
     }
   } else if (normalizedSeatingType === "task_collab_chair" || normalizedSeatingType === "guest_chair") {
     if (heuristicTraits.arms_present === false) {
@@ -2772,27 +3016,21 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
 
 const TEXT_QUERY_TRAIT_FIELDS = new Set([
   "seating_type",
-  "back_style",
+  "back_finish",
   "back_profile",
   "arm_option",
   "body_construction",
-  "arm_configuration",
   "back_height",
   "back",
   "configuration",
-  "seat_upholstery",
   "seat_geometry",
-  "seat_material",
   "seat_finish",
-  "back_upholstery",
   "back_finish",
   "mobility",
   "design_register",
-  "frame",
   "frame_openness",
   "base_type",
   "base_finish",
-  "base_frame_finish",
   "shape_character",
   "plan_shape"
 ]);
@@ -2929,9 +3167,12 @@ export async function inferTextQueryCategory(query = "", options = {}) {
 export async function extractTextQueryTraits(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query);
   const resolvedType = resolveTextQueryTraitType(options.seatingType);
-  const deterministicEnumFields = buildDeterministicTextQueryEnumFields(
-    normalizedQuery,
-    resolvedType
+  const deterministicEnumFields = applyLoungeChairPlanShapeGuardrails(
+    resolvedType,
+    buildDeterministicTextQueryEnumFields(
+      normalizedQuery,
+      resolvedType
+    )
   );
   if (!normalizedQuery || !options.apiKey) {
     return {
@@ -2989,10 +3230,13 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       enumFields[field] = value;
     }
 
-    const mergedEnumFields = {
-      ...deterministicEnumFields,
-      ...enumFields
-    };
+    const mergedEnumFields = applyLoungeChairPlanShapeGuardrails(
+      resolvedType,
+      {
+        ...deterministicEnumFields,
+        ...enumFields
+      }
+    );
 
     return {
       enum_fields: mergedEnumFields,
@@ -3040,10 +3284,10 @@ async function embedSearchText(searchText = "", options = {}) {
   });
 }
 
-export async function generateImageExtractionRecord(imageRecord = {}, options = {}) {
-  const extractionTimestamp = new Date().toISOString();
+export async function classifyImageStage0(imageRecord = {}, options = {}) {
   const categories = normalizeCategories(imageRecord);
-  const imageDimensions = await enforceMatchingSafeResolution(imageRecord.image_url, options);
+  const imageDimensions = options.precomputedImageDimensions ||
+    await enforceMatchingSafeResolution(imageRecord.image_url, options);
   const optionsWithDimensions = {
     ...options,
     precomputedImageDimensions: imageDimensions
@@ -3074,6 +3318,37 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
       stage_0_result: stage0.result
     });
   }
+
+  return {
+    categories,
+    imageDimensions,
+    imageInput,
+    optionsWithDimensions,
+    stage0,
+    stage0Usage,
+    stage0Cost
+  };
+}
+
+export async function generateImageExtractionRecordFromStage0(imageRecord = {}, stage0Payload = {}, options = {}) {
+  const extractionTimestamp = new Date().toISOString();
+  const categories = stage0Payload.categories || normalizeCategories(imageRecord);
+  const productName = imageRecord.name || imageRecord.product_name || "";
+  const imageDimensions = stage0Payload.imageDimensions ||
+    options.precomputedImageDimensions ||
+    await enforceMatchingSafeResolution(imageRecord.image_url, options);
+  const optionsWithDimensions = {
+    ...options,
+    ...(stage0Payload.optionsWithDimensions || {}),
+    precomputedImageDimensions: imageDimensions
+  };
+  const imageInput = stage0Payload.imageInput || {
+    image_url: imageRecord.image_url,
+    catalogContext: `Catalog context: name="${imageRecord.name || imageRecord.product_name || ""}", brand="${imageRecord.brand || ""}", categories="${[...categories.a_level, ...categories.b_level, ...categories.c_level].join(" | ")}".`
+  };
+  const stage0 = stage0Payload.stage0 || { result: "" };
+  const stage0Usage = stage0Payload.stage0Usage || normalizeOpenAiUsage();
+  const stage0Cost = Number(stage0Payload.stage0Cost || estimateUsageCostUsd(stage0Usage) || 0);
 
   if (stage0.result === "scene" || stage0.result === "product_detail") {
     return buildExcludedImageExtractionResult({
@@ -3145,10 +3420,10 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
 
   const voted = voteStage123Runs(runs);
   const freeText = buildFreeText(run1.stage2, run1.stage3);
-  const enumFields = {
+  const enumFields = applyGuestChairBaseFinishRecordFallback(routingTypeKey, {
     design_register: String(voted.stage2?.design_register || "unknown"),
     ...(voted.stage3?.image_traits || {})
-  };
+  }, imageRecord, productName);
   const fieldConfidence = flattenFieldConfidence(voted);
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(stage0Usage, ...runs.map((run) => run.usage?.total));
@@ -3187,6 +3462,8 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
     free_text: freeText,
+    reasoning: String(voted.stage3?.reasoning || "").trim(),
+    plan_shape_reasoning: String(voted.stage3?.reasoning || "").trim(),
     tiebreaker_triggered: tiebreakerTriggered,
     confidence_tier: confidenceTier,
     tokens: {
@@ -3234,6 +3511,67 @@ export async function generateImageExtractionRecord(imageRecord = {}, options = 
   }
 
   return result;
+}
+
+export async function generateProductExtractionRecordsWithCap(productImages = [], options = {}) {
+  if (!Array.isArray(productImages) || !productImages.length) {
+    return {
+      records: [],
+      progress: {
+        seating_type: "",
+        stage0_passing_count: 0,
+        effective_cap_applied: 0,
+        images_skipped_by_cap: 0,
+        hard_upper_cap_binding: false
+      }
+    };
+  }
+
+  const classificationEntries = [];
+  for (const image of productImages) {
+    const stage0Payload = await classifyImageStage0(image, options);
+    classificationEntries.push({
+      image,
+      stage0Payload
+    });
+  }
+
+  const stage0PassingEntries = classificationEntries.filter((entry) => String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase() === "product");
+  const productType = getPixelSeekType(productImages[0]) || "";
+  const seatingType = resolveCatalogRoutingTypeKey(productType) || "";
+  const effectiveCap = getEffectiveExtractionImageCap(seatingType || productType);
+  const softCap = seatingType || productType;
+  const selectedImageIds = new Set(
+    stage0PassingEntries
+      .slice(0, effectiveCap)
+      .map((entry) => String(entry.image.image_id || entry.image.image_url || ""))
+  );
+
+  const records = [];
+  for (const entry of classificationEntries) {
+    const key = String(entry.image.image_id || entry.image.image_url || "");
+    const stage0Result = String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase();
+    if (stage0Result !== "product" || selectedImageIds.has(key)) {
+      records.push(await generateImageExtractionRecordFromStage0(entry.image, entry.stage0Payload, options));
+    }
+  }
+
+  return {
+    records,
+    progress: {
+      seating_type: seatingType,
+      stage0_passing_count: stage0PassingEntries.length,
+      effective_cap_applied: effectiveCap,
+      images_skipped_by_cap: Math.max(0, stage0PassingEntries.length - effectiveCap),
+      hard_upper_cap_binding: getEffectiveExtractionImageCap(softCap) === EXTRACTION_IMAGE_HARD_CAP &&
+        stage0PassingEntries.length > EXTRACTION_IMAGE_HARD_CAP
+    }
+  };
+}
+
+export async function generateImageExtractionRecord(imageRecord = {}, options = {}) {
+  const stage0Payload = await classifyImageStage0(imageRecord, options);
+  return generateImageExtractionRecordFromStage0(imageRecord, stage0Payload, options);
 }
 
 export async function regenerateImageExtractionRecordWithExistingStage0(imageRecord = {}, existingRecord = {}, options = {}) {
@@ -3330,10 +3668,10 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
 
   const voted = voteStage123Runs(runs);
   const freeText = buildFreeText(run1.stage2, run1.stage3);
-  const enumFields = {
+  const enumFields = applyGuestChairBaseFinishRecordFallback(routingTypeKey, {
     design_register: String(voted.stage2?.design_register || "unknown"),
     ...(voted.stage3?.image_traits || {})
-  };
+  }, imageRecord, productName);
   const fieldConfidence = flattenFieldConfidence(voted);
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(preservedStage0Usage, ...runs.map((run) => run.usage?.total));
@@ -3370,6 +3708,8 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
     free_text: freeText,
+    reasoning: String(voted.stage3?.reasoning || "").trim(),
+    plan_shape_reasoning: String(voted.stage3?.reasoning || "").trim(),
     tiebreaker_triggered: tiebreakerTriggered,
     confidence_tier: confidenceTier,
     tokens: {
@@ -3588,6 +3928,7 @@ function voteStage123Runs(runs = []) {
       visual_summary: primary.stage2?.visual_summary || ""
     },
     stage3: {
+      reasoning: primary.stage3?.reasoning || "",
       structured_caption: primary.stage3?.structured_caption || "",
       raw_visual_highlights: Array.isArray(primary.stage3?.raw_visual_highlights) ? primary.stage3.raw_visual_highlights : [],
       image_traits: imageTraitVote.values
@@ -3697,13 +4038,22 @@ export function aggregateCaptionResults(entries = []) {
   const specTraitVote = voteObjectFields(entries.map((entry) => entry.generated.spec_traits || {}));
   const mergedTraitVote = voteObjectFields(entries.map((entry) => entry.generated.merged_traits || {}));
   const visualTraitVote = voteObjectFields(entries.map((entry) => entry.generated.visual_traits || {}));
+  const reasoningVote = pickMajorityValue(
+    entries.map((entry) => normalizeWhitespace(
+      entry.generated?.plan_shape_reasoning ||
+      entry.generated?.reasoning ||
+      entry.generated?.free_text?.reasoning ||
+      ""
+    )),
+    entries.length
+  );
 
   const consensus = {
     seating_type: seatingTypeVote.value || "other_seating",
-    image_traits: imageTraitVote.values,
+    image_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, imageTraitVote.values),
     spec_traits: specTraitVote.values,
-    merged_traits: mergedTraitVote.values,
-    visual_traits: visualTraitVote.values
+    merged_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, mergedTraitVote.values),
+    visual_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, visualTraitVote.values)
   };
 
   const representativeEntry = [...entries]
@@ -3720,6 +4070,8 @@ export function aggregateCaptionResults(entries = []) {
     spec_traits: consensus.spec_traits,
     merged_traits: consensus.merged_traits,
     visual_traits: consensus.visual_traits,
+    reasoning: reasoningVote.value || representative.reasoning || "",
+    plan_shape_reasoning: reasoningVote.value || representative.plan_shape_reasoning || "",
     visual_highlights: visualHighlights.length ? visualHighlights : representative.visual_highlights || [],
     raw_visual_highlights: rawVisualHighlights.length ? rawVisualHighlights : representative.raw_visual_highlights || [],
     consensus_source_image_url: representativeEntry.image.image_url,
@@ -3815,17 +4167,35 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     apiKey: provider === "openai" ? options.apiKey : null
   };
 
-  let stage1;
+  let run1;
+  let run2;
   try {
-    const stage1Result = await classifySeatingTypeOpenAiWithMeta(imageInput, {
+    run1 = await runStage123Extraction(imageInput, {
       ...runOptions,
       visionModel: runOptions.visionModel || "gpt-4.1"
-    });
-    stage1 = stage1Result?.data || null;
+    }, { name: "Inspiration image" }, "run_1");
+    run2 = await runStage123Extraction(imageInput, {
+      ...runOptions,
+      visionModel: runOptions.visionModel || "gpt-4.1"
+    }, { name: "Inspiration image" }, "run_2");
   } catch (error) {
     throw new QueryImageAnalysisStageError("stage1", "Stage 1 query-time image analysis failed.", { cause: error });
   }
 
+  const runs = [run1, run2];
+  if (!allFieldsAgree(run1, run2)) {
+    try {
+      runs.push(await runStage123Extraction(imageInput, {
+        ...runOptions,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_3"));
+    } catch (error) {
+      throw new QueryImageAnalysisStageError("stage23", "Stage 2+3 query-time image analysis failed.", { cause: error });
+    }
+  }
+
+  const voted = voteStage123Runs(runs);
+  const stage1 = voted?.stage1 || null;
   if (!stage1 || isStage1OverrideResult(stage1)) {
     throw new QueryImageAnalysisStageError(
       "stage1",
@@ -3841,25 +4211,15 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     );
   }
 
-  let stage23;
-  try {
-    stage23 = await extractStage23CombinedOpenAi(imageInput, seatingType, stage1, {
-      ...runOptions,
-      visionModel: runOptions.visionModel || "gpt-4.1"
-    });
-  } catch (error) {
-    throw new QueryImageAnalysisStageError("stage23", "Stage 2+3 query-time image analysis failed.", { cause: error });
-  }
-
-  if (!stage23?.stage2 || !stage23?.stage3) {
+  if (!voted?.stage2 || !voted?.stage3) {
     throw new QueryImageAnalysisStageError(
       "stage23",
       "Stage 2+3 query-time image analysis returned incomplete output."
     );
   }
 
-  const visualSummary = normalizeWhitespace(stage23.stage2.visual_summary || "");
-  const imageTraits = normalizeImageTraits(seatingType, stage23.stage3.image_traits || {});
+  const visualSummary = normalizeWhitespace(voted.stage2.visual_summary || "");
+  const imageTraits = normalizeImageTraits(seatingType, voted.stage3.image_traits || {});
   const fieldConfidence = buildSinglePassFieldConfidence(seatingType, imageTraits);
   const searchText = buildSearchableText({
     productName: "",
@@ -3868,15 +4228,15 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     enumFields: imageTraits,
     freeText: {
       visual_summary: visualSummary,
-      structured_caption: stage23.stage3.structured_caption || "",
-      silhouette: stage23.stage2.silhouette || "",
-      proportions: stage23.stage2.proportions || "",
-      structure_type: stage23.stage2.structure_type || "",
-      back_geometry: stage23.stage2.back_geometry || "",
-      seat_geometry: stage23.stage2.seat_geometry || "",
-      arm_geometry: stage23.stage2.arm_geometry || "",
-      surface_language: stage23.stage2.surface_language || "",
-      distinctive_elements: Array.isArray(stage23.stage2.distinctive_elements) ? stage23.stage2.distinctive_elements : []
+      structured_caption: voted.stage3.structured_caption || "",
+      silhouette: voted.stage2.silhouette || "",
+      proportions: voted.stage2.proportions || "",
+      structure_type: voted.stage2.structure_type || "",
+      back_geometry: voted.stage2.back_geometry || "",
+      seat_geometry: voted.stage2.seat_geometry || "",
+      arm_geometry: voted.stage2.arm_geometry || "",
+      surface_language: voted.stage2.surface_language || "",
+      distinctive_elements: Array.isArray(voted.stage2.distinctive_elements) ? voted.stage2.distinctive_elements : []
     }
   });
   const queryEmbedding = await embedSearchText(searchText, runOptions);
@@ -3889,21 +4249,24 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
       design_register: String(imageTraits.design_register || "").trim()
     },
     stage3: {
+      reasoning: voted.stage3.reasoning || "",
       image_traits: imageTraits
     },
     enum_fields: imageTraits,
     field_confidence: fieldConfidence,
     image_traits: imageTraits,
+    reasoning: voted.stage3.reasoning || "",
+    plan_shape_reasoning: voted.stage3.reasoning || "",
     visual_form: visualSummary,
     search_text: searchText,
     search_bullets: buildSearchTimeBullets(imageTraits, seatingType),
     query_embedding: queryEmbedding,
     visual_summary_embedding: queryEmbedding,
-    raw_visual_highlights: Array.isArray(stage23.stage3.raw_visual_highlights) ? stage23.stage3.raw_visual_highlights : [],
-    structured_caption: stage23.stage3.structured_caption || "",
-    extraction_runs: 2,
-    analysis_api_call_count: 2,
-    api_call_count: 3
+    raw_visual_highlights: Array.isArray(voted.stage3.raw_visual_highlights) ? voted.stage3.raw_visual_highlights : [],
+    structured_caption: voted.stage3.structured_caption || "",
+    extraction_runs: runs.length,
+    analysis_api_call_count: runs.length * 2,
+    api_call_count: runs.length * 2 + 1
   };
 }
 
