@@ -642,6 +642,7 @@ function combinedStage23SchemaForType(typeKey) {
     additionalProperties: false,
     properties: {
       ...visualDescriptionSchema().properties,
+      reasoning: { type: "string" },
       structured_caption: { type: "string" },
       raw_visual_highlights: {
         type: "array",
@@ -651,6 +652,7 @@ function combinedStage23SchemaForType(typeKey) {
     },
     required: [
       ...visualDescriptionSchema().required,
+      "reasoning",
       "structured_caption",
       "raw_visual_highlights",
       "image_traits"
@@ -675,6 +677,7 @@ function extractionSchemaForType(typeKey) {
     type: "object",
     additionalProperties: false,
     properties: {
+      reasoning: { type: "string" },
       structured_caption: { type: "string" },
       raw_visual_highlights: {
         type: "array",
@@ -687,7 +690,7 @@ function extractionSchemaForType(typeKey) {
         required
       }
     },
-    required: ["structured_caption", "raw_visual_highlights", "image_traits"]
+    required: ["reasoning", "structured_caption", "raw_visual_highlights", "image_traits"]
   };
 }
 
@@ -1488,6 +1491,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
       { productId: imageInput.product_id || imageInput.productId || options.productId || options.product_id }
     );
     return {
+      reasoning: "",
       structured_caption: sentenceCase(`${seatingTypes[typeKey]?.label || "Seating"} from inspiration image.`).replace(/\.*$/, "."),
       raw_visual_highlights: cleanVisualHighlights(buildDeterministicBulletsFromMergedTraits(typeKey, heuristicTraits)),
       image_traits: normalizeImageTraits(typeKey, heuristicTraits)
@@ -1550,6 +1554,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
   }
 
   return {
+    reasoning: normalizeWhitespace(guardedParsed.reasoning || ""),
     structured_caption: sentenceCase(guardedParsed.structured_caption || "Structured seating result.").replace(/\.*$/, "."),
     raw_visual_highlights: uniqueStrings(Array.isArray(guardedParsed.raw_visual_highlights) ? guardedParsed.raw_visual_highlights : []).slice(0, 8),
     image_traits: finalTraits
@@ -1641,10 +1646,15 @@ async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, options
 
   const stage2 = normalizeStage2(parsed);
   const guardedParsed = applyStage3EnumGuardrails(typeKey, parsed);
+  const finalTraits = applyLoungeChairPlanShapeGuardrails(
+    typeKey,
+    normalizeImageTraits(typeKey, guardedParsed.image_traits || {})
+  );
   const stage3 = {
+    reasoning: normalizeWhitespace(guardedParsed.reasoning || ""),
     structured_caption: sentenceCase(guardedParsed.structured_caption || "Structured seating result.").replace(/\.*$/, "."),
     raw_visual_highlights: uniqueStrings(Array.isArray(guardedParsed.raw_visual_highlights) ? guardedParsed.raw_visual_highlights : []).slice(0, 8),
-    image_traits: normalizeImageTraits(typeKey, guardedParsed.image_traits || {})
+    image_traits: finalTraits
   };
 
   return { stage2, stage3, usage };
@@ -2612,6 +2622,7 @@ function buildSinglePassFieldConfidence(seatingType = "", enumFields = {}) {
 
 function buildFreeText(stage2 = {}, stage3 = {}) {
   return {
+    reasoning: String(stage3?.reasoning || "").trim(),
     visual_summary: String(stage2?.visual_summary || "").trim(),
     structured_caption: String(stage3?.structured_caption || "").trim(),
     silhouette: String(stage2?.silhouette || "").trim(),
@@ -3596,6 +3607,7 @@ function voteStage123Runs(runs = []) {
       visual_summary: primary.stage2?.visual_summary || ""
     },
     stage3: {
+      reasoning: primary.stage3?.reasoning || "",
       structured_caption: primary.stage3?.structured_caption || "",
       raw_visual_highlights: Array.isArray(primary.stage3?.raw_visual_highlights) ? primary.stage3.raw_visual_highlights : [],
       image_traits: imageTraitVote.values
@@ -3705,13 +3717,22 @@ export function aggregateCaptionResults(entries = []) {
   const specTraitVote = voteObjectFields(entries.map((entry) => entry.generated.spec_traits || {}));
   const mergedTraitVote = voteObjectFields(entries.map((entry) => entry.generated.merged_traits || {}));
   const visualTraitVote = voteObjectFields(entries.map((entry) => entry.generated.visual_traits || {}));
+  const reasoningVote = pickMajorityValue(
+    entries.map((entry) => normalizeWhitespace(
+      entry.generated?.plan_shape_reasoning ||
+      entry.generated?.reasoning ||
+      entry.generated?.free_text?.reasoning ||
+      ""
+    )),
+    entries.length
+  );
 
   const consensus = {
     seating_type: seatingTypeVote.value || "other_seating",
-    image_traits: imageTraitVote.values,
+    image_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, imageTraitVote.values),
     spec_traits: specTraitVote.values,
-    merged_traits: mergedTraitVote.values,
-    visual_traits: visualTraitVote.values
+    merged_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, mergedTraitVote.values),
+    visual_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, visualTraitVote.values)
   };
 
   const representativeEntry = [...entries]
@@ -3728,6 +3749,8 @@ export function aggregateCaptionResults(entries = []) {
     spec_traits: consensus.spec_traits,
     merged_traits: consensus.merged_traits,
     visual_traits: consensus.visual_traits,
+    reasoning: reasoningVote.value || representative.reasoning || "",
+    plan_shape_reasoning: reasoningVote.value || representative.plan_shape_reasoning || "",
     visual_highlights: visualHighlights.length ? visualHighlights : representative.visual_highlights || [],
     raw_visual_highlights: rawVisualHighlights.length ? rawVisualHighlights : representative.raw_visual_highlights || [],
     consensus_source_image_url: representativeEntry.image.image_url,
@@ -3911,11 +3934,14 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
       design_register: String(imageTraits.design_register || "").trim()
     },
     stage3: {
+      reasoning: stage23.stage3.reasoning || "",
       image_traits: imageTraits
     },
     enum_fields: imageTraits,
     field_confidence: fieldConfidence,
     image_traits: imageTraits,
+    reasoning: stage23.stage3.reasoning || "",
+    plan_shape_reasoning: stage23.stage3.reasoning || "",
     visual_form: visualSummary,
     search_text: searchText,
     search_bullets: buildSearchTimeBullets(imageTraits),

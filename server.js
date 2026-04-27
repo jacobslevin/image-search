@@ -5,7 +5,7 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { analyzeInspirationImage, extractTextQueryTraits, generateImageExtractionRecord, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
+import { analyzeInspirationImage, buildStage1ClassificationPrompt, combinedStage23Prompt, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
 import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import {
@@ -21,9 +21,11 @@ import {
   ensureDir,
   getAllCategoryTerms,
   getCategoryDisplayLabel,
+  getCategoryGroupingKey,
   getCategoryLevels,
   getEffectiveClassification,
   getImageIndexPath,
+  getUnmappedCategoryDecisionsPath,
   getLeafCategories,
   normalizeImageClassification,
   readJson,
@@ -40,6 +42,7 @@ const publicDir = path.join(__dirname, "public");
 const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
 const normalizedPath = path.join(__dirname, "data", "normalized-catalog.json");
 const indexPath = getImageIndexPath();
+const unmappedCategoryDecisionsPath = getUnmappedCategoryDecisionsPath();
 const sceneFilterProgressPath = path.join(__dirname, "data", "scene-filter-progress.json");
 const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
 const seatingTypesPath = path.join(__dirname, "data", "seating-types.json");
@@ -47,11 +50,111 @@ const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
 const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json");
 const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
 const traitCorrectionImagesDir = path.join(__dirname, "data", "trait-correction-images");
+const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
 const seatingTypesConfig = JSON.parse(fsSync.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
-const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
+const defaultSeatingType = seatingTypesConfig.default_type || "";
 const EXTRACTION_SUMMARY_UNSPECIFIED = "unspecified";
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
+const PROMPT_LIBRARY_STAGE23_TYPES = [
+  "lounge_chair",
+  "task_collab_chair",
+  "guest_chair",
+  "stool",
+  "bench"
+];
+const PROMPT_LIBRARY_SECTION_RANGES = {
+  stage1: [
+    { label: "Stage 1 prompt builder", start: 2656, end: 2684 }
+  ],
+  stage23Shared: [
+    { label: "Combined Stage 2/3 prompt builder", start: 1748, end: 1799 },
+    { label: "Field guide builder", start: 965, end: 979 },
+    { label: "Visual summary instruction builder", start: 350, end: 389 }
+  ],
+  visualSummaryConfig: {
+    lounge_chair: { label: "Visual summary config", start: 307, end: 314 },
+    task_collab_chair: { label: "Visual summary config", start: 315, end: 323 },
+    guest_chair: { label: "Visual summary config", start: 324, end: 331 },
+    stool: { label: "Visual summary config", start: 332, end: 339 },
+    bench: { label: "Visual summary config", start: 340, end: 347 }
+  },
+  typeRules: {
+    lounge_chair: [
+      { label: "Lounge chair canonical rules", start: 266, end: 272 },
+      { label: "Lounge chair configuration rules", start: 257, end: 264 },
+      { label: "Lounge chair shape rules", start: 241, end: 255 }
+    ],
+    task_collab_chair: [
+      { label: "Task & collaborative chair canonical rules", start: 279, end: 284 }
+    ],
+    guest_chair: [
+      { label: "Guest chair canonical rules", start: 286, end: 291 }
+    ],
+    stool: [
+      { label: "Stool canonical rules", start: 274, end: 277 }
+    ],
+    bench: [
+      { label: "Bench canonical rules", start: 293, end: 297 }
+    ]
+  }
+};
+
+function buildPromptLibrarySourceSections(typeKey = "") {
+  const sections = [];
+  if (!typeKey) {
+    return PROMPT_LIBRARY_SECTION_RANGES.stage1.map((section) => ({
+      ...section,
+      file: captioningSourcePath
+    }));
+  }
+  const typeSpecific = PROMPT_LIBRARY_SECTION_RANGES.typeRules[typeKey] || [];
+  const visualSummaryConfig = PROMPT_LIBRARY_SECTION_RANGES.visualSummaryConfig[typeKey]
+    ? [{ ...PROMPT_LIBRARY_SECTION_RANGES.visualSummaryConfig[typeKey] }]
+    : [];
+  return [
+    ...PROMPT_LIBRARY_SECTION_RANGES.stage23Shared,
+    ...visualSummaryConfig,
+    ...typeSpecific
+  ].map((section) => ({
+    ...section,
+    file: captioningSourcePath
+  }));
+}
+
+function buildPromptLibraryPayload() {
+  const prompts = [
+    {
+      id: "stage1",
+      label: "Stage 1 Seating Type Classification",
+      stage: "Stage 1",
+      typeKey: "",
+      typeLabel: "Shared across all seating types",
+      prompt: buildStage1ClassificationPrompt(),
+      runtime_notes: [
+        "[catalog context appended at runtime, not shown]"
+      ],
+      source_sections: buildPromptLibrarySourceSections("")
+    },
+    ...PROMPT_LIBRARY_STAGE23_TYPES.map((typeKey) => ({
+      id: `stage23-${typeKey}`,
+      label: `Stage 2/3 Combined Prompt`,
+      stage: "Stage 2/3",
+      typeKey,
+      typeLabel: seatingTypes[typeKey]?.label || typeKey,
+      prompt: combinedStage23Prompt(typeKey),
+      runtime_notes: [
+        "[catalog context appended at runtime, not shown]",
+        `[runtime routing note appended as user input: Resolved PixelSeek type is: ${typeKey}. Use this as the routing type even if catalog context suggests another label.]`
+      ],
+      source_sections: buildPromptLibrarySourceSections(typeKey)
+    }))
+  ];
+  return {
+    generated_at: new Date().toISOString(),
+    prompts
+  };
+}
 
 function buildTraitFieldConfigIndex(types = {}) {
   const index = new Map();
@@ -97,10 +200,79 @@ function normalizeExtractionSummaryCategory(value = "") {
   if (normalized === "perch_stool") {
     return "stool";
   }
+  if (normalized === "other_seating") {
+    return EXTRACTION_SUMMARY_UNSPECIFIED;
+  }
   return normalized;
 }
 
-function buildExtractionSummary(index = { images: [] }) {
+function buildUnmappedCombinationSummary(index = { images: [] }, decisions = {}) {
+  const images = Array.isArray(index?.images) ? index.images : [];
+  const byGrouping = new Map();
+
+  for (const image of images) {
+    const excludedReason = String(image?.excluded_reason || "").trim().toLowerCase();
+    if (excludedReason !== "unmapped_category_grouping" && excludedReason !== "intentionally_excluded") {
+      continue;
+    }
+
+    const grouping = getCategoryGroupingKey(image) || "(none)";
+    if (!byGrouping.has(grouping)) {
+      byGrouping.set(grouping, {
+        grouping,
+        product_ids: new Set(),
+        products: [],
+        first_seen_at: "",
+        current_excluded_reasons: new Set()
+      });
+    }
+
+    const entry = byGrouping.get(grouping);
+    const productId = String(image?.product_id || "").trim();
+    const productName = String(image?.product_name || image?.name || "").trim();
+    const timestamp = String(image?.ai_refreshed_at || image?.extraction_timestamp || "").trim();
+    if (productId && !entry.product_ids.has(productId)) {
+      entry.product_ids.add(productId);
+      entry.products.push({ product_id: productId, name: productName });
+      entry.products.sort((left, right) => String(left.name || left.product_id).localeCompare(String(right.name || right.product_id)));
+    }
+    if (timestamp && (!entry.first_seen_at || timestamp < entry.first_seen_at)) {
+      entry.first_seen_at = timestamp;
+    }
+    if (excludedReason) {
+      entry.current_excluded_reasons.add(excludedReason);
+    }
+  }
+
+  const normalized = [...byGrouping.values()].map((entry) => {
+    const decision = decisions?.[entry.grouping] && typeof decisions[entry.grouping] === "object"
+      ? decisions[entry.grouping]
+      : null;
+    const status = String(decision?.status || "").trim() || "active";
+    return {
+      grouping: entry.grouping,
+      count: entry.products.length,
+      first_seen_at: entry.first_seen_at || "",
+      products: entry.products,
+      status,
+      mapping_target: String(decision?.mapping_target || "").trim(),
+      updated_at: String(decision?.updated_at || "").trim(),
+      current_excluded_reasons: [...entry.current_excluded_reasons].sort()
+    };
+  }).sort((left, right) => {
+    if (right.count !== left.count) {
+      return right.count - left.count;
+    }
+    return String(left.grouping).localeCompare(String(right.grouping));
+  });
+
+  return {
+    active: normalized.filter((entry) => entry.status !== "mapped" && entry.status !== "intentionally_excluded"),
+    resolved: normalized.filter((entry) => entry.status === "mapped" || entry.status === "intentionally_excluded")
+  };
+}
+
+async function buildExtractionSummary(index = { images: [] }) {
   const images = Array.isArray(index?.images) ? index.images : [];
   const byCategory = new Map();
 
@@ -145,7 +317,6 @@ function buildExtractionSummary(index = { images: [] }) {
     "lounge_chair",
     "bench",
     "stool",
-    "other_seating",
     EXTRACTION_SUMMARY_UNSPECIFIED
   ];
   const orderIndex = new Map(order.map((value, index) => [value, index]));
@@ -158,12 +329,16 @@ function buildExtractionSummary(index = { images: [] }) {
     return String(left.category_key).localeCompare(String(right.category_key));
   });
 
+  const decisions = await readJson(unmappedCategoryDecisionsPath, {});
+  const unmappedCombinations = buildUnmappedCombinationSummary(index, decisions);
+
   return {
     generated_at: new Date().toISOString(),
     total_images: images.length,
     stage1_product_detail_missed_by_stage0: detailMisses,
     tiebreakers_triggered: tiebreakers,
-    categories
+    categories,
+    unmapped_combinations: unmappedCombinations
   };
 }
 
@@ -550,7 +725,10 @@ let reindexState = {
   total: 0,
   completed: 0,
   failed: 0,
+  failed_unmapped: 0,
+  failed_other: 0,
   failed_products: [],
+  unmapped_groupings: [],
   current_product: "",
   current_product_id: "",
   current_product_images_passed: 0,
@@ -567,6 +745,37 @@ let reindexState = {
   log: [],
   done: false
 };
+
+function upsertUnmappedGroupingEntry(grouping = "", product = {}) {
+  const normalizedGrouping = String(grouping || "").trim() || "(none)";
+  const productId = String(product.product_id || "").trim();
+  const productName = String(product.name || "").trim();
+  if (!normalizedGrouping || !productId) {
+    return;
+  }
+
+  const existing = reindexState.unmapped_groupings.find((entry) => entry.grouping === normalizedGrouping);
+  if (existing) {
+    if (!existing.products.some((entry) => entry.product_id === productId)) {
+      existing.products.push({ product_id: productId, name: productName });
+      existing.products.sort((left, right) => String(left.name || left.product_id).localeCompare(String(right.name || right.product_id)));
+    }
+    existing.count = existing.products.length;
+    return;
+  }
+
+  reindexState.unmapped_groupings.push({
+    grouping: normalizedGrouping,
+    count: 1,
+    products: [{ product_id: productId, name: productName }]
+  });
+  reindexState.unmapped_groupings.sort((left, right) => {
+    if (right.count !== left.count) {
+      return right.count - left.count;
+    }
+    return String(left.grouping).localeCompare(String(right.grouping));
+  });
+}
 
 function json(response, statusCode, payload) {
   response.writeHead(statusCode, {
@@ -1609,7 +1818,7 @@ async function loadCatalog() {
 }
 
 async function loadSeatingTypes() {
-  return readJson(seatingTypesPath, { types: {}, default_type: "other_seating" });
+  return readJson(seatingTypesPath, { types: {}, default_type: "" });
 }
 
 function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString(), extra = {}) {
@@ -1735,6 +1944,23 @@ function mergeRefreshedImages(index, catalog, refreshedImages = []) {
   return buildIndexOutput(index, catalog, mergedImages);
 }
 
+function replaceProductImages(index, catalog, productIds = [], refreshedImages = []) {
+  const normalizedProductIds = [...new Set(
+    (productIds || [])
+      .map((value) => String(value || "").trim())
+      .filter(Boolean)
+  )];
+
+  if (!normalizedProductIds.length) {
+    return refreshedImages.length ? mergeRefreshedImages(index, catalog, refreshedImages) : index;
+  }
+
+  const targetProductIds = new Set(normalizedProductIds);
+  const retainedImages = (index?.images || []).filter((image) => !targetProductIds.has(String(image?.product_id || "").trim()));
+  const nextImages = [...retainedImages, ...refreshedImages];
+  return buildIndexOutput(index, catalog, nextImages);
+}
+
 async function generateProductRefreshPayload(productId, matchingImages = []) {
   const refreshedAt = new Date().toISOString();
   const refreshedImages = [];
@@ -1744,37 +1970,47 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
   let tiebreakerUsed = false;
   let lastError = null;
 
-  for (const image of matchingImages) {
-    try {
-      const generated = await generateImageExtractionRecord(image, {
-        provider: "openai",
-        apiKey: process.env.OPENAI_API_KEY,
-        visionModel: process.env.VISION_MODEL,
-        embeddingModel: process.env.EMBEDDING_MODEL,
-        progressCallback: (event = {}) => {
-          if (event.type === "image_start") {
-            reindexState.current_image_url = String(event.image_url || "").trim();
-            return;
-          }
-          if (event.type === "run_start") {
-            const rawLabel = String(event.run_label || "").trim().toLowerCase();
-            reindexState.current_run = rawLabel === "run_3"
-              ? "Tiebreaker"
-              : rawLabel === "run_2"
-                ? "Run 2"
-                : "Run 1";
-            return;
-          }
+  try {
+    const generated = await generateProductExtractionRecordsWithCap(matchingImages, {
+      provider: "openai",
+      apiKey: process.env.OPENAI_API_KEY,
+      visionModel: process.env.VISION_MODEL,
+      embeddingModel: process.env.EMBEDDING_MODEL,
+      progressCallback: (event = {}) => {
+        if (event.type === "image_start") {
+          reindexState.current_image_url = String(event.image_url || "").trim();
+          return;
         }
-      });
+        if (event.type === "run_start") {
+          const rawLabel = String(event.run_label || "").trim().toLowerCase();
+          reindexState.current_run = rawLabel === "run_3"
+            ? "Tiebreaker"
+            : rawLabel === "run_2"
+              ? "Run 2"
+              : "Run 1";
+        }
+      }
+    });
 
-      const record = buildIndexedImageRecord(image, generated, refreshedAt);
+    passingImageCount = Number(generated.progress?.stage0_passing_count || 0) - Number(generated.progress?.images_skipped_by_cap || 0);
+    reindexState.current_product_images_passed = passingImageCount;
+    reindexState.current_product_images_skipped_by_cap = Number(generated.progress?.images_skipped_by_cap || 0);
+    reindexState.current_product_effective_cap = Number(generated.progress?.effective_cap_applied || 0);
+    reindexState.current_product_hard_cap_binding = Boolean(generated.progress?.hard_upper_cap_binding);
+
+    console.log(
+      `[cap] ${productId} | ${matchingImages[0]?.name || productId} | type=${generated.progress?.seating_type || "unknown"} | ` +
+      `stage0_passing=${generated.progress?.stage0_passing_count || 0} | cap=${generated.progress?.effective_cap_applied || 0} | ` +
+      `skipped=${generated.progress?.images_skipped_by_cap || 0}${generated.progress?.hard_upper_cap_binding ? " hard-cap" : ""}`
+    );
+
+    for (const recordLike of generated.records) {
+      const sourceImage = matchingImages.find((image) => image.image_id === recordLike.image_id || image.image_url === recordLike.image_url) || recordLike;
+      const record = buildIndexedImageRecord(sourceImage, recordLike, refreshedAt);
       refreshedImages.push(record);
       reindexState.processed_images = Number(reindexState.processed_images || 0) + 1;
       const normalizedStage0Result = incrementReindexStage0Counts(record.stage_0_result);
-      if (normalizedStage0Result === "product") {
-        passingImageCount += 1;
-      } else if (!normalizedStage0Result) {
+      if (!normalizedStage0Result) {
         console.warn(
           `[reindex-progress] Unrecognized stage_0_result for product ${productId}: ${JSON.stringify(record.stage_0_result || "")}`
         );
@@ -1784,19 +2020,29 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       }
       productCostUsd = Number((productCostUsd + Number(record.cost?.total_usd || 0)).toFixed(6));
       reindexState.total_cost_usd = Number((Number(reindexState.total_cost_usd || 0) + Number(record.cost?.total_usd || 0)).toFixed(6));
-      reindexState.current_product_images_passed = passingImageCount;
-    } catch (error) {
-      lastError = error;
-      failedImages.push({
-        image_url: String(image?.image_url || "").trim(),
-        error: error?.message || "Image extraction failed."
-      });
-      console.warn(`Skipping image during refresh for ${productId}: ${String(image?.image_url || "").trim()} — ${error?.message || "Image extraction failed."}`);
     }
+  } catch (error) {
+    lastError = error;
+    failedImages.push({
+      image_url: "",
+      error: error?.message || "Product extraction failed."
+    });
+    console.warn(`Skipping product during refresh for ${productId}: ${error?.message || "Product extraction failed."}`);
   }
 
   if (!refreshedImages.length) {
     throw new Error(lastError?.message || "All images failed extraction for this product.");
+  }
+
+  const unmappedImages = refreshedImages.filter((record) => record.excluded_reason === "unmapped_category_grouping");
+  if (unmappedImages.length === refreshedImages.length) {
+    const grouping = getCategoryGroupingKey(matchingImages[0] || {});
+    const error = new Error(`Unmapped DP category combination: ${grouping || "(none)"}`);
+    error.code = "UNMAPPED_CATEGORY_GROUPING";
+    error.grouping = grouping || "(none)";
+    error.product_id = productId;
+    error.product_name = String(matchingImages[0]?.name || productId).trim();
+    throw error;
   }
 
   return {
@@ -1809,7 +2055,10 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       product_cost_usd: productCostUsd,
       tiebreaker_used: tiebreakerUsed,
       passing_image_count: passingImageCount,
-      failed_image_count: failedImages.length
+      failed_image_count: failedImages.length,
+      effective_cap_applied: Number(reindexState.current_product_effective_cap || 0),
+      images_skipped_by_cap: Number(reindexState.current_product_images_skipped_by_cap || 0),
+      hard_upper_cap_binding: Boolean(reindexState.current_product_hard_cap_binding)
     },
     failed_images: failedImages
   };
@@ -1823,10 +2072,16 @@ function resetReindexState(productIds = []) {
     total: uniqueProductIds.length,
     completed: 0,
     failed: 0,
+    failed_unmapped: 0,
+    failed_other: 0,
     failed_products: [],
+    unmapped_groupings: [],
     current_product: "",
     current_product_id: "",
     current_product_images_passed: 0,
+    current_product_images_skipped_by_cap: 0,
+    current_product_effective_cap: 0,
+    current_product_hard_cap_binding: false,
     current_run: "",
     current_image_url: "",
     processed_images: 0,
@@ -1865,6 +2120,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
     reindexState.current_batch = batchIndex + 1;
     const batchProductIds = batches[batchIndex];
     const batchRefreshedImages = [];
+    const successfulProductIds = [];
 
     for (let productIndex = 0; productIndex < batchProductIds.length; productIndex += 1) {
       const productId = batchProductIds[productIndex];
@@ -1873,6 +2129,9 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
       reindexState.current_product = productName;
       reindexState.current_product_id = productId;
       reindexState.current_product_images_passed = 0;
+      reindexState.current_product_images_skipped_by_cap = 0;
+      reindexState.current_product_effective_cap = 0;
+      reindexState.current_product_hard_cap_binding = false;
       reindexState.current_run = "";
       reindexState.current_image_url = "";
 
@@ -1883,6 +2142,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
 
         const productPayload = await generateProductRefreshPayload(productId, matchingImages);
         batchRefreshedImages.push(...productPayload.images);
+        successfulProductIds.push(productId);
         reindexState.current_product_images_passed = Number(productPayload.progress?.passing_image_count || 0);
         if (productPayload.progress?.tiebreaker_used) {
           reindexState.tiebreaker_products += 1;
@@ -1890,11 +2150,24 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         reindexState.log.unshift({
           name: productName,
           status: "success",
-          type: productPayload.images[0]?.seating_type || ""
+          type: productPayload.images[0]?.seating_type || "",
+          stage0_passing_count: Number(productPayload.progress?.passing_image_count || 0) + Number(productPayload.progress?.images_skipped_by_cap || 0),
+          effective_cap_applied: Number(productPayload.progress?.effective_cap_applied || 0),
+          images_skipped_by_cap: Number(productPayload.progress?.images_skipped_by_cap || 0),
+          hard_upper_cap_binding: Boolean(productPayload.progress?.hard_upper_cap_binding)
         });
         reindexState.completed += 1;
       } catch (error) {
         reindexState.failed += 1;
+        if (error?.code === "UNMAPPED_CATEGORY_GROUPING") {
+          reindexState.failed_unmapped += 1;
+          upsertUnmappedGroupingEntry(error.grouping, {
+            product_id: productId,
+            name: productName
+          });
+        } else {
+          reindexState.failed_other += 1;
+        }
         reindexState.failed_products.push({
           name: productName,
           product_id: productId,
@@ -1902,7 +2175,8 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         });
         reindexState.log.unshift({
           name: productName,
-          status: "failed"
+          status: "failed",
+          error: error.message || "Product refresh failed."
         });
         reindexState.completed += 1;
       }
@@ -1917,6 +2191,9 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         ? batchProductIds[productIndex + 1]
         : batches[batchIndex + 1]?.[0] || "";
       reindexState.current_product_images_passed = 0;
+      reindexState.current_product_images_skipped_by_cap = 0;
+      reindexState.current_product_effective_cap = 0;
+      reindexState.current_product_hard_cap_binding = false;
       reindexState.current_run = "";
       reindexState.current_image_url = "";
 
@@ -1926,7 +2203,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
     }
 
     if (batchRefreshedImages.length) {
-      workingIndex = mergeRefreshedImages(workingIndex, catalog, batchRefreshedImages);
+      workingIndex = replaceProductImages(workingIndex, catalog, successfulProductIds, batchRefreshedImages);
       await writeJson(indexPath, workingIndex);
     }
 
@@ -1939,6 +2216,9 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
   reindexState.current_product = "";
   reindexState.current_product_id = "";
   reindexState.current_product_images_passed = 0;
+  reindexState.current_product_images_skipped_by_cap = 0;
+  reindexState.current_product_effective_cap = 0;
+  reindexState.current_product_hard_cap_binding = false;
   reindexState.current_run = "";
   reindexState.current_image_url = "";
   reindexState.done = true;
@@ -1957,7 +2237,7 @@ async function refreshProductIndex(productId) {
 
   const productPayload = await generateProductRefreshPayload(productId, matchingImages);
   const workingIndex = index?.images?.length ? index : createEmptyIndex(catalog);
-  const output = mergeRefreshedImages(workingIndex, catalog, productPayload.images);
+  const output = replaceProductImages(workingIndex, catalog, [productId], productPayload.images);
   await writeJson(indexPath, output);
   return (output.images || []).filter((image) => image.product_id === productId);
 }
@@ -1990,7 +2270,8 @@ async function refreshProductsIndex(productIds = []) {
   }
 
   if (refreshedImages.length) {
-    const output = mergeRefreshedImages(index, catalog, refreshedImages);
+    const refreshedProductIds = refreshedProducts.map((product) => product.product_id);
+    const output = replaceProductImages(index, catalog, refreshedProductIds, refreshedImages);
     await writeJson(indexPath, output);
   }
 
@@ -2197,6 +2478,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
         debug: {
           structured_caption: heroImage?.structured_caption || heroImage?.free_text?.structured_caption || "",
           visual_description: heroImage?.visual_summary || heroImage?.free_text?.visual_summary || "",
+          plan_shape_reasoning: heroImage?.plan_shape_reasoning || heroImage?.reasoning || heroImage?.free_text?.reasoning || "",
           visual_highlights: heroImage?.free_text?.distinctive_elements || [],
           detected_traits: heroImage
             ? formatDetectedTraits(heroImage.enum_fields || heroImage.image_traits, heroImage.seating_type, 6)
@@ -2313,9 +2595,61 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/api/extraction-summary" && request.method === "GET") {
     try {
       const index = await readJson(indexPath, { images: [] });
-      return json(response, 200, buildExtractionSummary(index));
+      return json(response, 200, await buildExtractionSummary(index));
     } catch (error) {
       return json(response, 500, { error: error.message || "Extraction summary unavailable." });
+    }
+  }
+
+  if (url.pathname === "/api/prompt-library" && request.method === "GET") {
+    try {
+      return json(response, 200, buildPromptLibraryPayload());
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Prompt library unavailable." });
+    }
+  }
+
+  if (url.pathname === "/api/unmapped-category-decision" && request.method === "POST") {
+    try {
+      const body = await readRequestJson(request);
+      const grouping = String(body.grouping || "").trim();
+      const status = String(body.status || "").trim().toLowerCase();
+      const mappingTarget = normalizeRequestedSeatingType(body.mapping_target || "");
+      if (!grouping) {
+        return json(response, 400, { error: "grouping is required." });
+      }
+      if (!["mapped", "intentionally_excluded", "active"].includes(status)) {
+        return json(response, 400, { error: "status must be mapped, intentionally_excluded, or active." });
+      }
+      if (status === "mapped" && !mappingTarget) {
+        return json(response, 400, { error: "mapping_target is required for mapped decisions." });
+      }
+
+      const decisions = await readJson(unmappedCategoryDecisionsPath, {});
+      const nextDecisions = decisions && typeof decisions === "object" ? { ...decisions } : {};
+      if (status === "active") {
+        delete nextDecisions[grouping];
+      } else {
+        const previous = nextDecisions[grouping] && typeof nextDecisions[grouping] === "object"
+          ? nextDecisions[grouping]
+          : {};
+        nextDecisions[grouping] = {
+          status,
+          mapping_target: status === "mapped" ? mappingTarget : "",
+          created_at: String(previous.created_at || new Date().toISOString()).trim(),
+          updated_at: new Date().toISOString()
+        };
+      }
+
+      await writeJson(unmappedCategoryDecisionsPath, nextDecisions);
+      const index = await readJson(indexPath, { images: [] });
+      return json(response, 200, {
+        ok: true,
+        decision: nextDecisions[grouping] || null,
+        extraction_summary: await buildExtractionSummary(index)
+      });
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Failed to update unmapped category decision." });
     }
   }
 
@@ -2765,6 +3099,9 @@ const server = http.createServer(async (request, response) => {
           }
         : null;
       const imageSource = imageDataUrl.startsWith("data:image/") ? imageDataUrl : imageUrl;
+      const stage1Only = Boolean(body?.stage1_only);
+      const rawSeatingTypeOverride = String(body?.seating_type_override || "").trim();
+      const seatingTypeOverride = seatingTypes[rawSeatingTypeOverride] ? rawSeatingTypeOverride : "";
       imageIdentifier = getQueryImageAnalysisIdentifier({
         imageSource,
         imageUrl,
@@ -2785,8 +3122,29 @@ const server = http.createServer(async (request, response) => {
         visionModel: process.env.VISION_MODEL,
         fileName,
         matchMode,
-        focusArea
+        focusArea,
+        stage1Only,
+        seatingTypeOverride
       });
+
+      if (stage1Only) {
+        const stage1Result = String(analysis?.stage1?.result || "").trim().toLowerCase();
+        const seatingTypeConfidence = String(analysis?.field_confidence?.stage1?.seating_type || "").trim().toLowerCase();
+        const resolvedSeatingType = String(analysis?.seating_type || analysis?.stage1?.seating_type || "").trim();
+        return json(response, 200, {
+          category_required: Boolean(
+            stage1Result !== "product" ||
+            seatingTypeConfidence !== "high" ||
+            !seatingTypes[resolvedSeatingType]
+          ),
+          seating_category_options: Object.keys(seatingTypes),
+          analysis: {
+            ...analysis,
+            image_preview_url: imageSource
+          }
+        });
+      }
+
       const traitConflicts = detectTraitTextConflicts(analysis);
 
       return json(response, 200, {
@@ -2916,6 +3274,7 @@ const server = http.createServer(async (request, response) => {
         } catch (error) {
           console.error("Batch runner failed:", error);
           reindexState.failed += Math.max(reindexState.total - reindexState.completed, 0);
+          reindexState.failed_other += Math.max(reindexState.total - reindexState.completed, 0);
           reindexState.completed = reindexState.total;
           reindexState.running = false;
           reindexState.current_product = "";

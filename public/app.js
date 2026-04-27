@@ -21,9 +21,15 @@ const state = {
   lastQuery: "",
   selectedUploadFile: null,
   lastAnalyzeInput: null,
+  imageAnalysisCategorySelection: null,
   cropPreviewUrl: "",
   focusArea: null,
   copyStructuredTraitsTimer: null,
+  structuredTraitsInspectorTab: "matrix",
+  structuredTraitsInspectorSeverity: "all",
+  promptLibrary: null,
+  promptLibraryActiveId: "stage1",
+  copyPromptLibraryTimer: null,
   copyDebugTableTimer: null,
   extractionSummary: null,
   searchInputEditedSinceLastSearch: false,
@@ -88,12 +94,10 @@ const SEATING_CATEGORY_DISPLAY_NAMES = {
   guest_chair: "Multi-Use / Guest Chairs",
   lounge_chair: "Lounge Seating",
   bench: "Benches",
-  stool: "Stools",
-  other_seating: "Other Seating"
+  stool: "Stools"
 };
 
 const CATEGORY_REQUIREMENT_OPTION_KEYS = Object.keys(SEATING_CATEGORY_DISPLAY_NAMES)
-  .filter((key) => key !== "other_seating")
   .sort((left, right) => {
     const leftLabel = SEATING_CATEGORY_DISPLAY_NAMES[left] || left;
     const rightLabel = SEATING_CATEGORY_DISPLAY_NAMES[right] || right;
@@ -130,6 +134,56 @@ const IMAGE_ANALYZE_PROGRESS_STEPS = [
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const QUERY_IMAGE_UPLOAD_MAX_DIMENSION = 1600;
 const QUERY_IMAGE_UPLOAD_JPEG_QUALITY = 0.82;
+const STRUCTURED_TRAITS_TAB_DEFS = [
+  { id: "matrix", label: "Trait & Value Matrix" },
+  { id: "scoring", label: "Per-Category Scoring" },
+  { id: "groupings", label: "Value Groupings" }
+];
+const STRUCTURED_TRAITS_SEVERITY_ORDER = ["phrasing", "absent", "clean"];
+const STRUCTURED_TRAITS_SEVERITY_META = {
+  critical: { label: "Critical", className: "structured-traits-badge-critical" },
+  missing: { label: "Missing values", className: "structured-traits-badge-missing" },
+  extra: { label: "Extra values", className: "structured-traits-badge-extra" },
+  phrasing: { label: "Phrasing drift", className: "structured-traits-badge-phrasing" },
+  absent: { label: "Absent", className: "structured-traits-badge-absent" },
+  clean: { label: "Match", className: "structured-traits-badge-clean" }
+};
+const STRUCTURED_TRAITS_PHRASING_QUALIFIERS = new Set([
+  "natural",
+  "polished",
+  "aluminum",
+  "painted",
+  "color",
+  "powder",
+  "coat",
+  "net"
+]);
+const STRUCTURED_TRAITS_IGNORED_COMPARE_VALUES = new Set(["unknown"]);
+const STRUCTURED_TRAITS_MATRIX_TYPE_ORDER = [
+  "lounge_chair",
+  "guest_chair",
+  "stool",
+  "task_collab_chair",
+  "bench"
+];
+const STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER = [
+  "arm_option",
+  "back_height",
+  "back_finish",
+  "back_profile",
+  "base_type",
+  "base_finish",
+  "configuration",
+  "seat_finish",
+  "design_register",
+  "body_construction",
+  "plan_shape",
+  "shape_character",
+  "seat_geometry",
+  "frame_openness",
+  "mobility",
+  "frame_material"
+];
 
 const focusDrag = {
   active: false,
@@ -143,15 +197,15 @@ const focusDrag = {
 const elements = {
   cardTemplate: document.querySelector("#cardTemplate"),
   closeImageModal: document.querySelector("#closeImageModal"),
-  closeRulesModal: document.querySelector("#closeRulesModal"),
   closeStructuredTraitsModal: document.querySelector("#closeStructuredTraitsModal"),
+  closePromptLibraryModal: document.querySelector("#closePromptLibraryModal"),
   contextPills: document.querySelector("#contextPills"),
   closeRefineSidebar: document.querySelector("#closeRefineSidebar"),
   debugToggle: document.querySelector("#debugToggle"),
   debugToggleLabel: document.querySelector("#debugToggleLabel"),
   imageModal: document.querySelector("#imageModal"),
-  rulesModal: document.querySelector("#rulesModal"),
   structuredTraitsModal: document.querySelector("#structuredTraitsModal"),
+  promptLibraryModal: document.querySelector("#promptLibraryModal"),
   imageModalResultsStage: document.querySelector("#imageModalResultsStage"),
   imageModalUploadStage: document.querySelector("#imageModalUploadStage"),
   imageUploadButton: document.querySelector("#imageUploadButton"),
@@ -167,16 +221,23 @@ const elements = {
   focusAnalyzeLoading: document.querySelector("#focusAnalyzeLoading"),
   modalTitle: document.querySelector("#modalTitle"),
   imageModalCloseTargets: document.querySelectorAll('[data-role="imageModalClose"]'),
-  rulesModalCloseTargets: document.querySelectorAll('[data-role="rulesModalClose"]'),
   structuredTraitsModalCloseTargets: document.querySelectorAll('[data-role="structuredTraitsModalClose"]'),
+  promptLibraryModalCloseTargets: document.querySelectorAll('[data-role="promptLibraryModalClose"]'),
   openImageSearch: document.querySelector("#openImageSearch"),
-  openRulesSummary: document.querySelector("#openRulesSummary"),
+  openPromptLibrary: document.querySelector("#openPromptLibrary"),
   openExtractionSummary: document.querySelector("#openExtractionSummary"),
   copyStructuredTraits: document.querySelector("#copyStructuredTraits"),
   copyStructuredTraitsModalButton: document.querySelector("#copyStructuredTraitsModalButton"),
   copyStructuredTraitsStatus: document.querySelector("#copyStructuredTraitsStatus"),
-  rulesSummaryDetails: document.querySelector("#rulesSummaryDetails"),
+  copyPromptLibraryModalButton: document.querySelector("#copyPromptLibraryModalButton"),
+  copyPromptLibraryStatus: document.querySelector("#copyPromptLibraryStatus"),
   structuredTraitsText: document.querySelector("#structuredTraitsText"),
+  promptLibraryContent: document.querySelector("#promptLibraryContent"),
+  descriptionAuditModal: document.querySelector("#descriptionAuditModal"),
+  descriptionAuditModalTitle: document.querySelector("#descriptionAuditModalTitle"),
+  descriptionAuditModalBody: document.querySelector("#descriptionAuditModalBody"),
+  closeDescriptionAuditModal: document.querySelector("#closeDescriptionAuditModal"),
+  descriptionAuditModalCloseTargets: document.querySelectorAll('[data-role="descriptionAuditModalClose"]'),
   debugLightbox: document.querySelector("#debugLightbox"),
   closeDebugLightbox: document.querySelector("#closeDebugLightbox"),
   debugLightboxCloseTargets: document.querySelectorAll('[data-role="debugLightboxClose"]'),
@@ -950,16 +1011,14 @@ function getCategoryPhraseForQuery(value = "", options = {}) {
         guest_chair: "guest chair",
         lounge_chair: "lounge chair",
         bench: "bench",
-        stool: "stool",
-        other_seating: "other seating"
+        stool: "stool"
       }
     : {
         task_collab_chair: "work chairs",
         guest_chair: "guest chairs",
         lounge_chair: "lounge seating",
         bench: "benches",
-        stool: "stools",
-        other_seating: "other seating"
+        stool: "stools"
       };
   return phrases[normalized] || "";
 }
@@ -1250,7 +1309,7 @@ function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
 
   const seatingTypes = state.bootstrap?.seating_types;
   const types = seatingTypes?.types;
-  const fallbackType = seatingTypes?.default_type || "other_seating";
+  const fallbackType = seatingTypes?.default_type || "";
   const resolvedTypeKey = types?.[typeKey] ? typeKey : fallbackType;
   const typeFields = types?.[resolvedTypeKey]?.fields || [];
 
@@ -1371,6 +1430,20 @@ function updateCategoryRequirement(requirement = null) {
   renderClarificationBar();
 }
 
+function buildImageAnalysisSelectionKey(body = {}) {
+  return String(body?.image_data_url || body?.image_url || "").trim();
+}
+
+function getCachedImageAnalysisCategory(body = {}) {
+  const cacheKey = buildImageAnalysisSelectionKey(body);
+  if (!cacheKey) {
+    return "";
+  }
+  return state.imageAnalysisCategorySelection?.key === cacheKey
+    ? String(state.imageAnalysisCategorySelection?.seatingType || "").trim()
+    : "";
+}
+
 function extractImageFilename(imageUrl = "") {
   const raw = String(imageUrl || "").trim();
   if (!raw) {
@@ -1383,6 +1456,54 @@ function extractImageFilename(imageUrl = "") {
   } catch {
     return raw.split("/").pop() || raw;
   }
+}
+
+function collectDescriptionAuditEntries(result = {}) {
+  const heroImageUrl = normalizeDisplayImageUrl(result?.hero_image?.image_url || result?.best_image_url || "");
+  const matchingImages = normalizeMatchingImages(result);
+  const fallbackImages = matchingImages.length
+    ? matchingImages
+    : (result?.hero_image ? [result.hero_image] : []);
+  const seen = new Set();
+
+  return fallbackImages
+    .map((image, index) => {
+      const imageUrl = normalizeDisplayImageUrl(image?.image_url || "");
+      const imageKey = String(image?.image_id || imageUrl || index);
+      if (seen.has(imageKey)) {
+        return null;
+      }
+      seen.add(imageKey);
+      const freeText = image?.free_text || {};
+      const isHero = Boolean(heroImageUrl && imageUrl && imageUrl === heroImageUrl);
+      const structuredCaption = String(
+        image?.structured_caption ||
+        freeText?.structured_caption ||
+        (isHero ? result?.debug?.structured_caption : "") ||
+        ""
+      ).trim();
+      const visualSummary = String(
+        image?.visual_summary ||
+        freeText?.visual_summary ||
+        image?.stage2?.visual_summary ||
+        (isHero ? result?.debug?.visual_description : "") ||
+        ""
+      ).trim();
+
+      if (!structuredCaption && !visualSummary && !imageUrl) {
+        return null;
+      }
+
+      return {
+        imageUrl,
+        filename: extractImageFilename(imageUrl) || `Image ${index + 1}`,
+        isHero,
+        structuredCaption,
+        visualSummary
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => Number(right.isHero) - Number(left.isHero));
 }
 
 function scoreBreakdownValue(breakdown = [], label = "") {
@@ -1411,6 +1532,10 @@ function essentialMissPenaltyValue(bulletValue = "") {
     return -0.55;
   }
   return -0.2;
+}
+
+function normalMissPenaltyValue(grouped = false) {
+  return grouped ? -0.03 : -0.06;
 }
 
 function debugTraitValuesShareGroup(typeKey = "", field = "", value1 = "", value2 = "") {
@@ -1449,11 +1574,15 @@ function computeDebugTraitContribution(queryEntry, storedValue, typeKey = null) 
     };
   }
 
-  if (queryEntry.priority === "essential") {
+  if (queryEntry.priority === "essential" || queryEntry.priority === "normal") {
     const groupedMiss = debugTraitValuesShareGroup(typeKey, queryEntry.field, storedValue, queryEntry.value);
     return {
       state: groupedMiss ? "near-miss" : "miss",
-      contribution: Number(((essentialMissPenaltyValue(queryEntry.value) * (groupedMiss ? 0.5 : 1)) * weightScale).toFixed(3))
+      contribution: Number(((
+        queryEntry.priority === "essential"
+          ? essentialMissPenaltyValue(queryEntry.value) * (groupedMiss ? 0.5 : 1)
+          : normalMissPenaltyValue(groupedMiss)
+      ) * weightScale).toFixed(3))
     };
   }
 
@@ -1474,6 +1603,92 @@ function formatContribution(value = 0) {
 function closeDebugLightbox() {
   if (elements.debugLightbox) {
     elements.debugLightbox.hidden = true;
+  }
+}
+
+function hasOpenModalShell() {
+  return [
+    elements.imageModal,
+    elements.structuredTraitsModal,
+    elements.promptLibraryModal,
+    elements.extractionSummaryModal,
+    elements.descriptionAuditModal
+  ].some((modal) => modal && !modal.hidden);
+}
+
+function openDescriptionAuditModal(result = {}) {
+  if (!IS_PRIVATE_BROWSE_ROUTE || !elements.descriptionAuditModal || !elements.descriptionAuditModalBody) {
+    return;
+  }
+
+  const entries = collectDescriptionAuditEntries(result);
+  elements.descriptionAuditModalTitle.textContent = result?.name || "Product descriptions";
+  elements.descriptionAuditModalBody.innerHTML = "";
+
+  if (!entries.length) {
+    const emptyState = document.createElement("p");
+    emptyState.className = "description-audit-empty";
+    emptyState.textContent = "No AI-generated descriptions are stored for the matching images on this card.";
+    elements.descriptionAuditModalBody.appendChild(emptyState);
+  } else {
+    entries.forEach((entry) => {
+      const card = document.createElement("article");
+      card.className = "rules-card description-audit-entry";
+
+      const header = document.createElement("div");
+      header.className = "description-audit-entry-header";
+
+      const filename = document.createElement("p");
+      filename.className = "description-audit-filename";
+      filename.textContent = entry.filename;
+      header.appendChild(filename);
+
+      if (entry.isHero) {
+        const heroBadge = document.createElement("span");
+        heroBadge.className = "description-audit-badge";
+        heroBadge.textContent = "Hero image";
+        header.appendChild(heroBadge);
+      }
+
+      card.appendChild(header);
+
+      const structuredField = document.createElement("div");
+      structuredField.className = "description-audit-field";
+      const structuredLabel = document.createElement("p");
+      structuredLabel.className = "description-audit-label";
+      structuredLabel.textContent = "Structured caption";
+      const structuredValue = document.createElement("p");
+      structuredValue.className = entry.structuredCaption ? "description-audit-description" : "description-audit-empty";
+      structuredValue.textContent = entry.structuredCaption || "Not available.";
+      structuredField.append(structuredLabel, structuredValue);
+      card.appendChild(structuredField);
+
+      const summaryField = document.createElement("div");
+      summaryField.className = "description-audit-field";
+      const summaryLabel = document.createElement("p");
+      summaryLabel.className = "description-audit-label";
+      summaryLabel.textContent = "Visual summary";
+      const summaryValue = document.createElement("p");
+      summaryValue.className = entry.visualSummary ? "description-audit-description" : "description-audit-empty";
+      summaryValue.textContent = entry.visualSummary || "Not available.";
+      summaryField.append(summaryLabel, summaryValue);
+      card.appendChild(summaryField);
+
+      elements.descriptionAuditModalBody.appendChild(card);
+    });
+  }
+
+  elements.descriptionAuditModal.hidden = false;
+  document.body.classList.add("modal-open");
+}
+
+function closeDescriptionAuditModal() {
+  if (!elements.descriptionAuditModal) {
+    return;
+  }
+  elements.descriptionAuditModal.hidden = true;
+  if (!hasOpenModalShell()) {
+    document.body.classList.remove("modal-open");
   }
 }
 
@@ -1512,8 +1727,8 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
 }
 
 function getDebugScoreFields(selectedBullets = state.currentSelectedBullets) {
-  const normalized = normalizeSelectedBullets(selectedBullets);
   const activeTypeKey = String(state.currentSeatingType || "").trim();
+  const normalized = normalizeSelectedBullets(selectedBullets, activeTypeKey);
   const orderedSchemaFields = getOrderedSchemaFieldsForType(activeTypeKey);
   const selectedFieldSet = new Set();
 
@@ -1600,9 +1815,9 @@ async function fetchDebugPayload() {
 async function renderDebugLightbox() {
   const payload = await fetchDebugPayload();
   const rows = buildDebugScoreRows(payload);
-  const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets);
-  const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
   const debugTypeKey = String(state.currentSeatingType || rows[0]?.seatingType || "").trim();
+  const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets, debugTypeKey);
+  const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
   const debugTraitGroups = getDebugTraitGroupsForType(debugTypeKey, debugScoreFields);
   const queryText = state.lastQuery || "Current search";
   const columnTotals = new Map(debugScoreFields.map((field) => [field, 0]));
@@ -1781,7 +1996,8 @@ async function renderDebugLightbox() {
 
 function buildDebugTableTsv() {
   const rows = buildDebugScoreRows(state.debugPayload || state.lastPayload);
-  const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets);
+  const debugTypeKey = String(state.currentSeatingType || rows[0]?.seatingType || "").trim();
+  const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets, debugTypeKey);
   const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
   const headers = [
     "Rank",
@@ -1847,7 +2063,7 @@ function normalizePriorityBulletList(values = []) {
   return normalized;
 }
 
-function normalizeSelectedBullets(selectedBullets = []) {
+function normalizeSelectedBullets(selectedBullets = [], typeKey = state.currentSeatingType) {
   if (Array.isArray(selectedBullets)) {
     const normalized = { essential: [], normal: [], low: [] };
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
@@ -1855,7 +2071,7 @@ function normalizeSelectedBullets(selectedBullets = []) {
         normal: [bullet]
       }).normal[0];
       if (filtered) {
-        normalized[defaultPriorityForBulletText(filtered)].push(filtered);
+        normalized[defaultPriorityForBulletText(filtered, typeKey)].push(filtered);
       }
     });
     return normalized;
@@ -2284,6 +2500,22 @@ async function fetchExtractionSummary() {
   return fetchJson("/api/extraction-summary");
 }
 
+async function fetchPromptLibrary() {
+  return fetchJson("/api/prompt-library");
+}
+
+async function updateUnmappedCategoryDecision(grouping = "", status = "active", mappingTarget = "") {
+  return fetchJson("/api/unmapped-category-decision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      grouping,
+      status,
+      mapping_target: mappingTarget
+    })
+  });
+}
+
 function formatSummaryMetric(count = 0, total = 0) {
   const normalizedTotal = Number(total) || 0;
   const normalizedCount = Number(count) || 0;
@@ -2303,6 +2535,11 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   const totalImages = Number(summary.total_images) || 0;
   const categories = Array.isArray(summary.categories) ? summary.categories : [];
   const generatedAt = String(summary.generated_at || "").trim();
+  const unmapped = summary.unmapped_combinations && typeof summary.unmapped_combinations === "object"
+    ? summary.unmapped_combinations
+    : { active: [], resolved: [] };
+  const activeUnmapped = Array.isArray(unmapped.active) ? unmapped.active : [];
+  const resolvedUnmapped = Array.isArray(unmapped.resolved) ? unmapped.resolved : [];
 
   const cards = [
     {
@@ -2385,8 +2622,128 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   note.className = "rules-summary-intro";
   note.textContent = "Product-detail overrides fall into Unspecified because stage 1 intentionally returns no seating category when it rejects an image as detail-only.";
 
+  const unmappedCard = document.createElement("article");
+  unmappedCard.className = "rules-card extraction-summary-table-card";
+
+  const unmappedTitle = document.createElement("h3");
+  unmappedTitle.className = "rules-card-title";
+  unmappedTitle.textContent = "Unmapped DP category combinations";
+
+  const unmappedIntro = document.createElement("p");
+  unmappedIntro.className = "rules-summary-intro";
+  unmappedIntro.textContent = activeUnmapped.length
+    ? `${activeUnmapped.length} active combinations need a routing decision.`
+    : "No active unmapped combinations.";
+
+  unmappedCard.append(unmappedTitle, unmappedIntro);
+
+  const mappingOptions = Object.entries(SEATING_CATEGORY_DISPLAY_NAMES)
+    .sort((left, right) => left[1].localeCompare(right[1]));
+
+  const renderUnmappedSection = (titleText, entries = [], resolved = false) => {
+    const section = document.createElement("section");
+    section.className = "extraction-summary-unmapped-section";
+
+    const title = document.createElement("h4");
+    title.className = "rules-card-title";
+    title.textContent = titleText;
+    section.appendChild(title);
+
+    if (!entries.length) {
+      const empty = document.createElement("p");
+      empty.className = "rules-summary-intro";
+      empty.textContent = resolved
+        ? "No resolved combinations yet."
+        : "No active combinations.";
+      section.appendChild(empty);
+      return section;
+    }
+
+    entries.forEach((entry) => {
+      const block = document.createElement("div");
+      block.className = "batch-refresh-unmapped-block";
+
+      const heading = document.createElement("div");
+      heading.className = "batch-refresh-unmapped-heading";
+      const firstSeen = entry.first_seen_at
+        ? ` • first seen ${new Date(entry.first_seen_at).toLocaleString()}`
+        : "";
+      const statusSuffix = resolved
+        ? ` • ${entry.status === "mapped"
+          ? `mapped to ${formatSeatingCategoryLabel(entry.mapping_target || "")}`
+          : "intentionally excluded"}`
+        : "";
+      heading.textContent = `${entry.grouping} — ${Number(entry.count || 0)} ${Number(entry.count || 0) === 1 ? "product" : "products"}${firstSeen}${statusSuffix}`;
+      block.appendChild(heading);
+
+      const list = document.createElement("ul");
+      list.className = "batch-refresh-unmapped-products";
+      (Array.isArray(entry.products) ? entry.products : []).forEach((product) => {
+        const item = document.createElement("li");
+        item.textContent = `${product.name || "Unknown product"} (${product.product_id || "unknown"})`;
+        list.appendChild(item);
+      });
+      block.appendChild(list);
+
+      if (!resolved) {
+        const actions = document.createElement("div");
+        actions.className = "batch-refresh-failure-totals";
+
+        const select = document.createElement("select");
+        mappingOptions.forEach(([value, label]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          select.appendChild(option);
+        });
+
+        const mapButton = document.createElement("button");
+        mapButton.type = "button";
+        mapButton.className = "rules-summary-button";
+        mapButton.textContent = "Add mapping";
+        mapButton.addEventListener("click", async () => {
+          try {
+            const payload = await updateUnmappedCategoryDecision(entry.grouping, "mapped", select.value);
+            state.extractionSummary = payload.extraction_summary || state.extractionSummary;
+            renderExtractionSummary();
+            setStatus(`Mapped ${entry.grouping} to ${formatSeatingCategoryLabel(select.value)}.`, "info");
+          } catch (error) {
+            setStatus(error.message || "Failed to store mapping decision.", "error");
+          }
+        });
+
+        const excludeButton = document.createElement("button");
+        excludeButton.type = "button";
+        excludeButton.className = "rules-summary-button";
+        excludeButton.textContent = "Mark intentionally excluded";
+        excludeButton.addEventListener("click", async () => {
+          try {
+            const payload = await updateUnmappedCategoryDecision(entry.grouping, "intentionally_excluded");
+            state.extractionSummary = payload.extraction_summary || state.extractionSummary;
+            renderExtractionSummary();
+            setStatus(`Marked ${entry.grouping} as intentionally excluded.`, "info");
+          } catch (error) {
+            setStatus(error.message || "Failed to store exclusion decision.", "error");
+          }
+        });
+
+        actions.append(select, mapButton, excludeButton);
+        block.appendChild(actions);
+      }
+
+      section.appendChild(block);
+    });
+
+    return section;
+  };
+
+  unmappedCard.append(
+    renderUnmappedSection("Needs decision", activeUnmapped, false),
+    renderUnmappedSection("Resolved", resolvedUnmapped, true)
+  );
+
   elements.extractionSummaryContent.innerHTML = "";
-  elements.extractionSummaryContent.append(wrapper, tableCard, note);
+  elements.extractionSummaryContent.append(wrapper, tableCard, unmappedCard, note);
 }
 
 async function resumeSceneFilterProgress() {
@@ -2431,6 +2788,8 @@ function normalizeBatchRefreshProgress(payload = {}) {
     completed,
     succeeded: Math.max(0, completed - failed),
     failed,
+    failedUnmapped: Math.max(0, Number(payload.failed_unmapped) || 0),
+    failedOther: Math.max(0, Number(payload.failed_other) || 0),
     left,
     batchCurrent,
     batchTotal,
@@ -2445,7 +2804,8 @@ function normalizeBatchRefreshProgress(payload = {}) {
     unclassifiedPhotos,
     totalCostUsd: Math.max(0, Number(payload.total_cost_usd) || 0),
     log: Array.isArray(payload.log) ? payload.log.slice(0, 8) : [],
-    failedProducts: Array.isArray(payload.failed_products) ? payload.failed_products : []
+    failedProducts: Array.isArray(payload.failed_products) ? payload.failed_products : [],
+    unmappedGroupings: Array.isArray(payload.unmapped_groupings) ? payload.unmapped_groupings : []
   };
 }
 
@@ -2533,10 +2893,62 @@ function renderBatchRefreshProgress() {
   });
 
   const failedProducts = progress.failedProducts.filter((entry) => entry?.name);
-  elements.batchRefreshFailures.hidden = !isComplete || !failedProducts.length;
-  elements.batchRefreshFailures.textContent = failedProducts.length
-    ? `Failed: ${failedProducts.map((entry) => entry.name).join(", ")}`
-    : "";
+  const unmappedGroupings = progress.unmappedGroupings.filter((entry) => entry?.grouping);
+  elements.batchRefreshFailures.hidden = !isComplete || (!failedProducts.length && !unmappedGroupings.length);
+  elements.batchRefreshFailures.innerHTML = "";
+  if (!elements.batchRefreshFailures.hidden) {
+    const totals = document.createElement("div");
+    totals.className = "batch-refresh-failure-totals";
+    totals.textContent = `Total successful: ${progress.succeeded} products | Total failed (unmapped): ${progress.failedUnmapped} products | Total failed (other): ${progress.failedOther} products`;
+    elements.batchRefreshFailures.appendChild(totals);
+
+    if (unmappedGroupings.length) {
+      const unmappedTitle = document.createElement("div");
+      unmappedTitle.className = "batch-refresh-failure-heading";
+      unmappedTitle.textContent = "Unmapped DP category combinations";
+      elements.batchRefreshFailures.appendChild(unmappedTitle);
+
+      unmappedGroupings.forEach((entry) => {
+        const block = document.createElement("div");
+        block.className = "batch-refresh-unmapped-block";
+
+        const heading = document.createElement("div");
+        heading.className = "batch-refresh-unmapped-heading";
+        heading.textContent = `${entry.grouping} — ${Number(entry.count || 0)} ${Number(entry.count || 0) === 1 ? "product" : "products"}`;
+        block.appendChild(heading);
+
+        const list = document.createElement("ul");
+        list.className = "batch-refresh-unmapped-products";
+        (Array.isArray(entry.products) ? entry.products : []).forEach((product) => {
+          const item = document.createElement("li");
+          item.textContent = `${product.name || "Unknown product"} (${product.product_id || "unknown"})`;
+          list.appendChild(item);
+        });
+        block.appendChild(list);
+        elements.batchRefreshFailures.appendChild(block);
+      });
+    }
+
+    if (failedProducts.length) {
+      const otherTitle = document.createElement("div");
+      otherTitle.className = "batch-refresh-failure-heading";
+      otherTitle.textContent = "Other failed products";
+      elements.batchRefreshFailures.appendChild(otherTitle);
+
+      const otherList = document.createElement("ul");
+      otherList.className = "batch-refresh-unmapped-products";
+      failedProducts
+        .filter((entry) => !String(entry.error || "").startsWith("Unmapped DP category combination:"))
+        .forEach((entry) => {
+          const item = document.createElement("li");
+          item.textContent = `${entry.name} (${entry.product_id || "unknown"})${entry.error ? ` — ${entry.error}` : ""}`;
+          otherList.appendChild(item);
+        });
+      if (otherList.childNodes.length) {
+        elements.batchRefreshFailures.appendChild(otherList);
+      }
+    }
+  }
 }
 
 function updateBatchRefreshProgress(payload = {}) {
@@ -3026,7 +3438,7 @@ function getTraitFieldConfig(typeKey, fieldName) {
   }
 
   const fieldIndex = getTraitFieldConfigIndex();
-  const fallbackType = seatingTypes.default_type || "other_seating";
+  const fallbackType = seatingTypes.default_type || "";
   const resolvedTypeKey = types[typeKey] ? typeKey : fallbackType;
   return fieldIndex.get(resolvedTypeKey)?.get(fieldName) || null;
 }
@@ -3046,7 +3458,7 @@ function getTypeFields(typeKey = "") {
   if (!types || !Object.keys(types).length) {
     return [];
   }
-  const fallbackType = seatingTypes.default_type || "other_seating";
+  const fallbackType = seatingTypes.default_type || "";
   const resolvedTypeKey = types[typeKey] ? typeKey : fallbackType;
   return types[resolvedTypeKey]?.fields || [];
 }
@@ -3111,7 +3523,7 @@ function formatImageTraitChips(imageTraits = {}, limit = 6, typeKey = null) {
     .slice(0, limit);
 }
 
-function buildStoredImageSearchBullets(imageTraits = {}, limit = 6, typeKey = null) {
+function buildStoredImageSearchBullets(imageTraits = {}, typeKey = null) {
   return Object.entries(imageTraits || {})
     .map(([field, value]) => {
       const fieldConfig = getTraitFieldConfig(typeKey, field);
@@ -3126,8 +3538,7 @@ function buildStoredImageSearchBullets(imageTraits = {}, limit = 6, typeKey = nu
 
       return `${formatTraitFieldLabel(field)}: ${normalizedValue}`;
     })
-    .filter(Boolean)
-    .slice(0, limit);
+    .filter(Boolean);
 }
 
 function buildStoredImageSearchContext(result = {}, matchingImage = null) {
@@ -3140,14 +3551,14 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
     ""
   ).trim();
   const enumFields = source.enum_fields || heroSource.enum_fields || result.debug?.image_traits || {};
-  const bulletTexts = buildStoredImageSearchBullets(enumFields, 6, seatingType);
+  const bulletTexts = buildStoredImageSearchBullets(enumFields, seatingType);
   const fallbackMatchedTraits = Array.isArray(result.matched_traits)
-    ? result.matched_traits.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 6)
+    ? result.matched_traits.map((entry) => String(entry || "").trim()).filter(Boolean)
     : [];
-  const selectedBullets = normalizeSelectedBullets({
-    essential: [],
-    normal: bulletTexts.length ? bulletTexts : fallbackMatchedTraits
-  });
+  const selectedBullets = normalizeSelectedBullets(
+    bulletTexts.length ? bulletTexts : fallbackMatchedTraits,
+    seatingType
+  );
   const bulletControls = normalizeBulletControls(
     [
       ...selectedBullets.essential.map((text) => ({ text, priority: "essential" })),
@@ -3175,7 +3586,7 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const imageAnalysis = {
     image_preview_url: source.image_url || heroSource.image_url || result.best_image_url || "",
     seating_type: seatingType,
-    stage1: { seating_type: seatingType || "other_seating" },
+    stage1: { seating_type: seatingType || "" },
     image_traits: enumFields,
     stage2: {
       visual_summary: source.free_text?.visual_summary || heroSource.free_text?.visual_summary || result.debug?.visual_description || ""
@@ -3794,11 +4205,12 @@ function renderClarificationBar() {
   }
 
   const categoryRequirement = state.categoryRequirement;
+  const categoryRequirementMode = String(categoryRequirement?.mode || "").trim();
   const shouldShowCategoryRequirement = Boolean(
     categoryRequirement &&
     Array.isArray(categoryRequirement.options) &&
     categoryRequirement.options.length &&
-    state.lastQuery
+    (state.lastQuery || categoryRequirementMode === "image_analysis")
   );
   const shouldShow = shouldShowCategoryRequirement;
 
@@ -3834,7 +4246,7 @@ function renderClarificationBar() {
   options.className = "clarification-options clarification-options-category";
   const optionEntries = categoryRequirement.options
     .map((option) => normalizeSeatingCategoryKey(option))
-    .filter((option) => option && option !== "all" && option !== "other_seating")
+    .filter((option) => option && option !== "all")
     .sort((left, right) => {
       const leftLabel = formatSeatingCategoryLabel(left);
       const rightLabel = formatSeatingCategoryLabel(right);
@@ -3849,6 +4261,28 @@ function renderClarificationBar() {
     pill.textContent = String(option?.label || "").trim();
     pill.addEventListener("click", () => {
       const categoryKey = String(option?.value || "").trim();
+      if (categoryRequirementMode === "image_analysis") {
+        const requestBody = categoryRequirement.requestBody && typeof categoryRequirement.requestBody === "object"
+          ? cloneValue(categoryRequirement.requestBody)
+          : cloneValue(state.lastAnalyzeInput || {});
+        const focusArea = categoryRequirement.focusArea && typeof categoryRequirement.focusArea === "object"
+          ? cloneValue(categoryRequirement.focusArea)
+          : null;
+        const cacheKey = buildImageAnalysisSelectionKey(requestBody);
+        if (cacheKey) {
+          state.imageAnalysisCategorySelection = {
+            key: cacheKey,
+            seatingType: categoryKey
+          };
+        }
+        updateCategoryRequirement(null);
+        runImageAnalysisSearch(requestBody, focusArea, {
+          seatingTypeOverride: categoryKey
+        }).catch((error) => {
+          setStatus(error.message || "Failed to apply category selection.", "error");
+        });
+        return;
+      }
       const nextQuery = stripVagueSeatingReferenceFromQuery(state.lastQuery || "", categoryKey);
       updateCategoryRequirement(null);
       state.resultCategoryScope = [categoryKey];
@@ -3877,6 +4311,10 @@ function renderClarificationBar() {
   close.textContent = "✕";
   close.addEventListener("click", () => {
     updateCategoryRequirement(null);
+    if (categoryRequirementMode === "image_analysis") {
+      setStatus("Image search canceled.", "info");
+      return;
+    }
     setStatus("Select a category from the search field to continue.", "info");
   });
 
@@ -3979,136 +4417,6 @@ function formatScoreValue(value) {
   return `${number >= 0 ? "+" : ""}${number.toFixed(2)}`;
 }
 
-function renderRankingRulesSummary(rules) {
-  if (!elements.rulesSummaryDetails || !rules) {
-    return;
-  }
-
-  const formatNumber = (value) => {
-    const number = Number(value || 0);
-    return `${number >= 0 ? "+" : ""}${number.toFixed(2)}`;
-  };
-
-  const detailRows = [
-    "No minimum score gate; all ranked results are returned.",
-    "Image-led searches hard-filter to matching seating_type unless the type is other_seating.",
-    "Primary score is cosine similarity on visual_summary embeddings, normalized to 0-1.",
-    `Selected bullet boost: essential ${formatNumber(0.35)} each, normal ${formatNumber(0.1)} each, plus a ${formatNumber(0.15)} bonus for 3+ matches`,
-    `Category match boost: ${formatNumber(rules?.additive_boosts?.category_match)}`,
-    `Exact source image boost: ${formatNumber(rules?.additive_boosts?.source_image_exact_match)}`
-  ];
-
-  const summary = document.createElement("div");
-  summary.className = "rules-summary-grid";
-
-  const coreCard = document.createElement("section");
-  coreCard.className = "rules-card";
-  const coreTitle = document.createElement("h3");
-  coreTitle.className = "rules-card-title";
-  coreTitle.textContent = "Core Scoring";
-  coreCard.appendChild(coreTitle);
-  const coreList = document.createElement("ul");
-  coreList.className = "rules-card-list";
-  detailRows.forEach((text) => {
-    const item = document.createElement("li");
-    item.textContent = text;
-    coreList.appendChild(item);
-  });
-  coreCard.appendChild(coreList);
-  summary.appendChild(coreCard);
-
-  (rules?.stages || []).forEach((entry, index) => {
-    const card = document.createElement("section");
-    card.className = "rules-card";
-    const heading = document.createElement("h3");
-    heading.className = "rules-card-title";
-    heading.textContent = `Stage ${index + 1}: ${entry.name}`;
-    card.appendChild(heading);
-
-    const list = document.createElement("ul");
-    list.className = "rules-card-list";
-    const item = document.createElement("li");
-    item.textContent = entry.summary;
-    list.appendChild(item);
-
-    card.appendChild(list);
-    summary.appendChild(card);
-  });
-
-  elements.rulesSummaryDetails.innerHTML = "";
-  elements.rulesSummaryDetails.appendChild(summary);
-}
-
-function formatStructuredTraitsSummary() {
-  const seatingTypes = state.bootstrap?.seating_types;
-  const types = seatingTypes?.types;
-  if (!types || !Object.keys(types).length) {
-    throw new Error("Structured traits are not available yet.");
-  }
-
-  const fallbackType = seatingTypes.default_type || "other_seating";
-  const orderedTypeKeys = Object.keys(types)
-    .filter((key) => key !== fallbackType)
-    .sort((left, right) => String(types[left]?.label || left).localeCompare(String(types[right]?.label || right)));
-
-  if (types[fallbackType]) {
-    orderedTypeKeys.push(fallbackType);
-  }
-
-  const lines = orderedTypeKeys.flatMap((typeKey, index) => {
-    const type = types[typeKey];
-    const sectionLines = [
-      `Category: ${type.label} (${typeKey})`,
-      "---"
-    ];
-
-    if (!type.fields?.length) {
-      sectionLines.push("No field constraints.");
-    } else {
-      for (const field of (type.fields || [])) {
-        sectionLines.push(
-          `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`
-        );
-        const groupsLine = formatStructuredTraitGroupsLine(field);
-        if (groupsLine) {
-          sectionLines.push(groupsLine);
-        }
-      }
-    }
-
-    if (index < orderedTypeKeys.length - 1) {
-      sectionLines.push("", "");
-    }
-
-    return sectionLines;
-  });
-
-  return lines.join("\n");
-}
-
-function formatStructuredTraitCategorySummary(typeKey, type) {
-  const sectionLines = [
-    `Category: ${type.label} (${typeKey})`,
-    "---"
-  ];
-
-  if (!type.fields?.length) {
-    sectionLines.push("No field constraints.");
-  } else {
-    for (const field of (type.fields || [])) {
-      sectionLines.push(
-        `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`
-      );
-      const groupsLine = formatStructuredTraitGroupsLine(field);
-      if (groupsLine) {
-        sectionLines.push(groupsLine);
-      }
-    }
-  }
-
-  return sectionLines.join("\n");
-}
-
 function formatStructuredTraitGroupsLine(field = {}) {
   const groups = Array.isArray(field?.groups) ? field.groups : [];
   const renderedGroups = groups
@@ -4133,12 +4441,14 @@ function structuredTraitTypeEntries() {
     throw new Error("Structured traits are not available yet.");
   }
 
-  const fallbackType = seatingTypes.default_type || "other_seating";
-  const orderedTypeKeys = Object.keys(types)
-    .filter((key) => key !== fallbackType)
-    .sort((left, right) => String(types[left]?.label || left).localeCompare(String(types[right]?.label || right)));
+  const fallbackType = seatingTypes.default_type || "";
+  const orderedTypeKeys = STRUCTURED_TRAITS_MATRIX_TYPE_ORDER.filter((typeKey) => types[typeKey]);
+  Object.keys(types)
+    .filter((typeKey) => !orderedTypeKeys.includes(typeKey) && typeKey !== fallbackType)
+    .sort((left, right) => String(types[left]?.label || left).localeCompare(String(types[right]?.label || right)))
+    .forEach((typeKey) => orderedTypeKeys.push(typeKey));
 
-  if (types[fallbackType]) {
+  if (types[fallbackType] && !orderedTypeKeys.includes(fallbackType)) {
     orderedTypeKeys.push(fallbackType);
   }
 
@@ -4148,97 +4458,615 @@ function structuredTraitTypeEntries() {
   }));
 }
 
+function normalizeStructuredTraitCompareText(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[\/,-]/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+function buildStructuredTraitTokenSet(value = "") {
+  return new Set(
+    normalizeStructuredTraitCompareText(value)
+      .split(" ")
+      .map((token) => token.trim())
+      .filter(Boolean)
+  );
+}
+
+function setIntersection(left = new Set(), right = new Set()) {
+  return new Set([...left].filter((item) => right.has(item)));
+}
+
+function setDifference(left = new Set(), right = new Set()) {
+  return new Set([...left].filter((item) => !right.has(item)));
+}
+
+function detectStructuredTraitPhrasingDrift(leftValue = "", rightValue = "") {
+  const leftRaw = String(leftValue || "").trim();
+  const rightRaw = String(rightValue || "").trim();
+  if (!leftRaw || !rightRaw) {
+    return false;
+  }
+
+  const leftNormalized = normalizeStructuredTraitCompareText(leftRaw);
+  const rightNormalized = normalizeStructuredTraitCompareText(rightRaw);
+  if (!leftNormalized || !rightNormalized || leftNormalized === rightNormalized) {
+    return false;
+  }
+
+  const leftTokens = buildStructuredTraitTokenSet(leftRaw);
+  const rightTokens = buildStructuredTraitTokenSet(rightRaw);
+  const shared = setIntersection(leftTokens, rightTokens);
+  if (!shared.size) {
+    return false;
+  }
+
+  const leftExtra = setDifference(leftTokens, shared);
+  const rightExtra = setDifference(rightTokens, shared);
+  const extras = [...leftExtra, ...rightExtra];
+  if (!extras.length) {
+    return false;
+  }
+
+  return extras.every((token) => STRUCTURED_TRAITS_PHRASING_QUALIFIERS.has(token));
+}
+
+function formatStructuredTraitValueGroup(values = []) {
+  return values
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join("<br>");
+}
+
+function formatStructuredTraitValuesInline(values = []) {
+  const filtered = values.map((value) => String(value || "").trim()).filter(Boolean);
+  return filtered.length ? filtered.join(" | ") : "Absent";
+}
+
+function formatStructuredTraitValuesCsv(values = []) {
+  return values.map((value) => String(value || "").trim()).filter(Boolean).join(", ");
+}
+
+function isStructuredTraitDisplayUnknown(value = "") {
+  return normalizeTraitValue(value) === "unknown";
+}
+
+function compareStructuredTraitPriority(leftName = "", rightName = "") {
+  const leftIndex = STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER.indexOf(leftName);
+  const rightIndex = STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER.indexOf(rightName);
+  if (leftIndex !== -1 || rightIndex !== -1) {
+    if (leftIndex === -1) return 1;
+    if (rightIndex === -1) return -1;
+    if (leftIndex !== rightIndex) return leftIndex - rightIndex;
+  }
+  return String(leftName || "").localeCompare(String(rightName || ""));
+}
+
+function traitFieldIsInspectable(field = {}) {
+  return field?.type === "enum" && String(field?.detectability || "").trim().toLowerCase() !== "no";
+}
+
+function getStructuredTraitPriorityLabel(priority = "normal") {
+  if (priority === "essential" || priority === "low") {
+    return priority;
+  }
+  return "default";
+}
+
+function getStructuredTraitWeightLabel(priority = "normal") {
+  if (priority === "essential") {
+    return "high";
+  }
+  if (priority === "low") {
+    return "low";
+  }
+  return "normal";
+}
+
+function sortStructuredTraitValues(values = []) {
+  return [...values].sort((left, right) => String(left || "").localeCompare(String(right || ""), undefined, { sensitivity: "base" }));
+}
+
+function buildStructuredTraitInspectorData() {
+  const entries = structuredTraitTypeEntries();
+  const traitMap = new Map();
+
+  for (const { typeKey, type } of entries) {
+    for (const field of (type.fields || []).filter(traitFieldIsInspectable)) {
+      const traitName = String(field.field || "").trim();
+      if (!traitName) {
+        continue;
+      }
+      if (!traitMap.has(traitName)) {
+        traitMap.set(traitName, {
+          traitName,
+          label: formatTraitFieldLabel(traitName),
+          cells: new Map()
+        });
+      }
+
+      traitMap.get(traitName).cells.set(typeKey, {
+        typeKey,
+        field,
+        values: sortStructuredTraitValues(field.allowed_values || []),
+        groups: Array.isArray(field.groups) ? field.groups : []
+      });
+    }
+  }
+
+  const traits = [...traitMap.values()].map((trait) => {
+    const cells = new Map();
+    const allDisplayValues = [];
+    const presentTypes = [];
+    const absentTypes = [];
+
+    for (const { typeKey } of entries) {
+      const existing = trait.cells.get(typeKey) || null;
+      if (existing) {
+        presentTypes.push(typeKey);
+        allDisplayValues.push(...existing.values.filter((value) => !STRUCTURED_TRAITS_IGNORED_COMPARE_VALUES.has(normalizeTraitValue(value))));
+        cells.set(typeKey, { ...existing, flags: new Set(), phrasingValues: new Set() });
+      } else {
+        absentTypes.push(typeKey);
+        cells.set(typeKey, { typeKey, field: null, values: [], groups: [], flags: new Set(["absent"]), phrasingValues: new Set() });
+      }
+    }
+
+    const uniqueValues = [...new Set(allDisplayValues)];
+    const adjacency = new Map(uniqueValues.map((value) => [value, new Set([value])]));
+    for (let leftIndex = 0; leftIndex < uniqueValues.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < uniqueValues.length; rightIndex += 1) {
+        const leftValue = uniqueValues[leftIndex];
+        const rightValue = uniqueValues[rightIndex];
+        if (detectStructuredTraitPhrasingDrift(leftValue, rightValue)) {
+          adjacency.get(leftValue).add(rightValue);
+          adjacency.get(rightValue).add(leftValue);
+        }
+      }
+    }
+
+    const componentByValue = new Map();
+    const components = [];
+    for (const value of uniqueValues) {
+      if (componentByValue.has(value)) {
+        continue;
+      }
+      const stack = [value];
+      const componentValues = [];
+      while (stack.length) {
+        const current = stack.pop();
+        if (!current || componentByValue.has(current)) {
+          continue;
+        }
+        componentByValue.set(current, components.length);
+        componentValues.push(current);
+        (adjacency.get(current) || []).forEach((next) => {
+          if (!componentByValue.has(next)) {
+            stack.push(next);
+          }
+        });
+      }
+      components.push(componentValues);
+    }
+
+    for (const typeKey of presentTypes) {
+      const cell = cells.get(typeKey);
+      for (const value of cell.values) {
+        const groupIndex = componentByValue.get(value);
+        if (components[groupIndex]?.length > 1) {
+          cell.phrasingValues.add(value);
+        }
+      }
+    }
+
+    const flags = new Set();
+    if (absentTypes.length) {
+      flags.add("absent");
+    }
+
+    if (components.some((componentValues) => componentValues.length > 1)) {
+      flags.add("phrasing");
+    }
+
+    for (const typeKey of presentTypes) {
+      const cell = cells.get(typeKey);
+      if (cell.phrasingValues.size) {
+        cell.flags.add("phrasing");
+      }
+    }
+
+    const severityList = STRUCTURED_TRAITS_SEVERITY_ORDER.filter((severity) => severity !== "absent" && flags.has(severity));
+    const worstSeverity = severityList[0] || "clean";
+    if (!severityList.length && !flags.has("absent")) {
+      flags.add("clean");
+    }
+
+    return {
+      traitName: trait.traitName,
+      label: trait.label,
+      cells,
+      flags,
+      severityList: severityList.length ? severityList : ["clean"],
+      worstSeverity,
+      absentTypes,
+      phrasingComponents: components.filter((componentValues) => componentValues.length > 1)
+    };
+  });
+
+  traits.sort((left, right) => compareStructuredTraitPriority(left.traitName, right.traitName));
+
+  const summary = {
+    valueSetMismatchCount: 0,
+    phrasingDriftCount: traits.filter((trait) => trait.flags.has("phrasing")).length,
+    absentCount: traits.filter((trait) => trait.flags.has("absent")).length
+  };
+
+  return { entries, traits, summary };
+}
+
+function createStructuredTraitBadge(label = "", severity = "clean") {
+  const badge = document.createElement("span");
+  badge.className = `structured-traits-badge ${STRUCTURED_TRAITS_SEVERITY_META[severity]?.className || STRUCTURED_TRAITS_SEVERITY_META.clean.className}`;
+  badge.textContent = label;
+  return badge;
+}
+
+function appendStructuredTraitBadges(container, severities = []) {
+  severities.forEach((severity) => {
+    container.appendChild(createStructuredTraitBadge(
+      STRUCTURED_TRAITS_SEVERITY_META[severity]?.label || severity,
+      severity
+    ));
+  });
+}
+
+function formatStructuredTraitTypeList(typeKeys = []) {
+  return typeKeys.join(", ");
+}
+
+function quoteStructuredTraitValue(value = "") {
+  return `"${String(value || "").trim()}"`;
+}
+
+function renderStructuredTraitsMatrixTab(root, inspectorData) {
+  const { entries, traits, summary } = inspectorData;
+  const activeSeverity = state.structuredTraitsInspectorSeverity || "all";
+  const filteredTraits = activeSeverity === "all"
+    ? traits
+    : traits.filter((trait) => trait.flags.has(activeSeverity));
+
+  const summaryGrid = document.createElement("div");
+  summaryGrid.className = "structured-traits-summary-grid";
+  [
+    { label: "Value-set mismatches", value: summary.valueSetMismatchCount, severity: "critical" },
+    { label: "Phrasing drift", value: summary.phrasingDriftCount, severity: "phrasing" },
+    { label: "Absent in some types", value: summary.absentCount, severity: "absent" }
+  ].forEach((item) => {
+    const card = document.createElement("article");
+    card.className = `structured-traits-summary-card ${STRUCTURED_TRAITS_SEVERITY_META[item.severity]?.className || ""}`;
+    const value = document.createElement("strong");
+    value.className = "structured-traits-summary-value";
+    value.textContent = String(item.value);
+    const label = document.createElement("span");
+    label.className = "structured-traits-summary-label";
+    label.textContent = item.label;
+    card.append(value, label);
+    summaryGrid.appendChild(card);
+  });
+  root.appendChild(summaryGrid);
+
+  const filterBar = document.createElement("div");
+  filterBar.className = "structured-traits-filter-bar";
+  [
+    { id: "all", label: "All" },
+    { id: "phrasing", label: STRUCTURED_TRAITS_SEVERITY_META.phrasing.label },
+    { id: "absent", label: STRUCTURED_TRAITS_SEVERITY_META.absent.label }
+  ].forEach((filter) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structured-traits-filter-button${activeSeverity === filter.id ? " is-active" : ""}`;
+    button.textContent = filter.label;
+    button.addEventListener("click", () => {
+      state.structuredTraitsInspectorSeverity = filter.id;
+      renderStructuredTraitsModalContent();
+    });
+    filterBar.appendChild(button);
+  });
+  root.appendChild(filterBar);
+
+  const tableWrap = document.createElement("div");
+  tableWrap.className = "structured-traits-matrix-wrap";
+
+  const table = document.createElement("table");
+  table.className = "structured-traits-matrix-table";
+
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  const traitHeader = document.createElement("th");
+  traitHeader.textContent = "field_name";
+  headRow.appendChild(traitHeader);
+  entries.forEach(({ typeKey, type }) => {
+    const th = document.createElement("th");
+    th.innerHTML = `${typeKey}<span class="structured-traits-matrix-key">${type.label}</span>`;
+    headRow.appendChild(th);
+  });
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  filteredTraits.forEach((trait) => {
+    const row = document.createElement("tr");
+    row.className = "structured-traits-row";
+
+    const traitCell = document.createElement("th");
+    traitCell.className = "structured-traits-matrix-trait";
+    const title = document.createElement("div");
+    title.className = "structured-traits-matrix-trait-title";
+    title.textContent = trait.traitName;
+    const key = document.createElement("div");
+    key.className = "structured-traits-matrix-trait-key";
+    key.textContent = trait.label;
+    traitCell.append(title, key);
+    row.appendChild(traitCell);
+
+    entries.forEach(({ typeKey }) => {
+      const cellData = trait.cells.get(typeKey);
+      const td = document.createElement("td");
+      td.className = "structured-traits-matrix-cell";
+
+      if (!cellData.field) {
+        td.classList.add("is-absent");
+        row.appendChild(td);
+        return;
+      }
+
+      td.textContent = formatStructuredTraitValuesCsv(cellData.values);
+
+      row.appendChild(td);
+    });
+
+    tbody.appendChild(row);
+
+    const detailItems = [];
+
+    if (trait.flags.has("phrasing")) {
+      trait.phrasingComponents.forEach((componentValues) => {
+        const sortedValues = sortStructuredTraitValues(componentValues);
+        if (sortedValues.length < 2) {
+          return;
+        }
+        const valueTypeParts = sortedValues.map((value) => {
+          const ownerTypes = entries
+            .map(({ typeKey }) => typeKey)
+            .filter((typeKey) => (trait.cells.get(typeKey)?.values || []).includes(value));
+          return `${quoteStructuredTraitValue(value)} (${formatStructuredTraitTypeList(ownerTypes)})`;
+        });
+        detailItems.push({
+          severity: "phrasing",
+          text: `Phrasing drift: ${valueTypeParts.join(" ↔ ")}`
+        });
+      });
+    }
+
+    if (!detailItems.length) {
+      return;
+    }
+
+    const driftRow = document.createElement("tr");
+    driftRow.className = "structured-traits-drift-row";
+    const driftLabelCell = document.createElement("th");
+    driftLabelCell.className = "structured-traits-drift-label-cell";
+    driftLabelCell.textContent = "Drift Summary";
+    driftRow.appendChild(driftLabelCell);
+
+    const driftDetailCell = document.createElement("td");
+    driftDetailCell.className = "structured-traits-drift-detail-cell";
+    driftDetailCell.colSpan = entries.length;
+
+    const driftList = document.createElement("div");
+    driftList.className = "structured-traits-drift-list";
+
+    detailItems.forEach((item) => {
+      const line = document.createElement("div");
+      line.className = "structured-traits-drift-item";
+      const badge = createStructuredTraitBadge(STRUCTURED_TRAITS_SEVERITY_META[item.severity]?.label || item.severity, item.severity);
+      const text = document.createElement("span");
+      text.className = "structured-traits-drift-text";
+      text.textContent = item.text;
+      line.append(badge, text);
+      driftList.appendChild(line);
+    });
+
+    driftDetailCell.appendChild(driftList);
+    driftRow.appendChild(driftDetailCell);
+    tbody.appendChild(driftRow);
+  });
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  root.appendChild(tableWrap);
+}
+
+function renderStructuredTraitsScoringTab(root, inspectorData) {
+  const priorityOrder = { essential: 0, normal: 1, low: 2 };
+  inspectorData.entries.forEach(({ typeKey, type }) => {
+    const card = document.createElement("section");
+    card.className = "structured-traits-section-card";
+
+    const title = document.createElement("h3");
+    title.className = "structured-traits-section-title";
+    title.textContent = `${type.label} (${typeKey})`;
+    card.appendChild(title);
+
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "structured-traits-scoring-wrap";
+    const table = document.createElement("table");
+    table.className = "structured-traits-scoring-table";
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Trait</th>
+          <th>Priority</th>
+          <th>Derived weight</th>
+          <th>Groupings</th>
+        </tr>
+      </thead>
+    `;
+    const tbody = document.createElement("tbody");
+
+    (type.fields || [])
+      .filter(traitFieldIsInspectable)
+      .slice()
+      .sort((left, right) => {
+        const priorityDelta = (priorityOrder[getFieldPriority(typeKey, left.field)] ?? 1) - (priorityOrder[getFieldPriority(typeKey, right.field)] ?? 1);
+        if (priorityDelta !== 0) {
+          return priorityDelta;
+        }
+        return String(left.field || "").localeCompare(String(right.field || ""));
+      })
+      .forEach((field) => {
+        const row = document.createElement("tr");
+        const priority = getFieldPriority(typeKey, field.field);
+        row.innerHTML = `
+          <td><strong>${formatTraitFieldLabel(field.field)}</strong><div class="structured-traits-scoring-key">${field.field}</div></td>
+          <td>${getStructuredTraitPriorityLabel(priority)}</td>
+          <td>${getStructuredTraitWeightLabel(priority)}</td>
+          <td>${Array.isArray(field.groups) && field.groups.length ? "Yes" : "No"}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    card.appendChild(tableWrap);
+    root.appendChild(card);
+  });
+}
+
+function renderStructuredTraitsGroupingsTab(root, inspectorData) {
+  inspectorData.entries.forEach(({ typeKey, type }) => {
+    const card = document.createElement("section");
+    card.className = "structured-traits-section-card";
+
+    const title = document.createElement("h3");
+    title.className = "structured-traits-section-title";
+    title.textContent = `${type.label} (${typeKey})`;
+    card.appendChild(title);
+
+    const groupedFields = (type.fields || [])
+      .filter((field) => (
+        traitFieldIsInspectable(field) &&
+        Array.isArray(field.groups) &&
+        field.groups.some((group) => Array.isArray(group) && group.length > 1)
+      ))
+      .slice()
+      .sort((left, right) => compareStructuredTraitPriority(left.field, right.field));
+
+    if (!groupedFields.length) {
+      const empty = document.createElement("p");
+      empty.className = "structured-traits-empty";
+      empty.textContent = "No groupings defined for this type.";
+      card.appendChild(empty);
+      root.appendChild(card);
+      return;
+    }
+
+    const tableWrap = document.createElement("div");
+    tableWrap.className = "structured-traits-scoring-wrap";
+    const table = document.createElement("table");
+    table.className = "structured-traits-scoring-table structured-traits-groupings-table";
+    table.innerHTML = `
+      <colgroup>
+        <col class="structured-traits-groupings-col-trait">
+        <col class="structured-traits-groupings-col-grouped">
+        <col class="structured-traits-groupings-col-ungrouped">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Trait</th>
+          <th>Grouped values</th>
+          <th>Ungrouped values</th>
+        </tr>
+      </thead>
+    `;
+    const tbody = document.createElement("tbody");
+
+    groupedFields.forEach((field) => {
+      const groupedValues = new Set();
+      const renderedGroups = (field.groups || [])
+        .filter((group) => Array.isArray(group) && group.length > 1)
+        .map((group) => {
+          const cleaned = group
+            .map((value) => String(value || "").trim())
+            .filter((value) => value && !isStructuredTraitDisplayUnknown(value));
+          cleaned.forEach((value) => groupedValues.add(value));
+          return cleaned.join(", ");
+        })
+        .filter(Boolean);
+      const ungrouped = (field.allowed_values || [])
+        .map((value) => String(value || "").trim())
+        .filter((value) => value && !groupedValues.has(value) && !isStructuredTraitDisplayUnknown(value));
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><strong>${formatTraitFieldLabel(field.field)}</strong><div class="structured-traits-scoring-key">${field.field}</div></td>
+        <td>${renderedGroups.join("<br>")}</td>
+        <td>${ungrouped.length ? ungrouped.join(" | ") : "None"}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    card.appendChild(tableWrap);
+    root.appendChild(card);
+  });
+}
+
 function renderStructuredTraitsModalContent() {
   if (!elements.structuredTraitsText) {
     return;
   }
 
-  const entries = structuredTraitTypeEntries();
+  const inspectorData = buildStructuredTraitInspectorData();
+  const activeTab = STRUCTURED_TRAITS_TAB_DEFS.some((tab) => tab.id === state.structuredTraitsInspectorTab)
+    ? state.structuredTraitsInspectorTab
+    : "matrix";
+  state.structuredTraitsInspectorTab = activeTab;
+
   elements.structuredTraitsText.innerHTML = "";
 
-  for (const { typeKey, type } of entries) {
-    const card = document.createElement("details");
-    card.className = "structured-traits-card";
-
-    const summary = document.createElement("summary");
-    summary.className = "structured-traits-toggle";
-
-    const labelWrap = document.createElement("span");
-    labelWrap.className = "structured-traits-toggle-label";
-
-    const category = document.createElement("span");
-    category.className = "structured-traits-category";
-    category.textContent = type.label;
-
-    const key = document.createElement("span");
-    key.className = "structured-traits-key";
-    key.textContent = typeKey;
-
-    const chevron = document.createElement("span");
-    chevron.className = "structured-traits-chevron";
-    chevron.textContent = "›";
-
-    labelWrap.append(category, key);
-    summary.append(labelWrap, chevron);
-
-    const body = document.createElement("div");
-    body.className = "structured-traits-body";
-
-    const actions = document.createElement("div");
-    actions.className = "structured-traits-actions";
-
-    const copyButton = document.createElement("button");
-    copyButton.className = "rules-summary-button structured-traits-copy-button";
-    copyButton.type = "button";
-    copyButton.textContent = "Copy Category";
-    copyButton.addEventListener("click", async () => {
-      const text = formatStructuredTraitCategorySummary(typeKey, type);
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = text;
-        textarea.setAttribute("readonly", "");
-        textarea.style.position = "absolute";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.select();
-        const copied = document.execCommand("copy");
-        document.body.removeChild(textarea);
-        if (!copied) {
-          throw new Error("Clipboard copy is not available in this browser.");
-        }
-      }
-      showStructuredTraitsCopied();
+  const tabBar = document.createElement("div");
+  tabBar.className = "structured-traits-tab-bar";
+  STRUCTURED_TRAITS_TAB_DEFS.forEach((tab) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structured-traits-tab${activeTab === tab.id ? " is-active" : ""}`;
+    button.textContent = tab.label;
+    button.addEventListener("click", () => {
+      state.structuredTraitsInspectorTab = tab.id;
+      renderStructuredTraitsModalContent();
     });
+    tabBar.appendChild(button);
+  });
+  elements.structuredTraitsText.appendChild(tabBar);
 
-    actions.appendChild(copyButton);
-    body.appendChild(actions);
+  const panel = document.createElement("div");
+  panel.className = "structured-traits-panel";
+  elements.structuredTraitsText.appendChild(panel);
 
-    if (!type.fields?.length) {
-      const empty = document.createElement("p");
-      empty.className = "structured-traits-empty";
-      empty.textContent = "No field constraints.";
-      body.appendChild(empty);
-    } else {
-      for (const field of type.fields) {
-        const line = document.createElement("p");
-        line.className = "structured-traits-field";
-        line.textContent = `${field.field} (${String(field.detectability || "").toUpperCase()}) : ${(field.allowed_values || []).join(" | ")}`;
-        body.appendChild(line);
+  if (activeTab === "matrix") {
+    renderStructuredTraitsMatrixTab(panel, inspectorData);
+  } else if (activeTab === "scoring") {
+    renderStructuredTraitsScoringTab(panel, inspectorData);
+  } else {
+    renderStructuredTraitsGroupingsTab(panel, inspectorData);
+  }
 
-        const groupsLine = formatStructuredTraitGroupsLine(field);
-        if (groupsLine) {
-          const groups = document.createElement("p");
-          groups.className = "structured-traits-field";
-          groups.textContent = groupsLine;
-          body.appendChild(groups);
-        }
-      }
-    }
-
-    card.append(summary, body);
-    elements.structuredTraitsText.appendChild(card);
+  if (elements.copyStructuredTraitsModalButton) {
+    elements.copyStructuredTraitsModalButton.textContent = activeTab === "matrix" ? "Copy as table" : "Copy Current Tab";
   }
 }
 
@@ -4255,6 +5083,99 @@ function showStructuredTraitsCopied() {
     elements.copyStructuredTraitsStatus.hidden = true;
     state.copyStructuredTraitsTimer = null;
   }, 2000);
+}
+
+function formatStructuredTraitsMatrixMarkdown(inspectorData) {
+  const activeSeverity = state.structuredTraitsInspectorSeverity || "all";
+  const filteredTraits = activeSeverity === "all"
+    ? inspectorData.traits
+    : inspectorData.traits.filter((trait) => trait.flags.has(activeSeverity));
+  const headers = ["field_name", ...inspectorData.entries.map(({ typeKey }) => typeKey)];
+  const separator = headers.map(() => "---");
+  const rows = filteredTraits.map((trait) => [
+    trait.traitName,
+    ...inspectorData.entries.map(({ typeKey }) => {
+      const cell = trait.cells.get(typeKey);
+      return cell?.field ? formatStructuredTraitValuesCsv(cell.values) : "";
+    })
+  ]);
+  return [
+    `# Structured Trait Matrix`,
+    `Filter: ${activeSeverity}`,
+    "",
+    `| ${headers.join(" | ")} |`,
+    `| ${separator.join(" | ")} |`,
+    ...rows.map((row) => `| ${row.join(" | ")} |`)
+  ].join("\n");
+}
+
+function formatStructuredTraitsScoringMarkdown(inspectorData) {
+  return inspectorData.entries.map(({ typeKey, type }) => {
+    const lines = [
+      `## ${type.label} (${typeKey})`,
+      "",
+      `| Trait | Priority | Derived weight | Groupings |`,
+      `| --- | --- | --- | --- |`
+    ];
+    (type.fields || [])
+      .filter(traitFieldIsInspectable)
+      .forEach((field) => {
+        const priority = getFieldPriority(typeKey, field.field);
+        lines.push(`| ${field.field} | ${getStructuredTraitPriorityLabel(priority)} | ${getStructuredTraitWeightLabel(priority)} | ${Array.isArray(field.groups) && field.groups.length ? "Yes" : "No"} |`);
+      });
+    lines.push("");
+    return lines.join("\n");
+  }).join("\n");
+}
+
+function formatStructuredTraitsGroupingsMarkdown(inspectorData) {
+  return inspectorData.entries.map(({ typeKey, type }) => {
+    const groupedFields = (type.fields || [])
+      .filter((field) => (
+        traitFieldIsInspectable(field) &&
+        Array.isArray(field.groups) &&
+        field.groups.some((group) => Array.isArray(group) && group.length > 1)
+      ))
+      .slice()
+      .sort((left, right) => compareStructuredTraitPriority(left.field, right.field));
+    const lines = [`## ${type.label} (${typeKey})`, ""];
+    if (!groupedFields.length) {
+      lines.push("No groupings defined for this type.", "");
+      return lines.join("\n");
+    }
+    groupedFields.forEach((field) => {
+      const groupedValues = new Set();
+      const renderedGroups = (field.groups || [])
+        .filter((group) => Array.isArray(group) && group.length > 1)
+        .map((group) => {
+          const cleaned = group
+            .map((value) => String(value || "").trim())
+            .filter((value) => value && !isStructuredTraitDisplayUnknown(value));
+          cleaned.forEach((value) => groupedValues.add(value));
+          return cleaned.join(", ");
+        })
+        .filter(Boolean);
+      const ungrouped = (field.allowed_values || [])
+        .map((value) => String(value || "").trim())
+        .filter((value) => value && !groupedValues.has(value) && !isStructuredTraitDisplayUnknown(value));
+      lines.push(`- ${field.field}`);
+      lines.push(`  groups: ${renderedGroups.join(" | ")}`);
+      lines.push(`  ungrouped: ${ungrouped.length ? ungrouped.join(" | ") : "None"}`);
+    });
+    lines.push("");
+    return lines.join("\n");
+  }).join("\n");
+}
+
+function formatStructuredTraitsSummary() {
+  const inspectorData = buildStructuredTraitInspectorData();
+  if (state.structuredTraitsInspectorTab === "scoring") {
+    return formatStructuredTraitsScoringMarkdown(inspectorData);
+  }
+  if (state.structuredTraitsInspectorTab === "groupings") {
+    return formatStructuredTraitsGroupingsMarkdown(inspectorData);
+  }
+  return formatStructuredTraitsMatrixMarkdown(inspectorData);
 }
 
 async function copyStructuredTraitsSummary() {
@@ -4276,6 +5197,203 @@ async function copyStructuredTraitsSummary() {
     }
   }
   showStructuredTraitsCopied();
+}
+
+function getPromptLibraryEntries() {
+  const prompts = Array.isArray(state.promptLibrary?.prompts) ? state.promptLibrary.prompts : [];
+  return prompts;
+}
+
+function getActivePromptLibraryEntry() {
+  const prompts = getPromptLibraryEntries();
+  const activeId = String(state.promptLibraryActiveId || "stage1").trim();
+  return prompts.find((entry) => String(entry?.id || "").trim() === activeId) || prompts[0] || null;
+}
+
+function formatPromptLibrarySourceLabel(section = {}) {
+  const file = String(section?.file || "").trim();
+  const start = Number(section?.start || 0);
+  const end = Number(section?.end || 0);
+  const lineLabel = start && end && end !== start
+    ? `lines ${start}-${end}`
+    : start
+      ? `line ${start}`
+      : "";
+  return [file, lineLabel].filter(Boolean).join(": ");
+}
+
+function renderPromptLibraryModalContent() {
+  if (!elements.promptLibraryContent) {
+    return;
+  }
+
+  const prompts = getPromptLibraryEntries();
+  const activeEntry = getActivePromptLibraryEntry();
+  elements.promptLibraryContent.innerHTML = "";
+
+  if (!prompts.length || !activeEntry) {
+    elements.promptLibraryContent.innerHTML = '<p class="rules-summary-intro">No prompt library data available.</p>';
+    return;
+  }
+
+  state.promptLibraryActiveId = String(activeEntry.id || "stage1").trim();
+
+  const tabBar = document.createElement("div");
+  tabBar.className = "structured-traits-tab-bar";
+  prompts.forEach((entry) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structured-traits-tab${String(entry.id || "") === state.promptLibraryActiveId ? " is-active" : ""}`;
+    button.textContent = entry.stage === "Stage 1"
+      ? "Stage 1"
+      : entry.typeLabel || entry.typeKey || entry.label || "Prompt";
+    button.addEventListener("click", () => {
+      state.promptLibraryActiveId = String(entry.id || "").trim();
+      renderPromptLibraryModalContent();
+    });
+    tabBar.appendChild(button);
+  });
+  elements.promptLibraryContent.appendChild(tabBar);
+
+  const panel = document.createElement("div");
+  panel.className = "prompt-library-panel";
+
+  const header = document.createElement("div");
+  header.className = "prompt-library-header";
+
+  const titleWrap = document.createElement("div");
+  const title = document.createElement("h3");
+  title.className = "prompt-library-title";
+  title.textContent = activeEntry.label || "Prompt";
+  const meta = document.createElement("p");
+  meta.className = "prompt-library-meta";
+  meta.textContent = activeEntry.stage === "Stage 1"
+    ? "Shared Stage 1 classification prompt"
+    : `${activeEntry.stage} • ${activeEntry.typeLabel || activeEntry.typeKey || ""}`.replace(/\s+•\s*$/, "");
+  titleWrap.append(title, meta);
+
+  const generated = document.createElement("p");
+  generated.className = "prompt-library-generated";
+  generated.textContent = state.promptLibrary?.generated_at
+    ? `Generated ${new Date(state.promptLibrary.generated_at).toLocaleString()}`
+    : "";
+  header.append(titleWrap, generated);
+  panel.appendChild(header);
+
+  const notes = Array.isArray(activeEntry.runtime_notes) ? activeEntry.runtime_notes.filter(Boolean) : [];
+  if (notes.length) {
+    const notesCard = document.createElement("section");
+    notesCard.className = "rules-card prompt-library-notes-card";
+    const notesTitle = document.createElement("h4");
+    notesTitle.className = "rules-card-title";
+    notesTitle.textContent = "Runtime Notes";
+    notesCard.appendChild(notesTitle);
+    const list = document.createElement("ul");
+    list.className = "rules-summary-list prompt-library-notes-list";
+    notes.forEach((note) => {
+      const item = document.createElement("li");
+      item.textContent = note;
+      list.appendChild(item);
+    });
+    notesCard.appendChild(list);
+    panel.appendChild(notesCard);
+  }
+
+  const sourceCard = document.createElement("section");
+  sourceCard.className = "rules-card prompt-library-source-card";
+  const sourceTitle = document.createElement("h4");
+  sourceTitle.className = "rules-card-title";
+  sourceTitle.textContent = "Prompt Source Sections";
+  sourceCard.appendChild(sourceTitle);
+  const sourceList = document.createElement("div");
+  sourceList.className = "prompt-library-source-list";
+  (Array.isArray(activeEntry.source_sections) ? activeEntry.source_sections : []).forEach((section) => {
+    const item = document.createElement("article");
+    item.className = "prompt-library-source-item";
+    const itemTitle = document.createElement("strong");
+    itemTitle.className = "prompt-library-source-title";
+    itemTitle.textContent = section.label || "Source section";
+    const itemMeta = document.createElement("span");
+    itemMeta.className = "prompt-library-source-meta";
+    itemMeta.textContent = formatPromptLibrarySourceLabel(section);
+    item.append(itemTitle, itemMeta);
+    sourceList.appendChild(item);
+  });
+  sourceCard.appendChild(sourceList);
+  panel.appendChild(sourceCard);
+
+  const promptWrap = document.createElement("div");
+  promptWrap.className = "prompt-library-prompt-wrap";
+  const promptPre = document.createElement("pre");
+  promptPre.className = "prompt-library-prompt";
+  promptPre.textContent = String(activeEntry.prompt || "").trim();
+  promptWrap.appendChild(promptPre);
+  panel.appendChild(promptWrap);
+
+  elements.promptLibraryContent.appendChild(panel);
+}
+
+function showPromptLibraryCopied() {
+  if (!elements.copyPromptLibraryStatus) {
+    return;
+  }
+  elements.copyPromptLibraryStatus.hidden = false;
+  if (state.copyPromptLibraryTimer) {
+    clearTimeout(state.copyPromptLibraryTimer);
+  }
+  state.copyPromptLibraryTimer = window.setTimeout(() => {
+    elements.copyPromptLibraryStatus.hidden = true;
+    state.copyPromptLibraryTimer = null;
+  }, 2000);
+}
+
+function formatPromptLibraryExport() {
+  const activeEntry = getActivePromptLibraryEntry();
+  if (!activeEntry) {
+    return "";
+  }
+  const sourceLines = (Array.isArray(activeEntry.source_sections) ? activeEntry.source_sections : [])
+    .map((section) => `- ${section.label}: ${formatPromptLibrarySourceLabel(section)}`);
+  const notes = (Array.isArray(activeEntry.runtime_notes) ? activeEntry.runtime_notes : [])
+    .map((note) => `- ${note}`);
+  return [
+    `# ${activeEntry.label}`,
+    activeEntry.stage === "Stage 1"
+      ? `Type: Shared`
+      : `Type: ${activeEntry.typeLabel || activeEntry.typeKey || ""}`,
+    "",
+    "## Runtime Notes",
+    ...(notes.length ? notes : ["- None"]),
+    "",
+    "## Source Sections",
+    ...(sourceLines.length ? sourceLines : ["- None"]),
+    "",
+    "## Prompt",
+    "```text",
+    String(activeEntry.prompt || "").trim(),
+    "```"
+  ].join("\n");
+}
+
+async function copyPromptLibraryPrompt() {
+  const text = formatPromptLibraryExport();
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+  } else {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "absolute";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    if (!copied) {
+      throw new Error("Clipboard copy is not available in this browser.");
+    }
+  }
+  showPromptLibraryCopied();
 }
 
 function applyPriorityButtonState(button, priority) {
@@ -5172,6 +6290,7 @@ function renderResults(payload, query) {
     const scoreBadge = fragment.querySelector('[data-role="scoreBadge"]');
     const sceneBadge = fragment.querySelector('[data-role="sceneBadge"]');
     const searchFromImageButton = fragment.querySelector('[data-role="searchFromImageButton"]');
+    const descriptionAuditButton = fragment.querySelector('[data-role="descriptionAuditButton"]');
     const productName = fragment.querySelector(".product-name");
     const brandName = fragment.querySelector(".brand-name");
     const categoryTags = fragment.querySelector('[data-role="categoryTags"]');
@@ -5195,6 +6314,11 @@ function renderResults(payload, query) {
     const summary = details.querySelector("summary");
     const captionLabel = caption.previousElementSibling;
     const traitsLabel = traits.previousElementSibling;
+    const planShapeReasoning = document.createElement("div");
+    planShapeReasoning.className = "debug-plan-shape-reasoning";
+    if (metaBlock) {
+      metaBlock.appendChild(planShapeReasoning);
+    }
     const scoreRank = index + 1;
     const isWeakerMatch = showWeakerMatchesToggle && scoreRank > cutoffMeta.cutoff;
 
@@ -5243,13 +6367,21 @@ function renderResults(payload, query) {
     const productWebsite = String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id);
     cardImageWrap.classList.toggle("is-linked", Boolean(productWebsite));
     cardImageWrap.onclick = null;
+    if (descriptionAuditButton) {
+      descriptionAuditButton.hidden = !IS_PRIVATE_BROWSE_ROUTE;
+      descriptionAuditButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        openDescriptionAuditModal(result);
+      });
+    }
     if (productWebsite) {
       cardImageWrap.setAttribute("role", "link");
       cardImageWrap.setAttribute("tabindex", "0");
       cardImageWrap.setAttribute("aria-label", `Open ${result.name} on Designer Pages`);
       cardImageWrap.addEventListener("click", (event) => {
         const target = event.target;
-        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control")) {
+        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control, .description-audit-button")) {
           return;
         }
         window.open(productWebsite, "_blank", "noopener,noreferrer");
@@ -5259,7 +6391,7 @@ function renderResults(payload, query) {
           return;
         }
         const target = event.target;
-        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control")) {
+        if (target instanceof Element && target.closest(".search-from-image-button, .inspect-control, .description-audit-button")) {
           return;
         }
         event.preventDefault();
@@ -5287,6 +6419,8 @@ function renderResults(payload, query) {
     categoryTags.innerHTML = "";
     getResultCategoryTags(result).forEach((category) => categoryTags.appendChild(createChip(category, true)));
     caption.textContent = result.debug.structured_caption;
+    const planShapeReasoningText = String(result.debug?.plan_shape_reasoning || "").trim();
+    planShapeReasoning.textContent = planShapeReasoningText ? `Plan shape reasoning: ${planShapeReasoningText}` : "";
     renderThumbnails(thumbnails, result, image, cardImageWrap, sceneBadge, scoreBadge, searchFromImageButton);
     const isSelected = state.selectedProductIds.has(result.product_id);
     const hasIndex = Boolean(state.bootstrap?.has_index);
@@ -5320,6 +6454,7 @@ function renderResults(payload, query) {
       mismatchesLabel.hidden = true;
       scoreBreakdown.hidden = true;
       scoreBreakdownLabel.hidden = true;
+      planShapeReasoning.hidden = true;
     } else {
       scoreBadge.hidden = false;
       inspectButton.hidden = true;
@@ -5330,6 +6465,7 @@ function renderResults(payload, query) {
       mismatchesLabel.hidden = !state.debug;
       scoreBreakdown.hidden = true;
       scoreBreakdownLabel.hidden = true;
+      planShapeReasoning.hidden = !state.debug || !planShapeReasoningText;
     }
 
     (result.debug.detected_traits || []).slice(0, 6).forEach((trait) => traits.appendChild(createChip(trait, true)));
@@ -5746,18 +6882,6 @@ function closeImageModal() {
   document.body.classList.remove("modal-open");
 }
 
-function openRulesModal() {
-  elements.rulesModal.hidden = false;
-  document.body.classList.add("modal-open");
-}
-
-function closeRulesModal() {
-  elements.rulesModal.hidden = true;
-  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.extractionSummaryModal.hidden) {
-    document.body.classList.remove("modal-open");
-  }
-}
-
 function openStructuredTraitsModal() {
   renderStructuredTraitsModalContent();
   if (elements.copyStructuredTraitsStatus) {
@@ -5769,7 +6893,27 @@ function openStructuredTraitsModal() {
 
 function closeStructuredTraitsModal() {
   elements.structuredTraitsModal.hidden = true;
-  if (elements.imageModal.hidden && elements.rulesModal.hidden && elements.extractionSummaryModal.hidden) {
+  if (elements.imageModal.hidden && elements.promptLibraryModal.hidden && elements.extractionSummaryModal.hidden) {
+    document.body.classList.remove("modal-open");
+  }
+}
+
+async function openPromptLibraryModal() {
+  if (elements.promptLibraryContent) {
+    elements.promptLibraryContent.innerHTML = '<p class="rules-summary-intro">Loading prompts...</p>';
+  }
+  if (elements.copyPromptLibraryStatus) {
+    elements.copyPromptLibraryStatus.hidden = true;
+  }
+  elements.promptLibraryModal.hidden = false;
+  document.body.classList.add("modal-open");
+  state.promptLibrary = await fetchPromptLibrary();
+  renderPromptLibraryModalContent();
+}
+
+function closePromptLibraryModal() {
+  elements.promptLibraryModal.hidden = true;
+  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.extractionSummaryModal.hidden) {
     document.body.classList.remove("modal-open");
   }
 }
@@ -5786,7 +6930,7 @@ async function openExtractionSummaryModal() {
 
 function closeExtractionSummaryModal() {
   elements.extractionSummaryModal.hidden = true;
-  if (elements.imageModal.hidden && elements.rulesModal.hidden && elements.structuredTraitsModal.hidden) {
+  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.promptLibraryModal.hidden) {
     document.body.classList.remove("modal-open");
   }
 }
@@ -5833,6 +6977,7 @@ function restoreImageAnalysisPreSubmitScreen(previewUrl = "", focusArea = null) 
 function resetImageFlow() {
   state.selectedUploadFile = null;
   state.lastAnalyzeInput = null;
+  state.imageAnalysisCategorySelection = null;
   state.cropPreviewUrl = "";
   state.focusArea = null;
   state.cropModeActive = false;
@@ -5922,12 +7067,11 @@ function buildTraitChangePayload(traits = []) {
 }
 
 async function requestImageAnalysis(body) {
-  const payload = await fetchJson("/api/analyze-image", {
+  return fetchJson("/api/analyze-image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-  return payload.analysis;
 }
 
 function readFileAsDataUrl(file) {
@@ -6002,13 +7146,17 @@ function bulletsFromAnalysis(analysis) {
   return normalizeSelectedBullets(analysis?.raw_visual_highlights || []);
 }
 
-async function runImageAnalysisSearch({ focusArea = null } = {}) {
-  if (!state.lastAnalyzeInput) {
+async function runImageAnalysisSearch(requestBody = null, focusArea = null, options = {}) {
+  const baseInput = requestBody && typeof requestBody === "object"
+    ? requestBody
+    : state.lastAnalyzeInput;
+  if (!baseInput) {
     setStatus("Choose an image file or paste an image URL first.", "error");
     return;
   }
 
-  const body = focusArea ? { ...state.lastAnalyzeInput, focus_area: focusArea } : { ...state.lastAnalyzeInput };
+  const body = focusArea ? { ...baseInput, focus_area: focusArea } : { ...baseInput };
+  const cachedCategory = String(options.seatingTypeOverride || getCachedImageAnalysisCategory(baseInput) || "").trim();
   setImageAnalyzeLoading(true);
   updateImageAnalyzeProgress("prepare", {
     percent: 8,
@@ -6023,12 +7171,50 @@ async function runImageAnalysisSearch({ focusArea = null } = {}) {
   try {
     updateImageAnalyzeProgress("analyze", {
       percent: 18,
-      detail: focusArea
-        ? "Sending the selected crop for visual analysis."
-        : "Sending the image for visual analysis.",
+      detail: cachedCategory
+        ? `Analyzing the image as ${formatSeatingCategoryLabel(cachedCategory)}.`
+        : focusArea
+          ? "Checking what kind of seating is in the selected crop."
+          : "Checking what kind of seating is in the image.",
       targetPercent: 68
     });
-    analysis = await requestImageAnalysis(body);
+    let analysisPayload;
+    if (!cachedCategory) {
+      const stage1Payload = await requestImageAnalysis({
+        ...body,
+        stage1_only: true
+      });
+      if (stage1Payload?.category_required) {
+        closeImageModal();
+        updateClarificationConflict(null);
+        updateCategoryRequirement({
+          mode: "image_analysis",
+          options: Array.isArray(stage1Payload?.seating_category_options) && stage1Payload.seating_category_options.length
+            ? stage1Payload.seating_category_options
+            : Object.keys(SEATING_CATEGORY_DISPLAY_NAMES),
+          message: "What kind of seating are you looking for?\nWe couldn't quite tell from the image.",
+          requestBody: baseInput,
+          focusArea: focusArea ? normalizeFocusArea(focusArea) : null
+        });
+        setStatus("");
+        return;
+      }
+      const resolvedType = String(
+        stage1Payload?.analysis?.seating_type ||
+        stage1Payload?.analysis?.stage1?.seating_type ||
+        ""
+      ).trim();
+      analysisPayload = await requestImageAnalysis({
+        ...body,
+        seating_type_override: resolvedType
+      });
+    } else {
+      analysisPayload = await requestImageAnalysis({
+        ...body,
+        seating_type_override: cachedCategory
+      });
+    }
+    analysis = analysisPayload?.analysis || null;
     updateClarificationConflict(getPrimaryClarificationConflict(analysis));
     const selectedBullets = normalizeSelectedBullets(bulletsFromAnalysis(analysis));
     const bulletControls = buildBulletControlsFromBullets(selectedBullets);
@@ -6141,6 +7327,10 @@ async function analyzeSelectedImage() {
     previewUrl = imageUrl;
   }
 
+  const nextSelectionKey = buildImageAnalysisSelectionKey(body);
+  if (state.imageAnalysisCategorySelection?.key && state.imageAnalysisCategorySelection.key !== nextSelectionKey) {
+    state.imageAnalysisCategorySelection = null;
+  }
   state.lastAnalyzeInput = body;
   showCropStage(previewUrl);
   setStatus("Adjust the focus area, then analyze the image.");
@@ -6177,7 +7367,6 @@ async function bootstrap() {
     if (elements.sortSelect) {
       elements.sortSelect.value = state.sortMode;
     }
-    renderRankingRulesSummary(state.bootstrap.ranking_rules);
     renderSeedQueries(state.bootstrap.seed_queries);
     resetImageFlow();
     if (elements.uploadSupportNote) {
@@ -6319,9 +7508,19 @@ elements.closeDebugLightbox?.addEventListener("click", () => {
   closeDebugLightbox();
 });
 
+elements.closeDescriptionAuditModal?.addEventListener("click", () => {
+  closeDescriptionAuditModal();
+});
+
 elements.debugLightboxCloseTargets?.forEach((target) => {
   target.addEventListener("click", () => {
     closeDebugLightbox();
+  });
+});
+
+elements.descriptionAuditModalCloseTargets?.forEach((target) => {
+  target.addEventListener("click", () => {
+    closeDescriptionAuditModal();
   });
 });
 
@@ -6345,6 +7544,10 @@ elements.copyDebugTableTsv?.addEventListener("click", async () => {
 window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && elements.debugLightbox && !elements.debugLightbox.hidden) {
     closeDebugLightbox();
+    return;
+  }
+  if (event.key === "Escape" && elements.descriptionAuditModal && !elements.descriptionAuditModal.hidden) {
+    closeDescriptionAuditModal();
   }
 });
 
@@ -6662,7 +7865,14 @@ elements.openImageSearch.addEventListener("click", () => {
   openImageModal();
 });
 elements.closeImageModal.addEventListener("click", closeImageModal);
-elements.openRulesSummary.addEventListener("click", openRulesModal);
+elements.openPromptLibrary?.addEventListener("click", async () => {
+  try {
+    await openPromptLibraryModal();
+  } catch (error) {
+    closePromptLibraryModal();
+    setStatus(error.message || "Failed to load prompt library.", "error");
+  }
+});
 elements.openExtractionSummary?.addEventListener("click", async () => {
   try {
     await openExtractionSummaryModal();
@@ -6678,9 +7888,16 @@ elements.copyStructuredTraits?.addEventListener("click", () => {
     setStatus(error.message, "error");
   }
 });
-elements.closeRulesModal.addEventListener("click", closeRulesModal);
+elements.closePromptLibraryModal?.addEventListener("click", closePromptLibraryModal);
 elements.closeExtractionSummaryModal?.addEventListener("click", closeExtractionSummaryModal);
 elements.closeStructuredTraitsModal?.addEventListener("click", closeStructuredTraitsModal);
+elements.copyPromptLibraryModalButton?.addEventListener("click", async () => {
+  try {
+    await copyPromptLibraryPrompt();
+  } catch (error) {
+    setStatus(error.message, "error");
+  }
+});
 elements.copyStructuredTraitsModalButton?.addEventListener("click", async () => {
   try {
     await copyStructuredTraitsSummary();
@@ -6689,7 +7906,7 @@ elements.copyStructuredTraitsModalButton?.addEventListener("click", async () => 
   }
 });
 elements.imageModalCloseTargets.forEach((target) => target.addEventListener("click", closeImageModal));
-elements.rulesModalCloseTargets.forEach((target) => target.addEventListener("click", closeRulesModal));
+elements.promptLibraryModalCloseTargets.forEach((target) => target.addEventListener("click", closePromptLibraryModal));
 elements.extractionSummaryModalCloseTargets.forEach((target) => target.addEventListener("click", closeExtractionSummaryModal));
 elements.structuredTraitsModalCloseTargets.forEach((target) => target.addEventListener("click", closeStructuredTraitsModal));
 document.addEventListener("keydown", (event) => {
@@ -6705,8 +7922,9 @@ document.addEventListener("keydown", (event) => {
     closeStructuredTraitsModal();
     return;
   }
-  if (event.key === "Escape" && !elements.rulesModal.hidden) {
-    closeRulesModal();
+  if (event.key === "Escape" && !elements.promptLibraryModal.hidden) {
+    closePromptLibraryModal();
+    return;
   }
 });
 
@@ -6791,7 +8009,7 @@ elements.applyFocusButton.addEventListener("click", async () => {
   try {
     const focusArea = captureFocusAreaFromDom() || state.focusArea || defaultFocusArea();
     setFocusArea(focusArea);
-    await runImageAnalysisSearch({ focusArea });
+    await runImageAnalysisSearch(null, focusArea);
   } catch (error) {
     setStatus(error.message, "error");
   }

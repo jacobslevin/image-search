@@ -29,14 +29,14 @@ const pdfExtractPath = path.join(__dirname, "..", "data", "pdf-text-extract.json
 
 const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
-const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
+const defaultSeatingType = seatingTypesConfig.default_type || "";
+const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
 const stage1SeatingTypeEnum = [
   "task_collab_chair",
   "lounge_chair",
   "stool",
   "guest_chair",
-  "bench",
-  "other_seating"
+  "bench"
 ];
 const stage1ResultEnum = ["product", "product_detail", "scene"];
 const stage0ResultEnum = ["product", "scene", "product_detail"];
@@ -255,13 +255,13 @@ const LOUNGE_CHAIR_SHAPE_RULES = `- For lounge_chair shape_character: classify t
   }`;
 
 const LOUNGE_CHAIR_CONFIGURATION_RULES = `For configuration, choose exactly one of [Single seat, Double seat, Triple seat (or larger), Modular component, Corner unit, Ottoman].
-Single seat: A standalone seat intended for one occupant. Examples include lounge chairs, club chairs, and armchairs. Single seats are typically as deep as they are wide, or deeper than they are wide. They have one arm on each side (or no arms) with no continuous seating space between distinct seating zones.
-Double seat: A non-modular piece clearly proportioned for two occupants. This includes loveseats and similar two-person lounge pieces. It does not need visible cushion divisions or seams; many modern double seats have a single continuous upholstered surface.
+Single seat: A standalone single-occupant lounge piece. Single seats are typically as deep as they are wide, or deeper than they are wide. They have one arm on each side (or no arms) with no continuous seating space between distinct seating zones.
+Double seat: A non-modular piece clearly proportioned for two occupants. This includes two-person lounge pieces with a clearly shared seating span. It does not need visible cushion divisions or seams; many modern double seats have a single continuous upholstered surface.
 Triple seat (or larger): A non-modular piece clearly proportioned for three or more occupants. This includes sofas and larger lounge pieces. Visual indicators include width substantially greater than depth, multiple occupant zones, and overall proportions where three adults could reasonably sit side by side.
 Modular component: A piece designed to combine or reconfigure with other modules. Modular components often have asymmetric or non-standard arm configurations (one arm only, no arms, or arms only on certain sides), flat sides where they would join other modules, or proportions that suggest they are part of a larger sectional or system rather than a complete standalone seat. Products that appear to be part of a system, collection, or sectional set should be classified as Modular component even if the individual piece looks chair-like or sofa-like in isolation. If a piece appears designed to combine with other pieces rather than stand alone as a complete seating element, classify it as Modular component, not Single seat, Double seat, or Triple seat (or larger).
 Corner unit: An L-shaped or corner-specific modular piece designed to fit at the intersection of other seating elements.
 Ottoman: A backless, typically low upholstered seat or footrest with no arms or back.
-Decision rule for ambiguous cases: when a piece could plausibly be either a wide lounge chair or a small loveseat, default to Double seat if the width-to-depth ratio is greater than roughly 1.5:1 and the seat surface is wide enough to comfortably seat two adults. Use Triple seat (or larger) only when the piece clearly reads as a sofa or otherwise proportioned for three or more adults. Only classify as Single seat if the piece reads proportionally as deeper than wide, or as roughly square in plan view, indicating it is designed for one occupant. When choosing between Single seat and Modular component for a piece that could read as either, prefer Modular component if the piece has structural cues suggesting it is part of a larger system, such as asymmetric arms, flat joinable sides, or unusual proportions for a standalone chair.`;
+Decision rule for ambiguous cases: when a piece could plausibly be either a wide single seat or a compact two-person lounge piece, default to Double seat if the width-to-depth ratio is greater than roughly 1.5:1 and the seat surface is wide enough to comfortably seat two adults. Use Triple seat (or larger) only when the piece clearly reads as a sofa or otherwise proportioned for three or more adults. Only classify as Single seat if the piece reads proportionally as deeper than wide, or as roughly square in plan view, indicating it is designed for one occupant. When choosing between Single seat and Modular component for a piece that could read as either, prefer Modular component if the piece has structural cues suggesting it is part of a larger system, such as asymmetric arms, flat joinable sides, or unusual proportions for a standalone piece.`;
 
 const LOUNGE_CHAIR_CANONICAL_RULES = `- For lounge_chair arm_option: use "Integrated / sculpted" whenever the arms flow continuously from the shell or backrest as part of the same sculpted form, even if seam lines are visible in the upholstery. Use "Armless" when no discrete armrests are present. Use "Two arms" only when the arms read as distinct attached arm elements with their own visible structure separate from the shell or body.
 - For lounge_chair body_construction: use "Upholstered" for any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions. Use "Panel / privacy enclosure" for high side-panel lounge forms that enclose the user above shoulder or head level.
@@ -296,12 +296,6 @@ const BENCH_CANONICAL_RULES = `- For bench configuration: choose exactly one of 
 - For bench back_height: classify the physical back support height using [Backless, Low back, Full back]. Use "Backless" when no physical back support is present. Use "Low back" when a back support rises only modestly above the seat. Use "Full back" when the back support rises substantially above the seat and reads as a full backrest.
 - For bench back_finish: classify the visible finish of the back surface using [Upholstered, Natural wood, Unupholstered]. Use "Natural wood" when the back surface is exposed wood. Use "Unupholstered" when the back support is a bare shell or hard surface with no upholstery.`;
 
-const OTHER_SEATING_CANONICAL_RULES = `- For other_seating back_height: classify the physical back support using [Backless, Low, Mid, High, Full enclosure]. Use "Backless" when no back support is present. Use "Full enclosure" when enclosing panels wrap above shoulder or head level. Use "Low", "Mid", and "High" based on the visible vertical extent of the back support.
-- For other_seating back_finish: classify the visible back surface using [Upholstered, Mesh / net, Unupholstered]. Use "Mesh / net" only when the visible back surface is mesh or netting. Use "Unupholstered" when the visible back surface is a bare shell or hard surface with no upholstery.
-- For other_seating arm_option: use "Armless" when no arms are present. Use "Fixed arms" for rigid non-adjustable arms, "Adjustable arms" only when visible adjustment hardware is present, and "Integrated" only when the arms flow directly from the same shell or side structure.
-- For other_seating base_type: use [4-leg, Sled, 5-star with casters, 5-star with glides, Pedestal, Cantilever, Wall-mounted, Integrated base]. Split generic five-star bases into casters versus glides based on whether wheels are visible. Use "Integrated base" when the base is visually absorbed into the body with no discrete leg structure.
-- For other_seating seat_finish: use [Fabric, Leather, Mesh / net, Molded plastic, Natural wood]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Mesh / net" only when the visible seat surface itself is mesh or netting.`;
-
 function getVisualSummaryCategoryList(typeKey = "") {
   const categories = seatingTypes[String(typeKey || "").trim()]?.visual_summary_categories;
   return Array.isArray(categories)
@@ -312,52 +306,43 @@ function getVisualSummaryCategoryList(typeKey = "") {
 const VISUAL_SUMMARY_PROMPT_CONFIG = {
   lounge_chair: {
     decision_rules: [
-      "If a piece is wide enough to seat two adults side-by-side (roughly 1.5x the width of a typical chair seat or more), use a multi-person category (sofa, loveseat, multi-person bench), not a single-occupant category.",
-      "If a piece has asymmetric arms, flat sides designed for connection, or otherwise reads as part of a larger system, use a modular category if available.",
-      "Avoid the generic word \"seat\" when a more specific category applies."
+      "Use a strict configuration-first cascade. If configuration = Ottoman, use \"ottoman.\" If configuration = Corner unit, use \"corner unit.\" If configuration = Modular component, use \"modular component.\"",
+      "If configuration = Double seat or Triple seat (or larger), choose only among \"sofa,\" \"modular sofa,\" and \"modular seating.\" Use \"modular sofa\" only when the piece is multi-seat and visually reads as a sofa with clear modular cues such as asymmetric arms, flat join sides, or system-style sectional construction. Use \"sofa\" for standard multi-seat lounge seating. Use \"modular seating\" when the piece is clearly multi-person but does not visually read as a standard sofa. \"Modular component\" and \"modular sofa\" are not interchangeable: the first requires the Modular component enum, the second requires a multi-seat configuration plus visual modular cues.",
+      "If configuration = Single seat, continue the cascade in this order: use \"privacy lounge chair\" for back_height = Full enclosure, \"high-back lounge chair\" for back_height = High, otherwise choose the most specific arm-based form: \"armless lounge chair,\" \"one-arm lounge chair,\" \"two-arm lounge chair,\" or \"integrated lounge chair.\" Fall back to \"lounge chair\" only when none of those more specific single-seat categories apply."
     ],
-    good_example: "A low-slung two-seat sofa with a continuous curved back and integrated rounded arms, supported on slender splayed metal legs. The seat surface is unbroken and softly upholstered, with a single horizontal seam at the cushion edge."
+    good_example: "A high-back lounge chair with a softly tapered upholstered body, integrated arms, and a compact four-leg base. The back rises well above the seat in one continuous shell, giving it a more enveloping profile than a standard lounge chair."
   },
   task_collab_chair: {
     decision_rules: [
-      "If the chair reads primarily as a height-adjustable work chair with a five-star base and visible ergonomic intent, use \"task chair\" rather than a meeting-oriented category.",
-      "Use \"executive task chair\" only when the chair reads broader, fuller, and more managerial than a standard task chair, with a more substantial upholstered body or higher-back presence.",
-      "If the chair has a lighter meeting-room silhouette with a sled or simple four-leg base and less visible ergonomic complexity, prefer \"conference chair,\" \"collaborative chair,\" \"sled-base meeting chair,\" or \"four-leg work chair\" as appropriate.",
-      "If the seat sits visibly higher than a normal desk chair and reads intended for elevated work surfaces, prefer \"drafting chair\"."
+      "Choose category from base_type only. Map \"5-star with casters\" to \"five-star task chair,\" \"5-star with glides\" to \"five-star glide chair,\" \"Sled\" to \"sled work chair,\" and \"4-leg\" to \"four-leg work chair.\"",
+      "Do not mix arm treatment into the category noun for this type. Keep arms, back finish, and seat finish in the later prose instead.",
+      "When multiple visual traits are present, let base_type control category selection rather than choosing between unrelated trait families."
     ],
-    good_example: "An ergonomic task chair with a tall mesh back, adjustable armrests, and a five-star caster base. The seat is tightly upholstered and the frame reads as light but technical, with a pronounced lumbar curve that distinguishes it from simpler meeting chairs."
+    good_example: "A five-star task chair with a tall mesh back, adjustable arms, and a compact rolling base. The silhouette is upright and work-focused, with a technical frame and a tightly upholstered seat."
   },
   guest_chair: {
     decision_rules: [
-      "If the form is clearly visitor or side seating on a fixed base, use \"guest chair\" or \"side chair,\" not a task-chair category, even if it resembles office seating.",
-      "If the base is a single continuous side frame with no rear legs, prefer \"cantilever guest chair.\" If the support reads as a continuous sled, prefer \"sled-base guest chair.\"",
-      "Use arm-based categories only when arm treatment is a dominant structural feature: \"arm guest chair,\" \"armless guest chair,\" or \"closed-arm guest chair.\" Keep material in the prose rather than the category noun."
+      "Choose category from base_type only. Map \"4-leg\" to \"four-leg guest chair,\" \"Sled\" to \"sled guest chair,\" \"Cantilever\" to \"cantilever guest chair,\" and \"Pedestal\" to \"pedestal guest chair.\"",
+      "Do not use generic nouns like \"guest chair\" or \"side chair\" when a schema-backed base category is available.",
+      "Keep arm treatment, frame openness, mobility, seat finish, and back finish in the prose rather than the category noun."
     ],
-    good_example: "A cantilever guest chair with a rounded upholstered seat and back, supported by a polished tubular side frame. The body reads as open and lightweight, with gently curved edges and no heavy enclosure around the sitter."
+    good_example: "A cantilever guest chair with a rounded upholstered seat and back on a polished tubular side frame. The body reads open and lightweight, with gentle curves and no heavy enclosure around the sitter."
   },
   stool: {
     decision_rules: [
-      "If there is no backrest, commit to \"backless stool\" rather than the generic word \"stool.\" Use \"low-back stool\" or \"full-back stool\" only when the backrest is structurally obvious.",
-      "If the seat pitches forward or reads designed for leaning rather than full sitting, prefer \"perching stool.\" If the seat has a clearly straddled profile, prefer \"saddle stool.\"",
-      "If the base or seat visibly suggests active rocking or flex behavior, prefer \"wobble stool.\" If the stool reads taller and more work-surface oriented, prefer \"drafting stool.\""
+      "Use a strict ordered cascade and stop at the first match. First check seat_geometry: if it is \"Angled / perch,\" use \"perching stool.\" If it is \"Saddle,\" use \"saddle stool.\" If it is \"Wobble / balance,\" use \"wobble stool.\" Do not continue to back or base_type once one of these matches.",
+      "If no seat_geometry category matched, check back next. Map \"Backless\" to \"backless stool,\" \"Low back\" to \"low-back stool,\" and \"Full back\" to \"full-back stool.\" Do not continue to base_type once one of these matches.",
+      "Only if neither seat_geometry nor back matched, fall back to base_type: \"pedestal stool,\" \"four-leg stool,\" \"five-star caster stool,\" \"five-star glide stool,\" or \"molded one-piece stool.\" Do not re-evaluate earlier steps."
     ],
-    good_example: "A backless perching stool with a forward-tilted seat, slim pedestal support, and compact footprint. The seat reads as designed for leaning support rather than deep sitting, which distinguishes it from a conventional flat stool."
+    good_example: "A perching stool with a forward-tilted seat, slim pedestal support, and compact footprint. The seat reads as designed for leaning support rather than deep sitting, which distinguishes it from a conventional flat stool."
   },
   bench: {
     decision_rules: [
-      "If the piece has no back at all, commit to \"backless bench\" rather than the generic word \"bench.\" Use \"backed bench\" only when the back structure is clearly present.",
-      "If the seating span clearly supports multiple occupants and reads longer than a side chair or ottoman, prefer \"two-person bench\" or \"three-person bench\" when that capacity is visually plausible.",
-      "If the form is heavily upholstered and proportioned more like shared relaxed seating, prefer \"lounge bench\"; if it reads more infrastructural or public-facing, prefer \"public seating bench.\""
+      "Use configuration first. Map \"Double seat\" to \"double-seat bench,\" \"Triple seat (or larger)\" to \"triple-seat bench,\" and \"Custom width\" to \"custom-width bench.\" If one of these configuration categories applies, keep it even when the bench is backless and mention the backlessness in the prose instead of changing the category noun.",
+      "If no configuration category gives the intended category, then use back_height. Map \"Backless\" to \"backless bench,\" \"Low back\" to \"low-back bench,\" and \"Full back\" to \"full-back bench.\"",
+      "Keep upholstery and material distinctions in the prose rather than the category noun."
     ],
-    good_example: "A two-person upholstered bench with a long, rectilinear seat and a slim exposed steel frame. The profile is low and linear, with clean edges and no backrest, giving it a lighter appearance than a lounge sofa."
-  },
-  other_seating: {
-    decision_rules: [
-      "Use the broadest accurate category noun available here rather than borrowing lounge-chair terminology. Prefer \"specialty seating,\" \"hybrid seating piece,\" or \"non-standard seating form\" when the object does not fit a cleaner family.",
-      "If the piece reads built-in, infrastructural, or attached to surrounding architecture rather than freestanding furniture, prefer \"architectural seating element\" or \"integrated seating element.\"",
-      "If the unit is clearly meant to connect with other pieces but does not fit the lounge or bench families cleanly, prefer \"modular seating unit.\" Use \"wall-mounted seat\" only when the mounting condition is visually obvious."
-    ],
-    good_example: "An enclosed architectural seating element with a deep seat, integrated side panels, and a partially screened profile. The form reads as a specialty seating piece rather than a conventional chair, with the enclosure doing most of the visual work."
+    good_example: "A double-seat bench with a long rectilinear seat, slim exposed steel frame, and lightly upholstered top. The profile is low and linear, with clean edges that keep it distinct from a lounge sofa."
   }
 };
 
@@ -424,7 +409,7 @@ export class QueryImageAnalysisStageError extends Error {
 }
 
 function getTypeFields(typeKey) {
-  return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType].fields || [];
+  return seatingTypes[typeKey]?.fields || seatingTypes[fallbackSeatingType]?.fields || [];
 }
 
 function buildTraitFieldConfigIndex(types = {}) {
@@ -447,7 +432,7 @@ const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
 function getTraitFieldConfig(typeKey, fieldName) {
   const normalizedTypeKey = String(typeKey || "").trim();
   const normalizedFieldName = String(fieldName || "").trim();
-  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : fallbackSeatingType;
   return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
 }
 
@@ -463,7 +448,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
 function resolveTextQueryTraitType(typeKey = "") {
   const normalized = String(typeKey || "").trim();
   if (!normalized || !seatingTypes[normalized]) {
-    return defaultSeatingType;
+    return fallbackSeatingType;
   }
   return normalized;
 }
@@ -708,7 +693,7 @@ function ensureTypeKey(candidate) {
   const raw = String(candidate || "").trim().toLowerCase();
   if (seatingTypes[raw]) return raw;
   if (TYPE_LABEL_TO_KEY[raw]) return TYPE_LABEL_TO_KEY[raw];
-  return defaultSeatingType;
+  return fallbackSeatingType;
 }
 
 function normalizeStage1Result(result = "") {
@@ -735,7 +720,7 @@ function classifySeatingTypeHeuristic(context = "") {
   if (/lounge|club|accent/.test(value)) return "lounge_chair";
   if (/stool|counter stool|bar stool|perch|active stool|wobble|balance stool|saddle stool/.test(value)) return "stool";
   if (/bench/.test(value)) return "bench";
-  return defaultSeatingType;
+  return "";
 }
 
 function classifySchema() {
@@ -977,7 +962,7 @@ function buildPerTypeFieldGuide() {
 }
 
 function buildFieldGuideForType(typeKey) {
-  const typeConfig = seatingTypes[typeKey] || seatingTypes[defaultSeatingType];
+  const typeConfig = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
   const fieldLines = fields
     .map((entry) => {
@@ -1298,7 +1283,7 @@ ${buildVisualSummaryInstruction(typeKey)}`;
 }
 
 function extractionPrompt(typeKey) {
-  const type = seatingTypes[typeKey] || seatingTypes[defaultSeatingType];
+  const type = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
   const fieldLines = fields
     .map((entry) => `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]`)
@@ -1318,10 +1303,6 @@ function extractionPrompt(typeKey) {
   const benchRule = typeKey === "bench"
     ? `${BENCH_CANONICAL_RULES}\n`
     : "";
-  const otherSeatingRule = typeKey === "other_seating"
-    ? `${OTHER_SEATING_CANONICAL_RULES}\n`
-    : "";
-
   return `Analyze one furniture image and answer only schema-routed questions. Type route: ${type.label} (${typeKey}). Return strict JSON only.
 
 Rules:
@@ -1331,7 +1312,7 @@ Rules:
 - If a feature is structurally absent (e.g. no back, no arms), use "none" not "unknown".
 - Never invent values outside allowed enum values.
 - Ignore non-primary products and scene decor.
-${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRule}${guestChairRule}${benchRule}${otherSeatingRule}- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with form and distinctive geometry. This replaces the previous visual_description field.
+${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRule}${guestChairRule}${benchRule}- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with form and distinctive geometry. This replaces the previous visual_description field.
 - raw_visual_highlights is optional debug only, max 8 bullets.
 Fields: ${fieldLines}`;
 }
@@ -1764,7 +1745,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
 }
 
 export function combinedStage23Prompt(typeKey) {
-  const typeConfig = seatingTypes[typeKey] || seatingTypes[defaultSeatingType];
+  const typeConfig = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const stoolBackRule = typeKey === "stool"
     ? `${STOOL_CANONICAL_RULES}\n`
     : "";
@@ -1780,10 +1761,6 @@ export function combinedStage23Prompt(typeKey) {
   const benchRules = typeKey === "bench"
     ? `${BENCH_CANONICAL_RULES}\n`
     : "";
-  const otherSeatingRules = typeKey === "other_seating"
-    ? `${OTHER_SEATING_CANONICAL_RULES}\n`
-    : "";
-
   return `You are a furniture visual analyst. Analyze only the primary seating product in the image. The seating type has already been determined by stage 1: ${typeConfig.label} (${typeKey}).
 
 Return strict JSON only.
@@ -1802,7 +1779,7 @@ Stage 3: attributes
 - If a trait is not visible or not applicable, use "unknown".
 - If a feature is structurally absent, use "none" when "none" is an allowed value.
 - Never invent values outside the allowed enums.
-${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRules}${guestChairRules}${benchRules}${otherSeatingRules}Relevant attribute fields for this seating type only:
+${stoolBackRule}${loungeChairBaseRule}${taskCollabChairRules}${guestChairRules}${benchRules}Relevant attribute fields for this seating type only:
 ${buildFieldGuideForType(typeKey)}
 
 Return JSON with:
@@ -2640,7 +2617,7 @@ function voteFieldValues(values = []) {
 function buildEnumComparisonSnapshot(run = {}) {
   return {
     result: run.stage1?.result || "product",
-    seating_type: run.stage1?.seating_type || "other_seating",
+    seating_type: run.stage1?.seating_type || "",
     design_register: run.stage2?.design_register || "unknown",
     image_traits: run.stage3?.image_traits || {}
   };
@@ -2702,8 +2679,7 @@ Type hints:
 - lounge_chair: low or relaxed seating including single lounge chairs, sofas, modular lounge pieces, wrapped-shell lounge forms, pedestal lounge chairs, high-back privacy chairs, and backless upholstered companion pieces such as poufs or footrests
 - stool: elevated, perch, saddle, or wobble stool with no back or a low back, for counter, bar, drafting, or active seating
 - guest_chair: side chair or visitor chair, 4-leg or sled base, minimal adjustability
-- bench: multi-person seat without individual back support, long seat surface
-- other_seating: use only if the item genuinely does not fit any of the above types.`;
+- bench: multi-person seat without individual back support, long seat surface`;
 }
 
 async function classifySeatingTypeOpenAiWithMeta(imageInput, options = {}) {
@@ -3074,8 +3050,7 @@ export const TEXT_QUERY_CATEGORY_KEYS = [
   "guest_chair",
   "lounge_chair",
   "bench",
-  "stool",
-  "other_seating"
+  "stool"
 ];
 
 function textQueryCategoryInferenceSchema() {
@@ -3101,7 +3076,6 @@ Available categories:
 - lounge_chair: Lounge Chair. Lounge chairs, club chairs, accent chairs, sofas, modular lounge pieces, privacy lounge seating, and backless upholstered companion pieces such as poufs or footrests for relaxed posture.
 - bench: Bench. Benches and banquettes intended for multiple people on one continuous seat.
 - stool: Stool. Bar stools, counter stools, drafting stools, perch stools, saddle stools, and active stools.
-- other_seating: Other Seating. Seating-related products that genuinely do not fit the categories above, such as booths, meeting pods, or unusual seating systems.
 
 Return a single high-confidence category_key when the query clearly points to one category.
 Return category_required only when the query is genuinely ambiguous or too generic to resolve confidently.
@@ -3378,7 +3352,7 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
 
   const pixelSeekType = getPixelSeekType(imageRecord);
   const routingTypeKey = resolveCatalogRoutingTypeKey(pixelSeekType);
-  if (pixelSeekType === "SKIP" || !routingTypeKey) {
+  if (pixelSeekType === "SKIP" || pixelSeekType === "INTENTIONALLY_EXCLUDED" || !routingTypeKey) {
     return {
       ...buildExcludedImageExtractionResult({
       baseRecord: {
@@ -3403,7 +3377,9 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
       extractionTimestamp,
       imageDimensions
       }),
-      excluded_reason: "unmapped_category_grouping",
+      excluded_reason: pixelSeekType === "INTENTIONALLY_EXCLUDED"
+        ? "intentionally_excluded"
+        : "unmapped_category_grouping",
       pixelseek_type: null,
       type_routing_source: "mapping_v1"
     };
@@ -3456,8 +3432,8 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
     stage_1_override: false,
     stage_1_override_result: null,
     stage_1_override_reason: null,
-    seating_type: String(routingTypeKey || "other_seating"),
-    pixelseek_type: String(pixelSeekType || "other_seating"),
+    seating_type: String(routingTypeKey || ""),
+    pixelseek_type: String(pixelSeekType || ""),
     type_routing_source: "mapping_v1",
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
@@ -3632,7 +3608,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     ? getPixelSeekType(imageRecord)
     : getPixelSeekType(existingRecord);
   const routingTypeKey = resolveCatalogRoutingTypeKey(pixelSeekType);
-  if (pixelSeekType === "SKIP" || !routingTypeKey) {
+  if (pixelSeekType === "SKIP" || pixelSeekType === "INTENTIONALLY_EXCLUDED" || !routingTypeKey) {
     return {
       ...buildExcludedImageExtractionResult({
       baseRecord: {
@@ -3651,7 +3627,9 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
       extractionTimestamp,
       imageDimensions
       }),
-      excluded_reason: "unmapped_category_grouping",
+      excluded_reason: pixelSeekType === "INTENTIONALLY_EXCLUDED"
+        ? "intentionally_excluded"
+        : "unmapped_category_grouping",
       pixelseek_type: null,
       type_routing_source: "mapping_v1"
     };
@@ -3702,8 +3680,8 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     stage_1_override: false,
     stage_1_override_result: null,
     stage_1_override_reason: null,
-    seating_type: String(routingTypeKey || "other_seating"),
-    pixelseek_type: String(pixelSeekType || "other_seating"),
+    seating_type: String(routingTypeKey || ""),
+    pixelseek_type: String(pixelSeekType || ""),
     type_routing_source: "mapping_v1",
     enum_fields: enumFields,
     field_confidence: fieldConfidence,
@@ -3832,7 +3810,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
 function buildCatalogRoutingStage1Stub(typeKey = "") {
   return {
     result: "product",
-    seating_type: String(typeKey || "other_seating"),
+    seating_type: String(typeKey || ""),
     override_reason: null
   };
 }
@@ -3893,6 +3871,77 @@ function allFieldsAgree(runA, runB) {
   return valueVoteKey(buildEnumComparisonSnapshot(runA)) === valueVoteKey(buildEnumComparisonSnapshot(runB));
 }
 
+function allStage1VotesAgree(runA, runB) {
+  return valueVoteKey({
+    result: normalizeStage1Result(runA?.stage1?.result),
+    seating_type: String(runA?.stage1?.seating_type || "").trim()
+  }) === valueVoteKey({
+    result: normalizeStage1Result(runB?.stage1?.result),
+    seating_type: String(runB?.stage1?.seating_type || "").trim()
+  });
+}
+
+async function voteStage1Classifications(imageInput, options = {}) {
+  const run1 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
+  const run2 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
+  const runs = [
+    { run_label: "run_1", stage1: run1.data, usage: run1.usage },
+    { run_label: "run_2", stage1: run2.data, usage: run2.usage }
+  ];
+
+  if (!allStage1VotesAgree(runs[0], runs[1])) {
+    const run3 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
+    runs.push({ run_label: "run_3", stage1: run3.data, usage: run3.usage });
+  }
+
+  const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
+  if (stage1ResultVote.value === "product_detail" || stage1ResultVote.value === "scene") {
+    const winningRun = runs.find((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value) || {};
+    return {
+      stage1: buildStage1OverrideVoteResult(
+        stage1ResultVote.value,
+        winningRun.stage1?.override_reason || null,
+        stage1ResultVote.confidence
+      ).stage1,
+      field_confidence: {
+        stage1: {
+          result: stage1ResultVote.confidence,
+          seating_type: "low"
+        }
+      },
+      runs,
+      extraction_runs: runs.length,
+      api_call_count: runs.length
+    };
+  }
+
+  const seatingTypeVote = voteFieldValues(
+    runs.map((run) => {
+      const value = String(run.stage1?.seating_type || "").trim();
+      return seatingTypes[value] ? value : "";
+    })
+  );
+  const resolvedSeatingType = seatingTypes[String(seatingTypeVote.value || "").trim()]
+    ? seatingTypeVote.value
+    : "";
+  return {
+    stage1: {
+      result: "product",
+      seating_type: resolvedSeatingType,
+      override_reason: null
+    },
+    field_confidence: {
+      stage1: {
+        result: stage1ResultVote.confidence,
+        seating_type: seatingTypeVote.confidence
+      }
+    },
+    runs,
+    extraction_runs: runs.length,
+    api_call_count: runs.length
+  };
+}
+
 function voteStage123Runs(runs = []) {
   const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
   if (stage1ResultVote.value === "product_detail" || stage1ResultVote.value === "scene") {
@@ -3904,7 +3953,7 @@ function voteStage123Runs(runs = []) {
     );
   }
   const primary = runs[0] || {};
-  const seatingTypeVote = voteFieldValues(runs.map((run) => run.stage1?.seating_type || "other_seating"));
+  const seatingTypeVote = voteFieldValues(runs.map((run) => run.stage1?.seating_type || ""));
   const designRegisterVote = voteFieldValues(runs.map((run) => run.stage2?.design_register || "unknown"));
   const imageTraitKeys = [...new Set(runs.flatMap((run) => Object.keys(run.stage3?.image_traits || {})))].sort((a, b) => a.localeCompare(b));
   const imageTraitVote = voteNamedFields(imageTraitKeys, runs, (run, key) => run.stage3?.image_traits?.[key] ?? "unknown");
@@ -3912,7 +3961,7 @@ function voteStage123Runs(runs = []) {
   return {
     stage1: {
       result: "product",
-      seating_type: seatingTypeVote.value || "other_seating",
+      seating_type: seatingTypeVote.value || "",
       override_reason: null
     },
     stage2: {
@@ -4049,7 +4098,7 @@ export function aggregateCaptionResults(entries = []) {
   );
 
   const consensus = {
-    seating_type: seatingTypeVote.value || "other_seating",
+    seating_type: seatingTypeVote.value || "",
     image_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, imageTraitVote.values),
     spec_traits: specTraitVote.values,
     merged_traits: applyLoungeChairPlanShapeGuardrails(seatingTypeVote.value, mergedTraitVote.values),
@@ -4166,6 +4215,98 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     ...options,
     apiKey: provider === "openai" ? options.apiKey : null
   };
+
+  if (options.stage1Only) {
+    const stage1Vote = await voteStage1Classifications(imageInput, {
+      ...runOptions,
+      visionModel: runOptions.visionModel || "gpt-4.1"
+    });
+    return {
+      seating_type: String(stage1Vote.stage1?.seating_type || "").trim(),
+      stage1: cloneKnownValue(stage1Vote.stage1),
+      field_confidence: cloneKnownValue(stage1Vote.field_confidence),
+      extraction_runs: stage1Vote.extraction_runs,
+      analysis_api_call_count: stage1Vote.api_call_count,
+      api_call_count: stage1Vote.api_call_count,
+      stage1_runs: stage1Vote.runs.map((run) => ({
+        run: run.run_label,
+        stage1: cloneKnownValue(run.stage1)
+      }))
+    };
+  }
+
+  const forcedSeatingType = seatingTypes[String(options.seatingTypeOverride || "").trim()]
+    ? String(options.seatingTypeOverride || "").trim()
+    : "";
+  if (forcedSeatingType) {
+    const run1 = await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
+      ...runOptions,
+      visionModel: runOptions.visionModel || "gpt-4.1"
+    }, { name: "Inspiration image" }, "run_1");
+    const run2 = await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
+      ...runOptions,
+      visionModel: runOptions.visionModel || "gpt-4.1"
+    }, { name: "Inspiration image" }, "run_2");
+    const runs = [run1, run2];
+    if (!allFieldsAgree(run1, run2)) {
+      runs.push(await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
+        ...runOptions,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_3"));
+    }
+
+    const voted = voteStage123Runs(runs);
+    const visualSummary = normalizeWhitespace(voted.stage2.visual_summary || "");
+    const imageTraits = normalizeImageTraits(forcedSeatingType, voted.stage3.image_traits || {});
+    const fieldConfidence = buildSinglePassFieldConfidence(forcedSeatingType, imageTraits);
+    const searchText = buildSearchableText({
+      productName: "",
+      brand: "",
+      seatingType: forcedSeatingType,
+      enumFields: imageTraits,
+      freeText: {
+        visual_summary: visualSummary,
+        structured_caption: voted.stage3.structured_caption || "",
+        silhouette: voted.stage2.silhouette || "",
+        proportions: voted.stage2.proportions || "",
+        structure_type: voted.stage2.structure_type || "",
+        back_geometry: voted.stage2.back_geometry || "",
+        seat_geometry: voted.stage2.seat_geometry || "",
+        arm_geometry: voted.stage2.arm_geometry || "",
+        surface_language: voted.stage2.surface_language || "",
+        distinctive_elements: Array.isArray(voted.stage2.distinctive_elements) ? voted.stage2.distinctive_elements : []
+      }
+    });
+    const queryEmbedding = await embedSearchText(searchText, runOptions);
+
+    return {
+      seating_type: forcedSeatingType,
+      stage1: { seating_type: forcedSeatingType },
+      stage2: {
+        visual_summary: visualSummary,
+        design_register: String(imageTraits.design_register || "").trim()
+      },
+      stage3: {
+        reasoning: voted.stage3.reasoning || "",
+        image_traits: imageTraits
+      },
+      enum_fields: imageTraits,
+      field_confidence: fieldConfidence,
+      image_traits: imageTraits,
+      reasoning: voted.stage3.reasoning || "",
+      plan_shape_reasoning: voted.stage3.reasoning || "",
+      visual_form: visualSummary,
+      search_text: searchText,
+      search_bullets: buildSearchTimeBullets(imageTraits, forcedSeatingType),
+      query_embedding: queryEmbedding,
+      visual_summary_embedding: queryEmbedding,
+      raw_visual_highlights: Array.isArray(voted.stage3.raw_visual_highlights) ? voted.stage3.raw_visual_highlights : [],
+      structured_caption: voted.stage3.structured_caption || "",
+      extraction_runs: runs.length,
+      analysis_api_call_count: runs.length * 2,
+      api_call_count: runs.length * 2
+    };
+  }
 
   let run1;
   let run2;

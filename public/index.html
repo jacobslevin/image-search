@@ -22,7 +22,7 @@
         window.__PIXELSEEK_HOME_PATH__ = isPrivateBrowseRoute ? privateBrowsePath : "/";
       })();
     </script>
-    <link rel="stylesheet" href="/styles.css?v=20260423-browse-rail-polish" />
+    <link rel="stylesheet" href="/styles.css?v=20260426-prompt-library" />
   </head>
   <body>
     <nav class="site-nav" aria-label="Browse controls">
@@ -34,8 +34,8 @@
       </div>
       <div class="site-nav-end">
         <button id="copyStructuredTraits" class="site-nav-link" type="button">Structured Traits</button>
+        <button id="openPromptLibrary" class="site-nav-link" type="button">Prompts</button>
         <button id="openExtractionSummary" class="site-nav-link" type="button">Extraction Summary</button>
-        <button id="openRulesSummary" class="site-nav-link" type="button">Ranking Rules</button>
         <button id="debugToggle" class="debug-toggle" type="button" aria-haspopup="dialog">
           <span id="debugToggleLabel">Debug Table</span>
         </button>
@@ -70,7 +70,6 @@
                     <option value="lounge_chair">Lounge Seating</option>
                     <option value="bench">Benches</option>
                     <option value="stool">Stools</option>
-                    <option value="other_seating">Other Seating</option>
                   </select>
                 </span>
                 <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
@@ -186,7 +185,6 @@
                 <option value="lounge_chair">Lounge Seating</option>
                 <option value="bench">Benches</option>
                 <option value="stool">Stools</option>
-                <option value="other_seating">Other Seating</option>
               </select>
             </label>
           </section>
@@ -319,22 +317,45 @@
       </div>
     </div>
 
-    <div id="structuredTraitsModal" class="modal-shell" hidden>
+    <div id="structuredTraitsModal" class="modal-shell debug-lightbox-shell" hidden>
       <div class="modal-backdrop" data-role="structuredTraitsModalClose"></div>
-      <div class="modal-card rules-modal-card">
-        <div class="modal-header">
+      <div class="modal-card debug-lightbox-card structured-traits-lightbox-card">
+        <div class="modal-header debug-lightbox-header">
           <div>
             <p class="modal-eyebrow">Structured Traits</p>
-            <h2 class="modal-title">Category Trait Schema</h2>
+            <h2 class="modal-title">Structured Trait Inspector</h2>
           </div>
           <button id="closeStructuredTraitsModal" class="modal-close" type="button" aria-label="Close structured traits modal">✕</button>
         </div>
 
-        <section class="rules-summary-content">
+        <section class="rules-summary-content structured-traits-lightbox-content">
           <div id="structuredTraitsText" class="structured-traits-list"></div>
-          <div class="rules-actions">
-            <button id="copyStructuredTraitsModalButton" class="rules-summary-button" type="button">Copy</button>
+          <div class="rules-actions debug-lightbox-actions structured-traits-lightbox-actions">
+            <button id="copyStructuredTraitsModalButton" class="rules-summary-button" type="button">Copy Current Tab</button>
             <span id="copyStructuredTraitsStatus" class="rules-copy-status" hidden>Copied!</span>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="promptLibraryModal" class="modal-shell debug-lightbox-shell" hidden>
+      <div class="modal-backdrop" data-role="promptLibraryModalClose"></div>
+      <div class="modal-card debug-lightbox-card prompt-library-lightbox-card">
+        <div class="modal-header debug-lightbox-header">
+          <div>
+            <p class="modal-eyebrow">Prompt Library</p>
+            <h2 class="modal-title">Runtime Prompt Inspector</h2>
+          </div>
+          <button id="closePromptLibraryModal" class="modal-close" type="button" aria-label="Close prompt library modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content prompt-library-lightbox-content">
+          <div id="promptLibraryContent" class="prompt-library-content">
+            <p class="rules-summary-intro">Loading prompts...</p>
+          </div>
+          <div class="rules-actions debug-lightbox-actions prompt-library-lightbox-actions">
+            <button id="copyPromptLibraryModalButton" class="rules-summary-button" type="button">Copy Current Prompt</button>
+            <span id="copyPromptLibraryStatus" class="rules-copy-status" hidden>Copied!</span>
           </div>
         </section>
       </div>
@@ -355,34 +376,6 @@
           <p class="rules-summary-intro">Counts come from the current image index. Product-detail overrides are shown under <strong>Unspecified</strong> when stage 1 correctly rejects an image without assigning a seating category.</p>
           <div id="extractionSummaryContent" class="extraction-summary-content">
             <p class="rules-summary-intro">Loading extraction summary...</p>
-          </div>
-        </section>
-      </div>
-    </div>
-
-    <div id="rulesModal" class="modal-shell" hidden>
-      <div class="modal-backdrop" data-role="rulesModalClose"></div>
-      <div class="modal-card rules-modal-card">
-        <div class="modal-header">
-          <div>
-            <p class="modal-eyebrow">How Ranking Works</p>
-            <h2 class="modal-title">Result Prioritization Summary</h2>
-          </div>
-          <button id="closeRulesModal" class="modal-close" type="button" aria-label="Close ranking rules modal">✕</button>
-        </div>
-
-        <section class="rules-summary-content">
-          <p class="rules-summary-intro">
-            Ranking blends semantic similarity with structured trait matching, then applies mode-specific boosts and penalties.
-          </p>
-          <div id="rulesSummaryDetails" class="rules-summary-details">
-            <ul class="rules-summary-list">
-              <li><strong>Closest overall match:</strong> balanced blend of caption similarity, visual description similarity, and trait matches.</li>
-              <li><strong>Shape &amp; overall form:</strong> emphasizes silhouette/component cues (integrated shell, high-back taper, base geometry) and penalizes mismatched forms.</li>
-              <li><strong>Color &amp; material details:</strong> boosts exact color and finish alignment (e.g., red, chrome/polished) and penalizes mismatches.</li>
-              <li><strong>Image-led search boost:</strong> when searching from an uploaded image, exact source-image and same-product records receive priority boosts.</li>
-              <li><strong>Trait sanity checks:</strong> penalties apply for clear mismatches (category/type, partial product images, and unsupported required cues).</li>
-            </ul>
           </div>
         </section>
       </div>
@@ -412,6 +405,23 @@
       </div>
     </div>
 
+    <div id="descriptionAuditModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="descriptionAuditModalClose"></div>
+      <div class="modal-card rules-modal-card description-audit-modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">AI Descriptions</p>
+            <h2 id="descriptionAuditModalTitle" class="modal-title">Product descriptions</h2>
+          </div>
+          <button id="closeDescriptionAuditModal" class="modal-close" type="button" aria-label="Close AI descriptions modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content description-audit-modal-content">
+          <div id="descriptionAuditModalBody" class="description-audit-list"></div>
+        </section>
+      </div>
+    </div>
+
     <template id="cardTemplate">
       <div class="result-tile">
         <article class="card">
@@ -436,7 +446,12 @@
         <div class="card-body">
           <div class="thumbnail-strip" data-role="thumbnails"></div>
           <div class="meta-block">
-            <h2 class="product-name"></h2>
+            <div class="product-title-row">
+              <h2 class="product-name"></h2>
+              <button class="description-audit-button" data-role="descriptionAuditButton" type="button" aria-label="View AI-generated descriptions" title="View AI-generated descriptions">
+                📝
+              </button>
+            </div>
             <p class="brand-name"></p>
             <div class="chip-row category-chip-row" data-role="categoryTags"></div>
             <div class="card-refinement-actions" data-role="refinementActions">
@@ -464,6 +479,6 @@
       </div>
     </template>
 
-    <script type="module" src="/app.js?v=20260423-browse-rail-polish"></script>
+    <script type="module" src="/app.js?v=20260426-structured-trait-inspector"></script>
   </body>
 </html>

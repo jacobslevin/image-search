@@ -214,6 +214,21 @@ function readUnmappedCategoryDecisionsSync() {
   }
 }
 
+export const EXTRACTION_IMAGE_HARD_CAP = 15;
+export const DEFAULT_EXTRACTION_IMAGE_SOFT_CAP = 8;
+const EXTRACTION_IMAGE_SOFT_CAP_BY_TYPE = Object.freeze({
+  task_collab_chair: 8,
+  guest_chair: 8,
+  lounge_chair: 10,
+  stool: 8,
+  bench: 8,
+  "Work Chairs": 8,
+  "Multi-Use / Guest Chairs": 8,
+  "Lounge Seating": 10,
+  "Stools": 8,
+  "Benches": 8
+});
+
 export function getPixelSeekType(record = {}, decisionsOverride = null) {
   const grouping = getCategoryGroupingKey(record);
   if (!grouping) {
@@ -269,6 +284,15 @@ export function normalizePixelSeekTypeFilter(value = "") {
     String(label || "").trim().toLowerCase() === normalizedLabel
   ));
   return labelMatch?.[0] || "";
+}
+
+export function getExtractionImageSoftCap(typeKey = "") {
+  const normalized = String(typeKey || "").trim();
+  return EXTRACTION_IMAGE_SOFT_CAP_BY_TYPE[normalized] || DEFAULT_EXTRACTION_IMAGE_SOFT_CAP;
+}
+
+export function getEffectiveExtractionImageCap(typeKey = "") {
+  return Math.min(getExtractionImageSoftCap(typeKey), EXTRACTION_IMAGE_HARD_CAP);
 }
 
 const IMPORT_SKIP_LOG_SOURCES = new Set(["retroactive_cleanup", "import", "manual_skip"]);

@@ -14,8 +14,7 @@ const CATEGORY_SCOPE_PHRASES = {
   guest_chair: ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chair", "multi-use guest chairs"],
   lounge_chair: ["lounge seating", "lounge chair", "lounge chairs", "lounge"],
   bench: ["bench seating", "bench", "benches"],
-  stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"],
-  other_seating: ["other seating"]
+  stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"]
 };
 
 const GENERIC_SEATING_REFERENCE_PHRASES = [

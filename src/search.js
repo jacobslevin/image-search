@@ -48,7 +48,8 @@ const __dirname = path.dirname(__filename);
 const seatingTypesPath = path.join(__dirname, "..", "data", "seating-types.json");
 const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
-const defaultSeatingType = seatingTypesConfig.default_type || "other_seating";
+const defaultSeatingType = seatingTypesConfig.default_type || "";
+const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
 
 function buildTraitFieldConfigIndex(types = {}) {
   const index = new Map();
@@ -68,13 +69,13 @@ function buildTraitFieldConfigIndex(types = {}) {
 const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
 
 function getTypeFields(typeKey) {
-  return seatingTypes[typeKey]?.fields || seatingTypes[defaultSeatingType]?.fields || [];
+  return seatingTypes[typeKey]?.fields || seatingTypes[fallbackSeatingType]?.fields || [];
 }
 
 function getTraitFieldConfig(typeKey, fieldName) {
   const normalizedTypeKey = String(typeKey || "").trim();
   const normalizedFieldName = String(fieldName || "").trim();
-  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : defaultSeatingType;
+  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : fallbackSeatingType;
   return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
 }
 
@@ -478,6 +479,10 @@ function essentialMissPenalty(bullet = "", options = {}) {
   return grouped ? -0.2 * 0.5 : -0.2;
 }
 
+function normalMissPenalty(options = {}) {
+  return Boolean(options.grouped) ? -0.03 : -0.06;
+}
+
 function sharesGroup(typeKey = "", field = "", value1 = "", value2 = "") {
   const fieldConfig = getTraitFieldConfig(typeKey, field);
   const groups = Array.isArray(fieldConfig?.groups) ? fieldConfig.groups : [];
@@ -557,13 +562,17 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
         continue;
       }
 
-      if (priority === "essential" && !isExactSourceImage) {
+      if ((priority === "essential" || priority === "normal") && !isExactSourceImage) {
         const groupedMiss = Boolean(
           parsedBullet &&
           storedValue &&
           sharesGroup(typeKey, parsedBullet.field, storedValue, parsedBullet.value)
         );
-        weightedBoost += essentialMissPenalty(rawBullet, { grouped: groupedMiss }) * weightScale;
+        weightedBoost += (
+          priority === "essential"
+            ? essentialMissPenalty(rawBullet, { grouped: groupedMiss })
+            : normalMissPenalty({ grouped: groupedMiss })
+        ) * weightScale;
       }
     }
   }
@@ -949,6 +958,7 @@ export async function searchIndex({
         debug: {
           structured_caption: image.structured_caption || image.free_text?.structured_caption || "",
           visual_description: image.visual_summary || image.free_text?.visual_summary || image.stage2?.visual_summary || "",
+          plan_shape_reasoning: image.plan_shape_reasoning || image.reasoning || image.free_text?.reasoning || "",
           visual_highlights: image.visual_highlights || [],
           query_traits: parsed?.query_traits || null,
           score_breakdown: image.score_breakdown,
@@ -956,7 +966,7 @@ export async function searchIndex({
           detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
           visual_traits: image.visual_traits,
           image_traits: image.image_traits || {},
-          stage1: image.stage1 || { seating_type: image.seating_type || "other_seating" },
+          stage1: image.stage1 || { seating_type: image.seating_type || "" },
           stage2: image.stage2 || { visual_summary: image.visual_summary || "" }
         },
         contributing_images: 1,
@@ -991,6 +1001,7 @@ export async function searchIndex({
       existing.debug = {
         structured_caption: image.structured_caption || image.free_text?.structured_caption || "",
         visual_description: image.visual_summary || image.free_text?.visual_summary || image.stage2?.visual_summary || "",
+        plan_shape_reasoning: image.plan_shape_reasoning || image.reasoning || image.free_text?.reasoning || "",
         visual_highlights: image.visual_highlights || [],
         query_traits: parsed?.query_traits || null,
         score_breakdown: image.score_breakdown,
@@ -998,7 +1009,7 @@ export async function searchIndex({
         detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
         visual_traits: image.visual_traits,
         image_traits: image.image_traits || {},
-        stage1: image.stage1 || { seating_type: image.seating_type || "other_seating" },
+        stage1: image.stage1 || { seating_type: image.seating_type || "" },
         stage2: image.stage2 || { visual_summary: image.visual_summary || "" }
       };
       existing.scene_filter = buildSceneFilterBadge(image, image.image_url);

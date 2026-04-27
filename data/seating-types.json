@@ -1,17 +1,13 @@
 {
   "version": "1.0",
-  "default_type": "other_seating",
+  "default_type": "",
   "types": {
     "task_collab_chair": {
       "label": "Task & Collaborative Chair",
       "visual_summary_categories": [
-        "task chair",
-        "conference chair",
-        "collaborative chair",
-        "executive task chair",
-        "drafting chair",
-        "armless task chair",
-        "sled-base meeting chair",
+        "five-star task chair",
+        "five-star glide chair",
+        "sled work chair",
         "four-leg work chair"
       ],
       "fields": [
@@ -136,14 +132,18 @@
       "label": "Lounge Chair",
       "visual_summary_categories": [
         "lounge chair",
-        "club chair",
-        "armchair",
         "armless lounge chair",
-        "loveseat",
-        "sofa",
-        "modular sofa component",
+        "one-arm lounge chair",
+        "two-arm lounge chair",
+        "integrated lounge chair",
+        "high-back lounge chair",
+        "privacy lounge chair",
         "ottoman",
-        "bench"
+        "corner unit",
+        "modular component",
+        "sofa",
+        "modular sofa",
+        "modular seating"
       ],
       "fields": [
         {
@@ -362,7 +362,9 @@
         "wobble stool",
         "pedestal stool",
         "four-leg stool",
-        "drafting stool"
+        "five-star caster stool",
+        "five-star glide stool",
+        "molded one-piece stool"
       ],
       "fields": [
         {
@@ -475,15 +477,10 @@
     "guest_chair": {
       "label": "Side & Guest Chair",
       "visual_summary_categories": [
-        "guest chair",
-        "side chair",
-        "arm guest chair",
-        "armless guest chair",
-        "cantilever guest chair",
-        "sled-base guest chair",
-        "pedestal guest chair",
         "four-leg guest chair",
-        "closed-arm guest chair"
+        "sled guest chair",
+        "cantilever guest chair",
+        "pedestal guest chair"
       ],
       "fields": [
         {
@@ -623,13 +620,11 @@
       "label": "Bench",
       "visual_summary_categories": [
         "backless bench",
-        "backed bench",
-        "two-person bench",
-        "three-person bench",
-        "upholstered bench",
-        "wood bench",
-        "public seating bench",
-        "lounge bench"
+        "low-back bench",
+        "full-back bench",
+        "double-seat bench",
+        "triple-seat bench",
+        "custom-width bench"
       ],
       "fields": [
         {
@@ -729,131 +724,6 @@
             "Felt glides",
             "Hard floor rated",
             "Carpet rated"
-          ]
-        },
-        {
-          "field": "design_register",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "Minimal",
-            "Organic",
-            "Industrial",
-            "Traditional",
-            "Sculptural",
-            "Utilitarian",
-            "unknown"
-          ]
-        }
-      ]
-    },
-    "other_seating": {
-      "label": "Other Seating",
-      "visual_summary_categories": [
-        "specialty seating",
-        "architectural seating element",
-        "hybrid seating piece",
-        "modular seating unit",
-        "wall-mounted seat",
-        "integrated seating element",
-        "non-standard seating form"
-      ],
-      "fields": [
-        {
-          "field": "back_height",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "Backless",
-            "Low",
-            "Mid",
-            "High",
-            "Full enclosure",
-            "unknown"
-          ],
-          "groups": [
-            [
-              "Low",
-              "Mid"
-            ],
-            [
-              "Mid",
-              "High"
-            ]
-          ],
-          "priority": "essential"
-        },
-        {
-          "field": "back_finish",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "Upholstered",
-            "Mesh / net",
-            "Unupholstered",
-            "unknown"
-          ],
-          "priority": "essential"
-        },
-        {
-          "field": "arm_option",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "Armless",
-            "Fixed arms",
-            "Adjustable arms",
-            "Integrated",
-            "unknown"
-          ],
-          "groups": [
-            [
-              "Fixed arms",
-              "Adjustable arms"
-            ]
-          ],
-          "priority": "essential"
-        },
-        {
-          "field": "base_type",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "4-leg",
-            "Sled",
-            "5-star with casters",
-            "5-star with glides",
-            "Pedestal",
-            "Cantilever",
-            "Wall-mounted",
-            "Integrated base",
-            "unknown"
-          ],
-          "groups": [
-            [
-              "5-star with casters",
-              "5-star with glides"
-            ]
-          ],
-          "priority": "low"
-        },
-        {
-          "field": "seat_finish",
-          "type": "enum",
-          "detectability": "yes",
-          "allowed_values": [
-            "Fabric",
-            "Leather",
-            "Mesh / net",
-            "Molded plastic",
-            "Natural wood",
-            "unknown"
-          ],
-          "groups": [
-            [
-              "Fabric",
-              "Leather"
-            ]
           ]
         },
         {
