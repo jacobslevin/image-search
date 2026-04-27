@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 
-import { generateImageExtractionRecord } from "../src/captioning.js";
+import { generateProductExtractionRecordsWithCap } from "../src/captioning.js";
 import { normalizeCatalog } from "../src/catalog.js";
 import { DATA_DIR, getAllCategoryTerms, getEffectiveClassification, getImageIndexPath, readJson, writeJson } from "../src/utils.js";
 
@@ -189,15 +189,20 @@ for (let index = 0; index < products.length; index += 1) {
     continue;
   }
 
-  for (const image of productImages) {
-    const record = await generateImageExtractionRecord(image, {
-      provider,
-      apiKey: process.env.OPENAI_API_KEY,
-      visionModel: process.env.VISION_MODEL,
-      embeddingModel: process.env.EMBEDDING_MODEL
-    });
-    indexedImages.push(record);
-  }
+  const extractionResult = await generateProductExtractionRecordsWithCap(productImages, {
+    provider,
+    apiKey: process.env.OPENAI_API_KEY,
+    visionModel: process.env.VISION_MODEL,
+    embeddingModel: process.env.EMBEDDING_MODEL
+  });
+  indexedImages.push(...extractionResult.records);
+
+  const hardCapNote = extractionResult.progress.hard_upper_cap_binding ? " hard-cap" : "";
+  console.log(
+    `[cap] ${product.product_id} | ${product.name} | type=${extractionResult.progress.seating_type || "unknown"} | ` +
+    `stage0_passing=${extractionResult.progress.stage0_passing_count} | cap=${extractionResult.progress.effective_cap_applied} | ` +
+    `skipped=${extractionResult.progress.images_skipped_by_cap}${hardCapNote}`
+  );
 
   if ((index + 1) % 10 === 0 || index === products.length - 1) {
     console.log(`Indexed ${index + 1}/${products.length} products`);
