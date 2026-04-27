@@ -8,9 +8,15 @@ import { fileURLToPath } from "node:url";
 import { analyzeInspirationImage, extractTextQueryTraits, generateImageExtractionRecord, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
 import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
+import {
+  filterSearchResultsByCategory,
+  isIntentionallyExcludedProduct,
+  normalizeSearchCategoryFilters
+} from "./src/search-category-filter.js";
 import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, searchIndex } from "./src/search.js";
 import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
 import {
+  ACTIVE_SEATING_TYPE_KEYS,
   createId,
   ensureDir,
   getAllCategoryTerms,
@@ -2164,6 +2170,9 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
   return productRecords
     .map((product) => {
       const indexedImages = indexedByProductId.get(product.product_id) || [];
+      if (isIntentionallyExcludedProduct(product, indexedImages)) {
+        return null;
+      }
       const includedImages = indexedImages.filter((image) => image.excluded !== true);
       const passingImages = includedImages.filter((image) => getEffectiveClassification(image) === "product");
       const browseImages = includedImages;
@@ -2318,6 +2327,7 @@ const server = http.createServer(async (request, response) => {
     const category = request.method === "POST"
       ? (Array.isArray(body.category) ? body.category : body.category ? [body.category] : [])
       : url.searchParams.getAll("category");
+    const normalizedSearchCategories = normalizeSearchCategoryFilters(category);
     const refreshAge = String((request.method === "POST" ? body.refresh_age : url.searchParams.get("refresh_age")) || "").trim();
     const matchMode = String((request.method === "POST" ? body.match_mode : url.searchParams.get("match_mode")) || "balanced").trim();
     const sourceImageUrl = String((request.method === "POST" ? body.source_image_url : url.searchParams.get("source_image_url")) || "").trim();
@@ -2351,6 +2361,13 @@ const server = http.createServer(async (request, response) => {
         total_results: results.length,
         browse_mode: true,
         results
+      });
+    }
+
+    if (normalizedSearchCategories.invalid.length) {
+      return json(response, 400, {
+        error: `Search category filters must use PixelSeek seating types (${ACTIVE_SEATING_TYPE_KEYS.join(", ")}) or display labels.`,
+        invalid_category_filters: normalizedSearchCategories.invalid
       });
     }
 
@@ -2420,7 +2437,9 @@ const server = http.createServer(async (request, response) => {
       includeSourceImage: debug
     });
     const results = filterResultsByRefreshAge(
-      filterResultsByCategory(searchResponse.results, category),
+      normalizedSearchCategories.normalized.length
+        ? filterSearchResultsByCategory(searchResponse.results, normalizedSearchCategories.normalized)
+        : searchResponse.results,
       refreshAge
     );
 
@@ -2459,6 +2478,7 @@ const server = http.createServer(async (request, response) => {
       const body = await readRequestJson(request);
       const queryEmbedding = Array.isArray(body.query_embedding) ? body.query_embedding.map((value) => Number(value)) : [];
       const category = Array.isArray(body.category) ? body.category : body.category ? [body.category] : [];
+      const normalizedSearchCategories = normalizeSearchCategoryFilters(category);
       const refreshAge = String(body.refresh_age || "").trim();
       const sourceImageUrl = String(body.source_image_url || "").trim();
       const debug = body.debug === true || String(body.debug || "").trim().toLowerCase() === "true";
@@ -2470,6 +2490,12 @@ const server = http.createServer(async (request, response) => {
 
       if (!queryEmbedding.length) {
         return json(response, 400, { error: "query_embedding is required." });
+      }
+      if (normalizedSearchCategories.invalid.length) {
+        return json(response, 400, {
+          error: `Search category filters must use PixelSeek seating types (${ACTIVE_SEATING_TYPE_KEYS.join(", ")}) or display labels.`,
+          invalid_category_filters: normalizedSearchCategories.invalid
+        });
       }
       let blendedQueryEmbedding = normalizeEmbedding(queryEmbedding);
 
@@ -2521,7 +2547,9 @@ const server = http.createServer(async (request, response) => {
         includeSourceImage: debug
       });
       const results = filterResultsByRefreshAge(
-        filterResultsByCategory(searchResponse.results, category),
+        normalizedSearchCategories.normalized.length
+          ? filterSearchResultsByCategory(searchResponse.results, normalizedSearchCategories.normalized)
+          : searchResponse.results,
         refreshAge
       );
 

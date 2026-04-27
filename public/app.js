@@ -1555,6 +1555,7 @@ function formatDebugImageCategory(image = {}) {
 
 async function fetchDebugPayload() {
   const sourceImageUrl = state.currentImageAnalysis?.image_preview_url || "";
+  const searchCategoryFilter = [];
   if (!state.lastQuery || !sourceImageUrl) {
     state.debugPayload = state.lastPayload;
     return state.debugPayload;
@@ -1567,7 +1568,7 @@ async function fetchDebugPayload() {
       body: JSON.stringify({
         query_embedding: state.currentQueryEmbedding,
         selected_bullets: normalizeSelectedBullets(state.currentSelectedBullets),
-        category: normalizeCategoryFilter(state.categoryFilter),
+        category: searchCategoryFilter,
         refresh_age: String(state.refreshAgeFilter || "").trim(),
         source_image_url: String(sourceImageUrl || "").trim(),
         seating_type: state.currentSeatingType,
@@ -1585,7 +1586,7 @@ async function fetchDebugPayload() {
       q: state.lastQuery,
       source_image_url: sourceImageUrl,
       sort: state.sortMode,
-      category: normalizeCategoryFilter(state.categoryFilter),
+      category: searchCategoryFilter,
       refresh_age: state.refreshAgeFilter,
       seating_type: state.currentSeatingType,
       image_analysis: state.currentImageAnalysis,
@@ -2721,7 +2722,7 @@ async function refineSearchResults({
     body: JSON.stringify({
       query_embedding: queryEmbedding,
       selected_bullets: normalizeSelectedBullets(selectedBullets),
-      category: normalizeCategoryFilter(categoryFilter),
+      category: [],
       refresh_age: String(refreshAgeFilter || "").trim(),
       source_image_url: String(sourceImageUrl || "").trim(),
       reranker_enabled: Boolean(rerankerEnabled),
@@ -3677,7 +3678,7 @@ function renderContextPills(parsed = {}) {
   const sourceImageUrl = String(state.currentImageAnalysis?.image_preview_url || "").trim();
   const activeSeatingType = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
 
-  if (activeCategoryFilter.length) {
+  if (isBrowsePayload(state.lastPayload, state.lastQuery) && activeCategoryFilter.length) {
     entries.push(`Category: ${activeCategoryFilter.join(", ")}`);
   } else if (parsed.category) {
     entries.push(parsed.category);
@@ -5567,6 +5568,7 @@ async function runSearch(query, options = {}) {
   const sourceImageUrl = String(options.sourceImageUrl || "").trim();
   const sort = options.sort || state.sortMode || "auto";
   const categoryFilter = normalizeCategoryFilter(options.categoryFilter ?? state.categoryFilter ?? []);
+  const effectiveCategoryFilter = normalizedQuery ? [] : categoryFilter;
   const refreshAgeFilter = String(options.refreshAgeFilter ?? state.refreshAgeFilter ?? "").trim();
   const imageAnalysis = options.imageAnalysis && typeof options.imageAnalysis === "object" ? options.imageAnalysis : null;
   const requestedCategoryScopeMode = String(
@@ -5621,7 +5623,7 @@ async function runSearch(query, options = {}) {
             q: normalizedQuery,
             source_image_url: sourceImageUrl,
             sort,
-            category: categoryFilter,
+            category: effectiveCategoryFilter,
             refresh_age: refreshAgeFilter,
             ...(apiRequestedSeatingType ? { seating_type: apiRequestedSeatingType } : {}),
             image_analysis: imageAnalysis,
@@ -5634,7 +5636,7 @@ async function runSearch(query, options = {}) {
             ["source_image_url", sourceImageUrl],
             ["sort", sort],
             ...(apiRequestedSeatingType ? [["seating_type", apiRequestedSeatingType]] : []),
-            ...categoryFilter.map((category) => ["category", category]),
+            ...effectiveCategoryFilter.map((category) => ["category", category]),
             ["refresh_age", refreshAgeFilter]
           ]).toString()}`
         );
@@ -5713,7 +5715,7 @@ async function runSearch(query, options = {}) {
       seatingType: effectiveSeatingType,
       imageAnalysis,
       productRefinements,
-      categoryFilter: payload?.category_filter ?? categoryFilter,
+      categoryFilter: payload?.category_filter ?? effectiveCategoryFilter,
       refreshAgeFilter: payload?.refresh_age_filter ?? refreshAgeFilter,
       preserveOriginal,
       refinementActive

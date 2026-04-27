@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,6 +21,10 @@ function resolveOverridePath(envName, defaultPath) {
 
 export function getImageIndexPath() {
   return resolveOverridePath("IMAGE_INDEX_PATH", path.join(DATA_DIR, "image-index.json"));
+}
+
+export function getUnmappedCategoryDecisionsPath() {
+  return resolveOverridePath("UNMAPPED_CATEGORY_DECISIONS_PATH", path.join(DATA_DIR, "unmapped-category-decisions.json"));
 }
 
 export function normalizeImageClassification(value = "") {
@@ -162,12 +167,108 @@ const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
   "Bench Seating | Outdoor Seating": "Benches"
 });
 
-export function getPixelSeekType(record = {}) {
+const ROUTING_KEY_TO_PIXELSEEK_TYPE = Object.freeze({
+  task_collab_chair: "Work Chairs",
+  guest_chair: "Multi-Use / Guest Chairs",
+  lounge_chair: "Lounge Seating",
+  stool: "Stools",
+  bench: "Benches"
+});
+
+export const ACTIVE_SEATING_TYPE_KEYS = Object.freeze(Object.keys(ROUTING_KEY_TO_PIXELSEEK_TYPE));
+
+let unmappedCategoryDecisionsCache = {
+  path: "",
+  mtimeMs: -1,
+  value: {}
+};
+
+function readUnmappedCategoryDecisionsSync() {
+  const filePath = getUnmappedCategoryDecisionsPath();
+  try {
+    const stats = fsSync.statSync(filePath);
+    if (
+      unmappedCategoryDecisionsCache.path === filePath &&
+      unmappedCategoryDecisionsCache.mtimeMs === stats.mtimeMs
+    ) {
+      return unmappedCategoryDecisionsCache.value;
+    }
+    const parsed = JSON.parse(fsSync.readFileSync(filePath, "utf8"));
+    const value = parsed && typeof parsed === "object" ? parsed : {};
+    unmappedCategoryDecisionsCache = {
+      path: filePath,
+      mtimeMs: stats.mtimeMs,
+      value
+    };
+    return value;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      unmappedCategoryDecisionsCache = {
+        path: filePath,
+        mtimeMs: -1,
+        value: {}
+      };
+      return {};
+    }
+    throw error;
+  }
+}
+
+export function getPixelSeekType(record = {}, decisionsOverride = null) {
   const grouping = getCategoryGroupingKey(record);
   if (!grouping) {
     return "SKIP";
   }
+  const decisions = decisionsOverride && typeof decisionsOverride === "object"
+    ? decisionsOverride
+    : readUnmappedCategoryDecisionsSync();
+  const decision = decisions && typeof decisions === "object" ? decisions[grouping] : null;
+  const status = String(decision?.status || "").trim().toLowerCase();
+  if (status === "intentionally_excluded") {
+    return "INTENTIONALLY_EXCLUDED";
+  }
+  if (status === "mapped") {
+    const mappedType = ROUTING_KEY_TO_PIXELSEEK_TYPE[String(decision?.mapping_target || "").trim()];
+    if (mappedType) {
+      return mappedType;
+    }
+  }
   return PIXELSEEK_TYPE_BY_GROUPING[grouping] || "SKIP";
+}
+
+export function normalizeRoutingTypeKey(value = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) {
+    return "";
+  }
+  if (normalized === "task_chair" || normalized === "collaborative_chair") {
+    return "task_collab_chair";
+  }
+  if (normalized === "perch_stool") {
+    return "stool";
+  }
+  return ACTIVE_SEATING_TYPE_KEYS.includes(normalized) ? normalized : "";
+}
+
+export function getPixelSeekTypeLabel(typeKey = "") {
+  return ROUTING_KEY_TO_PIXELSEEK_TYPE[normalizeRoutingTypeKey(typeKey)] || "";
+}
+
+export function normalizePixelSeekTypeFilter(value = "") {
+  const normalizedTypeKey = normalizeRoutingTypeKey(value);
+  if (normalizedTypeKey) {
+    return normalizedTypeKey;
+  }
+
+  const normalizedLabel = String(value || "").trim().toLowerCase();
+  if (!normalizedLabel) {
+    return "";
+  }
+
+  const labelMatch = Object.entries(ROUTING_KEY_TO_PIXELSEEK_TYPE).find(([, label]) => (
+    String(label || "").trim().toLowerCase() === normalizedLabel
+  ));
+  return labelMatch?.[0] || "";
 }
 
 const IMPORT_SKIP_LOG_SOURCES = new Set(["retroactive_cleanup", "import", "manual_skip"]);

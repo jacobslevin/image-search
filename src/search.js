@@ -10,6 +10,7 @@ import {
   getEffectiveClassification,
   getLeafCategories
 } from "./utils.js";
+import { isSearchRecordEligible } from "./search-category-filter.js";
 
 const RERANKER_ENABLED = true;
 const RERANKER_MODEL = "gpt-4o-mini";
@@ -803,7 +804,7 @@ export async function searchIndex({
   }
 
   const filteredImages = (index.images || []).filter((record) => {
-    if (getEffectiveClassification(record) !== "product" || record.excluded) {
+    if (!isSearchRecordEligible(record)) {
       return false;
     }
 
