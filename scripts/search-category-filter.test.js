@@ -113,6 +113,36 @@ test("intentionally excluded products are blocked in browse fixtures", () => {
   );
 });
 
+test("mixed products stay browse-visible when only one image is excluded", () => {
+  const product = {
+    product_id: "fixture_mixed_exclusion",
+    b_level: ["Multi-use Guest Chairs"]
+  };
+  const indexedImages = [
+    {
+      product_id: "fixture_mixed_exclusion",
+      b_level: ["Multi-use Guest Chairs"],
+      excluded: false,
+      excluded_reason: "",
+      effective_classification: "product",
+      seating_type: "guest_chair"
+    },
+    {
+      product_id: "fixture_mixed_exclusion",
+      b_level: ["Fixed-height Stools"],
+      excluded: true,
+      excluded_reason: "stage_0_v2_demotion",
+      effective_classification: "scene",
+      seating_type: "stool"
+    }
+  ];
+
+  assert.equal(
+    isIntentionallyExcludedProduct(product, indexedImages),
+    false
+  );
+});
+
 test("search fixtures reject stale non-excluded records for intentionally excluded groupings", () => {
   const record = {
     product_id: "fixture_excluded_record",

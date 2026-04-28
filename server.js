@@ -10,11 +10,13 @@ import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import {
   filterSearchResultsByCategory,
+  isIntentionallyExcludedImageRecord,
   isIntentionallyExcludedProduct,
   normalizeSearchCategoryFilters
 } from "./src/search-category-filter.js";
 import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, searchIndex } from "./src/search.js";
 import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
+import { buildPipelineDiagnostics, readPipelineDiagnosticsBaseline } from "./src/pipeline-diagnostics.js";
 import {
   ACTIVE_SEATING_TYPE_KEYS,
   createId,
@@ -54,7 +56,6 @@ const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
 const seatingTypesConfig = JSON.parse(fsSync.readFileSync(seatingTypesPath, "utf8"));
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
-const EXTRACTION_SUMMARY_UNSPECIFIED = "unspecified";
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const PROMPT_LIBRARY_STAGE23_TYPES = [
   "lounge_chair",
@@ -99,6 +100,119 @@ const PROMPT_LIBRARY_SECTION_RANGES = {
     ]
   }
 };
+const QUERY_IMAGE_PROGRESS_TTL_MS = 10 * 60 * 1000;
+const queryImageProgressStore = new Map();
+
+function pruneQueryImageProgressStore(now = Date.now()) {
+  for (const [requestId, entry] of queryImageProgressStore.entries()) {
+    if (!entry || (now - Number(entry.updated_at_ms || 0)) > QUERY_IMAGE_PROGRESS_TTL_MS) {
+      queryImageProgressStore.delete(requestId);
+    }
+  }
+}
+
+function ensureQueryImageProgressEntry(requestId = "", options = {}) {
+  const normalizedRequestId = String(requestId || "").trim();
+  if (!normalizedRequestId) {
+    return null;
+  }
+  pruneQueryImageProgressStore();
+  const now = Date.now();
+  const existing = queryImageProgressStore.get(normalizedRequestId);
+  if (existing) {
+    existing.updated_at_ms = now;
+    if (typeof options.expected_passes === "number" && options.expected_passes > 0) {
+      existing.expected_passes = Number(options.expected_passes);
+    }
+    return existing;
+  }
+  const next = {
+    request_id: normalizedRequestId,
+    sequence: 0,
+    expected_passes: Number(options.expected_passes || 0),
+    last_event: null,
+    events: [],
+    updated_at: new Date(now).toISOString(),
+    updated_at_ms: now,
+    done: false,
+    error: ""
+  };
+  queryImageProgressStore.set(normalizedRequestId, next);
+  return next;
+}
+
+function recordQueryImageProgressEvent(requestId = "", event = {}) {
+  const entry = ensureQueryImageProgressEntry(requestId, {
+    expected_passes: event.expected_passes
+  });
+  if (!entry) {
+    return null;
+  }
+  entry.sequence += 1;
+  entry.last_event = {
+    sequence: entry.sequence,
+    type: String(event.type || "").trim(),
+    run_label: String(event.run_label || "").trim(),
+    expected_passes: Number(event.expected_passes || entry.expected_passes || 0),
+    current_pass: Number(event.current_pass || 0),
+    timestamp: new Date().toISOString()
+  };
+  entry.events.push({ ...entry.last_event });
+  if (entry.events.length > 40) {
+    entry.events = entry.events.slice(-40);
+  }
+  entry.updated_at = entry.last_event.timestamp;
+  entry.updated_at_ms = Date.now();
+  if (typeof event.done === "boolean") {
+    entry.done = event.done;
+  }
+  if (typeof event.error === "string" && event.error.trim()) {
+    entry.error = event.error.trim();
+  }
+  return entry;
+}
+
+function finalizeQueryImageProgress(requestId = "", options = {}) {
+  const entry = ensureQueryImageProgressEntry(requestId);
+  if (!entry) {
+    return null;
+  }
+  entry.done = true;
+  entry.updated_at = new Date().toISOString();
+  entry.updated_at_ms = Date.now();
+  if (typeof options.error === "string" && options.error.trim()) {
+    entry.error = options.error.trim();
+  }
+  if (options.event && typeof options.event === "object") {
+    recordQueryImageProgressEvent(requestId, {
+      ...options.event,
+      done: true
+    });
+  }
+  return entry;
+}
+
+function buildQueryImageProgressPayload(requestId = "", sinceSequence = 0) {
+  const entry = queryImageProgressStore.get(String(requestId || "").trim());
+  if (!entry) {
+    return null;
+  }
+  const normalizedSinceSequence = Math.max(0, Number(sinceSequence || 0));
+  return {
+    request_id: entry.request_id,
+    sequence: Number(entry.sequence || 0),
+    expected_passes: Number(entry.expected_passes || 0),
+    done: Boolean(entry.done),
+    error: String(entry.error || "").trim(),
+    updated_at: String(entry.updated_at || "").trim(),
+    events: Array.isArray(entry.events)
+      ? entry.events.filter((event) => Number(event?.sequence || 0) > normalizedSinceSequence).map((event) => ({ ...event }))
+      : [],
+    last_event: entry.last_event && typeof entry.last_event === "object"
+      ? { ...entry.last_event }
+      : null
+  };
+}
 
 function buildPromptLibrarySourceSections(typeKey = "") {
   const sections = [];
@@ -189,23 +303,6 @@ function getFieldPriority(typeKey = "", fieldName = "") {
     : "normal";
 }
 
-function normalizeExtractionSummaryCategory(value = "") {
-  const normalized = String(value || "").trim().toLowerCase();
-  if (!normalized) {
-    return EXTRACTION_SUMMARY_UNSPECIFIED;
-  }
-  if (normalized === "task_chair" || normalized === "collaborative_chair") {
-    return "task_collab_chair";
-  }
-  if (normalized === "perch_stool") {
-    return "stool";
-  }
-  if (normalized === "other_seating") {
-    return EXTRACTION_SUMMARY_UNSPECIFIED;
-  }
-  return normalized;
-}
-
 function buildUnmappedCombinationSummary(index = { images: [] }, decisions = {}) {
   const images = Array.isArray(index?.images) ? index.images : [];
   const byGrouping = new Map();
@@ -273,71 +370,13 @@ function buildUnmappedCombinationSummary(index = { images: [] }, decisions = {})
 }
 
 async function buildExtractionSummary(index = { images: [] }) {
-  const images = Array.isArray(index?.images) ? index.images : [];
-  const byCategory = new Map();
-
-  const ensureCategory = (categoryKey) => {
-    const key = normalizeExtractionSummaryCategory(categoryKey);
-    if (!byCategory.has(key)) {
-      byCategory.set(key, {
-        category_key: key,
-        total_images: 0,
-        stage1_product_detail_missed_by_stage0: 0,
-        tiebreakers_triggered: 0
-      });
-    }
-    return byCategory.get(key);
-  };
-
-  let detailMisses = 0;
-  let tiebreakers = 0;
-
-  for (const image of images) {
-    const categoryKey = normalizeExtractionSummaryCategory(image?.stage1?.seating_type || image?.seating_type || "");
-    const categorySummary = ensureCategory(categoryKey);
-    categorySummary.total_images += 1;
-
-    const stage0 = normalizeStage0Result(image?.stage_0_result);
-    const stage1Result = String(image?.stage1?.result || "").trim().toLowerCase();
-    const detailMissedByStage0 = stage0 === "product" && stage1Result === "product_detail";
-    if (detailMissedByStage0) {
-      detailMisses += 1;
-      ensureCategory(image?.stage1?.seating_type || "").stage1_product_detail_missed_by_stage0 += 1;
-    }
-
-    if (Boolean(image?.tiebreaker_triggered)) {
-      tiebreakers += 1;
-      categorySummary.tiebreakers_triggered += 1;
-    }
-  }
-
-  const order = [
-    "task_collab_chair",
-    "guest_chair",
-    "lounge_chair",
-    "bench",
-    "stool",
-    EXTRACTION_SUMMARY_UNSPECIFIED
-  ];
-  const orderIndex = new Map(order.map((value, index) => [value, index]));
-  const categories = [...byCategory.values()].sort((left, right) => {
-    const leftRank = orderIndex.has(left.category_key) ? orderIndex.get(left.category_key) : Number.MAX_SAFE_INTEGER;
-    const rightRank = orderIndex.has(right.category_key) ? orderIndex.get(right.category_key) : Number.MAX_SAFE_INTEGER;
-    if (leftRank !== rightRank) {
-      return leftRank - rightRank;
-    }
-    return String(left.category_key).localeCompare(String(right.category_key));
-  });
-
+  const baseline = await readPipelineDiagnosticsBaseline();
+  const diagnostics = buildPipelineDiagnostics(index, { baseline });
   const decisions = await readJson(unmappedCategoryDecisionsPath, {});
   const unmappedCombinations = buildUnmappedCombinationSummary(index, decisions);
 
   return {
-    generated_at: new Date().toISOString(),
-    total_images: images.length,
-    stage1_product_detail_missed_by_stage0: detailMisses,
-    tiebreakers_triggered: tiebreakers,
-    categories,
+    ...diagnostics,
     unmapped_combinations: unmappedCombinations
   };
 }
@@ -732,6 +771,8 @@ let reindexState = {
   current_product: "",
   current_product_id: "",
   current_product_images_passed: 0,
+  current_product_successful_extractions: 0,
+  current_product_failed_images: 0,
   current_run: "",
   current_image_url: "",
   processed_images: 0,
@@ -1842,11 +1883,44 @@ function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toIS
   };
 }
 
-function buildLightweightProductRecords(catalog, imageRecords = []) {
+function cloneRefreshDiagnostics(value = null) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  return {
+    last_attempted_at: String(value.last_attempted_at || "").trim(),
+    ai_refreshed_at: String(value.ai_refreshed_at || "").trim(),
+    seating_type: String(value.seating_type || "").trim(),
+    stage0_passing_count: Math.max(0, Number(value.stage0_passing_count) || 0),
+    selected_product_image_count: Math.max(0, Number(value.selected_product_image_count) || 0),
+    successful_extraction_count: Math.max(0, Number(value.successful_extraction_count) || 0),
+    failed_image_count: Math.max(0, Number(value.failed_image_count) || 0),
+    failed_stage0_count: Math.max(0, Number(value.failed_stage0_count) || 0),
+    failed_stage23_count: Math.max(0, Number(value.failed_stage23_count) || 0),
+    images_skipped_by_cap: Math.max(0, Number(value.images_skipped_by_cap) || 0),
+    hard_upper_cap_binding: Boolean(value.hard_upper_cap_binding),
+    partial_image_failure: Boolean(value.partial_image_failure),
+    failed_images: Array.isArray(value.failed_images)
+      ? value.failed_images.map((entry) => ({
+          image_id: String(entry?.image_id || "").trim(),
+          image_url: String(entry?.image_url || "").trim(),
+          stage: String(entry?.stage || "").trim(),
+          error: String(entry?.error || "").trim()
+        }))
+      : []
+  };
+}
+
+function buildLightweightProductRecords(catalog, imageRecords = [], previousProducts = [], refreshDiagnosticsByProductId = new Map()) {
   const byProductId = new Map();
+  const previousByProductId = new Map(
+    (Array.isArray(previousProducts) ? previousProducts : [])
+      .map((product) => [String(product?.product_id || "").trim(), product])
+  );
 
   for (const product of catalog?.products || []) {
     const { a_level, b_level, c_level } = getCategoryLevels(product);
+    const previous = previousByProductId.get(String(product.product_id || "").trim()) || {};
     byProductId.set(product.product_id, {
       product_id: product.product_id,
       product_name: product.name,
@@ -1856,7 +1930,8 @@ function buildLightweightProductRecords(catalog, imageRecords = []) {
       b_level,
       c_level,
       image_urls: [...new Set(product.image_urls || [])],
-      passing_image_count: 0
+      passing_image_count: 0,
+      refresh_diagnostics: cloneRefreshDiagnostics(previous.refresh_diagnostics)
     });
   }
 
@@ -1871,7 +1946,8 @@ function buildLightweightProductRecords(catalog, imageRecords = []) {
         b_level: image.b_level || [],
         c_level: image.c_level || [],
         image_urls: [],
-        passing_image_count: 0
+        passing_image_count: 0,
+        refresh_diagnostics: cloneRefreshDiagnostics(previousByProductId.get(String(image.product_id || "").trim())?.refresh_diagnostics)
       });
     }
 
@@ -1882,12 +1958,24 @@ function buildLightweightProductRecords(catalog, imageRecords = []) {
     }
   }
 
+  if (refreshDiagnosticsByProductId instanceof Map) {
+    for (const [productId, diagnostics] of refreshDiagnosticsByProductId.entries()) {
+      if (!byProductId.has(productId)) {
+        continue;
+      }
+      byProductId.get(productId).refresh_diagnostics = cloneRefreshDiagnostics(diagnostics);
+    }
+  }
+
   return [...byProductId.values()];
 }
 
-function buildIndexOutput(index, catalog, mergedImages) {
+function buildIndexOutput(index, catalog, mergedImages, options = {}) {
   const searchableImages = mergedImages.filter((image) => getEffectiveClassification(image) === "product");
-  const products = buildLightweightProductRecords(catalog, mergedImages);
+  const refreshDiagnosticsByProductId = options.refreshDiagnosticsByProductId instanceof Map
+    ? options.refreshDiagnosticsByProductId
+    : new Map();
+  const products = buildLightweightProductRecords(catalog, mergedImages, index?.products || [], refreshDiagnosticsByProductId);
   const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 
@@ -1921,7 +2009,7 @@ function createEmptyIndex(catalog) {
   };
 }
 
-function mergeRefreshedImages(index, catalog, refreshedImages = []) {
+function mergeRefreshedImages(index, catalog, refreshedImages = [], options = {}) {
   if (!refreshedImages.length) {
     return index;
   }
@@ -1941,10 +2029,10 @@ function mergeRefreshedImages(index, catalog, refreshedImages = []) {
 
   const mergedImages = [...mergedImageMap.values()];
 
-  return buildIndexOutput(index, catalog, mergedImages);
+  return buildIndexOutput(index, catalog, mergedImages, options);
 }
 
-function replaceProductImages(index, catalog, productIds = [], refreshedImages = []) {
+function replaceProductImages(index, catalog, productIds = [], refreshedImages = [], options = {}) {
   const normalizedProductIds = [...new Set(
     (productIds || [])
       .map((value) => String(value || "").trim())
@@ -1952,20 +2040,22 @@ function replaceProductImages(index, catalog, productIds = [], refreshedImages =
   )];
 
   if (!normalizedProductIds.length) {
-    return refreshedImages.length ? mergeRefreshedImages(index, catalog, refreshedImages) : index;
+    return refreshedImages.length ? mergeRefreshedImages(index, catalog, refreshedImages, options) : index;
   }
 
   const targetProductIds = new Set(normalizedProductIds);
   const retainedImages = (index?.images || []).filter((image) => !targetProductIds.has(String(image?.product_id || "").trim()));
   const nextImages = [...retainedImages, ...refreshedImages];
-  return buildIndexOutput(index, catalog, nextImages);
+  return buildIndexOutput(index, catalog, nextImages, options);
 }
 
 async function generateProductRefreshPayload(productId, matchingImages = []) {
   const refreshedAt = new Date().toISOString();
   const refreshedImages = [];
   const failedImages = [];
-  let passingImageCount = 0;
+  let stage0PassingCount = 0;
+  let selectedProductImageCount = 0;
+  let successfulExtractionCount = 0;
   let productCostUsd = 0;
   let tiebreakerUsed = false;
   let lastError = null;
@@ -1992,8 +2082,12 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       }
     });
 
-    passingImageCount = Number(generated.progress?.stage0_passing_count || 0) - Number(generated.progress?.images_skipped_by_cap || 0);
-    reindexState.current_product_images_passed = passingImageCount;
+    stage0PassingCount = Number(generated.progress?.stage0_passing_count || 0);
+    selectedProductImageCount = Number(generated.progress?.selected_product_image_count || 0);
+    successfulExtractionCount = Number(generated.progress?.successful_extraction_count || 0);
+    reindexState.current_product_images_passed = stage0PassingCount;
+    reindexState.current_product_successful_extractions = successfulExtractionCount;
+    reindexState.current_product_failed_images = Number(generated.progress?.failed_image_count || 0);
     reindexState.current_product_images_skipped_by_cap = Number(generated.progress?.images_skipped_by_cap || 0);
     reindexState.current_product_effective_cap = Number(generated.progress?.effective_cap_applied || 0);
     reindexState.current_product_hard_cap_binding = Boolean(generated.progress?.hard_upper_cap_binding);
@@ -2001,7 +2095,8 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     console.log(
       `[cap] ${productId} | ${matchingImages[0]?.name || productId} | type=${generated.progress?.seating_type || "unknown"} | ` +
       `stage0_passing=${generated.progress?.stage0_passing_count || 0} | cap=${generated.progress?.effective_cap_applied || 0} | ` +
-      `skipped=${generated.progress?.images_skipped_by_cap || 0}${generated.progress?.hard_upper_cap_binding ? " hard-cap" : ""}`
+      `skipped=${generated.progress?.images_skipped_by_cap || 0} | extracted=${generated.progress?.successful_extraction_count || 0} | ` +
+      `failed_images=${generated.progress?.failed_image_count || 0}${generated.progress?.hard_upper_cap_binding ? " hard-cap" : ""}`
     );
 
     for (const recordLike of generated.records) {
@@ -2021,6 +2116,7 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       productCostUsd = Number((productCostUsd + Number(record.cost?.total_usd || 0)).toFixed(6));
       reindexState.total_cost_usd = Number((Number(reindexState.total_cost_usd || 0) + Number(record.cost?.total_usd || 0)).toFixed(6));
     }
+    failedImages.push(...(Array.isArray(generated.failed_images) ? generated.failed_images : []));
   } catch (error) {
     lastError = error;
     failedImages.push({
@@ -2028,10 +2124,6 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       error: error?.message || "Product extraction failed."
     });
     console.warn(`Skipping product during refresh for ${productId}: ${error?.message || "Product extraction failed."}`);
-  }
-
-  if (!refreshedImages.length) {
-    throw new Error(lastError?.message || "All images failed extraction for this product.");
   }
 
   const unmappedImages = refreshedImages.filter((record) => record.excluded_reason === "unmapped_category_grouping");
@@ -2045,22 +2137,51 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     throw error;
   }
 
+  if (successfulExtractionCount <= 0) {
+    throw new Error(lastError?.message || "All images failed extraction for this product.");
+  }
+
+  const representativeProductImage = refreshedImages.find((record) => getEffectiveClassification(record) === "product");
+  const representativeSeatingType = String(representativeProductImage?.seating_type || "").trim();
+  const refreshDiagnostics = {
+    last_attempted_at: refreshedAt,
+    ai_refreshed_at: refreshedAt,
+    seating_type: representativeSeatingType,
+    stage0_passing_count: stage0PassingCount,
+    selected_product_image_count: selectedProductImageCount,
+    successful_extraction_count: successfulExtractionCount,
+    failed_image_count: failedImages.length,
+    failed_stage0_count: failedImages.filter((entry) => entry.stage === "stage0").length,
+    failed_stage23_count: failedImages.filter((entry) => entry.stage === "stage23").length,
+    images_skipped_by_cap: Number(reindexState.current_product_images_skipped_by_cap || 0),
+    hard_upper_cap_binding: Boolean(reindexState.current_product_hard_cap_binding),
+    partial_image_failure: failedImages.length > 0,
+    failed_images: failedImages
+  };
+
   return {
     product_id: productId,
     refreshed_images: refreshedImages.length,
     caption_model_version: "openai:gpt-4.1",
     ai_refreshed_at: refreshedAt,
+    seating_type: representativeSeatingType,
     images: refreshedImages,
     progress: {
       product_cost_usd: productCostUsd,
       tiebreaker_used: tiebreakerUsed,
-      passing_image_count: passingImageCount,
+      stage0_passing_count: stage0PassingCount,
+      passing_image_count: selectedProductImageCount,
+      selected_product_image_count: selectedProductImageCount,
+      successful_extraction_count: successfulExtractionCount,
       failed_image_count: failedImages.length,
+      failed_stage0_count: failedImages.filter((entry) => entry.stage === "stage0").length,
+      failed_stage23_count: failedImages.filter((entry) => entry.stage === "stage23").length,
       effective_cap_applied: Number(reindexState.current_product_effective_cap || 0),
       images_skipped_by_cap: Number(reindexState.current_product_images_skipped_by_cap || 0),
       hard_upper_cap_binding: Boolean(reindexState.current_product_hard_cap_binding)
     },
-    failed_images: failedImages
+    failed_images: failedImages,
+    refresh_diagnostics: refreshDiagnostics
   };
 }
 
@@ -2079,6 +2200,8 @@ function resetReindexState(productIds = []) {
     current_product: "",
     current_product_id: "",
     current_product_images_passed: 0,
+    current_product_successful_extractions: 0,
+    current_product_failed_images: 0,
     current_product_images_skipped_by_cap: 0,
     current_product_effective_cap: 0,
     current_product_hard_cap_binding: false,
@@ -2121,6 +2244,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
     const batchProductIds = batches[batchIndex];
     const batchRefreshedImages = [];
     const successfulProductIds = [];
+    const batchRefreshDiagnosticsByProductId = new Map();
 
     for (let productIndex = 0; productIndex < batchProductIds.length; productIndex += 1) {
       const productId = batchProductIds[productIndex];
@@ -2129,6 +2253,8 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
       reindexState.current_product = productName;
       reindexState.current_product_id = productId;
       reindexState.current_product_images_passed = 0;
+      reindexState.current_product_successful_extractions = 0;
+      reindexState.current_product_failed_images = 0;
       reindexState.current_product_images_skipped_by_cap = 0;
       reindexState.current_product_effective_cap = 0;
       reindexState.current_product_hard_cap_binding = false;
@@ -2143,15 +2269,22 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         const productPayload = await generateProductRefreshPayload(productId, matchingImages);
         batchRefreshedImages.push(...productPayload.images);
         successfulProductIds.push(productId);
-        reindexState.current_product_images_passed = Number(productPayload.progress?.passing_image_count || 0);
+        batchRefreshDiagnosticsByProductId.set(productId, productPayload.refresh_diagnostics);
+        reindexState.current_product_images_passed = Number(productPayload.progress?.stage0_passing_count || 0);
+        reindexState.current_product_successful_extractions = Number(productPayload.progress?.successful_extraction_count || 0);
+        reindexState.current_product_failed_images = Number(productPayload.progress?.failed_image_count || 0);
         if (productPayload.progress?.tiebreaker_used) {
           reindexState.tiebreaker_products += 1;
         }
+        const typeForLog = String(productPayload.seating_type || "").trim() ||
+          String(productPayload.images.find((image) => getEffectiveClassification(image) === "product")?.seating_type || "").trim();
         reindexState.log.unshift({
           name: productName,
           status: "success",
-          type: productPayload.images[0]?.seating_type || "",
-          stage0_passing_count: Number(productPayload.progress?.passing_image_count || 0) + Number(productPayload.progress?.images_skipped_by_cap || 0),
+          type: typeForLog,
+          stage0_passing_count: Number(productPayload.progress?.stage0_passing_count || 0),
+          successful_extraction_count: Number(productPayload.progress?.successful_extraction_count || 0),
+          failed_image_count: Number(productPayload.progress?.failed_image_count || 0),
           effective_cap_applied: Number(productPayload.progress?.effective_cap_applied || 0),
           images_skipped_by_cap: Number(productPayload.progress?.images_skipped_by_cap || 0),
           hard_upper_cap_binding: Boolean(productPayload.progress?.hard_upper_cap_binding)
@@ -2191,6 +2324,8 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         ? batchProductIds[productIndex + 1]
         : batches[batchIndex + 1]?.[0] || "";
       reindexState.current_product_images_passed = 0;
+      reindexState.current_product_successful_extractions = 0;
+      reindexState.current_product_failed_images = 0;
       reindexState.current_product_images_skipped_by_cap = 0;
       reindexState.current_product_effective_cap = 0;
       reindexState.current_product_hard_cap_binding = false;
@@ -2203,7 +2338,9 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
     }
 
     if (batchRefreshedImages.length) {
-      workingIndex = replaceProductImages(workingIndex, catalog, successfulProductIds, batchRefreshedImages);
+      workingIndex = replaceProductImages(workingIndex, catalog, successfulProductIds, batchRefreshedImages, {
+        refreshDiagnosticsByProductId: batchRefreshDiagnosticsByProductId
+      });
       await writeJson(indexPath, workingIndex);
     }
 
@@ -2216,6 +2353,8 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
   reindexState.current_product = "";
   reindexState.current_product_id = "";
   reindexState.current_product_images_passed = 0;
+  reindexState.current_product_successful_extractions = 0;
+  reindexState.current_product_failed_images = 0;
   reindexState.current_product_images_skipped_by_cap = 0;
   reindexState.current_product_effective_cap = 0;
   reindexState.current_product_hard_cap_binding = false;
@@ -2237,7 +2376,9 @@ async function refreshProductIndex(productId) {
 
   const productPayload = await generateProductRefreshPayload(productId, matchingImages);
   const workingIndex = index?.images?.length ? index : createEmptyIndex(catalog);
-  const output = replaceProductImages(workingIndex, catalog, [productId], productPayload.images);
+  const output = replaceProductImages(workingIndex, catalog, [productId], productPayload.images, {
+    refreshDiagnosticsByProductId: new Map([[productId, productPayload.refresh_diagnostics]])
+  });
   await writeJson(indexPath, output);
   return (output.images || []).filter((image) => image.product_id === productId);
 }
@@ -2271,7 +2412,11 @@ async function refreshProductsIndex(productIds = []) {
 
   if (refreshedImages.length) {
     const refreshedProductIds = refreshedProducts.map((product) => product.product_id);
-    const output = replaceProductImages(index, catalog, refreshedProductIds, refreshedImages);
+    const output = replaceProductImages(index, catalog, refreshedProductIds, refreshedImages, {
+      refreshDiagnosticsByProductId: new Map(
+        refreshedProducts.map((product) => [product.product_id, product.refresh_diagnostics])
+      )
+    });
     await writeJson(indexPath, output);
   }
 
@@ -2454,7 +2599,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
       if (isIntentionallyExcludedProduct(product, indexedImages)) {
         return null;
       }
-      const includedImages = indexedImages.filter((image) => image.excluded !== true);
+      const includedImages = indexedImages.filter((image) => !isIntentionallyExcludedImageRecord(image));
       const passingImages = includedImages.filter((image) => getEffectiveClassification(image) === "product");
       const browseImages = includedImages;
       const heroImage = passingImages[0] || browseImages[0] || null;
@@ -3083,6 +3228,7 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/analyze-image" && request.method === "POST") {
     let imageIdentifier = "";
+    let progressRequestId = "";
     try {
       const body = await readRequestJson(request);
       const imageDataUrl = String(body.image_data_url || "").trim();
@@ -3102,6 +3248,7 @@ const server = http.createServer(async (request, response) => {
       const stage1Only = Boolean(body?.stage1_only);
       const rawSeatingTypeOverride = String(body?.seating_type_override || "").trim();
       const seatingTypeOverride = seatingTypes[rawSeatingTypeOverride] ? rawSeatingTypeOverride : "";
+      progressRequestId = String(body?.progress_request_id || "").trim();
       imageIdentifier = getQueryImageAnalysisIdentifier({
         imageSource,
         imageUrl,
@@ -3116,6 +3263,10 @@ const server = http.createServer(async (request, response) => {
         return json(response, 409, { error: "Image analysis requires OPENAI_API_KEY on the local server." });
       }
 
+      ensureQueryImageProgressEntry(progressRequestId, {
+        expected_passes: stage1Only ? 0 : 2
+      });
+
       const analysis = await analyzeInspirationImage(imageSource, {
         provider: "openai",
         apiKey: process.env.OPENAI_API_KEY,
@@ -3124,7 +3275,13 @@ const server = http.createServer(async (request, response) => {
         matchMode,
         focusArea,
         stage1Only,
-        seatingTypeOverride
+        seatingTypeOverride,
+        progressCallback: (event = {}) => {
+          if (!progressRequestId) {
+            return;
+          }
+          recordQueryImageProgressEvent(progressRequestId, event);
+        }
       });
 
       if (stage1Only) {
@@ -3156,6 +3313,9 @@ const server = http.createServer(async (request, response) => {
         }
       });
     } catch (error) {
+      finalizeQueryImageProgress(progressRequestId, {
+        error: error?.message || "Image analysis failed."
+      });
       if (error instanceof ResolutionGateError) {
         return json(response, 400, { error: error.message });
       }
@@ -3169,6 +3329,19 @@ const server = http.createServer(async (request, response) => {
       }
       return json(response, 500, { error: error.message || "Image analysis failed." });
     }
+  }
+
+  if (url.pathname === "/api/analyze-image-progress" && request.method === "GET") {
+    const requestId = String(url.searchParams.get("request_id") || "").trim();
+    const since = Math.max(0, Number(url.searchParams.get("since") || 0));
+    if (!requestId) {
+      return json(response, 400, { error: "request_id is required." });
+    }
+    const payload = buildQueryImageProgressPayload(requestId, since);
+    if (!payload) {
+      return json(response, 404, { error: "No image analysis progress found for that request." });
+    }
+    return json(response, 200, payload);
   }
 
   if (url.pathname === "/api/trait-correction" && request.method === "POST") {

@@ -888,6 +888,13 @@ h1 {
   gap: 14px;
 }
 
+.prompt-library-view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .prompt-library-header {
   display: flex;
   align-items: flex-start;
@@ -949,6 +956,69 @@ h1 {
   font: 0.9rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.prompt-library-formatted {
+  display: grid;
+  gap: 2px;
+  padding: 18px;
+  color: var(--text);
+}
+
+.prompt-library-line {
+  margin: 0;
+  padding: 0;
+  padding-left: calc(var(--prompt-indent-level, 0) * 16px);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.prompt-library-line-blank {
+  min-height: 0.8rem;
+}
+
+.prompt-library-line-stage {
+  margin-top: 6px;
+  font: 600 1rem/1.45 "SF Pro Display", "Neue Haas Grotesk Text Pro", "Helvetica Neue", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.prompt-library-line-section,
+.prompt-library-line-subsection {
+  margin-top: 4px;
+  font: 600 0.9rem/1.5 "SF Pro Display", "Neue Haas Grotesk Text Pro", "Helvetica Neue", sans-serif;
+}
+
+.prompt-library-line-field,
+.prompt-library-line-body,
+.prompt-library-line-bullet,
+.prompt-library-line-numbered,
+.prompt-library-line-trait {
+  font: 0.9rem/1.58 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+.prompt-library-line-trait {
+  margin-top: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(216, 210, 201, 0.45);
+}
+
+.prompt-library-line-trait + .prompt-library-line-trait {
+  margin-top: 0;
+}
+
+.prompt-library-line-numbered,
+.prompt-library-line-bullet {
+  color: #2a2520;
+}
+
+.prompt-library-enum {
+  display: inline;
+  color: #3a2b17;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  background: rgba(234, 226, 213, 0.55);
+  border-radius: 6px;
+  padding: 0 3px;
 }
 
 .prompt-library-lightbox-actions {
@@ -1609,6 +1679,142 @@ h1 {
   border-bottom: 0;
 }
 
+.extraction-summary-row.is-expandable {
+  cursor: pointer;
+}
+
+.extraction-summary-row.is-expandable:hover td {
+  background: rgba(248, 244, 238, 0.55);
+}
+
+.extraction-summary-row.is-expandable:focus-within td,
+.extraction-summary-row.is-expandable:focus-visible td {
+  outline: 2px solid rgba(111, 84, 234, 0.28);
+  outline-offset: -2px;
+}
+
+.extraction-summary-category-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.extraction-summary-row-indicator {
+  color: var(--muted);
+  width: 12px;
+  flex: 0 0 12px;
+}
+
+.extraction-summary-number-cell,
+.extraction-summary-health-cell,
+.extraction-summary-trait-value,
+.extraction-summary-trait-delta,
+.extraction-summary-trait-supplemental {
+  font-variant-numeric: tabular-nums;
+}
+
+.extraction-summary-health-cell.is-warning {
+  color: #9a5a00;
+  font-weight: 600;
+}
+
+.extraction-summary-detail-row td {
+  padding: 0;
+  background: transparent;
+}
+
+.extraction-summary-detail-panel {
+  margin: 0 12px 12px 32px;
+  padding: 12px 14px;
+  border-left: 2px solid rgba(111, 84, 234, 0.18);
+  border-radius: 0 12px 12px 0;
+  background: rgba(248, 244, 238, 0.72);
+  display: grid;
+  gap: 8px;
+}
+
+.extraction-summary-trait-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.extraction-summary-trait-line.is-quiet {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.extraction-summary-trait-name {
+  font-family: "SFMono-Regular", SFMono-Regular, ui-monospace, Menlo, Consolas, monospace;
+}
+
+.extraction-summary-trait-value-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.extraction-summary-trait-value-wrap.has-context {
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.extraction-summary-trait-value.is-warning {
+  color: #9a5a00;
+  font-weight: 600;
+}
+
+.extraction-summary-trait-value.is-severe {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.extraction-summary-trait-value.is-applicable-strong {
+  color: #157347;
+  font-weight: 700;
+}
+
+.extraction-summary-trait-context {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.2;
+  text-align: right;
+  max-width: 28ch;
+}
+
+.extraction-summary-trait-delta {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+
+.extraction-summary-trait-supplemental {
+  color: var(--muted);
+  font-size: 0.83rem;
+}
+
+.extraction-summary-breakdown-toggle {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.extraction-summary-breakdown-toggle:hover {
+  color: var(--text);
+}
+
+.extraction-summary-divider {
+  border-top: 1px solid rgba(216, 210, 201, 0.75);
+  margin: 2px 0 0;
+}
+
 .modal-header,
 .modal-upload-grid,
 .modal-results-grid,
@@ -1943,9 +2149,37 @@ h1 {
   font-size: 0.91rem;
 }
 
+.image-analyze-progressbar {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(131, 65, 255, 0.10);
+}
+
+.image-analyze-progressbar-fill {
+  position: relative;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8a58ff 0%, #6eebbb 100%);
+  transition: width 220ms ease;
+  overflow: hidden;
+}
+
+.image-analyze-progressbar-fill.is-indeterminate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-45%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.20) 25%, rgba(255, 255, 255, 0.75) 50%, rgba(255, 255, 255, 0.20) 75%, transparent 100%);
+  animation: image-analyze-progressband 1.35s ease-in-out infinite;
+}
+
 .image-analyze-segmented-track {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1993,6 +2227,15 @@ h1 {
   height: 7px;
   border-radius: 999px;
   background: currentColor;
+}
+
+@keyframes image-analyze-progressband {
+  0% {
+    transform: translateX(-45%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .results-shell {

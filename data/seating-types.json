@@ -102,6 +102,7 @@
           "allowed_values": [
             "Fabric",
             "Leather",
+            "Molded plastic",
             "Mesh / net",
             "unknown"
           ],
@@ -310,6 +311,16 @@
             "Ottoman",
             "unknown"
           ],
+          "groups": [
+            [
+              "Double seat",
+              "Triple seat (or larger)"
+            ],
+            [
+              "Modular component",
+              "Corner unit"
+            ]
+          ],
           "priority": "essential"
         },
         {
@@ -345,7 +356,6 @@
             "Trapezoidal",
             "Reverse trapezoidal",
             "Square / rectangular",
-            "N/A",
             "unknown"
           ]
         }
@@ -646,6 +656,8 @@
             "Steel tube",
             "Solid wood",
             "Wood + steel",
+            "Upholstered",
+            "Metal sheet",
             "unknown"
           ]
         },
@@ -678,6 +690,7 @@
             "Fabric",
             "Leather",
             "Natural wood",
+            "Metal",
             "unknown"
           ],
           "groups": [

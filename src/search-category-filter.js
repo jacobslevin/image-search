@@ -42,10 +42,11 @@ export function isIntentionallyExcludedImageRecord(record = {}, options = {}) {
 }
 
 export function isIntentionallyExcludedProduct(product = {}, indexedImages = [], options = {}) {
+  void indexedImages;
   if (getPixelSeekType(product, options?.decisions) === "INTENTIONALLY_EXCLUDED") {
     return true;
   }
-  return (Array.isArray(indexedImages) ? indexedImages : []).some((image) => isIntentionallyExcludedImageRecord(image, options));
+  return false;
 }
 
 export function collectActiveResultSeatingTypes(result = {}) {

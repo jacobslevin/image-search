@@ -100,5 +100,11 @@
     "mapping_target": "lounge_chair",
     "created_at": "2026-04-27T00:28:44.162Z",
     "updated_at": "2026-04-27T00:28:44.162Z"
+  },
+  "Childrens Furniture | Fixed-height Stools | Multi-use Guest Chairs": {
+    "status": "mapped",
+    "mapping_target": "guest_chair",
+    "created_at": "2026-04-28T13:52:03.490Z",
+    "updated_at": "2026-04-28T13:52:03.490Z"
   }
 }

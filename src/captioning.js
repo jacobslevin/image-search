@@ -44,6 +44,7 @@ const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
 const GPT_41_OUTPUT_COST_PER_TOKEN = 8 / 1_000_000;
 const GPT_41_NANO_INPUT_COST_PER_TOKEN = 0.10 / 1_000_000;
 const GPT_41_NANO_OUTPUT_COST_PER_TOKEN = 0.40 / 1_000_000;
+const IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT = 1;
 const PIXELSEEK_TYPE_TO_ROUTING_KEY = Object.freeze({
   "Lounge Seating": "lounge_chair",
   "Multi-Use / Guest Chairs": "guest_chair",
@@ -186,6 +187,52 @@ function buildExcludedImageExtractionResult({
   };
 }
 
+function sleepMs(ms = 0) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isTransientImageExtractionError(error) {
+  const message = String(error?.message || error || "").toLowerCase();
+  if (!message) {
+    return false;
+  }
+  return (
+    /\b429\b/.test(message) ||
+    /\b408\b/.test(message) ||
+    /\b500\b|\b502\b|\b503\b|\b504\b/.test(message) ||
+    /timed? out|timeout|network|fetch failed|econnreset|socket hang up|temporar|overloaded|rate limit|connection/i.test(message)
+  );
+}
+
+async function retryImageOperation(operation, options = {}) {
+  const retryLimit = Number(options.retryLimit ?? IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT) || 0;
+  let attempt = 0;
+  let lastError = null;
+
+  while (attempt <= retryLimit) {
+    try {
+      const value = await operation(attempt + 1);
+      return {
+        value,
+        attempts: attempt + 1,
+        retried: attempt > 0
+      };
+    } catch (error) {
+      lastError = error;
+      if (attempt >= retryLimit || !isTransientImageExtractionError(error)) {
+        break;
+      }
+      attempt += 1;
+      await sleepMs(Math.min(2000, attempt * 500));
+      continue;
+    }
+  }
+
+  throw Object.assign(lastError || new Error("Image extraction failed."), {
+    __image_attempts: attempt + 1
+  });
+}
+
 const LEGACY_TRAIT_DEFAULTS = {
   product_type: "",
   seating_category_visual: "",
@@ -240,22 +287,16 @@ export const MATCHING_SAFE_MIN_SHORT_SIDE = 591;
 
 const LOUNGE_CHAIR_SHAPE_RULES = `- For lounge_chair shape_character: classify the overall silhouette character as either "Soft / tapered" or "Boxy". Use "Soft / tapered" if any major structural component curves, if the overall body or shell is curved, if the form deliberately tapers in straight lines as a design feature, or if the corners dissolve into generous arcs rather than retaining visible corner points. Use "Boxy" only when the back edge is straight, the arms are straight, the overall body is rectilinear with consistent width and depth, and the corners still read as visible corners. Ignore camera perspective and evaluate only the major structural components, not cushions, seams, or accessory details.
 - For lounge_chair plan_shape: classify the plan view shape of this piece using this exact decision tree. Imagine looking straight down at the piece from above.
-  Step 2 — Check for round / semicircular:
+  Step 1 — Check for round / semicircular:
   Is the back edge of the piece curved rather than a straight line across? If yes, the plan footprint is round or semicircular — the back wraps rather than running straight. Classify as Round / semicircular and stop. Do not attempt width comparison on curved forms.
-  Step 3 — Compare front width to back width:
+  Step 2 — Compare front width to back width:
   For pieces with a straight back edge, estimate the width of the piece at the front (seat front edge) versus the width at the back (back panel) when viewed from above:
   - Width at back roughly equal to width at front → Square / rectangular (sides run parallel)
   - Width at back narrower than width at front → Trapezoidal (piece widens toward the front, arms splay outward)
   - Width at back wider than width at front → Reverse trapezoidal (piece widens toward the back)
-  If the photo angle makes it impossible to reliably determine the plan shape, return unknown.
-  Return JSON only:
-  {
-    reasoning: 'brief explanation of what you observed',
-    plan_shape: 'Round / semicircular' or 'Trapezoidal' or 'Reverse trapezoidal' or 'Square / rectangular' or 'unknown'
-  }`;
+  If the photo angle makes it impossible to reliably determine the plan shape, return unknown.`;
 
-const LOUNGE_CHAIR_CONFIGURATION_RULES = `For configuration, choose exactly one of [Single seat, Double seat, Triple seat (or larger), Modular component, Corner unit, Ottoman].
-Single seat: A standalone single-occupant lounge piece. Single seats are typically as deep as they are wide, or deeper than they are wide. They have one arm on each side (or no arms) with no continuous seating space between distinct seating zones.
+const LOUNGE_CHAIR_CONFIGURATION_RULES = `Single seat: A standalone single-occupant lounge piece. Single seats are typically as deep as they are wide, or deeper than they are wide. They have one arm on each side (or no arms) with no continuous seating space between distinct seating zones.
 Double seat: A non-modular piece clearly proportioned for two occupants. This includes two-person lounge pieces with a clearly shared seating span. It does not need visible cushion divisions or seams; many modern double seats have a single continuous upholstered surface.
 Triple seat (or larger): A non-modular piece clearly proportioned for three or more occupants. This includes sofas and larger lounge pieces. Visual indicators include width substantially greater than depth, multiple occupant zones, and overall proportions where three adults could reasonably sit side by side.
 Modular component: A piece designed to combine or reconfigure with other modules. Modular components often have asymmetric or non-standard arm configurations (one arm only, no arms, or arms only on certain sides), flat sides where they would join other modules, or proportions that suggest they are part of a larger sectional or system rather than a complete standalone seat. Products that appear to be part of a system, collection, or sectional set should be classified as Modular component even if the individual piece looks chair-like or sofa-like in isolation. If a piece appears designed to combine with other pieces rather than stand alone as a complete seating element, classify it as Modular component, not Single seat, Double seat, or Triple seat (or larger).
@@ -281,7 +322,7 @@ const TASK_COLLAB_CHAIR_CANONICAL_RULES = `- For task_collab_chair back_finish: 
 - For task_collab_chair arm_option: visible adjustment hardware means "Adjustable arms", not fixed. Use "Integrated" only when the arms are formed directly out of the same seat or back shell with no distinct arm-post, side support, or separate side member. Use "Fixed arms" for any rigid non-adjustable arms carried by distinct side supports or side members.
 - For task_collab_chair base_type: use "Sled" for a continuous sled frame and never return "Sled base".
 - For task_collab_chair base_finish: classify the visible base finish using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for visible wood bases or legs. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for coated or powder-coated colored finishes that are neither black nor natural wood. Return "unknown" only when the base is genuinely not visible.
-- For task_collab_chair seat_finish: use [Fabric, Leather, Mesh / net]. Use "Mesh / net" only when the visible seat surface itself is mesh or netting.`;
+- For task_collab_chair seat_finish: use [Fabric, Leather, Molded plastic, Mesh / net]. Use "Mesh / net" only when the visible seat surface itself is mesh or netting. Use "Molded plastic" when the visible seat surface is a hard molded plastic shell rather than upholstered or mesh.`;
 
 const GUEST_CHAIR_CANONICAL_RULES = `- For guest_chair arm_option: use "Open arm" when the arm is visually separate and leaves space beneath or beside it, "Closed arm" when the arm and side panel read as a closed side, and "Integrated" when the arm flows directly from the shell or frame.
 - For guest_chair frame_openness: use "Open / see-through" when the chair body or frame has obvious negative space and "Closed / solid" when the side or back surfaces read as continuous solid surfaces.
@@ -291,8 +332,9 @@ const GUEST_CHAIR_CANONICAL_RULES = `- For guest_chair arm_option: use "Open arm
 - For guest_chair back_finish: use [Fabric, Leather, Mesh / net, Molded plastic, Natural wood, Unupholstered]. Use "Natural wood" when the visible back surface is wood. Use "Unupholstered" when the visible back surface is a bare shell with no upholstery.`;
 
 const BENCH_CANONICAL_RULES = `- For bench configuration: choose exactly one of [Double seat, Triple seat (or larger), Custom width]. Use "Double seat" for benches clearly sized for two occupants, "Triple seat (or larger)" for benches clearly sized for three or more occupants, and "Custom width" only when the bench reads as custom-length or unusually extended without a clear standard occupancy count.
+- For bench frame_material: use [Steel tube, Solid wood, Wood + steel, Upholstered, Metal sheet]. Use "Steel tube" for exposed tubular steel or rod frames. Use "Solid wood" for benches whose visible supporting structure is wood only. Use "Wood + steel" when both wood and steel are clearly part of the structural frame. Use "Upholstered" when the supporting structure reads as fully upholstered volumes or upholstered pedestals rather than an exposed frame. Use "Metal sheet" for planar metal panel supports, folded metal plate legs, or monolithic sheet-metal bench bodies rather than tubular frames.
 - For bench base_finish: classify only the visible finish of the base or support structure using [Black, White, Polished chrome / aluminum, Painted color, Natural wood]. Use "Natural wood" for exposed wood bases or legs. Use "Polished chrome / aluminum" for bright reflective chrome or polished aluminum bases. Use "White" for visibly white bases or legs. Use "Painted color" for coated or powder-coated colored finishes that are neither black nor natural wood. Return "unknown" only when the base or support structure is genuinely not visible.
-- For bench seat_finish: use [Fabric, Leather, Natural wood]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Fabric" or "Leather" only when that finish is clearly visible on the seat.
+- For bench seat_finish: use [Fabric, Leather, Natural wood, Metal]. Use "Natural wood" when the visible seat surface is exposed wood. Use "Metal" when the visible seat surface is metal, including perforated, slatted, or solid steel, aluminum, or iron seats common in outdoor or architectural benches. Use "Fabric" or "Leather" only when that finish is clearly visible on the seat.
 - For bench back_height: classify the physical back support height using [Backless, Low back, Full back]. Use "Backless" when no physical back support is present. Use "Low back" when a back support rises only modestly above the seat. Use "Full back" when the back support rises substantially above the seat and reads as a full backrest.
 - For bench back_finish: classify the visible finish of the back surface using [Upholstered, Natural wood, Unupholstered]. Use "Natural wood" when the back surface is exposed wood. Use "Unupholstered" when the back support is a bare shell or hard surface with no upholstery.`;
 
@@ -339,7 +381,7 @@ const VISUAL_SUMMARY_PROMPT_CONFIG = {
   bench: {
     decision_rules: [
       "Use configuration first. Map \"Double seat\" to \"double-seat bench,\" \"Triple seat (or larger)\" to \"triple-seat bench,\" and \"Custom width\" to \"custom-width bench.\" If one of these configuration categories applies, keep it even when the bench is backless and mention the backlessness in the prose instead of changing the category noun.",
-      "If no configuration category gives the intended category, then use back_height. Map \"Backless\" to \"backless bench,\" \"Low back\" to \"low-back bench,\" and \"Full back\" to \"full-back bench.\"",
+      "If configuration is unknown, fall back to back_height. Map \"Backless\" to \"backless bench,\" \"Low back\" to \"low-back bench,\" and \"Full back\" to \"full-back bench.\"",
       "Keep upholstery and material distinctions in the prose rather than the category noun."
     ],
     good_example: "A double-seat bench with a long rectilinear seat, slim exposed steel frame, and lightly upholstered top. The profile is low and linear, with clean edges that keep it distinct from a lounge sofa."
@@ -1292,7 +1334,7 @@ function extractionPrompt(typeKey) {
     ? `${STOOL_CANONICAL_RULES}\n`
     : "";
   const loungeChairBaseRule = typeKey === "lounge_chair"
-    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES} ${LOUNGE_CHAIR_SHAPE_RULES}\n`
+    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES}\n${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRule = typeKey === "task_collab_chair"
     ? `${TASK_COLLAB_CHAIR_CANONICAL_RULES}\n`
@@ -1331,14 +1373,6 @@ function normalizeImageTraits(typeKey, imageTraits = {}) {
 function applyLoungeChairPlanShapeGuardrails(typeKey, imageTraits = {}) {
   if (String(typeKey || "").trim().toLowerCase() !== "lounge_chair") {
     return imageTraits;
-  }
-
-  const configuration = String(imageTraits?.configuration || "").trim().toLowerCase();
-  if (["double seat", "triple seat (or larger)", "modular component", "corner unit"].includes(configuration)) {
-    return {
-      ...imageTraits,
-      plan_shape: "N/A"
-    };
   }
 
   return imageTraits;
@@ -1750,7 +1784,7 @@ export function combinedStage23Prompt(typeKey) {
     ? `${STOOL_CANONICAL_RULES}\n`
     : "";
   const loungeChairBaseRule = typeKey === "lounge_chair"
-    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES} ${LOUNGE_CHAIR_SHAPE_RULES}\n`
+    ? `${LOUNGE_CHAIR_CANONICAL_RULES} ${LOUNGE_CHAIR_CONFIGURATION_RULES}\n${LOUNGE_CHAIR_SHAPE_RULES}\n`
     : "";
   const taskCollabChairRules = typeKey === "task_collab_chair"
     ? `${TASK_COLLAB_CHAIR_CANONICAL_RULES}\n`
@@ -1798,7 +1832,7 @@ ${buildVisualSummaryInstruction(typeKey)}
 - image_traits`;
 }
 
-async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, options = {}) {
+export async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, options = {}) {
   if (!options.apiKey) {
     const stage2 = await describeVisualFormOpenAi(imageInput, { ...options, typeKey });
     const stage3 = await extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, options);
@@ -2739,6 +2773,10 @@ tables, desks, cabinets, shelving, benches, stools, or beds.
 
 Multiple of the same type count as 1.
 
+A seating product with an integrated or attached table, tablet, or worksurface counts as one furniture product when that surface is structurally attached to the seating product itself or shares the same base or frame.
+
+Count it as a separate furniture item only when the table or worksurface stands on its own independent support structure or is clearly a separate companion piece.
+
 Return only a number.`,
     userParts: [
       ...(imageInput.catalogContext
@@ -3493,9 +3531,15 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
   if (!Array.isArray(productImages) || !productImages.length) {
     return {
       records: [],
+      failed_images: [],
       progress: {
         seating_type: "",
         stage0_passing_count: 0,
+        selected_product_image_count: 0,
+        successful_extraction_count: 0,
+        failed_image_count: 0,
+        failed_stage0_count: 0,
+        failed_stage23_count: 0,
         effective_cap_applied: 0,
         images_skipped_by_cap: 0,
         hard_upper_cap_binding: false
@@ -3504,12 +3548,30 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
   }
 
   const classificationEntries = [];
+  const failedImages = [];
   for (const image of productImages) {
-    const stage0Payload = await classifyImageStage0(image, options);
-    classificationEntries.push({
-      image,
-      stage0Payload
-    });
+    try {
+      const stage0Result = await retryImageOperation(
+        () => classifyImageStage0(image, options),
+        { retryLimit: IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT }
+      );
+      classificationEntries.push({
+        image,
+        stage0Payload: stage0Result.value
+      });
+    } catch (error) {
+      failedImages.push({
+        image_id: String(image.image_id || "").trim(),
+        image_url: String(image.image_url || "").trim(),
+        product_id: String(image.product_id || "").trim(),
+        product_name: String(image.name || image.product_name || "").trim(),
+        stage: "stage0",
+        selected_for_extraction: false,
+        attempts: Number(error?.__image_attempts || 1) || 1,
+        retried: Number(error?.__image_attempts || 1) > 1,
+        error: error?.message || "Stage 0 image classification failed."
+      });
+    }
   }
 
   const stage0PassingEntries = classificationEntries.filter((entry) => String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase() === "product");
@@ -3524,19 +3586,48 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
   );
 
   const records = [];
+  let successfulExtractionCount = 0;
   for (const entry of classificationEntries) {
     const key = String(entry.image.image_id || entry.image.image_url || "");
     const stage0Result = String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase();
     if (stage0Result !== "product" || selectedImageIds.has(key)) {
-      records.push(await generateImageExtractionRecordFromStage0(entry.image, entry.stage0Payload, options));
+      try {
+        const extractionResult = await retryImageOperation(
+          () => generateImageExtractionRecordFromStage0(entry.image, entry.stage0Payload, options),
+          { retryLimit: stage0Result === "product" ? IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT : 0 }
+        );
+        const record = extractionResult.value;
+        records.push(record);
+        if (stage0Result === "product" && getEffectiveClassification(record) === "product") {
+          successfulExtractionCount += 1;
+        }
+      } catch (error) {
+        failedImages.push({
+          image_id: String(entry.image.image_id || "").trim(),
+          image_url: String(entry.image.image_url || "").trim(),
+          product_id: String(entry.image.product_id || "").trim(),
+          product_name: String(entry.image.name || entry.image.product_name || "").trim(),
+          stage: stage0Result === "product" ? "stage23" : "stage0_finalize",
+          selected_for_extraction: selectedImageIds.has(key),
+          attempts: Number(error?.__image_attempts || 1) || 1,
+          retried: Number(error?.__image_attempts || 1) > 1,
+          error: error?.message || "Image extraction failed."
+        });
+      }
     }
   }
 
   return {
     records,
+    failed_images: failedImages,
     progress: {
       seating_type: seatingType,
       stage0_passing_count: stage0PassingEntries.length,
+      selected_product_image_count: selectedImageIds.size,
+      successful_extraction_count: successfulExtractionCount,
+      failed_image_count: failedImages.length,
+      failed_stage0_count: failedImages.filter((entry) => entry.stage === "stage0").length,
+      failed_stage23_count: failedImages.filter((entry) => entry.stage === "stage23").length,
       effective_cap_applied: effectiveCap,
       images_skipped_by_cap: Math.max(0, stage0PassingEntries.length - effectiveCap),
       hard_upper_cap_binding: getEffectiveExtractionImageCap(softCap) === EXTRACTION_IMAGE_HARD_CAP &&
@@ -3738,10 +3829,14 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
 }
 
 async function runStage123Extraction(imageInput, options = {}, imageRecord = {}, runLabel = "run_1") {
+  const currentPass = Number(String(runLabel).match(/run_(\d+)/)?.[1] || 0);
+  const expectedPasses = currentPass >= 3 ? 3 : 2;
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
-      type: "run_start",
+      type: `${runLabel}_started`,
       run_label: runLabel,
+      current_pass: currentPass,
+      expected_passes: expectedPasses,
       image_url: imageInput.image_url,
       product_id: imageRecord?.product_id || "",
       product_name: imageRecord?.name || ""
@@ -3790,6 +3885,17 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
   }
 
   const usageTotal = sumUsage(stage1Usage, stage23Usage);
+  if (typeof options.progressCallback === "function") {
+    options.progressCallback({
+      type: `${runLabel}_done`,
+      run_label: runLabel,
+      current_pass: currentPass,
+      expected_passes: expectedPasses,
+      image_url: imageInput.image_url,
+      product_id: imageRecord?.product_id || "",
+      product_name: imageRecord?.name || ""
+    });
+  }
   return {
     run_label: runLabel,
     stage1,
@@ -3821,10 +3927,14 @@ function resolveCatalogRoutingTypeKey(pixelSeekType = "") {
 }
 
 async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, imageRecord = {}, runLabel = "run_1") {
+  const currentPass = Number(String(runLabel).match(/run_(\d+)/)?.[1] || 0);
+  const expectedPasses = currentPass >= 3 ? 3 : 2;
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
-      type: "run_start",
+      type: `${runLabel}_started`,
       run_label: runLabel,
+      current_pass: currentPass,
+      expected_passes: expectedPasses,
       image_url: imageInput.image_url,
       product_id: imageRecord?.product_id || "",
       product_name: imageRecord?.name || ""
@@ -3848,6 +3958,18 @@ async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, i
     const field = fieldMap.get(fieldName);
     if (!field) continue;
     imageTraits[fieldName] = normalizeEnum(value, field.allowed_values);
+  }
+
+  if (typeof options.progressCallback === "function") {
+    options.progressCallback({
+      type: `${runLabel}_done`,
+      run_label: runLabel,
+      current_pass: currentPass,
+      expected_passes: expectedPasses,
+      image_url: imageInput.image_url,
+      product_id: imageRecord?.product_id || "",
+      product_name: imageRecord?.name || ""
+    });
   }
 
   return {
@@ -4217,10 +4339,20 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
   };
 
   if (options.stage1Only) {
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage1_started"
+      });
+    }
     const stage1Vote = await voteStage1Classifications(imageInput, {
       ...runOptions,
       visionModel: runOptions.visionModel || "gpt-4.1"
     });
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage1_done"
+      });
+    }
     return {
       seating_type: String(stage1Vote.stage1?.seating_type || "").trim(),
       stage1: cloneKnownValue(stage1Vote.stage1),
@@ -4277,7 +4409,17 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
         distinctive_elements: Array.isArray(voted.stage2.distinctive_elements) ? voted.stage2.distinctive_elements : []
       }
     });
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "embedding_started"
+      });
+    }
     const queryEmbedding = await embedSearchText(searchText, runOptions);
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "embedding_done"
+      });
+    }
 
     return {
       seating_type: forcedSeatingType,
@@ -4311,6 +4453,11 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
   let run1;
   let run2;
   try {
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage1_started"
+      });
+    }
     run1 = await runStage123Extraction(imageInput, {
       ...runOptions,
       visionModel: runOptions.visionModel || "gpt-4.1"
@@ -4319,6 +4466,11 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
       ...runOptions,
       visionModel: runOptions.visionModel || "gpt-4.1"
     }, { name: "Inspiration image" }, "run_2");
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage1_done"
+      });
+    }
   } catch (error) {
     throw new QueryImageAnalysisStageError("stage1", "Stage 1 query-time image analysis failed.", { cause: error });
   }
@@ -4380,7 +4532,17 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
       distinctive_elements: Array.isArray(voted.stage2.distinctive_elements) ? voted.stage2.distinctive_elements : []
     }
   });
+  if (typeof runOptions.progressCallback === "function") {
+    runOptions.progressCallback({
+      type: "embedding_started"
+    });
+  }
   const queryEmbedding = await embedSearchText(searchText, runOptions);
+  if (typeof runOptions.progressCallback === "function") {
+    runOptions.progressCallback({
+      type: "embedding_done"
+    });
+  }
 
   return {
     seating_type: seatingType,

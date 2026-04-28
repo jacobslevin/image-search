@@ -29,9 +29,12 @@ const state = {
   structuredTraitsInspectorSeverity: "all",
   promptLibrary: null,
   promptLibraryActiveId: "stage1",
+  promptLibraryViewMode: "raw",
   copyPromptLibraryTimer: null,
   copyDebugTableTimer: null,
   extractionSummary: null,
+  extractionSummaryExpandedRows: new Set(),
+  extractionSummaryFullRows: new Set(),
   searchInputEditedSinceLastSearch: false,
   categorySelectionTouchedSinceLastSearch: false,
   manageMode: false,
@@ -82,6 +85,13 @@ const state = {
   traitFilters: {},
   imageAnalyzeProgress: null,
   imageAnalyzeProgressTimer: null,
+  imageAnalyzeProgressPollTimer: null,
+  imageAnalyzeProgressRequestId: "",
+  imageAnalyzeProgressSequence: 0,
+  imageAnalyzePrepareStartedAt: 0,
+  imageAnalyzeClassifyStartedAt: 0,
+  imageAnalyzePrepareTransitionTimer: null,
+  imageAnalyzeClassifyTransitionTimer: null,
   resultCutoffMeta: null,
   resultCutoffKey: "",
   weakerMatchesExpanded: false,
@@ -113,6 +123,7 @@ const BROWSE_TRAIT_FILTER_SUPPORTED_TYPES = new Set([
 
 const BATCH_PROGRESS_DISMISS_KEY = "image-search.batch-progress-dismissed";
 const IMAGE_SEARCH_HANDOFF_KEY = "image-search.pending-image-handoff";
+const PROMPT_LIBRARY_VIEW_MODE_STORAGE_KEY = "image-search.prompt-library-view-mode";
 const PRIVATE_BROWSE_PATH = "/velvet-lobster-orbit-773-nebula";
 const CURRENT_URL = new URL(window.location.href);
 const IS_PRIVATE_BROWSE_ROUTE = CURRENT_URL.pathname === PRIVATE_BROWSE_PATH || CURRENT_URL.pathname.startsWith(`${PRIVATE_BROWSE_PATH}/`);
@@ -125,15 +136,23 @@ const HAS_ACTIVE_LAUNCH_CONTEXT = Boolean(
 );
 const LANDING_ONLY_MODE = !IS_PRIVATE_BROWSE_ROUTE && !HAS_ACTIVE_LAUNCH_CONTEXT;
 state.landingOnlyMode = LANDING_ONLY_MODE;
+try {
+  const storedPromptLibraryViewMode = window.sessionStorage.getItem(PROMPT_LIBRARY_VIEW_MODE_STORAGE_KEY);
+  if (storedPromptLibraryViewMode === "formatted" || storedPromptLibraryViewMode === "raw") {
+    state.promptLibraryViewMode = storedPromptLibraryViewMode;
+  }
+} catch {}
 const IMAGE_ANALYZE_PROGRESS_STEPS = [
-  { id: "prepare", label: "Prepare", percent: 18, title: "Preparing image...", detail: "Getting the selected image ready for analysis." },
-  { id: "analyze", label: "Analyze", percent: 68, title: "Analyzing visual traits...", detail: "Extracting category, traits, and descriptive bullets." },
-  { id: "match", label: "Match", percent: 94, title: "Matching catalog products...", detail: "Ranking the best catalog matches from the analyzed image." },
+  { id: "prepare", label: "Prepare", percent: 15, title: "Preparing image...", detail: "Getting the selected image ready for analysis." },
+  { id: "classify", label: "Classify", percent: 30, title: "Classifying image...", detail: "Classifying the selected item" },
+  { id: "extract", label: "Extract", percent: 85, title: "Extracting visual traits...", detail: "Extracting visual traits..." },
+  { id: "match", label: "Match", percent: 90, title: "Matching catalog products...", detail: "Matching against catalog" },
   { id: "complete", label: "Complete", percent: 100, title: "Results ready", detail: "Opening the ranked results." }
 ];
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const QUERY_IMAGE_UPLOAD_MAX_DIMENSION = 1600;
 const QUERY_IMAGE_UPLOAD_JPEG_QUALITY = 0.82;
+const IMAGE_ANALYZE_MIN_PHASE_MS = 600;
 const STRUCTURED_TRAITS_TAB_DEFS = [
   { id: "matrix", label: "Trait & Value Matrix" },
   { id: "scoring", label: "Per-Category Scoring" },
@@ -502,10 +521,14 @@ function getImageAnalyzeStepConfig(stepId = "prepare") {
 
 function setImageAnalyzeProgressState(nextProgress = {}) {
   const step = getImageAnalyzeStepConfig(nextProgress.step);
-  const percent = clamp(Math.round(Number(nextProgress.percent ?? step.percent) || 0), 0, 100);
+  const percent = clamp(Number(nextProgress.percent ?? step.percent) || 0, 0, 100);
+  const previous = state.imageAnalyzeProgress || {};
   state.imageAnalyzeProgress = {
     step: step.id,
     percent,
+    percentLabel: String(nextProgress.percentLabel || `${Math.round(percent)}%`).trim(),
+    indeterminate: Boolean(nextProgress.indeterminate),
+    extractTarget: Number(nextProgress.extractTarget ?? previous.extractTarget ?? 30),
     title: String(nextProgress.title || step.title || "").trim(),
     detail: String(nextProgress.detail || step.detail || "").trim()
   };
@@ -515,6 +538,8 @@ function renderImageAnalyzeProgress() {
   const progress = state.imageAnalyzeProgress || {
     step: "prepare",
     percent: 0,
+    percentLabel: "0%",
+    indeterminate: false,
     title: "Preparing image...",
     detail: "Getting the selected image ready for analysis."
   };
@@ -522,18 +547,18 @@ function renderImageAnalyzeProgress() {
     const title = card.querySelector('[data-role="imageAnalyzeTitle"]');
     const detail = card.querySelector('[data-role="imageAnalyzeDetail"]');
     const percent = card.querySelector('[data-role="imageAnalyzePercent"]');
+    const bar = card.querySelector('[data-role="imageAnalyzeBar"]');
     const steps = [...card.querySelectorAll(".image-analyze-segment")];
     if (title) title.textContent = progress.title;
     if (detail) detail.textContent = progress.detail;
-    if (percent) percent.textContent = `${progress.percent}%`;
+    if (percent) percent.textContent = progress.percentLabel || `${progress.percent}%`;
+    if (bar) {
+      bar.style.width = `${clamp(Number(progress.percent || 0), 0, 100)}%`;
+      bar.classList.toggle("is-indeterminate", Boolean(progress.indeterminate));
+    }
     const activeIndex = IMAGE_ANALYZE_PROGRESS_STEPS.findIndex((step) => step.id === progress.step);
     steps.forEach((item, index) => {
-      const stepId = item.dataset.step || "";
-      const stepConfig = getImageAnalyzeStepConfig(stepId);
-      const isComplete =
-        progress.percent >= 100 ||
-        index < activeIndex ||
-        progress.percent >= Number(stepConfig.percent || 0);
+      const isComplete = progress.percent >= 100 || index < activeIndex;
       item.classList.toggle("is-active", index === activeIndex && progress.percent < 100);
       item.classList.toggle("is-complete", isComplete);
     });
@@ -547,33 +572,368 @@ function stopImageAnalyzeProgressAnimation() {
   }
 }
 
-function animateImageAnalyzeProgressTo(targetPercent = 0) {
+function clearImageAnalyzePhaseTransitionTimers() {
+  if (state.imageAnalyzePrepareTransitionTimer) {
+    window.clearTimeout(state.imageAnalyzePrepareTransitionTimer);
+    state.imageAnalyzePrepareTransitionTimer = null;
+  }
+  if (state.imageAnalyzeClassifyTransitionTimer) {
+    window.clearTimeout(state.imageAnalyzeClassifyTransitionTimer);
+    state.imageAnalyzeClassifyTransitionTimer = null;
+  }
+}
+
+function startImageAnalyzeClassifyPhaseNow() {
+  state.imageAnalyzeClassifyStartedAt = Date.now();
+  setImageAnalyzeProgressState({
+    step: "classify",
+    percent: 15,
+    percentLabel: "15–30%",
+    indeterminate: true,
+    title: "Classifying the selected item",
+    detail: "Classifying the selected item"
+  });
+  renderImageAnalyzeProgress();
+  startImageAnalyzeClassifyProgressAnimation();
+}
+
+function startImageAnalyzeDeterminateProgressAnimation(targetPercent = 0, options = {}) {
   stopImageAnalyzeProgressAnimation();
-  const clampedTarget = clamp(Math.round(Number(targetPercent) || 0), 0, 100);
+  const durationMs = Math.max(180, Number(options.durationMs || 420));
+  const startPercent = clamp(Number(state.imageAnalyzeProgress?.percent || 0), 0, 100);
+  const target = clamp(Number(targetPercent || 0), 0, 100);
+  const startedAt = Date.now();
   state.imageAnalyzeProgressTimer = window.setInterval(() => {
-    const current = Number(state.imageAnalyzeProgress?.percent || 0);
-    if (current >= clampedTarget) {
+    const elapsed = Date.now() - startedAt;
+    const progressRatio = Math.min(1, elapsed / durationMs);
+    const easedRatio = 1 - Math.pow(1 - progressRatio, 3);
+    const nextPercent = startPercent + ((target - startPercent) * easedRatio);
+    setImageAnalyzeProgressState({
+      ...(state.imageAnalyzeProgress || {}),
+      percent: nextPercent,
+      indeterminate: false
+    });
+    renderImageAnalyzeProgress();
+    if (progressRatio >= 1) {
+      stopImageAnalyzeProgressAnimation();
+    }
+  }, 32);
+}
+
+function startImageAnalyzePrepareProgressAnimation() {
+  stopImageAnalyzeProgressAnimation();
+  state.imageAnalyzeProgressTimer = window.setInterval(() => {
+    const progress = state.imageAnalyzeProgress || {};
+    if (progress.step !== "prepare" || !progress.indeterminate) {
       stopImageAnalyzeProgressAnimation();
       return;
     }
-    const stepSize = clampedTarget >= 90 ? 1 : 2;
-    setImageAnalyzeProgressState({ ...state.imageAnalyzeProgress, percent: Math.min(current + stepSize, clampedTarget) });
+    const target = 15;
+    const current = clamp(Number(progress.percent || 0), 0, target);
+    const remaining = target - current;
+    if (remaining <= 0.5) {
+      return;
+    }
+    const delta = remaining * 0.04;
+    setImageAnalyzeProgressState({
+      ...progress,
+      percent: Math.min(target - 0.01, current + delta),
+      percentLabel: "0–15%",
+      indeterminate: true
+    });
     renderImageAnalyzeProgress();
-  }, 90);
+  }, 220);
+}
+
+function startImageAnalyzeClassifyProgressAnimation() {
+  stopImageAnalyzeProgressAnimation();
+  state.imageAnalyzeProgressTimer = window.setInterval(() => {
+    const progress = state.imageAnalyzeProgress || {};
+    if (progress.step !== "classify" || !progress.indeterminate) {
+      stopImageAnalyzeProgressAnimation();
+      return;
+    }
+    const target = 30;
+    const current = clamp(Number(progress.percent || 15), 15, target);
+    const remaining = target - current;
+    if (remaining <= 0.5) {
+      return;
+    }
+    const delta = remaining * 0.04;
+    setImageAnalyzeProgressState({
+      ...progress,
+      percent: Math.min(target - 0.01, current + delta),
+      percentLabel: "15–30%",
+      indeterminate: true
+    });
+    renderImageAnalyzeProgress();
+  }, 220);
+}
+
+function startImageAnalyzeExtractProgressAnimation() {
+  stopImageAnalyzeProgressAnimation();
+  state.imageAnalyzeProgressTimer = window.setInterval(() => {
+    const progress = state.imageAnalyzeProgress || {};
+    if (progress.step !== "extract" || !progress.indeterminate) {
+      stopImageAnalyzeProgressAnimation();
+      return;
+    }
+    const target = clamp(Number(progress.extractTarget || 30), 30, 85);
+    const current = clamp(Number(progress.percent || 30), 30, target);
+    const remaining = target - current;
+    if (remaining <= 0.5) {
+      return;
+    }
+    const delta = remaining * 0.04;
+    setImageAnalyzeProgressState({
+      ...progress,
+      percent: Math.min(target - 0.01, current + delta),
+      percentLabel: progress.percentLabel || "30–85%",
+      indeterminate: true,
+      extractTarget: target
+    });
+    renderImageAnalyzeProgress();
+  }, 220);
+}
+
+function resolveImageAnalyzeExtractTarget(currentPass = 0, expectedPasses = 2) {
+  const pass = Math.max(1, Number(currentPass || 1));
+  const expected = Math.max(1, Number(expectedPasses || 2));
+  if (pass >= 3) {
+    return 85;
+  }
+  return 30 + (55 * Math.min(pass, expected) / expected);
+}
+
+function resolveImageAnalyzeExtractFloor(currentPass = 0, expectedPasses = 2) {
+  const pass = Math.max(1, Number(currentPass || 1));
+  if (pass <= 1) {
+    return 30;
+  }
+  return resolveImageAnalyzeExtractTarget(pass - 1, expectedPasses);
 }
 
 function updateImageAnalyzeProgress(stepId = "prepare", options = {}) {
   const step = getImageAnalyzeStepConfig(stepId);
+  const currentProgress = state.imageAnalyzeProgress || {};
+  const nextIndeterminate = Boolean(options.indeterminate);
+  const requestedPercent = Number(options.percent ?? step.percent ?? currentProgress.percent ?? 0);
+  const preservedPercent = nextIndeterminate && currentProgress.step === step.id && currentProgress.indeterminate
+    ? Math.max(Number(currentProgress.percent || 0), requestedPercent)
+    : requestedPercent;
   setImageAnalyzeProgressState({
     step: step.id,
-    percent: Number(options.percent ?? state.imageAnalyzeProgress?.percent ?? 0),
+    percent: preservedPercent,
+    percentLabel: options.percentLabel,
+    indeterminate: options.indeterminate,
     title: options.title || step.title,
     detail: options.detail || step.detail
   });
   renderImageAnalyzeProgress();
-  if (typeof options.targetPercent === "number") {
-    animateImageAnalyzeProgressTo(options.targetPercent);
+  if (nextIndeterminate && step.id === "prepare") {
+    startImageAnalyzePrepareProgressAnimation();
+  } else if (nextIndeterminate && step.id === "classify") {
+    startImageAnalyzeClassifyProgressAnimation();
+  } else if (nextIndeterminate && step.id === "extract") {
+    startImageAnalyzeExtractProgressAnimation();
+  } else if (typeof options.animateTo === "number") {
+    startImageAnalyzeDeterminateProgressAnimation(options.animateTo, {
+      durationMs: options.durationMs
+    });
+  } else {
+    stopImageAnalyzeProgressAnimation();
   }
+}
+
+function stopImageAnalyzeProgressPolling() {
+  if (state.imageAnalyzeProgressPollTimer) {
+    window.clearInterval(state.imageAnalyzeProgressPollTimer);
+    state.imageAnalyzeProgressPollTimer = null;
+  }
+  clearImageAnalyzePhaseTransitionTimers();
+  state.imageAnalyzeProgressRequestId = "";
+  state.imageAnalyzeProgressSequence = 0;
+  state.imageAnalyzePrepareStartedAt = 0;
+  state.imageAnalyzeClassifyStartedAt = 0;
+}
+
+function buildImageAnalyzeProgressRequestId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return `image-analyze-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function applyImageAnalyzeBackendProgressEvent(event = {}) {
+  const type = String(event.type || "").trim();
+  const expectedPasses = Math.max(1, Number(event.expected_passes || 2));
+  const currentPass = Math.max(0, Number(event.current_pass || 0));
+  const previous = state.imageAnalyzeProgress || {};
+  switch (type) {
+    case "stage1_started":
+      if (state.imageAnalyzePrepareTransitionTimer) {
+        window.clearTimeout(state.imageAnalyzePrepareTransitionTimer);
+        state.imageAnalyzePrepareTransitionTimer = null;
+      }
+      {
+        const elapsed = Math.max(0, Date.now() - Number(state.imageAnalyzePrepareStartedAt || 0));
+        const remaining = Math.max(0, IMAGE_ANALYZE_MIN_PHASE_MS - elapsed);
+        const beginClassify = () => {
+          startImageAnalyzeClassifyPhaseNow();
+        };
+        if (remaining > 0) {
+          state.imageAnalyzePrepareTransitionTimer = window.setTimeout(() => {
+            state.imageAnalyzePrepareTransitionTimer = null;
+            beginClassify();
+          }, remaining);
+        } else {
+          beginClassify();
+        }
+      }
+      break;
+
+    case "stage1_done":
+      if (state.imageAnalyzeClassifyTransitionTimer) {
+        window.clearTimeout(state.imageAnalyzeClassifyTransitionTimer);
+        state.imageAnalyzeClassifyTransitionTimer = null;
+      }
+      {
+        const prepareElapsed = Math.max(0, Date.now() - Number(state.imageAnalyzePrepareStartedAt || 0));
+        const prepareRemaining = Math.max(0, IMAGE_ANALYZE_MIN_PHASE_MS - prepareElapsed);
+        const classifyElapsed = state.imageAnalyzeClassifyStartedAt
+          ? Math.max(0, Date.now() - Number(state.imageAnalyzeClassifyStartedAt || 0))
+          : 0;
+        const classifyRemaining = state.imageAnalyzeClassifyStartedAt
+          ? Math.max(0, IMAGE_ANALYZE_MIN_PHASE_MS - classifyElapsed)
+          : IMAGE_ANALYZE_MIN_PHASE_MS;
+        const remaining = Math.max(prepareRemaining, classifyRemaining);
+        const finishClassify = () => {
+          stopImageAnalyzeProgressAnimation();
+          setImageAnalyzeProgressState({
+            step: "classify",
+            percent: 30,
+            indeterminate: false,
+            percentLabel: "30%",
+            title: "Classifying the selected item",
+            detail: "Classifying the selected item"
+          });
+          renderImageAnalyzeProgress();
+        };
+        if (remaining > 0) {
+          state.imageAnalyzeClassifyTransitionTimer = window.setTimeout(() => {
+            state.imageAnalyzeClassifyTransitionTimer = null;
+            if (!state.imageAnalyzeClassifyStartedAt) {
+              startImageAnalyzeClassifyPhaseNow();
+            }
+            finishClassify();
+          }, remaining);
+        } else {
+          finishClassify();
+        }
+      }
+      break;
+
+    case "run_1_started":
+    case "run_2_started":
+    case "run_3_started": {
+      const isTiebreaker = currentPass >= 3;
+      const target = resolveImageAnalyzeExtractTarget(currentPass, expectedPasses);
+      const floor = resolveImageAnalyzeExtractFloor(currentPass, expectedPasses);
+      const detail = isTiebreaker
+        ? "Resolving ambiguity (extra pass)"
+        : `Extracting visual traits (pass ${currentPass} of ${expectedPasses})`;
+
+      setImageAnalyzeProgressState({
+        step: "extract",
+        percent: Math.max(Number(previous.percent || 30), floor),
+        percentLabel: "30–85%",
+        indeterminate: true,
+        extractTarget: target,
+        title: "Extracting visual traits...",
+        detail
+      });
+      renderImageAnalyzeProgress();
+      startImageAnalyzeExtractProgressAnimation();
+      break;
+    }
+
+    case "run_1_done":
+    case "run_2_done":
+    case "run_3_done": {
+      const target = resolveImageAnalyzeExtractTarget(currentPass, expectedPasses);
+      setImageAnalyzeProgressState({
+        ...previous,
+        step: "extract",
+        percent: target,
+        percentLabel: "30–85%",
+        indeterminate: true,
+        extractTarget: target
+      });
+      renderImageAnalyzeProgress();
+      break;
+    }
+
+    case "embedding_started":
+      setImageAnalyzeProgressState({
+        ...previous,
+        step: "extract",
+        extractTarget: 85,
+        indeterminate: true,
+        detail: previous.detail || "Extracting visual traits…"
+      });
+      renderImageAnalyzeProgress();
+      startImageAnalyzeExtractProgressAnimation();
+      break;
+
+    case "embedding_done":
+    case "refine_started":
+      stopImageAnalyzeProgressAnimation();
+      setImageAnalyzeProgressState({
+        step: "match",
+        percent: 90,
+        indeterminate: false,
+        title: "Matching against catalog",
+        detail: "Matching against catalog",
+      });
+      renderImageAnalyzeProgress();
+      break;
+
+    default:
+      break;
+  }
+}
+
+async function pollImageAnalyzeProgressOnce(requestId = "") {
+  if (!requestId) {
+    return;
+  }
+  try {
+    const since = Number(state.imageAnalyzeProgressSequence || 0);
+    const payload = await fetchJson(`/api/analyze-image-progress?request_id=${encodeURIComponent(requestId)}&since=${encodeURIComponent(since)}`);
+    const events = Array.isArray(payload?.events) ? payload.events : [];
+    if (events.length) {
+      events.forEach((event) => {
+        applyImageAnalyzeBackendProgressEvent(event || {});
+      });
+      state.imageAnalyzeProgressSequence = Number(payload?.sequence || since);
+    }
+  } catch (error) {
+    if (String(error?.message || "").includes("No image analysis progress found")) {
+      return;
+    }
+  }
+}
+
+function startImageAnalyzeProgressPolling(requestId = "") {
+  stopImageAnalyzeProgressPolling();
+  state.imageAnalyzeProgressRequestId = String(requestId || "").trim();
+  if (!state.imageAnalyzeProgressRequestId) {
+    return;
+  }
+  pollImageAnalyzeProgressOnce(state.imageAnalyzeProgressRequestId);
+  state.imageAnalyzeProgressPollTimer = window.setInterval(() => {
+    pollImageAnalyzeProgressOnce(state.imageAnalyzeProgressRequestId);
+  }, 350);
 }
 
 function apiUrl(pathname) {
@@ -1787,7 +2147,7 @@ async function fetchDebugPayload() {
         refresh_age: String(state.refreshAgeFilter || "").trim(),
         source_image_url: String(sourceImageUrl || "").trim(),
         seating_type: state.currentSeatingType,
-        reranker_enabled: true,
+        reranker_enabled: false,
         debug: true
       })
     });
@@ -2523,6 +2883,97 @@ function formatSummaryMetric(count = 0, total = 0) {
   return `${normalizedCount.toLocaleString()} of ${normalizedTotal.toLocaleString()} images (${rate})`;
 }
 
+function formatTraitHealthCardText(traitHealth = {}) {
+  const issueCount = Number(traitHealth.issue_count) || 0;
+  const checkedTraitCount = Number(traitHealth.checked_trait_count) || 0;
+  if (!issueCount) {
+    return "All traits healthy";
+  }
+  return `${issueCount.toLocaleString()} issue${issueCount === 1 ? "" : "s"} across ${checkedTraitCount.toLocaleString()} type×trait combinations`;
+}
+
+function formatTraitHealthStatus(category = {}) {
+  if (!category?.has_trait_health) {
+    return "—";
+  }
+  const issueCount = Number(category?.trait_health?.issue_count) || 0;
+  return issueCount
+    ? `⚠ ${issueCount} issue${issueCount === 1 ? "" : "s"}`
+    : "✓ healthy";
+}
+
+function formatTraitDeltaText(trait = {}) {
+  if (!trait?.dropped_vs_previous || trait?.delta_percent === null || trait?.delta_percent === undefined) {
+    return "";
+  }
+  return `(${trait.delta_percent > 0 ? "+" : ""}${trait.delta_percent}% vs last run)`;
+}
+
+function formatSupplementalTraitMetrics(trait = {}) {
+  return (Array.isArray(trait?.supplemental_metrics) ? trait.supplemental_metrics : [])
+    .filter((metric) => Number(metric?.total_count || 0) > 0)
+    .map((metric) => `${metric.label} ${Number(metric.coverage_percent || 0)}%`);
+}
+
+function getSupplementalTraitDisplay(trait = {}) {
+  const supplemental = Array.isArray(trait?.supplemental_metrics) ? trait.supplemental_metrics : [];
+
+  if (trait?.field === "back_finish") {
+    const benchWithBacksMetric = supplemental.find((metric) => metric?.key === "bench_with_backs");
+    if (benchWithBacksMetric && Number(benchWithBacksMetric.total_count || 0) > 0) {
+      return {
+        lead: `${Number(benchWithBacksMetric.coverage_percent || 0)}% on benches with backs`,
+        context: `${Number(trait.coverage_percent || 0)}% across all benches`
+      };
+    }
+    const loungeWithBacksMetric = supplemental.find((metric) => metric?.key === "lounge_with_backs");
+    if (loungeWithBacksMetric && Number(loungeWithBacksMetric.total_count || 0) > 0) {
+      return {
+        lead: `${Number(loungeWithBacksMetric.coverage_percent || 0)}% on lounge pieces with backs`,
+        context: `${Number(trait.coverage_percent || 0)}% across all lounge seating`
+      };
+    }
+  }
+
+  if (trait?.field === "back_height") {
+    const loungeWithBacksMetric = supplemental.find((metric) => metric?.key === "lounge_with_backs");
+    if (loungeWithBacksMetric && Number(loungeWithBacksMetric.total_count || 0) > 0) {
+      return {
+        lead: `${Number(loungeWithBacksMetric.coverage_percent || 0)}% on lounge pieces with backs`,
+        context: `${Number(trait.coverage_percent || 0)}% across all lounge seating`
+      };
+    }
+  }
+
+  if (trait?.field === "base_finish") {
+    const loungeWithDiscreteBasesMetric = supplemental.find((metric) => metric?.key === "lounge_with_discrete_bases");
+    if (loungeWithDiscreteBasesMetric && Number(loungeWithDiscreteBasesMetric.total_count || 0) > 0) {
+      return {
+        lead: `${Number(loungeWithDiscreteBasesMetric.coverage_percent || 0)}% on lounge pieces with discrete bases`,
+        context: `${Number(trait.coverage_percent || 0)}% across all lounge seating`
+      };
+    }
+  }
+
+  const supplementalMetrics = formatSupplementalTraitMetrics(trait);
+  if (supplementalMetrics.length) {
+    return {
+      lead: `${Number(trait.coverage_percent || 0)}%`,
+      context: supplementalMetrics.join(" | ")
+    };
+  }
+
+  return {
+    lead: `${Number(trait.coverage_percent || 0)}%`,
+    context: ""
+  };
+}
+
+function formatSupplementalTraitText(trait = {}) {
+  const display = getSupplementalTraitDisplay(trait);
+  return display.context ? `${display.lead} (${display.context})` : display.lead;
+}
+
 function renderExtractionSummary(summary = state.extractionSummary) {
   if (!elements.extractionSummaryContent) {
     return;
@@ -2535,6 +2986,19 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   const totalImages = Number(summary.total_images) || 0;
   const categories = Array.isArray(summary.categories) ? summary.categories : [];
   const generatedAt = String(summary.generated_at || "").trim();
+  const traitHealth = summary.trait_health && typeof summary.trait_health === "object"
+    ? summary.trait_health
+    : {};
+  const baselineAvailable = Boolean(traitHealth.baseline_available);
+  const complianceViolations = Array.isArray(summary.schema_compliance_violations)
+    ? summary.schema_compliance_violations
+    : [];
+  const logicalInconsistencies = Array.isArray(summary.logical_inconsistencies)
+    ? summary.logical_inconsistencies
+    : [];
+  const imageExtractionFailures = Array.isArray(summary.image_extraction_failures)
+    ? summary.image_extraction_failures
+    : [];
   const unmapped = summary.unmapped_combinations && typeof summary.unmapped_combinations === "object"
     ? summary.unmapped_combinations
     : { active: [], resolved: [] };
@@ -2543,12 +3007,12 @@ function renderExtractionSummary(summary = state.extractionSummary) {
 
   const cards = [
     {
-      title: "Stage 1 caught product detail missed by Stage 0",
-      value: formatSummaryMetric(summary.stage1_product_detail_missed_by_stage0, totalImages)
-    },
-    {
       title: "Tiebreakers triggered",
       value: formatSummaryMetric(summary.tiebreakers_triggered, totalImages)
+    },
+    {
+      title: "Trait health",
+      value: formatTraitHealthCardText(traitHealth)
     }
   ];
 
@@ -2576,13 +3040,19 @@ function renderExtractionSummary(summary = state.extractionSummary) {
 
   const tableTitle = document.createElement("h3");
   tableTitle.className = "rules-card-title";
-  tableTitle.textContent = "By Stage 1 category";
+  tableTitle.textContent = "By seating type";
 
   const tableMeta = document.createElement("p");
   tableMeta.className = "rules-summary-intro";
-  tableMeta.textContent = generatedAt
-    ? `Latest snapshot: ${new Date(generatedAt).toLocaleString()}`
+  const coverageThreshold = Math.round((Number(traitHealth.coverage_threshold) || 0) * 100);
+  const dropThreshold = Math.round((Number(traitHealth.drop_threshold) || 0) * 100);
+  const timestampText = generatedAt
+    ? `Latest snapshot: ${new Date(generatedAt).toLocaleString()}.`
     : "Latest snapshot unavailable.";
+  const deltaText = baselineAvailable
+    ? ` Traits are flagged below ${coverageThreshold}% coverage or after a ${dropThreshold}%+ drop vs the saved baseline.`
+    : ` Traits are flagged below ${coverageThreshold}% coverage. Delta flags will appear once a baseline snapshot is saved.`;
+  tableMeta.textContent = `${timestampText}${deltaText}`;
 
   const tableWrap = document.createElement("div");
   tableWrap.className = "extraction-summary-table-wrap";
@@ -2592,35 +3062,282 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Stage 1 category</th>
-        <th>All images</th>
-        <th>Stage 1 detail catches</th>
+        <th>Seating type</th>
+        <th>Images</th>
         <th>Tiebreakers</th>
+        <th>Trait health</th>
       </tr>
     </thead>
   `;
 
   const tbody = document.createElement("tbody");
   categories.forEach((entry) => {
+    const categoryKey = String(entry.category_key || "").trim();
+    const expandable = Boolean(entry.has_trait_health);
+    const expanded = expandable && state.extractionSummaryExpandedRows.has(categoryKey);
+    const fullExpanded = expandable && state.extractionSummaryFullRows.has(categoryKey);
+    const issueTraits = (Array.isArray(entry?.trait_health?.traits) ? entry.trait_health.traits : [])
+      .filter((trait) => trait.issue);
+    const healthyTraits = (Array.isArray(entry?.trait_health?.traits) ? entry.trait_health.traits : [])
+      .filter((trait) => !trait.issue)
+      .sort((left, right) => left.field.localeCompare(right.field));
+
     const tr = document.createElement("tr");
-    const total = Number(entry.total_images) || 0;
-    const detailMiss = Number(entry.stage1_product_detail_missed_by_stage0) || 0;
-    const tiebreakers = Number(entry.tiebreakers_triggered) || 0;
-    tr.innerHTML = `
-      <td>${formatSeatingCategoryLabel(entry.category_key)}</td>
-      <td>${total.toLocaleString()}</td>
-      <td>${detailMiss.toLocaleString()}</td>
-      <td>${tiebreakers.toLocaleString()}</td>
-    `;
+    tr.className = expandable ? "extraction-summary-row is-expandable" : "extraction-summary-row";
+    if (expandable) {
+      tr.setAttribute("role", "button");
+      tr.tabIndex = 0;
+      tr.setAttribute("aria-expanded", expanded ? "true" : "false");
+      const toggleExpanded = () => {
+        if (state.extractionSummaryExpandedRows.has(categoryKey)) {
+          state.extractionSummaryExpandedRows.delete(categoryKey);
+          state.extractionSummaryFullRows.delete(categoryKey);
+        } else {
+          state.extractionSummaryExpandedRows.add(categoryKey);
+        }
+        renderExtractionSummary();
+      };
+      tr.addEventListener("click", (event) => {
+        if (event.target instanceof Element && event.target.closest(".extraction-summary-breakdown-toggle")) {
+          return;
+        }
+        toggleExpanded();
+      });
+      tr.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          toggleExpanded();
+        }
+      });
+    }
+
+    const categoryCell = document.createElement("td");
+    categoryCell.className = "extraction-summary-category-cell";
+    if (expandable) {
+      const indicator = document.createElement("span");
+      indicator.className = "extraction-summary-row-indicator";
+      indicator.textContent = expanded ? "▾" : "▸";
+      indicator.setAttribute("aria-hidden", "true");
+      categoryCell.appendChild(indicator);
+    }
+    const categoryLabel = document.createElement("span");
+    categoryLabel.textContent = formatSeatingCategoryLabel(categoryKey);
+    categoryCell.appendChild(categoryLabel);
+
+    const imagesCell = document.createElement("td");
+    imagesCell.className = "extraction-summary-number-cell";
+    imagesCell.textContent = `${(Number(entry.total_images) || 0).toLocaleString()}`;
+
+    const tiebreakerCell = document.createElement("td");
+    tiebreakerCell.className = "extraction-summary-number-cell";
+    tiebreakerCell.textContent = `${(Number(entry.tiebreakers_triggered) || 0).toLocaleString()}`;
+
+    const healthCell = document.createElement("td");
+    const healthStatus = formatTraitHealthStatus(entry);
+    healthCell.className = healthStatus.startsWith("⚠")
+      ? "extraction-summary-health-cell is-warning"
+      : "extraction-summary-health-cell";
+    healthCell.textContent = healthStatus;
+
+    tr.append(categoryCell, imagesCell, tiebreakerCell, healthCell);
     tbody.appendChild(tr);
+
+    if (expanded) {
+      const detailRow = document.createElement("tr");
+      detailRow.className = "extraction-summary-detail-row";
+      const detailCell = document.createElement("td");
+      detailCell.colSpan = 4;
+
+      const detailPanel = document.createElement("div");
+      detailPanel.className = "extraction-summary-detail-panel";
+
+      if (!issueTraits.length) {
+        const healthyLine = document.createElement("div");
+        healthyLine.className = "extraction-summary-trait-line";
+        healthyLine.textContent = `All ${(Array.isArray(entry?.trait_health?.traits) ? entry.trait_health.traits.length : 0).toLocaleString()} traits above ${coverageThreshold}%`;
+        detailPanel.appendChild(healthyLine);
+      } else {
+        issueTraits.forEach((trait) => {
+          const line = document.createElement("div");
+          line.className = "extraction-summary-trait-line";
+
+          const label = document.createElement("span");
+          label.className = "extraction-summary-trait-name";
+          label.textContent = trait.field;
+
+          const display = getSupplementalTraitDisplay(trait);
+          const valueWrap = document.createElement("span");
+          valueWrap.className = "extraction-summary-trait-value-wrap";
+          if (display.context) {
+            valueWrap.classList.add("has-context");
+          }
+
+          const value = document.createElement("span");
+          const severityClass = Number(trait.coverage_rate) < 0.5
+            ? "extraction-summary-trait-value is-severe"
+            : "extraction-summary-trait-value is-warning";
+          value.className = display.context
+            ? "extraction-summary-trait-value is-applicable-strong"
+            : severityClass;
+          value.textContent = display.lead;
+          valueWrap.appendChild(value);
+
+          if (display.context) {
+            const context = document.createElement("span");
+            context.className = "extraction-summary-trait-context";
+            context.textContent = `(${display.context})`;
+            valueWrap.appendChild(context);
+          }
+
+          const deltaTextValue = formatTraitDeltaText(trait);
+          if (deltaTextValue) {
+            const delta = document.createElement("span");
+            delta.className = "extraction-summary-trait-delta";
+            delta.textContent = deltaTextValue;
+            valueWrap.appendChild(delta);
+          }
+
+          line.append(label, valueWrap);
+          detailPanel.appendChild(line);
+        });
+      }
+
+      const toggleButton = document.createElement("button");
+      toggleButton.type = "button";
+      toggleButton.className = "extraction-summary-breakdown-toggle";
+      toggleButton.textContent = fullExpanded ? "Hide full breakdown ‹" : "Show full breakdown ›";
+      toggleButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (state.extractionSummaryFullRows.has(categoryKey)) {
+          state.extractionSummaryFullRows.delete(categoryKey);
+        } else {
+          state.extractionSummaryFullRows.add(categoryKey);
+          state.extractionSummaryExpandedRows.add(categoryKey);
+        }
+        renderExtractionSummary();
+      });
+      detailPanel.appendChild(toggleButton);
+
+      if (fullExpanded) {
+        const divider = document.createElement("div");
+        divider.className = "extraction-summary-divider";
+        detailPanel.appendChild(divider);
+
+        healthyTraits.forEach((trait) => {
+          const line = document.createElement("div");
+          line.className = "extraction-summary-trait-line is-quiet";
+
+          const label = document.createElement("span");
+          label.className = "extraction-summary-trait-name";
+          label.textContent = trait.field;
+
+          const display = getSupplementalTraitDisplay(trait);
+          const valueWrap = document.createElement("span");
+          valueWrap.className = "extraction-summary-trait-value-wrap";
+          if (display.context) {
+            valueWrap.classList.add("has-context");
+          }
+
+          const value = document.createElement("span");
+          value.className = display.context
+            ? "extraction-summary-trait-value is-applicable-strong"
+            : "extraction-summary-trait-value";
+          value.textContent = display.lead;
+          valueWrap.appendChild(value);
+
+          if (display.context) {
+            const context = document.createElement("span");
+            context.className = "extraction-summary-trait-context";
+            context.textContent = `(${display.context})`;
+            valueWrap.appendChild(context);
+          }
+
+          const deltaTextValue = formatTraitDeltaText(trait);
+          if (deltaTextValue) {
+            const delta = document.createElement("span");
+            delta.className = "extraction-summary-trait-delta";
+            delta.textContent = deltaTextValue;
+            valueWrap.appendChild(delta);
+          }
+
+          line.append(label, valueWrap);
+          detailPanel.appendChild(line);
+        });
+      }
+
+      detailCell.appendChild(detailPanel);
+      detailRow.appendChild(detailCell);
+      tbody.appendChild(detailRow);
+    }
   });
   table.appendChild(tbody);
   tableWrap.appendChild(table);
   tableCard.append(tableTitle, tableMeta, tableWrap);
 
-  const note = document.createElement("p");
-  note.className = "rules-summary-intro";
-  note.textContent = "Product-detail overrides fall into Unspecified because stage 1 intentionally returns no seating category when it rejects an image as detail-only.";
+  const traitIssuesCard = document.createElement("article");
+  traitIssuesCard.className = "rules-card extraction-summary-table-card";
+
+  const traitIssuesTitle = document.createElement("h3");
+  traitIssuesTitle.className = "rules-card-title";
+  traitIssuesTitle.textContent = "Trait issues";
+
+  const traitIssuesIntro = document.createElement("p");
+  traitIssuesIntro.className = "rules-summary-intro";
+  traitIssuesIntro.textContent = "Coverage health counts only schema-valid values that are neither missing nor \"unknown\".";
+
+  const renderIssueSection = (titleText, issues = [], formatter) => {
+    const section = document.createElement("section");
+    section.className = "extraction-summary-unmapped-section";
+
+    const title = document.createElement("h4");
+    title.className = "rules-card-title";
+    title.textContent = titleText;
+    section.appendChild(title);
+
+    if (!issues.length) {
+      const empty = document.createElement("p");
+      empty.className = "rules-summary-intro";
+      if (titleText === "Schema compliance violations") {
+        empty.textContent = "No compliance issues.";
+      } else if (titleText === "Image extraction failures") {
+        empty.textContent = "No image extraction failures recorded.";
+      } else {
+        empty.textContent = "No logical inconsistencies.";
+      }
+      section.appendChild(empty);
+      return section;
+    }
+
+    const list = document.createElement("ul");
+    list.className = "rules-card-list";
+    issues.forEach((issue) => {
+      const item = document.createElement("li");
+      item.textContent = formatter(issue);
+      list.appendChild(item);
+    });
+    section.appendChild(list);
+    return section;
+  };
+
+  traitIssuesCard.append(
+    traitIssuesTitle,
+    traitIssuesIntro,
+    renderIssueSection(
+      "Schema compliance violations",
+      complianceViolations,
+      (issue) => `${issue.product_name || issue.product_id || "Unknown product"} — ${issue.field}: ${issue.value}`
+    ),
+    renderIssueSection(
+      "Logical inconsistencies",
+      logicalInconsistencies,
+      (issue) => `${issue.product_name || issue.product_id || "Unknown product"} — ${issue.issue}`
+    ),
+    renderIssueSection(
+      "Image extraction failures",
+      imageExtractionFailures,
+      (issue) => `${issue.product_name || issue.product_id || "Unknown product"} — ${issue.failed_image_count} failed image${Number(issue.failed_image_count) === 1 ? "" : "s"} (${issue.successful_extraction_count}/${issue.stage0_passing_count} product images extracted)`
+    )
+  );
 
   const unmappedCard = document.createElement("article");
   unmappedCard.className = "rules-card extraction-summary-table-card";
@@ -2743,7 +3460,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   );
 
   elements.extractionSummaryContent.innerHTML = "";
-  elements.extractionSummaryContent.append(wrapper, tableCard, unmappedCard, note);
+  elements.extractionSummaryContent.append(wrapper, tableCard, traitIssuesCard, unmappedCard);
 }
 
 async function resumeSceneFilterProgress() {
@@ -2796,6 +3513,8 @@ function normalizeBatchRefreshProgress(payload = {}) {
     currentProductName: String(payload.current_product || "").trim(),
     currentImageUrl: String(payload.current_image_url || "").trim(),
     currentProductImagesPassed: Math.max(0, Number(payload.current_product_images_passed) || 0),
+    currentProductSuccessfulExtractions: Math.max(0, Number(payload.current_product_successful_extractions) || 0),
+    currentProductFailedImages: Math.max(0, Number(payload.current_product_failed_images) || 0),
     currentRun: String(payload.current_run || "").trim(),
     processedImages,
     productPhotos,
@@ -2853,7 +3572,10 @@ function renderBatchRefreshProgress() {
       : `Current image: ${progress.currentImageUrl || "waiting to start"}`;
   }
   if (elements.batchRefreshImagesPassed) {
-    elements.batchRefreshImagesPassed.hidden = true;
+    elements.batchRefreshImagesPassed.hidden = false;
+    elements.batchRefreshImagesPassed.textContent = isComplete
+      ? "Current product image counts: complete"
+      : `Current product image counts: Stage 0 passed ${progress.currentProductImagesPassed} • Extracted ${progress.currentProductSuccessfulExtractions} • Failed ${progress.currentProductFailedImages}`;
   }
   if (elements.batchRefreshRun) {
     elements.batchRefreshRun.textContent = isComplete
@@ -2887,7 +3609,13 @@ function renderBatchRefreshProgress() {
       item.textContent = `✗ ${entry.name || entry.product_id || "Unknown product"}${entry.error ? ` — ${entry.error}` : " — failed"}`;
     } else {
       const typeLabel = entry.type ? ` (${entry.type})` : "";
-      item.textContent = `✓ ${entry.name || entry.product_id || "Unknown product"}${typeLabel}`;
+      const extractionStats = typeof entry.successful_extraction_count === "number"
+        ? ` • extracted ${entry.successful_extraction_count}`
+        : "";
+      const failureStats = typeof entry.failed_image_count === "number" && entry.failed_image_count > 0
+        ? ` • failed images ${entry.failed_image_count}`
+        : "";
+      item.textContent = `✓ ${entry.name || entry.product_id || "Unknown product"}${typeLabel}${extractionStats}${failureStats}`;
     }
     elements.batchRefreshLog.appendChild(item);
   });
@@ -3883,12 +4611,13 @@ function setImageAnalyzeLoading(isLoading) {
   }
   if (isLoading) {
     if (!state.imageAnalyzeProgress) {
-      setImageAnalyzeProgressState({ step: "prepare", percent: 0 });
+      setImageAnalyzeProgressState({ step: "prepare", percent: 0, percentLabel: "0%", indeterminate: false });
     }
     renderImageAnalyzeProgress();
   } else {
     stopImageAnalyzeProgressAnimation();
-    setImageAnalyzeProgressState({ step: "prepare", percent: 0 });
+    stopImageAnalyzeProgressPolling();
+    setImageAnalyzeProgressState({ step: "prepare", percent: 0, percentLabel: "0%", indeterminate: false });
     renderImageAnalyzeProgress();
   }
   if (elements.analyzeImageButton) {
@@ -5222,6 +5951,101 @@ function formatPromptLibrarySourceLabel(section = {}) {
   return [file, lineLabel].filter(Boolean).join(": ");
 }
 
+function normalizePromptLibraryViewMode(value = "") {
+  return String(value || "").trim().toLowerCase() === "formatted" ? "formatted" : "raw";
+}
+
+function setPromptLibraryViewMode(mode = "raw") {
+  const normalizedMode = normalizePromptLibraryViewMode(mode);
+  state.promptLibraryViewMode = normalizedMode;
+  try {
+    window.sessionStorage.setItem(PROMPT_LIBRARY_VIEW_MODE_STORAGE_KEY, normalizedMode);
+  } catch {}
+}
+
+function promptLibraryLineIndentDepth(line = "") {
+  const match = String(line || "").match(/^( +)/);
+  return match ? Math.floor(match[1].length / 2) : 0;
+}
+
+function promptLibraryLineKind(line = "") {
+  const trimmed = String(line || "").trim();
+  if (!trimmed) {
+    return "blank";
+  }
+  if (/^Stage \d+:/i.test(trimmed)) {
+    return "stage";
+  }
+  if (/^- visual_summary:/i.test(trimmed)) {
+    return "field";
+  }
+  if (/^[A-Z][A-Z\s/&()\-]+:/.test(trimmed)) {
+    return "section";
+  }
+  if (/^Relevant attribute fields/i.test(trimmed) || /^Return JSON with:/i.test(trimmed) || /^When choosing between categories/i.test(trimmed)) {
+    return "subsection";
+  }
+  if (/^- [a-z0-9_]+ .*=> \[.*\]$/i.test(trimmed)) {
+    return "trait";
+  }
+  if (/^\d+\./.test(trimmed)) {
+    return "numbered";
+  }
+  if (/^- /.test(trimmed)) {
+    return "bullet";
+  }
+  return "body";
+}
+
+function appendPromptLibraryInlineSegments(root, line = "") {
+  const text = String(line || "");
+  const regex = /(\[[^\]]+\])/g;
+  let cursor = 0;
+  let match = regex.exec(text);
+  while (match) {
+    const [segment] = match;
+    const start = match.index;
+    if (start > cursor) {
+      root.append(document.createTextNode(text.slice(cursor, start)));
+    }
+    const enumSpan = document.createElement("span");
+    enumSpan.className = "prompt-library-enum";
+    enumSpan.textContent = segment;
+    root.append(enumSpan);
+    cursor = start + segment.length;
+    match = regex.exec(text);
+  }
+  if (cursor < text.length) {
+    root.append(document.createTextNode(text.slice(cursor)));
+  }
+}
+
+function buildPromptLibraryFormattedView(prompt = "") {
+  const container = document.createElement("div");
+  container.className = "prompt-library-formatted";
+  const lines = String(prompt ?? "").split("\n");
+
+  lines.forEach((line) => {
+    const kind = promptLibraryLineKind(line);
+    if (kind === "blank") {
+      const spacer = document.createElement("div");
+      spacer.className = "prompt-library-line prompt-library-line-blank";
+      spacer.setAttribute("aria-hidden", "true");
+      spacer.textContent = " ";
+      container.appendChild(spacer);
+      return;
+    }
+
+    const lineElement = document.createElement("div");
+    lineElement.className = `prompt-library-line prompt-library-line-${kind}`;
+    lineElement.style.setProperty("--prompt-indent-level", String(promptLibraryLineIndentDepth(line)));
+    appendPromptLibraryInlineSegments(lineElement, line);
+    container.appendChild(lineElement);
+  });
+
+  return container;
+}
+
 function renderPromptLibraryModalContent() {
   if (!elements.promptLibraryContent) {
     return;
@@ -5280,6 +6104,24 @@ function renderPromptLibraryModalContent() {
   header.append(titleWrap, generated);
   panel.appendChild(header);
 
+  const viewToggleBar = document.createElement("div");
+  viewToggleBar.className = "prompt-library-view-toggle";
+  [
+    { id: "raw", label: "Raw view" },
+    { id: "formatted", label: "Formatted view" }
+  ].forEach((entry) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `structured-traits-tab${state.promptLibraryViewMode === entry.id ? " is-active" : ""}`;
+    button.textContent = entry.label;
+    button.addEventListener("click", () => {
+      setPromptLibraryViewMode(entry.id);
+      renderPromptLibraryModalContent();
+    });
+    viewToggleBar.appendChild(button);
+  });
+  panel.appendChild(viewToggleBar);
+
   const notes = Array.isArray(activeEntry.runtime_notes) ? activeEntry.runtime_notes.filter(Boolean) : [];
   if (notes.length) {
     const notesCard = document.createElement("section");
@@ -5324,10 +6166,14 @@ function renderPromptLibraryModalContent() {
 
   const promptWrap = document.createElement("div");
   promptWrap.className = "prompt-library-prompt-wrap";
-  const promptPre = document.createElement("pre");
-  promptPre.className = "prompt-library-prompt";
-  promptPre.textContent = String(activeEntry.prompt || "").trim();
-  promptWrap.appendChild(promptPre);
+  if (normalizePromptLibraryViewMode(state.promptLibraryViewMode) === "formatted") {
+    promptWrap.appendChild(buildPromptLibraryFormattedView(String(activeEntry.prompt ?? "")));
+  } else {
+    const promptPre = document.createElement("pre");
+    promptPre.className = "prompt-library-prompt";
+    promptPre.textContent = String(activeEntry.prompt ?? "");
+    promptWrap.appendChild(promptPre);
+  }
   panel.appendChild(promptWrap);
 
   elements.promptLibraryContent.appendChild(panel);
@@ -5490,7 +6336,7 @@ function renderRefineSidebar() {
     const selectedImageUrl = String(state.currentImageAnalysis?.image_preview_url || state.cropPreviewUrl || "").trim();
     elements.refineSelectedImageWrap.hidden = !selectedImageUrl;
     if (elements.reopenFocusOverlay) {
-      elements.reopenFocusOverlay.hidden = !selectedImageUrl;
+      elements.reopenFocusOverlay.hidden = true;
     }
     if (selectedImageUrl) {
       applyRefineSelectedImageCrop(
@@ -7066,11 +7912,15 @@ function buildTraitChangePayload(traits = []) {
     }));
 }
 
-async function requestImageAnalysis(body) {
+async function requestImageAnalysis(body, options = {}) {
+  const progressRequestId = String(options.progressRequestId || "").trim();
   return fetchJson("/api/analyze-image", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
+    body: JSON.stringify({
+      ...body,
+      ...(progressRequestId ? { progress_request_id: progressRequestId } : {})
+    })
   });
 }
 
@@ -7157,32 +8007,30 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
 
   const body = focusArea ? { ...baseInput, focus_area: focusArea } : { ...baseInput };
   const cachedCategory = String(options.seatingTypeOverride || getCachedImageAnalysisCategory(baseInput) || "").trim();
+  const progressRequestId = buildImageAnalyzeProgressRequestId();
   setImageAnalyzeLoading(true);
+  startImageAnalyzeProgressPolling(progressRequestId);
+  state.imageAnalyzePrepareStartedAt = Date.now();
+  state.imageAnalyzeClassifyStartedAt = 0;
   updateImageAnalyzeProgress("prepare", {
-    percent: 8,
+    percent: 0,
+    percentLabel: "0–15%",
     detail: focusArea
       ? "Preparing the selected crop for image analysis."
       : "Preparing the full image for analysis.",
-    targetPercent: 18
+    indeterminate: true
   });
   setStatus(focusArea ? "Analyzing the selected focus area..." : "Analyzing the full image...");
 
   let analysis = null;
   try {
-    updateImageAnalyzeProgress("analyze", {
-      percent: 18,
-      detail: cachedCategory
-        ? `Analyzing the image as ${formatSeatingCategoryLabel(cachedCategory)}.`
-        : focusArea
-          ? "Checking what kind of seating is in the selected crop."
-          : "Checking what kind of seating is in the image.",
-      targetPercent: 68
-    });
     let analysisPayload;
     if (!cachedCategory) {
       const stage1Payload = await requestImageAnalysis({
         ...body,
         stage1_only: true
+      }, {
+        progressRequestId
       });
       if (stage1Payload?.category_required) {
         closeImageModal();
@@ -7204,14 +8052,32 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         stage1Payload?.analysis?.stage1?.seating_type ||
         ""
       ).trim();
+      updateImageAnalyzeProgress("extract", {
+        percent: 30,
+        percentLabel: "30–85%",
+        detail: "Extracting visual traits...",
+        indeterminate: true,
+        extractTarget: resolveImageAnalyzeExtractTarget(1, 2)
+      });
       analysisPayload = await requestImageAnalysis({
         ...body,
         seating_type_override: resolvedType
+      }, {
+        progressRequestId
       });
     } else {
+      updateImageAnalyzeProgress("extract", {
+        percent: 30,
+        percentLabel: "30–85%",
+        detail: `Extracting visual traits as ${formatSeatingCategoryLabel(cachedCategory)}.`,
+        indeterminate: true,
+        extractTarget: resolveImageAnalyzeExtractTarget(1, 2)
+      });
       analysisPayload = await requestImageAnalysis({
         ...body,
         seating_type_override: cachedCategory
+      }, {
+        progressRequestId
       });
     }
     analysis = analysisPayload?.analysis || null;
@@ -7236,10 +8102,12 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
 
     state.focusArea = normalizeFocusArea(focusArea || defaultFocusArea());
     setSearchInputValue(resolvedQuery);
+    applyImageAnalyzeBackendProgressEvent({ type: "refine_started" });
     updateImageAnalyzeProgress("match", {
-      percent: 72,
-      detail: "Ranking the closest catalog matches from the analyzed image.",
-      targetPercent: 94
+      percent: 90,
+      percentLabel: "90%",
+      detail: "Matching against catalog",
+      indeterminate: false
     });
     const payload = await refineSearchResults({
       queryEmbedding,
@@ -7266,6 +8134,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     });
     updateImageAnalyzeProgress("complete", {
       percent: 100,
+      percentLabel: "100%",
       detail: "Results ready."
     });
     await wait(900);

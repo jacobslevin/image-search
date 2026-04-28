@@ -15,6 +15,8 @@
     "extract-pdfs": "node scripts/extract-pdf-text.js",
     "test:stability": "node scripts/test-image-pipeline-stability.js",
     "test:resolution": "node scripts/test-resolution-cutoff.js",
+    "audit:pipeline-diagnostics": "node scripts/run-pipeline-diagnostics.js",
+    "migrate:pipeline-compliance": "node scripts/migrate-pipeline-compliance.js",
     "test:cutoff": "node --test scripts/find-cutoff.test.js",
     "test:category-filter": "node --test scripts/category-scope.test.js scripts/search-category-filter.test.js",
     "test:ranking": "node scripts/eval-queries.js",

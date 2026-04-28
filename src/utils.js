@@ -27,6 +27,10 @@ export function getUnmappedCategoryDecisionsPath() {
   return resolveOverridePath("UNMAPPED_CATEGORY_DECISIONS_PATH", path.join(DATA_DIR, "unmapped-category-decisions.json"));
 }
 
+export function getPipelineDiagnosticsBaselinePath() {
+  return resolveOverridePath("PIPELINE_DIAGNOSTICS_BASELINE_PATH", path.join(DATA_DIR, "pipeline-diagnostics-baseline.json"));
+}
+
 export function normalizeImageClassification(value = "") {
   const normalized = String(value || "").trim().toLowerCase();
   return IMAGE_CLASSIFICATIONS.has(normalized) ? normalized : "";
