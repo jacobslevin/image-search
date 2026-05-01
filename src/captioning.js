@@ -52,6 +52,114 @@ const PIXELSEEK_TYPE_TO_ROUTING_KEY = Object.freeze({
   "Stools": "stool",
   "Benches": "bench"
 });
+const LOUNGE_SOFA_CONFIGURATION_VALUES = new Set([
+  "double seat",
+  "triple seat (or larger)"
+]);
+const LOUNGE_SOFA_ARMLESS_VALUES = new Set(["armless", "no arms"]);
+const LOUNGE_SOFA_MONOLITHIC_BASE_VALUES = new Set(["integrated base", "molded one-piece"]);
+const LOUNGE_SOFA_NARROW_ARMS_THRESHOLD_PCT = 18;
+const LOUNGE_SOFA_FLUSH_WITH_BACK_MAX_DROP_PCT = 5;
+const LOUNGE_SOFA_TRAIT_PROMPT_HEADER = `Analyze the sofa image and report the following:
+
+Note on pillows:
+Ignore decorative or toss pillows when measuring. Toss pillows
+typically sit on top of the seat cushion or in front of the back,
+are square or accent-patterned, and are not structurally part of
+the sofa. Back cushions, by contrast, sit flush against the sofa's
+back frame, match the sofa's primary upholstery, and align with
+the seat segments below.
+
+For arm_top_pct and back_top_pct, if the back is fully obscured
+by toss pillows, treat the top of the pillows as the back height.`;
+
+const LOUNGE_SOFA_SEAT_CONSTRUCTION_PROMPT = `Trait 1: Seat Construction (raw observations)
+Look at the area between the seat cushion and the floor. Answer
+the following questions about what you see below the cushion.
+Do not classify the result — just describe what is there.
+
+1. Is there a horizontal element below the seat cushion that is
+   wrapped in upholstery (fabric or leather)? Answer Yes or No.
+
+   - Metal legs, metal frames, metal stretchers, metal crossbars,
+     wire frames, wood legs, wood frames, wood rails, sled bases,
+     metal X-stretchers, dowel legs, and other structural elements
+     are NOT upholstered, regardless of how substantial they look.
+     Answer No if all you see is metal or wood structure.
+
+   - The bottom edge of the seat cushion itself does not count.
+     Answer No if there is no separate upholstered element below
+     the cushion.
+
+2. If there is an upholstered element below the cushion: is it
+   wrapped in the same fabric or leather as the seat cushion?
+   Answer Yes, No, or N/A (if no upholstered element exists).
+
+3. If there is an upholstered element below the cushion: is it
+   visually distinct from the cushion, separated by a visible
+   horizontal seam? Answer Yes, No, or N/A.
+
+4. If there is an upholstered element below the cushion:
+   approximately how tall is it, in inches? Use the 2-8 inch
+   range as a typical guideline. Return null if no upholstered
+   element exists.`;
+
+const LOUNGE_SOFA_ARM_PANEL_THICKNESS_PROMPT = `Trait 2: Arm Panel Thickness (numeric, percentage of sofa height)
+Estimate the arm panel thickness as a percentage of total sofa
+height (where the floor is 0% and the highest point of the sofa
+is 100%).
+
+By "arm panel thickness" we mean the dimension that determines
+whether the arm reads as a thin panel or a chunky block. From
+the front view, this is the side-to-side thickness of the arm
+panel (how wide the arm appears as you look at the sofa head-on).
+From a side view, this would be the height of the arm form.
+
+We do NOT mean the front-to-back depth of the arm (how far the
+arm extends from the front of the sofa to the back).
+
+If the arm panel changes thickness from top to bottom — for
+example, the arm has a thin upper edge that widens as it
+descends to the seat — measure at the THICKEST visible point
+of the arm. The relevant arm thickness is the maximum visual
+mass of the arm, not the slim top edge.
+
+Curved-shell sofas: When the arm is part of a continuous curved
+shell wrapping from the seat up to the back, measure the
+THICKNESS OF THE SHELL WALL ITSELF — how thick is the upholstered
+wall of the shell, not the overall horizontal extent of the
+curved shape. A thin curved shell wall reads as a narrow arm
+even if the shell wraps a substantial area.
+
+Return as a number 0-100. Do not classify the arm as narrow or
+wide.`;
+
+const LOUNGE_SOFA_ARM_TOP_POSITION_PROMPT = `Trait 3: Arm Top Position (numeric, percentage of sofa height)
+At what vertical position does the highest visible structural
+top of the arm sit?
+
+Use the actual top edge of the arm itself, not the outer side
+panel silhouette and not a perspective continuation of the side
+panel up toward the back line.
+
+Curved-shell sofas: When the arm and back are part of one
+continuous curved shell, measure the arm top at the HIGHEST
+POINT of the curve — typically where the side curve joins the
+top of the back. Do not measure at the lower or intermediate
+point of the curve where it dips down toward the seat. On a
+continuous shell, the side termination meets the back at the
+same height — both points are at the top of the shell.
+
+Return as a number 0-100. Do not classify whether the arm is
+flush with the back.`;
+
+const LOUNGE_SOFA_BACK_TOP_POSITION_PROMPT = `Trait 4: Back Top Position (numeric, percentage of sofa height)
+At what vertical position does the top of the back cushion sit?
+
+When back cushions project above the structural back and are
+clearly the back's top termination, use the visible cushion top.
+
+Return as a number 0-100.`;
 
 function buildImageDimensionFields(dimensions = null) {
   const width = Number(dimensions?.width);
@@ -155,6 +263,8 @@ function buildExcludedImageExtractionResult({
   imageDimensions = null,
   tiebreakerTriggered = false
 } = {}) {
+  const normalizedTokens = tokens && typeof tokens === "object" ? tokens : {};
+  const normalizedCost = cost && typeof cost === "object" ? cost : {};
   return {
     ...baseRecord,
     ...categories,
@@ -171,8 +281,14 @@ function buildExcludedImageExtractionResult({
     free_text: {},
     tiebreaker_triggered: tiebreakerTriggered,
     confidence_tier: "low",
-    tokens,
-    cost,
+    tokens: {
+      ...normalizedTokens,
+      stage_4: normalizedTokens.stage_4 || normalizeOpenAiUsage()
+    },
+    cost: {
+      ...normalizedCost,
+      stage_4_usd: Number(normalizedCost.stage_4_usd || 0)
+    },
     extraction_timestamp: extractionTimestamp,
     excluded: true,
     image_traits: {},
@@ -639,13 +755,20 @@ export async function evaluateImageCandidates(imageRecords = [], options = {}) {
 }
 
 function normalizeEnum(value, allowedValues = []) {
-  const allowed = new Set((allowedValues || []).map((entry) => String(entry || "").toLowerCase()));
+  const allowedMap = new Map(
+    (allowedValues || []).map((entry) => {
+      const canonical = String(entry || "").trim();
+      return [canonical.toLowerCase(), canonical];
+    })
+  );
+  const allowed = new Set(allowedMap.keys());
   let raw = String(value ?? "").trim().toLowerCase();
+  const getCanonical = (candidate = "") => allowedMap.get(String(candidate || "").trim().toLowerCase()) || "";
   if (!raw) {
-    return allowed.has("unknown") ? "unknown" : "";
+    return getCanonical("unknown") || "";
   }
   if (allowed.has(raw)) {
-    return raw;
+    return getCanonical(raw);
   }
   const aliases = new Map([
     ["none - backless", "backless"],
@@ -721,14 +844,14 @@ function normalizeEnum(value, allowedValues = []) {
     raw = aliased;
   }
   if (raw === "unknown") {
-    return "unknown";
+    return getCanonical("unknown") || "";
   }
   if (allowed.has(raw)) {
-    return raw;
+    return getCanonical(raw);
   }
-  if (raw === "true" && allowed.has("yes")) return "yes";
-  if (raw === "false" && allowed.has("no")) return "no";
-  return allowed.has("unknown") ? "unknown" : "";
+  if (raw === "true" && allowed.has("yes")) return getCanonical("yes");
+  if (raw === "false" && allowed.has("no")) return getCanonical("no");
+  return getCanonical("unknown") || "";
 }
 
 function ensureTypeKey(candidate) {
@@ -763,6 +886,409 @@ function classifySeatingTypeHeuristic(context = "") {
   if (/stool|counter stool|bar stool|perch|active stool|wobble|balance stool|saddle stool/.test(value)) return "stool";
   if (/bench/.test(value)) return "bench";
   return "";
+}
+
+function isStage23DetectableField(field = {}) {
+  const detectability = String(field?.detectability || "").trim().toLowerCase();
+  return Boolean(field?.type === "enum" && detectability && detectability !== "no" && detectability !== "stage4");
+}
+
+function getStage23TypeFields(typeKey = "") {
+  return getTypeFields(typeKey).filter((entry) => isStage23DetectableField(entry));
+}
+
+function isLoungeSofaTraitEligible(typeKey = "", imageTraits = {}) {
+  if (String(typeKey || "").trim().toLowerCase() !== "lounge_chair") {
+    return false;
+  }
+  const configuration = String(imageTraits?.configuration || "").trim().toLowerCase();
+  return LOUNGE_SOFA_CONFIGURATION_VALUES.has(configuration);
+}
+
+function isArmlessLoungeSofa(imageTraits = {}) {
+  return LOUNGE_SOFA_ARMLESS_VALUES.has(String(imageTraits?.arm_option || "").trim().toLowerCase());
+}
+
+function hasIntegratedBase(imageTraits = {}) {
+  return LOUNGE_SOFA_MONOLITHIC_BASE_VALUES.has(String(imageTraits?.base_type || "").trim().toLowerCase());
+}
+
+function getLoungeSofaTraitApplicability(typeKey = "", imageTraits = {}) {
+  const eligible = isLoungeSofaTraitEligible(typeKey, imageTraits);
+  const seatConstruction = eligible && !hasIntegratedBase(imageTraits);
+  const armTraits = eligible && !isArmlessLoungeSofa(imageTraits);
+
+  return {
+    eligible,
+    seat_construction: seatConstruction,
+    narrow_arms: armTraits,
+    arms_flush_with_back: armTraits
+  };
+}
+
+function hasAnyApplicableLoungeSofaTraits(applicability = {}) {
+  return Boolean(applicability?.seat_construction || applicability?.narrow_arms || applicability?.arms_flush_with_back);
+}
+
+function countApplicableLoungeSofaTraits(applicability = {}) {
+  return ["seat_construction", "narrow_arms", "arms_flush_with_back"]
+    .reduce((sum, key) => sum + (applicability?.[key] ? 1 : 0), 0);
+}
+
+function buildLoungeSofaTraitPrompt(applicability = {}) {
+  const sections = [LOUNGE_SOFA_TRAIT_PROMPT_HEADER];
+  if (applicability?.seat_construction) {
+    sections.push(LOUNGE_SOFA_SEAT_CONSTRUCTION_PROMPT);
+  }
+  if (applicability?.narrow_arms || applicability?.arms_flush_with_back) {
+    sections.push(LOUNGE_SOFA_ARM_PANEL_THICKNESS_PROMPT);
+  }
+  if (applicability?.arms_flush_with_back) {
+    sections.push(LOUNGE_SOFA_ARM_TOP_POSITION_PROMPT);
+    sections.push(LOUNGE_SOFA_BACK_TOP_POSITION_PROMPT);
+  }
+
+  const requestedTraits = [];
+  if (applicability?.seat_construction) {
+    requestedTraits.push('  "upholstered_base_present": "Yes" | "No"');
+    requestedTraits.push('  "upholstered_base_same_material": "Yes" | "No" | "N/A"');
+    requestedTraits.push('  "upholstered_base_seam_visible": "Yes" | "No" | "N/A"');
+    requestedTraits.push('  "upholstered_base_height_inches": <number 2-8 or null>');
+  }
+  if (applicability?.narrow_arms || applicability?.arms_flush_with_back) {
+    requestedTraits.push('  "arm_panel_thickness_pct": <number 0-100>');
+  }
+  if (applicability?.arms_flush_with_back) {
+    requestedTraits.push('  "arm_top_pct": <number 0-100>');
+    requestedTraits.push('  "back_top_pct": <number 0-100>');
+  }
+
+  sections.push(`Output as JSON:
+
+{
+${requestedTraits.join(",\n")}
+}`);
+
+  return sections.join("\n\n");
+}
+
+function loungeSofaTraitSchema(applicability = {}) {
+  const properties = {};
+  const required = [];
+
+  if (applicability?.seat_construction) {
+    properties.upholstered_base_present = {
+      type: "string",
+      enum: ["Yes", "No"]
+    };
+    properties.upholstered_base_same_material = {
+      type: "string",
+      enum: ["Yes", "No", "N/A"]
+    };
+    properties.upholstered_base_seam_visible = {
+      type: "string",
+      enum: ["Yes", "No", "N/A"]
+    };
+    properties.upholstered_base_height_inches = {
+      anyOf: [
+        {
+          type: "number",
+          minimum: 2,
+          maximum: 8
+        },
+        {
+          type: "null"
+        }
+      ]
+    };
+    required.push(
+      "upholstered_base_present",
+      "upholstered_base_same_material",
+      "upholstered_base_seam_visible",
+      "upholstered_base_height_inches"
+    );
+  }
+  if (applicability?.narrow_arms || applicability?.arms_flush_with_back) {
+    properties.arm_panel_thickness_pct = {
+      type: "number",
+      minimum: 0,
+      maximum: 100
+    };
+  }
+  if (applicability?.arms_flush_with_back) {
+    properties.arm_top_pct = {
+      type: "number",
+      minimum: 0,
+      maximum: 100
+    };
+    properties.back_top_pct = {
+      type: "number",
+      minimum: 0,
+      maximum: 100
+    };
+  }
+  if (applicability?.narrow_arms || applicability?.arms_flush_with_back) {
+    required.push("arm_panel_thickness_pct");
+  }
+  if (applicability?.arms_flush_with_back) {
+    required.push("arm_top_pct", "back_top_pct");
+  }
+
+  return {
+    type: "object",
+    additionalProperties: false,
+    properties,
+    required
+  };
+}
+
+function normalizeLoungeSofaMeasurement(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return Number(Math.max(0, Math.min(100, numeric)).toFixed(2));
+}
+
+function normalizeLoungeSofaBaseHeightInches(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return Number(Math.max(2, Math.min(8, numeric)).toFixed(2));
+}
+
+function classifyLoungeSofaSeatConstruction(rawObservations = {}) {
+  return rawObservations?.upholstered_base_present === "Yes"
+    && rawObservations?.upholstered_base_same_material === "Yes"
+    && rawObservations?.upholstered_base_seam_visible === "Yes"
+    && Number.isFinite(Number(rawObservations?.upholstered_base_height_inches))
+    && Number(rawObservations?.upholstered_base_height_inches) >= 2.5
+    ? "Cushion on Platform"
+    : "Cushion Only";
+}
+
+function classifyLoungeSofaNarrowArms(thicknessPct = null) {
+  if (!Number.isFinite(Number(thicknessPct))) {
+    return null;
+  }
+  return Number(thicknessPct) <= LOUNGE_SOFA_NARROW_ARMS_THRESHOLD_PCT ? "Narrower" : "Wider";
+}
+
+function classifyLoungeSofaFlushWithBack(armTopPct = null, backTopPct = null) {
+  const armTop = Number(armTopPct);
+  const backTop = Number(backTopPct);
+  if (!Number.isFinite(armTop) || !Number.isFinite(backTop)) {
+    return null;
+  }
+  return (backTop - armTop) <= LOUNGE_SOFA_FLUSH_WITH_BACK_MAX_DROP_PCT ? "Flush with Back" : "Below Back";
+}
+
+function normalizeLoungeSofaTraits(typeKey = "", stage4Traits = {}, stage3Traits = {}) {
+  const applicability = getLoungeSofaTraitApplicability(typeKey, stage3Traits);
+  if (!hasAnyApplicableLoungeSofaTraits(applicability)) {
+    return {
+      image_traits: {},
+      measurements: {}
+    };
+  }
+
+  const normalized = {};
+  const measurements = {};
+  const fieldMap = getFieldMap(typeKey);
+  const seatConstructionField = fieldMap.get("seat_construction");
+  const narrowArmsField = fieldMap.get("narrow_arms");
+  const armsFlushField = fieldMap.get("arms_flush_with_back");
+
+  if (applicability.seat_construction && seatConstructionField) {
+    const rawSeatObservations = {
+      upholstered_base_present: normalizeEnum(stage4Traits?.upholstered_base_present, ["Yes", "No"]),
+      upholstered_base_same_material: normalizeEnum(stage4Traits?.upholstered_base_same_material, ["Yes", "No", "N/A"]),
+      upholstered_base_seam_visible: normalizeEnum(stage4Traits?.upholstered_base_seam_visible, ["Yes", "No", "N/A"]),
+      upholstered_base_height_inches: normalizeLoungeSofaBaseHeightInches(stage4Traits?.upholstered_base_height_inches)
+    };
+    measurements.upholstered_base_present = rawSeatObservations.upholstered_base_present;
+    measurements.upholstered_base_same_material = rawSeatObservations.upholstered_base_same_material;
+    measurements.upholstered_base_seam_visible = rawSeatObservations.upholstered_base_seam_visible;
+    measurements.upholstered_base_height_inches = rawSeatObservations.upholstered_base_height_inches;
+    const normalizedValue = normalizeEnum(stage4Traits?.seat_construction, seatConstructionField.allowed_values);
+    const computedValue = normalizeEnum(
+      classifyLoungeSofaSeatConstruction(rawSeatObservations),
+      seatConstructionField.allowed_values
+    );
+    if (computedValue) {
+      normalized.seat_construction = computedValue;
+    } else if (normalizedValue) {
+      normalized.seat_construction = normalizedValue;
+    }
+  }
+
+  if (applicability.narrow_arms) {
+    measurements.arm_panel_thickness_pct = normalizeLoungeSofaMeasurement(stage4Traits?.arm_panel_thickness_pct);
+    if (narrowArmsField) {
+      const normalizedValue = normalizeEnum(
+        classifyLoungeSofaNarrowArms(measurements.arm_panel_thickness_pct),
+        narrowArmsField.allowed_values
+      );
+      if (normalizedValue) {
+        normalized.narrow_arms = normalizedValue;
+      }
+    }
+  }
+  if (applicability.arms_flush_with_back) {
+    measurements.arm_top_pct = normalizeLoungeSofaMeasurement(stage4Traits?.arm_top_pct);
+    measurements.back_top_pct = normalizeLoungeSofaMeasurement(stage4Traits?.back_top_pct);
+    if (armsFlushField) {
+      const normalizedValue = normalizeEnum(
+        classifyLoungeSofaFlushWithBack(measurements.arm_top_pct, measurements.back_top_pct),
+        armsFlushField.allowed_values
+      );
+      if (normalizedValue) {
+        normalized.arms_flush_with_back = normalizedValue;
+      }
+    }
+  }
+
+  return {
+    image_traits: normalized,
+    measurements
+  };
+}
+
+function applyLoungeSofaTraitApplicability(typeKey = "", imageTraits = {}) {
+  const normalizedTraits = imageTraits && typeof imageTraits === "object" ? { ...imageTraits } : {};
+  const applicability = getLoungeSofaTraitApplicability(typeKey, normalizedTraits);
+
+  if (!applicability.eligible) {
+    delete normalizedTraits.seat_construction;
+    delete normalizedTraits.narrow_arms;
+    delete normalizedTraits.arms_flush_with_back;
+    return normalizedTraits;
+  }
+
+  if (!applicability.seat_construction) {
+    normalizedTraits.seat_construction = null;
+  }
+  if (!applicability.narrow_arms) {
+    normalizedTraits.narrow_arms = null;
+  }
+  if (!applicability.arms_flush_with_back) {
+    normalizedTraits.arms_flush_with_back = null;
+  }
+
+  return normalizedTraits;
+}
+
+function applyLoungeSofaMeasurementApplicability(typeKey = "", measurements = {}, imageTraits = {}) {
+  const normalizedMeasurements = measurements && typeof measurements === "object" ? { ...measurements } : {};
+  const applicability = getLoungeSofaTraitApplicability(typeKey, imageTraits);
+
+  if (!applicability.eligible) {
+    delete normalizedMeasurements.upholstered_base_present;
+    delete normalizedMeasurements.upholstered_base_same_material;
+    delete normalizedMeasurements.upholstered_base_seam_visible;
+    delete normalizedMeasurements.upholstered_base_height_inches;
+    delete normalizedMeasurements.arm_panel_thickness_pct;
+    delete normalizedMeasurements.arm_top_pct;
+    delete normalizedMeasurements.back_top_pct;
+    return normalizedMeasurements;
+  }
+
+  if (!applicability.seat_construction) {
+    normalizedMeasurements.upholstered_base_present = null;
+    normalizedMeasurements.upholstered_base_same_material = null;
+    normalizedMeasurements.upholstered_base_seam_visible = null;
+    normalizedMeasurements.upholstered_base_height_inches = null;
+  }
+  if (!applicability.narrow_arms) {
+    normalizedMeasurements.arm_panel_thickness_pct = null;
+  }
+  if (!applicability.arms_flush_with_back) {
+    normalizedMeasurements.arm_top_pct = null;
+    normalizedMeasurements.back_top_pct = null;
+  }
+
+  return normalizedMeasurements;
+}
+
+function medianNumericValues(values = []) {
+  const numericValues = values
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value))
+    .sort((left, right) => left - right);
+  if (!numericValues.length) {
+    return null;
+  }
+  const midpoint = Math.floor(numericValues.length / 2);
+  if (numericValues.length % 2 === 1) {
+    return Number(numericValues[midpoint].toFixed(2));
+  }
+  return Number((((numericValues[midpoint - 1] + numericValues[midpoint]) / 2)).toFixed(2));
+}
+
+function aggregateLoungeSofaMeasurements(applicability = {}, runMeasurements = []) {
+  const measurements = {};
+
+  if (applicability?.seat_construction) {
+    measurements.upholstered_base_present = voteFieldValues(
+      runMeasurements.map((entry) => entry?.upholstered_base_present)
+    );
+    measurements.upholstered_base_same_material = voteFieldValues(
+      runMeasurements.map((entry) => entry?.upholstered_base_same_material)
+    );
+    measurements.upholstered_base_seam_visible = voteFieldValues(
+      runMeasurements.map((entry) => entry?.upholstered_base_seam_visible)
+    );
+    measurements.upholstered_base_height_inches = medianNumericValues(
+      runMeasurements.map((entry) => entry?.upholstered_base_height_inches)
+    );
+  } else {
+    measurements.upholstered_base_present = null;
+    measurements.upholstered_base_same_material = null;
+    measurements.upholstered_base_seam_visible = null;
+    measurements.upholstered_base_height_inches = null;
+  }
+  if (applicability?.narrow_arms) {
+    measurements.arm_panel_thickness_pct = medianNumericValues(
+      runMeasurements.map((entry) => entry?.arm_panel_thickness_pct)
+    );
+  } else {
+    measurements.arm_panel_thickness_pct = null;
+  }
+  if (applicability?.arms_flush_with_back) {
+    measurements.arm_top_pct = medianNumericValues(
+      runMeasurements.map((entry) => entry?.arm_top_pct)
+    );
+    measurements.back_top_pct = medianNumericValues(
+      runMeasurements.map((entry) => entry?.back_top_pct)
+    );
+  } else {
+    measurements.arm_top_pct = null;
+    measurements.back_top_pct = null;
+  }
+
+  return measurements;
+}
+
+function hasExtractedLoungeSofaTraits(imageTraits = {}) {
+  return ["seat_construction", "narrow_arms", "arms_flush_with_back"].some((field) => {
+    const value = imageTraits?.[field];
+    const normalized = String(value ?? "").trim().toLowerCase();
+    return Boolean(normalized && !["unknown", "n/a", "null", "undefined"].includes(normalized));
+  });
+}
+
+function deriveLoungeSofaTraitStageStatus(applicability = {}, imageTraits = {}, triggered = false) {
+  if (!applicability?.eligible) {
+    return "out_of_scope";
+  }
+  if (!hasAnyApplicableLoungeSofaTraits(applicability)) {
+    return "not_applicable";
+  }
+  if (hasExtractedLoungeSofaTraits(imageTraits)) {
+    return "extracted";
+  }
+  return triggered ? "failed" : "failed";
 }
 
 function classifySchema() {
@@ -862,7 +1388,7 @@ function combinedStage23SchemaForType(typeKey) {
 }
 
 function extractionSchemaForType(typeKey) {
-  const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
+  const fields = getStage23TypeFields(typeKey);
   const traitProperties = {};
   const required = [];
 
@@ -900,7 +1426,7 @@ function buildUnifiedDetectableFieldMap() {
 
   for (const [typeKey, typeConfig] of Object.entries(seatingTypes)) {
     for (const field of typeConfig?.fields || []) {
-      if (field.detectability === "no") {
+      if (!isStage23DetectableField(field)) {
         continue;
       }
 
@@ -987,7 +1513,7 @@ function consolidatedExtractionSchema() {
 function buildPerTypeFieldGuide() {
   return Object.entries(seatingTypes)
     .map(([typeKey, typeConfig]) => {
-      const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
+      const fields = getStage23TypeFields(typeKey);
       const fieldLines = fields
         .map((entry) => {
           const valueDefinitions = entry.value_definitions && typeof entry.value_definitions === "object"
@@ -1005,7 +1531,7 @@ function buildPerTypeFieldGuide() {
 
 function buildFieldGuideForType(typeKey) {
   const typeConfig = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
-  const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
+  const fields = getStage23TypeFields(typeKey);
   const fieldLines = fields
     .map((entry) => {
       const valueDefinitions = entry.value_definitions && typeof entry.value_definitions === "object"
@@ -1326,7 +1852,7 @@ ${buildVisualSummaryInstruction(typeKey)}`;
 
 function extractionPrompt(typeKey) {
   const type = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
-  const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
+  const fields = getStage23TypeFields(typeKey);
   const fieldLines = fields
     .map((entry) => `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]`)
     .join("\n");
@@ -1427,7 +1953,7 @@ function heuristicImageTraits(typeKey, context = "", metadata = {}) {
   const productId = String(metadata.productId || metadata.product_id || "unknown").trim() || "unknown";
   console.log(`[heuristic-image-traits] product_id=${productId} seating_category=${typeKey}`);
   const output = {};
-  const fields = getTypeFields(typeKey).filter((entry) => entry.detectability !== "no");
+  const fields = getStage23TypeFields(typeKey);
   const inferred = {};
 
   if (typeKey === "task_collab_chair") {
@@ -1716,7 +2242,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
 
   if (typeKey === "stool") {
     const fieldsBeforeFilter = getTypeFields(typeKey);
-    const fieldsAfterFilter = fieldsBeforeFilter.filter((entry) => entry.detectability !== "no");
+    const fieldsAfterFilter = getStage23TypeFields(typeKey);
     console.log("DEBUG fieldLines stool fields before filter:", fieldsBeforeFilter.map((entry) => ({
       field: entry.field,
       detectability: entry.detectability,
@@ -1878,6 +2404,40 @@ export async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, 
   };
 
   return { stage2, stage3, usage };
+}
+
+async function extractLoungeSofaTraitsOpenAi(imageInput, typeKey, stage3ImageTraits = {}, options = {}) {
+  const applicability = getLoungeSofaTraitApplicability(typeKey, stage3ImageTraits);
+  if (!options.apiKey || !hasAnyApplicableLoungeSofaTraits(applicability)) {
+    return {
+      image_traits: {},
+      raw_measurements: applyLoungeSofaMeasurementApplicability(typeKey, {}, stage3ImageTraits),
+      usage: normalizeOpenAiUsage(),
+      triggered: false,
+      applicability
+    };
+  }
+
+  const { data: parsed, usage } = await callOpenAiJsonWithMeta({
+    apiKey: options.apiKey,
+    model: options.visionModel,
+    systemPrompt: buildLoungeSofaTraitPrompt(applicability),
+    userParts: [
+      { type: "input_image", image_url: imageInput.image_url, detail: "high" }
+    ],
+    schemaName: "lounge_sofa_trait_stage",
+    schema: loungeSofaTraitSchema(applicability)
+  });
+
+  const normalizedStage4 = normalizeLoungeSofaTraits(typeKey, parsed, stage3ImageTraits);
+
+  return {
+    image_traits: normalizedStage4.image_traits,
+    raw_measurements: applyLoungeSofaMeasurementApplicability(typeKey, normalizedStage4.measurements, stage3ImageTraits),
+    usage,
+    triggered: true,
+    applicability
+  };
 }
 
 async function describeVisualFormOpenAi(imageInput, options = {}) {
@@ -2937,6 +3497,9 @@ function buildSearchableText({ productName = "", brand = "", seatingType = "", e
 const SEARCH_TIME_BULLET_FIELD_PRIORITY = [
   "body_construction",
   "arm_option",
+  "seat_construction",
+  "narrow_arms",
+  "arms_flush_with_back",
   "back_height",
   "back_finish",
   "back_profile",
@@ -2977,6 +3540,10 @@ function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
       if (!normalized || ["unknown", "n/a"].includes(normalized.toLowerCase())) {
         return "";
       }
+      // Structured yes/no traits must use affirmative descriptors (e.g.,
+      // narrow_arms uses "Narrower"/"Wider", not "Yes"/"No") so legitimate
+      // negative answers don't match this filter. See narrow_arms and
+      // arms_flush_with_back for canonical examples.
       if (/\b(no|none|not visible|concealed|unknown|without|absent|hidden)\b/i.test(normalized)) {
         return "";
       }
@@ -3441,6 +4008,7 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
   const fieldConfidence = flattenFieldConfidence(voted);
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(stage0Usage, ...runs.map((run) => run.usage?.total));
+  const stage4UsageTotal = sumUsage(...runs.map((run) => run.usage?.stage4));
   const searchText = buildSearchableText({
     productName: imageRecord.name || imageRecord.product_name || "",
     brand: imageRecord.brand || "",
@@ -3453,6 +4021,22 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
     stage0Cost +
     runs.reduce((sum, run) => sum + Number(run.usage?.estimated_cost_usd || 0), 0)
   ).toFixed(6));
+  const stage4CostUsd = Number(runs.reduce(
+    (sum, run) => sum + Number(estimateUsageCostUsd(run.usage?.stage4 || normalizeOpenAiUsage()) || 0),
+    0
+  ).toFixed(6));
+  const stage4TriggeredRuns = runs.filter((run) => Boolean(run.stage4?.triggered)).length;
+  const stage4Extracted = hasExtractedLoungeSofaTraits(voted.stage3?.image_traits || {});
+  const stage4Applicability = getLoungeSofaTraitApplicability(routingTypeKey, enumFields);
+  const stage4Measurements = aggregateLoungeSofaMeasurements(
+    stage4Applicability,
+    runs.map((run) => run.stage4?.raw_measurements || {})
+  );
+  const stage4Status = deriveLoungeSofaTraitStageStatus(
+    stage4Applicability,
+    voted.stage3?.image_traits || {},
+    stage4TriggeredRuns > 0
+  );
 
   const result = {
     image_id: imageRecord.image_id,
@@ -3482,19 +4066,33 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
     confidence_tier: confidenceTier,
     tokens: {
       stage_0: stage0Usage,
+      stage_4: stage4UsageTotal,
       runs: runs.map((run) => ({
         run: run.run_label,
+        stage23_usage: run.usage?.stage23 || normalizeOpenAiUsage(),
+        stage4_usage: run.usage?.stage4 || normalizeOpenAiUsage(),
         usage: run.usage?.total || normalizeOpenAiUsage()
       })),
       total: usageTotal
     },
     cost: {
       stage_0_usd: stage0Cost,
+      stage_4_usd: stage4CostUsd,
       runs: runs.map((run) => ({
         run: run.run_label,
+        stage23_estimated_cost_usd: Number(estimateUsageCostUsd(run.usage?.stage23 || normalizeOpenAiUsage()) || 0),
+        stage4_estimated_cost_usd: Number(estimateUsageCostUsd(run.usage?.stage4 || normalizeOpenAiUsage()) || 0),
         estimated_cost_usd: Number(run.usage?.estimated_cost_usd || 0)
       })),
       total_usd: totalCostUsd
+    },
+    post_stage23_lounge_sofa_traits: {
+      eligible: stage4Applicability.eligible,
+      extracted: stage4Extracted,
+      triggered_runs: stage4TriggeredRuns,
+      applicable_trait_count: countApplicableLoungeSofaTraits(stage4Applicability),
+      status: stage4Status,
+      measurements: stage4Measurements
     },
     extraction_timestamp: extractionTimestamp,
     excluded: false,
@@ -3744,6 +4342,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
   const fieldConfidence = flattenFieldConfidence(voted);
   const confidenceTier = deriveOverallConfidence(fieldConfidence);
   const usageTotal = sumUsage(preservedStage0Usage, ...runs.map((run) => run.usage?.total));
+  const stage4UsageTotal = sumUsage(...runs.map((run) => run.usage?.stage4));
   const searchText = buildSearchableText({
     productName,
     brand,
@@ -3754,6 +4353,22 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
   const searchTextEmbedding = await embedSearchText(searchText, options);
   const rerunCostUsd = Number(runs.reduce((sum, run) => sum + Number(run.usage?.estimated_cost_usd || 0), 0).toFixed(6));
   const totalCostUsd = Number((preservedStage0Cost + rerunCostUsd).toFixed(6));
+  const stage4CostUsd = Number(runs.reduce(
+    (sum, run) => sum + Number(estimateUsageCostUsd(run.usage?.stage4 || normalizeOpenAiUsage()) || 0),
+    0
+  ).toFixed(6));
+  const stage4TriggeredRuns = runs.filter((run) => Boolean(run.stage4?.triggered)).length;
+  const stage4Extracted = hasExtractedLoungeSofaTraits(voted.stage3?.image_traits || {});
+  const stage4Applicability = getLoungeSofaTraitApplicability(routingTypeKey, enumFields);
+  const stage4Measurements = aggregateLoungeSofaMeasurements(
+    stage4Applicability,
+    runs.map((run) => run.stage4?.raw_measurements || {})
+  );
+  const stage4Status = deriveLoungeSofaTraitStageStatus(
+    stage4Applicability,
+    voted.stage3?.image_traits || {},
+    stage4TriggeredRuns > 0
+  );
 
   const result = {
     image_id: imageRecord.image_id || existingRecord.image_id,
@@ -3783,19 +4398,33 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     confidence_tier: confidenceTier,
     tokens: {
       stage_0: preservedStage0Usage,
+      stage_4: stage4UsageTotal,
       runs: runs.map((run) => ({
         run: run.run_label,
+        stage23_usage: run.usage?.stage23 || normalizeOpenAiUsage(),
+        stage4_usage: run.usage?.stage4 || normalizeOpenAiUsage(),
         usage: run.usage?.total || normalizeOpenAiUsage()
       })),
       total: usageTotal
     },
     cost: {
       stage_0_usd: preservedStage0Cost,
+      stage_4_usd: stage4CostUsd,
       runs: runs.map((run) => ({
         run: run.run_label,
+        stage23_estimated_cost_usd: Number(estimateUsageCostUsd(run.usage?.stage23 || normalizeOpenAiUsage()) || 0),
+        stage4_estimated_cost_usd: Number(estimateUsageCostUsd(run.usage?.stage4 || normalizeOpenAiUsage()) || 0),
         estimated_cost_usd: Number(run.usage?.estimated_cost_usd || 0)
       })),
       total_usd: totalCostUsd
+    },
+    post_stage23_lounge_sofa_traits: {
+      eligible: stage4Applicability.eligible,
+      extracted: stage4Extracted,
+      triggered_runs: stage4TriggeredRuns,
+      applicable_trait_count: countApplicableLoungeSofaTraits(stage4Applicability),
+      status: stage4Status,
+      measurements: stage4Measurements
     },
     extraction_timestamp: extractionTimestamp,
     excluded: false,
@@ -3844,7 +4473,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
   }
   const { data: stage1, usage: stage1Usage } = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
   if (isStage1OverrideResult(stage1)) {
-    const usageTotal = sumUsage(stage1Usage, normalizeOpenAiUsage());
+    const usageTotal = sumUsage(stage1Usage, normalizeOpenAiUsage(), normalizeOpenAiUsage());
     return {
       run_label: runLabel,
       stage1,
@@ -3868,6 +4497,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
       usage: {
         stage1: stage1Usage,
         stage23: normalizeOpenAiUsage(),
+        stage4: normalizeOpenAiUsage(),
         total: usageTotal,
         estimated_cost_usd: estimateUsageCostUsd(usageTotal)
       }
@@ -3884,7 +4514,12 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
     imageTraits[fieldName] = normalizeEnum(value, field.allowed_values);
   }
 
-  const usageTotal = sumUsage(stage1Usage, stage23Usage);
+  const stage4 = await extractLoungeSofaTraitsOpenAi(imageInput, seatingType, imageTraits, options);
+  const mergedImageTraits = applyLoungeSofaTraitApplicability(seatingType, {
+    ...imageTraits,
+    ...(stage4.image_traits || {})
+  });
+  const usageTotal = sumUsage(stage1Usage, stage23Usage, stage4.usage);
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_done`,
@@ -3902,13 +4537,20 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
     stage2,
     stage3: {
       ...stage3,
-      image_traits: imageTraits
+      image_traits: mergedImageTraits
     },
     usage: {
       stage1: stage1Usage,
       stage23: stage23Usage,
+      stage4: stage4.usage,
       total: usageTotal,
       estimated_cost_usd: estimateUsageCostUsd(usageTotal)
+    },
+    stage4: {
+      triggered: stage4.triggered,
+      applicability: stage4.applicability || getLoungeSofaTraitApplicability(seatingType, imageTraits),
+      image_traits: stage4.image_traits || {},
+      raw_measurements: stage4.raw_measurements || {}
     }
   };
 }
@@ -3960,6 +4602,13 @@ async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, i
     imageTraits[fieldName] = normalizeEnum(value, field.allowed_values);
   }
 
+  const stage4 = await extractLoungeSofaTraitsOpenAi(imageInput, typeKey, imageTraits, options);
+  const mergedImageTraits = applyLoungeSofaTraitApplicability(typeKey, {
+    ...imageTraits,
+    ...(stage4.image_traits || {})
+  });
+  const usageTotal = sumUsage(stage23Usage, stage4.usage);
+
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_done`,
@@ -3978,13 +4627,20 @@ async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, i
     stage2,
     stage3: {
       ...stage3,
-      image_traits: imageTraits
+      image_traits: mergedImageTraits
     },
     usage: {
       stage1: normalizeOpenAiUsage(),
       stage23: stage23Usage,
-      total: stage23Usage,
-      estimated_cost_usd: estimateUsageCostUsd(stage23Usage)
+      stage4: stage4.usage,
+      total: usageTotal,
+      estimated_cost_usd: estimateUsageCostUsd(usageTotal)
+    },
+    stage4: {
+      triggered: stage4.triggered,
+      applicability: stage4.applicability || getLoungeSofaTraitApplicability(typeKey, imageTraits),
+      image_traits: stage4.image_traits || {},
+      raw_measurements: stage4.raw_measurements || {}
     }
   };
 }
@@ -4078,7 +4734,11 @@ function voteStage123Runs(runs = []) {
   const seatingTypeVote = voteFieldValues(runs.map((run) => run.stage1?.seating_type || ""));
   const designRegisterVote = voteFieldValues(runs.map((run) => run.stage2?.design_register || "unknown"));
   const imageTraitKeys = [...new Set(runs.flatMap((run) => Object.keys(run.stage3?.image_traits || {})))].sort((a, b) => a.localeCompare(b));
-  const imageTraitVote = voteNamedFields(imageTraitKeys, runs, (run, key) => run.stage3?.image_traits?.[key] ?? "unknown");
+  const imageTraitVote = voteNamedFields(imageTraitKeys, runs, (run, key) => (
+    Object.prototype.hasOwnProperty.call(run.stage3?.image_traits || {}, key)
+      ? run.stage3.image_traits[key]
+      : null
+  ));
 
   return {
     stage1: {
@@ -4389,8 +5049,18 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
 
     const voted = voteStage123Runs(runs);
     const visualSummary = normalizeWhitespace(voted.stage2.visual_summary || "");
-    const imageTraits = normalizeImageTraits(forcedSeatingType, voted.stage3.image_traits || {});
+    const imageTraits = applyLoungeSofaTraitApplicability(
+      forcedSeatingType,
+      normalizeImageTraits(forcedSeatingType, voted.stage3.image_traits || {})
+    );
     const fieldConfidence = buildSinglePassFieldConfidence(forcedSeatingType, imageTraits);
+    const stage4TriggeredRuns = runs.filter((run) => Boolean(run.stage4?.triggered)).length;
+    const stage4Applicability = getLoungeSofaTraitApplicability(forcedSeatingType, imageTraits);
+    const stage4Measurements = aggregateLoungeSofaMeasurements(
+      stage4Applicability,
+      runs.map((run) => run.stage4?.raw_measurements || {})
+    );
+    const stage4Status = deriveLoungeSofaTraitStageStatus(stage4Applicability, imageTraits, stage4TriggeredRuns > 0);
     const searchText = buildSearchableText({
       productName: "",
       brand: "",
@@ -4445,8 +5115,16 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
       raw_visual_highlights: Array.isArray(voted.stage3.raw_visual_highlights) ? voted.stage3.raw_visual_highlights : [],
       structured_caption: voted.stage3.structured_caption || "",
       extraction_runs: runs.length,
-      analysis_api_call_count: runs.length * 2,
-      api_call_count: runs.length * 2
+      analysis_api_call_count: runs.length + stage4TriggeredRuns,
+      api_call_count: runs.length + stage4TriggeredRuns,
+      post_stage23_lounge_sofa_traits: {
+        eligible: stage4Applicability.eligible,
+        extracted: hasExtractedLoungeSofaTraits(imageTraits),
+        triggered_runs: stage4TriggeredRuns,
+        applicable_trait_count: countApplicableLoungeSofaTraits(stage4Applicability),
+        status: stage4Status,
+        measurements: stage4Measurements
+      }
     };
   }
 
@@ -4512,8 +5190,18 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
   }
 
   const visualSummary = normalizeWhitespace(voted.stage2.visual_summary || "");
-  const imageTraits = normalizeImageTraits(seatingType, voted.stage3.image_traits || {});
+  const imageTraits = applyLoungeSofaTraitApplicability(
+    seatingType,
+    normalizeImageTraits(seatingType, voted.stage3.image_traits || {})
+  );
   const fieldConfidence = buildSinglePassFieldConfidence(seatingType, imageTraits);
+  const stage4TriggeredRuns = runs.filter((run) => Boolean(run.stage4?.triggered)).length;
+  const stage4Applicability = getLoungeSofaTraitApplicability(seatingType, imageTraits);
+  const stage4Measurements = aggregateLoungeSofaMeasurements(
+    stage4Applicability,
+    runs.map((run) => run.stage4?.raw_measurements || {})
+  );
+  const stage4Status = deriveLoungeSofaTraitStageStatus(stage4Applicability, imageTraits, stage4TriggeredRuns > 0);
   const searchText = buildSearchableText({
     productName: "",
     brand: "",
@@ -4568,8 +5256,16 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     raw_visual_highlights: Array.isArray(voted.stage3.raw_visual_highlights) ? voted.stage3.raw_visual_highlights : [],
     structured_caption: voted.stage3.structured_caption || "",
     extraction_runs: runs.length,
-    analysis_api_call_count: runs.length * 2,
-    api_call_count: runs.length * 2 + 1
+    analysis_api_call_count: (runs.length * 2) + stage4TriggeredRuns,
+    api_call_count: (runs.length * 2) + stage4TriggeredRuns + 1,
+    post_stage23_lounge_sofa_traits: {
+      eligible: stage4Applicability.eligible,
+      extracted: hasExtractedLoungeSofaTraits(imageTraits),
+      triggered_runs: stage4TriggeredRuns,
+      applicable_trait_count: countApplicableLoungeSofaTraits(stage4Applicability),
+      status: stage4Status,
+      measurements: stage4Measurements
+    }
   };
 }
 

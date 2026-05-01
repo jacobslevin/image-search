@@ -187,6 +187,9 @@ const STRUCTURED_TRAITS_MATRIX_TYPE_ORDER = [
 ];
 const STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER = [
   "arm_option",
+  "seat_construction",
+  "arms_flush_with_back",
+  "narrow_arms",
   "back_height",
   "back_finish",
   "back_profile",
@@ -1083,7 +1086,7 @@ function getResultTraitValueMapFromImages(images = []) {
     for (const [field, rawValue] of Object.entries(enumFields)) {
       const normalizedField = normalizeTraitFieldKey(field);
       const normalizedValue = normalizeTraitValue(rawValue);
-      const displayValue = String(rawValue || "").trim();
+      const displayValue = formatFrontendTraitValue(normalizedField, rawValue);
       if (!normalizedField || isMissingBrowseTraitValue(normalizedValue)) {
         continue;
       }
@@ -1173,7 +1176,7 @@ function buildBrowseFilterModel(payload = state.lastPayload, query = state.lastQ
         const normalizedValue = normalizeTraitValue(value);
         return {
           value: normalizedValue,
-          label: String(value || "").trim(),
+          label: formatFrontendTraitValue(fieldKey, value),
           count: counts.get(normalizedValue) || 0,
           legacy: false
         };
@@ -1593,8 +1596,12 @@ const INLINE_REFINEMENT_LABELS = new Map([
   ["configuration", "Configuration"],
   ["shell_material", "Shell material"],
   ["shell_seat_material", "Shell material"],
-  ["upholstery", "Upholstery"]
+  ["upholstery", "Upholstery"],
+  ["narrow_arms", "Arm Width"],
+  ["arms_flush_with_back", "Arm Height"]
 ]);
+
+const FRONTEND_TRAIT_VALUE_LABELS = new Map([]);
 
 const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
   ["arms", "arm_option"],
@@ -1614,6 +1621,10 @@ function normalizeTraitFieldKey(value = "") {
 }
 
 function formatTraitFieldLabel(field = "") {
+  const normalizedField = normalizeTraitFieldKey(field);
+  if (INLINE_REFINEMENT_LABELS.has(normalizedField)) {
+    return INLINE_REFINEMENT_LABELS.get(normalizedField);
+  }
   return String(field || "")
     .split("_")
     .filter(Boolean)
@@ -1623,6 +1634,32 @@ function formatTraitFieldLabel(field = "") {
 
 function normalizeTraitValue(value = "") {
   return String(value || "").trim().toLowerCase();
+}
+
+function formatFrontendTraitValue(field = "", value = "") {
+  const normalizedField = normalizeTraitFieldKey(field);
+  const rawValue = String(value ?? "").trim();
+  const valueLabels = FRONTEND_TRAIT_VALUE_LABELS.get(normalizedField);
+  if (!valueLabels) {
+    return rawValue;
+  }
+  return valueLabels.get(normalizeTraitValue(rawValue)) || rawValue;
+}
+
+function normalizeFrontendTraitValueForParsing(field = "", value = "") {
+  const normalizedField = normalizeTraitFieldKey(field);
+  const rawValue = String(value ?? "").trim();
+  const valueLabels = FRONTEND_TRAIT_VALUE_LABELS.get(normalizedField);
+  if (!valueLabels) {
+    return rawValue;
+  }
+  const normalizedRawValue = normalizeTraitValue(rawValue);
+  for (const [canonicalValue, displayLabel] of valueLabels.entries()) {
+    if (normalizeTraitValue(displayLabel) === normalizedRawValue) {
+      return String(displayLabel || "").trim() || rawValue;
+    }
+  }
+  return rawValue;
 }
 
 function buildTraitFieldConfigIndex(seatingTypes) {
@@ -1696,7 +1733,10 @@ function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = 
   }
 
   const field = resolveStructuredBulletField(typeKey, raw.slice(0, separatorIndex));
-  const value = raw.slice(separatorIndex + 1).trim();
+  const value = normalizeFrontendTraitValueForParsing(
+    field,
+    raw.slice(separatorIndex + 1).trim()
+  );
   if (!field || !value) {
     return null;
   }
@@ -2737,8 +2777,8 @@ function buildInlineRefinementTraits(imageTraits = {}, typeKey = null) {
       return {
         field: normalizedField,
         label: formatInlineRefinementFieldLabel(normalizedField, typeKey),
-        value,
-        text: `${formatInlineRefinementFieldLabel(normalizedField, typeKey)}: ${value}`,
+        value: formatFrontendTraitValue(normalizedField, value),
+        text: `${formatInlineRefinementFieldLabel(normalizedField, typeKey)}: ${formatFrontendTraitValue(normalizedField, value)}`,
         key: buildTraitSelectionKey(normalizedField, value)
       };
     })
@@ -3004,6 +3044,9 @@ function renderExtractionSummary(summary = state.extractionSummary) {
     : { active: [], resolved: [] };
   const activeUnmapped = Array.isArray(unmapped.active) ? unmapped.active : [];
   const resolvedUnmapped = Array.isArray(unmapped.resolved) ? unmapped.resolved : [];
+  const loungeSofaTraitStage = summary.lounge_sofa_trait_stage && typeof summary.lounge_sofa_trait_stage === "object"
+    ? summary.lounge_sofa_trait_stage
+    : null;
 
   const cards = [
     {
@@ -3015,6 +3058,16 @@ function renderExtractionSummary(summary = state.extractionSummary) {
       value: formatTraitHealthCardText(traitHealth)
     }
   ];
+  if (loungeSofaTraitStage) {
+    const extractedCount = Number(loungeSofaTraitStage.extracted_image_count || 0);
+    const notApplicableCount = Number(loungeSofaTraitStage.not_applicable_image_count || 0);
+    const failedCount = Number(loungeSofaTraitStage.failed_image_count || 0);
+    const eligibleCount = Number(loungeSofaTraitStage.eligible_image_count || 0);
+    cards.push({
+      title: "Lounge sofa trait stage",
+      value: `${extractedCount.toLocaleString()} extracted • ${notApplicableCount.toLocaleString()} n/a • ${failedCount.toLocaleString()} failed (${eligibleCount.toLocaleString()} in scope) • $${Number(loungeSofaTraitStage.estimated_total_cost_usd || 0).toFixed(3)}`
+    });
+  }
 
   const wrapper = document.createElement("div");
   wrapper.className = "extraction-summary-grid";
@@ -4172,6 +4225,10 @@ function getTraitFieldConfig(typeKey, fieldName) {
 }
 
 function getFieldPriority(typeKey = "", fieldName = "") {
+  const normalizedField = normalizeTraitFieldKey(fieldName);
+  if (String(typeKey || "").trim().toLowerCase() === "lounge_chair" && normalizedField === "arms_flush_with_back") {
+    return "essential";
+  }
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
@@ -4225,6 +4282,9 @@ function formatImageTraitChips(imageTraits = {}, limit = 6, typeKey = null) {
     ["design_register", "Design"],
     ["shape_character", "Shape"],
     ["plan_shape", "Plan shape"],
+    ["seat_construction", "Seat Construction"],
+    ["narrow_arms", "Arm Width"],
+    ["arms_flush_with_back", "Arm Height"],
     ["base_finish", "Base Finish"],
     ["frame", "Frame"],
     ["back_style", "Back"],
@@ -4245,7 +4305,7 @@ function formatImageTraitChips(imageTraits = {}, limit = 6, typeKey = null) {
       if (!normalized || ["unknown", "n/a"].includes(normalized.toLowerCase())) {
         return "";
       }
-      return `${labels.get(field) || field.replace(/_/g, " ")}: ${normalized}`;
+      return `${labels.get(field) || field.replace(/_/g, " ")}: ${formatFrontendTraitValue(field, normalized)}`;
     })
     .filter(Boolean)
     .slice(0, limit);
@@ -4264,7 +4324,7 @@ function buildStoredImageSearchBullets(imageTraits = {}, typeKey = null) {
         return "";
       }
 
-      return `${formatTraitFieldLabel(field)}: ${normalizedValue}`;
+      return `${formatInlineRefinementFieldLabel(field, typeKey)}: ${formatFrontendTraitValue(field, normalizedValue)}`;
     })
     .filter(Boolean);
 }
@@ -6268,11 +6328,14 @@ function formatRefineBulletParts(text = "") {
   const label = raw.slice(0, colonIndex).trim().replace(/_/g, " ");
   const value = raw.slice(colonIndex + 1).trim();
   const normalizedLabel = label.toLowerCase();
+  const normalizedField = resolveStructuredBulletField(state.currentSeatingType, label);
   return {
-    label: toTitleCaseWords(label),
+    label: normalizedField
+      ? formatInlineRefinementFieldLabel(normalizedField, state.currentSeatingType)
+      : toTitleCaseWords(label),
     value: normalizedLabel === "seating type"
       ? formatSeatingCategoryLabel(value)
-      : value
+      : formatFrontendTraitValue(normalizedField, value)
   };
 }
 
@@ -6442,6 +6505,16 @@ function buildStructuredInspirationBullets(analysis = {}) {
   const stage2 = analysis?.stage2 && typeof analysis.stage2 === "object" ? analysis.stage2 : {};
   const imageTraits = analysis?.image_traits && typeof analysis.image_traits === "object" ? analysis.image_traits : {};
   const bullets = [];
+  const pushStructuredTraitBullet = (field, rawValue) => {
+    const normalizedField = normalizeTraitFieldKey(field);
+    const value = String(rawValue ?? "").trim();
+    if (!normalizedField || !hasPopulatedVisibleImageTraitValue(rawValue)) {
+      return;
+    }
+    bullets.push(
+      `${formatInlineRefinementFieldLabel(normalizedField)}: ${formatFrontendTraitValue(normalizedField, value)}`
+    );
+  };
 
   if (isPresentBulletValue(stage2.design_register)) {
     bullets.push(stage2.design_register);
@@ -6482,6 +6555,10 @@ function buildStructuredInspirationBullets(analysis = {}) {
   if (isPresentBulletValue(imageTraits.base_type)) {
     bullets.push(imageTraits.base_type);
   }
+
+  pushStructuredTraitBullet("seat_construction", imageTraits.seat_construction);
+  pushStructuredTraitBullet("narrow_arms", imageTraits.narrow_arms);
+  pushStructuredTraitBullet("arms_flush_with_back", imageTraits.arms_flush_with_back);
 
   if (isPresentBulletValue(imageTraits.configuration) && !isSingleSeatConfiguration(imageTraits.configuration)) {
     bullets.push(imageTraits.configuration);

@@ -328,3 +328,202 @@ test("lounge companion metrics exclude integrated bases and ottomans where trait
   assert.equal(backHeightTrait.issue, false);
   assert.equal(loungeCategory.trait_health.healthy, true);
 });
+
+test("lounge sofa stage traits use applicable denominators and surface stage cost totals", () => {
+  const diagnostics = buildPipelineDiagnostics({
+    images: [
+      {
+        product_id: "fixture_lounge_sofa",
+        product_name: "Fixture Lounge Sofa",
+        image_url: "https://example.com/lounge-sofa.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          arm_option: "Two arms",
+          back_finish: "Matches seat",
+          back_height: "Low",
+          base_finish: "Black",
+          base_type: "4-leg",
+          body_construction: "Upholstered",
+          configuration: "Double seat",
+          design_register: "Minimal",
+          plan_shape: "Square / rectangular",
+          seat_finish: "Fabric",
+          shape_character: "Boxy",
+          seat_construction: "Cushion on Platform",
+          narrow_arms: "Narrower",
+          arms_flush_with_back: "Below Back"
+        },
+        tokens: {
+          stage_4: {
+            prompt_tokens: 100,
+            completion_tokens: 20,
+            total_tokens: 120
+          }
+        },
+        cost: {
+          stage_4_usd: 0.012
+        },
+        post_stage23_lounge_sofa_traits: {
+          status: "extracted"
+        }
+      },
+      {
+        product_id: "fixture_lounge_single",
+        product_name: "Fixture Lounge Single",
+        image_url: "https://example.com/lounge-single.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          arm_option: "Integrated / sculpted",
+          back_finish: "Matches seat",
+          back_height: "High",
+          base_finish: "Black",
+          base_type: "4-leg",
+          body_construction: "Upholstered",
+          configuration: "Single seat",
+          design_register: "Minimal",
+          plan_shape: "Round / semicircular",
+          seat_finish: "Fabric",
+          shape_character: "Soft / tapered"
+        },
+        tokens: {
+          stage_4: {
+            prompt_tokens: 0,
+            completion_tokens: 0,
+            total_tokens: 0
+          }
+        },
+        cost: {
+          stage_4_usd: 0
+        }
+      }
+    ],
+    products: []
+  });
+
+  const loungeCategory = diagnostics.categories.find((entry) => entry.category_key === "lounge_chair");
+  assert.ok(loungeCategory);
+
+  const seatConstructionTrait = loungeCategory.trait_health.traits.find((trait) => trait.field === "seat_construction");
+  assert.ok(seatConstructionTrait);
+  assert.deepEqual(seatConstructionTrait.supplemental_metrics, [
+    {
+      key: "lounge_multi_seat_sofas",
+      label: "double/triple seat sofas",
+      populated_count: 1,
+      total_count: 1,
+      coverage_rate: 1,
+      coverage_percent: 100
+    }
+  ]);
+  assert.equal(seatConstructionTrait.issue, false);
+  assert.equal(seatConstructionTrait.issue_basis, "lounge_multi_seat_sofas");
+
+  const narrowArmsTrait = loungeCategory.trait_health.traits.find((trait) => trait.field === "narrow_arms");
+  assert.ok(narrowArmsTrait);
+  assert.deepEqual(narrowArmsTrait.supplemental_metrics, [
+    {
+      key: "lounge_multi_seat_sofas_with_arms",
+      label: "double/triple seat sofas with arms",
+      populated_count: 1,
+      total_count: 1,
+      coverage_rate: 1,
+      coverage_percent: 100
+    }
+  ]);
+  assert.equal(narrowArmsTrait.issue, false);
+
+  assert.deepEqual(diagnostics.lounge_sofa_trait_stage, {
+    eligible_image_count: 1,
+    extracted_image_count: 1,
+    not_applicable_image_count: 0,
+    failed_image_count: 0,
+    prompt_tokens: 100,
+    completion_tokens: 20,
+    total_tokens: 120,
+    estimated_total_cost_usd: 0.012,
+    average_cost_usd_per_eligible_image: 0.012,
+    average_total_tokens_per_eligible_image: 120
+  });
+});
+
+test("lounge sofa stage diagnostics separate extracted, not applicable, and failed", () => {
+  const diagnostics = buildPipelineDiagnostics({
+    images: [
+      {
+        product_id: "fixture_extracted",
+        product_name: "Fixture Extracted Sofa",
+        image_url: "https://example.com/extracted.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          configuration: "Double seat",
+          arm_option: "Two arms",
+          base_type: "4-leg",
+          seat_construction: "Cushion Only",
+          narrow_arms: "Narrower",
+          arms_flush_with_back: "Below Back"
+        },
+        post_stage23_lounge_sofa_traits: {
+          status: "extracted"
+        }
+      },
+      {
+        product_id: "fixture_not_applicable",
+        product_name: "Fixture Armless Ottoman-Sofa",
+        image_url: "https://example.com/not-applicable.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          configuration: "Triple seat (or larger)",
+          arm_option: "Armless",
+          base_type: "Integrated base",
+          seat_construction: null,
+          narrow_arms: null,
+          arms_flush_with_back: null
+        },
+        post_stage23_lounge_sofa_traits: {
+          status: "not_applicable"
+        }
+      },
+      {
+        product_id: "fixture_failed",
+        product_name: "Fixture Failed Sofa",
+        image_url: "https://example.com/failed.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          configuration: "Double seat",
+          arm_option: "Two arms",
+          base_type: "4-leg",
+          seat_construction: "unknown",
+          narrow_arms: "unknown",
+          arms_flush_with_back: "unknown"
+        },
+        post_stage23_lounge_sofa_traits: {
+          status: "failed"
+        }
+      }
+    ],
+    products: []
+  });
+
+  assert.deepEqual(diagnostics.lounge_sofa_trait_stage, {
+    eligible_image_count: 3,
+    extracted_image_count: 1,
+    not_applicable_image_count: 1,
+    failed_image_count: 1,
+    prompt_tokens: 0,
+    completion_tokens: 0,
+    total_tokens: 0,
+    estimated_total_cost_usd: 0,
+    average_cost_usd_per_eligible_image: 0,
+    average_total_tokens_per_eligible_image: 0
+  });
+});

@@ -324,6 +324,36 @@
           "priority": "essential"
         },
         {
+          "field": "seat_construction",
+          "type": "enum",
+          "detectability": "stage4",
+          "allowed_values": [
+            "Cushion Only",
+            "Cushion on Platform"
+          ],
+          "priority": "normal"
+        },
+        {
+          "field": "narrow_arms",
+          "type": "enum",
+          "detectability": "stage4",
+          "allowed_values": [
+            "Narrower",
+            "Wider"
+          ],
+          "priority": "normal"
+        },
+        {
+          "field": "arms_flush_with_back",
+          "type": "enum",
+          "detectability": "stage4",
+          "allowed_values": [
+            "Flush with Back",
+            "Below Back"
+          ],
+          "priority": "normal"
+        },
+        {
           "field": "design_register",
           "type": "enum",
           "detectability": "yes",

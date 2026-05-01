@@ -77,6 +77,23 @@ function normalizeTraitValueAgainstSchema(value = "", allowedValues = new Map())
   return allowedValues.get(normalized) || "";
 }
 
+function isLoungeSofaConfiguration(value = "") {
+  const normalized = normalizeValue(value);
+  return normalized === "double seat" || normalized === "triple seat (or larger)";
+}
+
+function isLoungeSofaTraitApplicable(enumFields = {}) {
+  return isLoungeSofaConfiguration(enumFields?.configuration);
+}
+
+function isLoungeSofaArmTraitApplicable(enumFields = {}) {
+  return isLoungeSofaTraitApplicable(enumFields) && normalizeValue(enumFields?.arm_option) !== "armless";
+}
+
+function hasExtractedLoungeSofaTraits(enumFields = {}) {
+  return ["seat_construction", "narrow_arms", "arms_flush_with_back"].some((field) => !isMissingValue(enumFields?.[field]));
+}
+
 function buildCategorySkeleton(typeKey = "") {
   const fieldConfigs = getTraitFieldConfigs(typeKey);
   const traitMap = Object.fromEntries(fieldConfigs.map((field) => [field.field, {
@@ -243,6 +260,16 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
   const complianceViolations = [];
   const logicalInconsistencies = [];
   const imageExtractionFailures = [];
+  const loungeSofaTraitStage = {
+    eligible_image_count: 0,
+    extracted_image_count: 0,
+    not_applicable_image_count: 0,
+    failed_image_count: 0,
+    prompt_tokens: 0,
+    completion_tokens: 0,
+    total_tokens: 0,
+    estimated_total_cost_usd: 0
+  };
 
   const ensureCategory = (typeKey) => {
     const normalizedKey = normalizeCategoryKey(typeKey);
@@ -270,6 +297,33 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
     }
 
     const enumFields = image?.enum_fields && typeof image.enum_fields === "object" ? image.enum_fields : {};
+    if (categoryKey === "lounge_chair" && isLoungeSofaTraitApplicable(enumFields)) {
+      loungeSofaTraitStage.eligible_image_count += 1;
+      const stageStatus = String(image?.post_stage23_lounge_sofa_traits?.status || "").trim().toLowerCase();
+      if (stageStatus === "not_applicable") {
+        loungeSofaTraitStage.not_applicable_image_count += 1;
+      } else if (stageStatus === "failed") {
+        loungeSofaTraitStage.failed_image_count += 1;
+      } else if (stageStatus === "extracted" || hasExtractedLoungeSofaTraits(enumFields)) {
+        loungeSofaTraitStage.extracted_image_count += 1;
+      } else {
+        const inferredNotApplicable = !isLoungeSofaArmTraitApplicable(enumFields) && isMissingValue(enumFields?.seat_construction);
+        if (inferredNotApplicable) {
+          loungeSofaTraitStage.not_applicable_image_count += 1;
+        } else {
+          loungeSofaTraitStage.failed_image_count += 1;
+        }
+      }
+      const stage4Tokens = image?.tokens?.stage_4 && typeof image.tokens.stage_4 === "object"
+        ? image.tokens.stage_4
+        : {};
+      loungeSofaTraitStage.prompt_tokens += Math.max(0, Number(stage4Tokens.prompt_tokens) || 0);
+      loungeSofaTraitStage.completion_tokens += Math.max(0, Number(stage4Tokens.completion_tokens) || 0);
+      loungeSofaTraitStage.total_tokens += Math.max(0, Number(stage4Tokens.total_tokens) || 0);
+      loungeSofaTraitStage.estimated_total_cost_usd = Number((
+        loungeSofaTraitStage.estimated_total_cost_usd + Math.max(0, Number(image?.cost?.stage_4_usd) || 0)
+      ).toFixed(6));
+    }
     const fieldConfigs = getTraitFieldConfigs(categoryKey);
     const allowedValueLookup = buildAllowedValueLookup(categoryKey);
     const normalizedTraits = {};
@@ -312,6 +366,36 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
 
       if (isLoungeBackTraitWithBack) {
         supplementalMetrics.push(ensureSupplementalMetric(traitSummary, "lounge_with_backs", "with backs"));
+      }
+
+      const isLoungeSeatConstructionTrait = (
+        categoryKey === "lounge_chair" &&
+        field.field === "seat_construction"
+      );
+      if (isLoungeSeatConstructionTrait) {
+        const metric = ensureSupplementalMetric(
+          traitSummary,
+          "lounge_multi_seat_sofas",
+          "double/triple seat sofas"
+        );
+        if (isLoungeSofaTraitApplicable(enumFields)) {
+          supplementalMetrics.push(metric);
+        }
+      }
+
+      const isLoungeArmFormTrait = (
+        categoryKey === "lounge_chair" &&
+        (field.field === "narrow_arms" || field.field === "arms_flush_with_back")
+      );
+      if (isLoungeArmFormTrait) {
+        const metric = ensureSupplementalMetric(
+          traitSummary,
+          "lounge_multi_seat_sofas_with_arms",
+          "double/triple seat sofas with arms"
+        );
+        if (isLoungeSofaArmTraitApplicable(enumFields)) {
+          supplementalMetrics.push(metric);
+        }
       }
 
       supplementalMetrics.forEach((metric) => {
@@ -403,8 +487,11 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
                 ? Math.round((metric.populated_count / metric.total_count) * 100)
                 : 0
             }));
+          const hasApplicabilityMetrics = supplementalMetrics.length > 0;
           const primaryIssueMetric = supplementalMetrics.find((metric) => Number(metric.total_count || 0) > 0) || null;
-          const issueCoverageRate = primaryIssueMetric ? primaryIssueMetric.coverage_rate : coverageRate;
+          const issueCoverageRate = hasApplicabilityMetrics
+            ? (primaryIssueMetric ? primaryIssueMetric.coverage_rate : 1)
+            : coverageRate;
           const belowThreshold = issueCoverageRate < TRAIT_HEALTH_COVERAGE_THRESHOLD;
           const droppedVsPrevious = deltaRate !== null && deltaRate <= (-1 * TRAIT_HEALTH_DROP_THRESHOLD);
           return {
@@ -417,7 +504,9 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
             delta_percent: deltaRate === null ? null : Math.round(deltaRate * 100),
             issue_coverage_rate: issueCoverageRate,
             issue_coverage_percent: Math.round(issueCoverageRate * 100),
-            issue_basis: primaryIssueMetric ? primaryIssueMetric.key : "all_images",
+            issue_basis: primaryIssueMetric
+              ? primaryIssueMetric.key
+              : (hasApplicabilityMetrics ? "not_applicable" : "all_images"),
             supplemental_metrics: supplementalMetrics,
             issue: belowThreshold || droppedVsPrevious
           };
@@ -484,6 +573,15 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
       Number(right.failed_image_count || 0) - Number(left.failed_image_count || 0) ||
       String(left.product_name || left.product_id).localeCompare(String(right.product_name || right.product_id))
     )),
+    lounge_sofa_trait_stage: {
+      ...loungeSofaTraitStage,
+      average_cost_usd_per_eligible_image: loungeSofaTraitStage.eligible_image_count
+        ? Number((loungeSofaTraitStage.estimated_total_cost_usd / loungeSofaTraitStage.eligible_image_count).toFixed(6))
+        : 0,
+      average_total_tokens_per_eligible_image: loungeSofaTraitStage.eligible_image_count
+        ? Number((loungeSofaTraitStage.total_tokens / loungeSofaTraitStage.eligible_image_count).toFixed(1))
+        : 0
+    },
     supported_categories: [...ACTIVE_SEATING_TYPE_KEYS]
   };
 }

@@ -2714,6 +2714,10 @@ function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
       if (!normalized || ["unknown", "n/a"].includes(normalized.toLowerCase())) {
         return "";
       }
+      // Structured yes/no traits must use affirmative descriptors (e.g.,
+      // narrow_arms uses "Narrower"/"Wider", not "Yes"/"No") so legitimate
+      // negative answers don't match this filter. See narrow_arms and
+      // arms_flush_with_back for canonical examples.
       if (/\b(no|none|not visible|concealed|unknown|without|absent|hidden)\b/i.test(normalized)) {
         return "";
       }
