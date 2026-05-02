@@ -10,6 +10,7 @@ import {
   readJson,
   writeJson
 } from "./utils.js";
+import { getLoungeSofaTraitApplicability } from "./lounge-sofa-traits.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,19 +76,6 @@ function normalizeTraitValueAgainstSchema(value = "", allowedValues = new Map())
     return "";
   }
   return allowedValues.get(normalized) || "";
-}
-
-function isLoungeSofaConfiguration(value = "") {
-  const normalized = normalizeValue(value);
-  return normalized === "double seat" || normalized === "triple seat (or larger)";
-}
-
-function isLoungeSofaTraitApplicable(enumFields = {}) {
-  return isLoungeSofaConfiguration(enumFields?.configuration);
-}
-
-function isLoungeSofaArmTraitApplicable(enumFields = {}) {
-  return isLoungeSofaTraitApplicable(enumFields) && normalizeValue(enumFields?.arm_option) !== "armless";
 }
 
 function hasExtractedLoungeSofaTraits(enumFields = {}) {
@@ -297,7 +285,8 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
     }
 
     const enumFields = image?.enum_fields && typeof image.enum_fields === "object" ? image.enum_fields : {};
-    if (categoryKey === "lounge_chair" && isLoungeSofaTraitApplicable(enumFields)) {
+    const loungeSofaApplicability = getLoungeSofaTraitApplicability(categoryKey, enumFields);
+    if (loungeSofaApplicability.eligible) {
       loungeSofaTraitStage.eligible_image_count += 1;
       const stageStatus = String(image?.post_stage23_lounge_sofa_traits?.status || "").trim().toLowerCase();
       if (stageStatus === "not_applicable") {
@@ -307,7 +296,10 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
       } else if (stageStatus === "extracted" || hasExtractedLoungeSofaTraits(enumFields)) {
         loungeSofaTraitStage.extracted_image_count += 1;
       } else {
-        const inferredNotApplicable = !isLoungeSofaArmTraitApplicable(enumFields) && isMissingValue(enumFields?.seat_construction);
+        const inferredNotApplicable = !loungeSofaApplicability.seat_construction
+          && !loungeSofaApplicability.narrow_arms
+          && !loungeSofaApplicability.arms_flush_with_back
+          && isMissingValue(enumFields?.seat_construction);
         if (inferredNotApplicable) {
           loungeSofaTraitStage.not_applicable_image_count += 1;
         } else {
@@ -332,8 +324,8 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
       const rawValue = enumFields[field.field];
       const rawText = String(rawValue ?? "").trim();
       const traitSummary = category.trait_health.traits[field.field];
-      traitSummary.total_count += 1;
       const supplementalMetrics = [];
+      let traitApplicable = true;
       const isBenchBackFinishWithBack = (
         categoryKey === "bench" &&
         field.field === "back_finish" &&
@@ -373,12 +365,13 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
         field.field === "seat_construction"
       );
       if (isLoungeSeatConstructionTrait) {
+        traitApplicable = loungeSofaApplicability.seat_construction;
         const metric = ensureSupplementalMetric(
           traitSummary,
           "lounge_multi_seat_sofas",
-          "double/triple seat sofas"
+          "applicable lounge sofas"
         );
-        if (isLoungeSofaTraitApplicable(enumFields)) {
+        if (loungeSofaApplicability.seat_construction) {
           supplementalMetrics.push(metric);
         }
       }
@@ -388,19 +381,33 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
         (field.field === "narrow_arms" || field.field === "arms_flush_with_back")
       );
       if (isLoungeArmFormTrait) {
+        traitApplicable = field.field === "narrow_arms"
+          ? loungeSofaApplicability.narrow_arms
+          : loungeSofaApplicability.arms_flush_with_back;
         const metric = ensureSupplementalMetric(
           traitSummary,
           "lounge_multi_seat_sofas_with_arms",
-          "double/triple seat sofas with arms"
+          "applicable lounge sofas with arms"
         );
-        if (isLoungeSofaArmTraitApplicable(enumFields)) {
+        if (field.field === "narrow_arms" && loungeSofaApplicability.narrow_arms) {
+          supplementalMetrics.push(metric);
+        }
+        if (field.field === "arms_flush_with_back" && loungeSofaApplicability.arms_flush_with_back) {
           supplementalMetrics.push(metric);
         }
       }
 
+      if (traitApplicable) {
+        traitSummary.total_count += 1;
+      }
       supplementalMetrics.forEach((metric) => {
         metric.total_count += 1;
       });
+
+      if (!traitApplicable) {
+        normalizedTraits[field.field] = "";
+        return;
+      }
 
       if (isMissingValue(rawText)) {
         normalizedTraits[field.field] = "";

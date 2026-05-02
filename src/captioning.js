@@ -19,6 +19,13 @@ import {
   uniqueStrings
 } from "./utils.js";
 import { extractQueryTraits } from "./query-traits.js";
+import {
+  getLoungeSofaTraitApplicability,
+  hasAnyApplicableLoungeSofaTraits,
+  hasIntegratedBase,
+  isArmlessLoungeSofa,
+  isLoungeSofaTraitEligible
+} from "./lounge-sofa-traits.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -52,12 +59,6 @@ const PIXELSEEK_TYPE_TO_ROUTING_KEY = Object.freeze({
   "Stools": "stool",
   "Benches": "bench"
 });
-const LOUNGE_SOFA_CONFIGURATION_VALUES = new Set([
-  "double seat",
-  "triple seat (or larger)"
-]);
-const LOUNGE_SOFA_ARMLESS_VALUES = new Set(["armless", "no arms"]);
-const LOUNGE_SOFA_MONOLITHIC_BASE_VALUES = new Set(["integrated base", "molded one-piece"]);
 const LOUNGE_SOFA_NARROW_ARMS_THRESHOLD_PCT = 18;
 const LOUNGE_SOFA_FLUSH_WITH_BACK_MAX_DROP_PCT = 5;
 const LOUNGE_SOFA_TRAIT_PROMPT_HEADER = `Analyze the sofa image and report the following:
@@ -895,39 +896,6 @@ function isStage23DetectableField(field = {}) {
 
 function getStage23TypeFields(typeKey = "") {
   return getTypeFields(typeKey).filter((entry) => isStage23DetectableField(entry));
-}
-
-function isLoungeSofaTraitEligible(typeKey = "", imageTraits = {}) {
-  if (String(typeKey || "").trim().toLowerCase() !== "lounge_chair") {
-    return false;
-  }
-  const configuration = String(imageTraits?.configuration || "").trim().toLowerCase();
-  return LOUNGE_SOFA_CONFIGURATION_VALUES.has(configuration);
-}
-
-function isArmlessLoungeSofa(imageTraits = {}) {
-  return LOUNGE_SOFA_ARMLESS_VALUES.has(String(imageTraits?.arm_option || "").trim().toLowerCase());
-}
-
-function hasIntegratedBase(imageTraits = {}) {
-  return LOUNGE_SOFA_MONOLITHIC_BASE_VALUES.has(String(imageTraits?.base_type || "").trim().toLowerCase());
-}
-
-function getLoungeSofaTraitApplicability(typeKey = "", imageTraits = {}) {
-  const eligible = isLoungeSofaTraitEligible(typeKey, imageTraits);
-  const seatConstruction = eligible && !hasIntegratedBase(imageTraits);
-  const armTraits = eligible && !isArmlessLoungeSofa(imageTraits);
-
-  return {
-    eligible,
-    seat_construction: seatConstruction,
-    narrow_arms: armTraits,
-    arms_flush_with_back: armTraits
-  };
-}
-
-function hasAnyApplicableLoungeSofaTraits(applicability = {}) {
-  return Boolean(applicability?.seat_construction || applicability?.narrow_arms || applicability?.arms_flush_with_back);
 }
 
 function countApplicableLoungeSofaTraits(applicability = {}) {

@@ -399,6 +399,71 @@ test("lounge sofa stage traits use applicable denominators and surface stage cos
         cost: {
           stage_4_usd: 0
         }
+      },
+      {
+        product_id: "fixture_lounge_integrated_base",
+        product_name: "Fixture Lounge Integrated Base",
+        image_url: "https://example.com/lounge-integrated-base.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          arm_option: "Two arms",
+          back_finish: "Matches seat",
+          back_height: "Low",
+          base_finish: "Black",
+          base_type: "Integrated base",
+          body_construction: "Upholstered",
+          configuration: "Double seat",
+          design_register: "Minimal",
+          plan_shape: "Square / rectangular",
+          seat_finish: "Fabric",
+          shape_character: "Boxy",
+          narrow_arms: "Narrower",
+          arms_flush_with_back: "Below Back"
+        },
+        tokens: {
+          stage_4: {
+            prompt_tokens: 0,
+            completion_tokens: 0,
+            total_tokens: 0
+          }
+        },
+        cost: {
+          stage_4_usd: 0
+        }
+      },
+      {
+        product_id: "fixture_lounge_armless_sofa",
+        product_name: "Fixture Lounge Armless Sofa",
+        image_url: "https://example.com/lounge-armless-sofa.jpg",
+        stage_0_result: "product",
+        effective_classification: "product",
+        seating_type: "lounge_chair",
+        enum_fields: {
+          arm_option: "Armless",
+          back_finish: "Matches seat",
+          back_height: "Low",
+          base_finish: "Black",
+          base_type: "4-leg",
+          body_construction: "Upholstered",
+          configuration: "Triple seat (or larger)",
+          design_register: "Minimal",
+          plan_shape: "Square / rectangular",
+          seat_finish: "Fabric",
+          shape_character: "Boxy",
+          seat_construction: "Cushion Only"
+        },
+        tokens: {
+          stage_4: {
+            prompt_tokens: 0,
+            completion_tokens: 0,
+            total_tokens: 0
+          }
+        },
+        cost: {
+          stage_4_usd: 0
+        }
       }
     ],
     products: []
@@ -412,9 +477,9 @@ test("lounge sofa stage traits use applicable denominators and surface stage cos
   assert.deepEqual(seatConstructionTrait.supplemental_metrics, [
     {
       key: "lounge_multi_seat_sofas",
-      label: "double/triple seat sofas",
-      populated_count: 1,
-      total_count: 1,
+      label: "applicable lounge sofas",
+      populated_count: 2,
+      total_count: 2,
       coverage_rate: 1,
       coverage_percent: 100
     }
@@ -427,9 +492,9 @@ test("lounge sofa stage traits use applicable denominators and surface stage cos
   assert.deepEqual(narrowArmsTrait.supplemental_metrics, [
     {
       key: "lounge_multi_seat_sofas_with_arms",
-      label: "double/triple seat sofas with arms",
-      populated_count: 1,
-      total_count: 1,
+      label: "applicable lounge sofas with arms",
+      populated_count: 2,
+      total_count: 2,
       coverage_rate: 1,
       coverage_percent: 100
     }
@@ -437,16 +502,16 @@ test("lounge sofa stage traits use applicable denominators and surface stage cos
   assert.equal(narrowArmsTrait.issue, false);
 
   assert.deepEqual(diagnostics.lounge_sofa_trait_stage, {
-    eligible_image_count: 1,
-    extracted_image_count: 1,
+    eligible_image_count: 3,
+    extracted_image_count: 3,
     not_applicable_image_count: 0,
     failed_image_count: 0,
     prompt_tokens: 100,
     completion_tokens: 20,
     total_tokens: 120,
     estimated_total_cost_usd: 0.012,
-    average_cost_usd_per_eligible_image: 0.012,
-    average_total_tokens_per_eligible_image: 120
+    average_cost_usd_per_eligible_image: 0.004,
+    average_total_tokens_per_eligible_image: 40
   });
 });
 
