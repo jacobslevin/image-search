@@ -30,6 +30,8 @@ Versioning:
 
 Production should be answerable by: “whatever tag is latest on `main`.”
 
+After cloning, request `data/image-index.json` separately. It is gitignored due to size and is managed out-of-band by the sysadmin.
+
 ## Pull Requests
 
 Before merge:
