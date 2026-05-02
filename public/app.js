@@ -4293,6 +4293,7 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   );
   const imageAnalysis = {
     image_preview_url: source.image_url || heroSource.image_url || result.best_image_url || "",
+    reference_image_mode: "stored",
     seating_type: seatingType,
     stage1: { seating_type: seatingType || "" },
     image_traits: enumFields,
@@ -4319,6 +4320,7 @@ async function searchFromStoredImage(result = {}, matchingImage = null) {
   }
 
   setSearchInputValue(context.query);
+  state.focusArea = null;
   state.refinementLoading = true;
   renderRefineSidebar();
   renderResults(state.lastPayload, state.lastQuery);
@@ -4884,7 +4886,12 @@ function applyRefineSelectedImageCrop(imageElement, wrapElement, imageUrl, focus
   }
   imageElement.src = imageUrl;
   const area = normalizeFocusArea(focusArea);
-  if (!area) {
+  const isFullImageArea = area
+    && Math.abs(area.x) < 0.0001
+    && Math.abs(area.y) < 0.0001
+    && Math.abs(area.width - 1) < 0.0001
+    && Math.abs(area.height - 1) < 0.0001;
+  if (!area || isFullImageArea) {
     wrapElement.style.aspectRatio = "";
     imageElement.style.position = "";
     imageElement.style.width = "100%";
@@ -6319,7 +6326,8 @@ function renderRefineSidebar() {
     const selectedImageUrl = String(state.currentImageAnalysis?.image_preview_url || state.cropPreviewUrl || "").trim();
     elements.refineSelectedImageWrap.hidden = !selectedImageUrl;
     if (elements.reopenFocusOverlay) {
-      elements.reopenFocusOverlay.hidden = true;
+      const referenceMode = String(state.currentImageAnalysis?.reference_image_mode || "").trim().toLowerCase();
+      elements.reopenFocusOverlay.hidden = !selectedImageUrl || referenceMode === "stored";
     }
     if (selectedImageUrl) {
       applyRefineSelectedImageCrop(
@@ -8078,6 +8086,12 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       });
     }
     analysis = analysisPayload?.analysis || null;
+    if (analysis && typeof analysis === "object") {
+      analysis = {
+        ...analysis,
+        reference_image_mode: "uploaded"
+      };
+    }
     updateClarificationConflict(getPrimaryClarificationConflict(analysis));
     const selectedBullets = normalizeSelectedBullets(bulletsFromAnalysis(analysis));
     const bulletControls = buildBulletControlsFromBullets(selectedBullets);
