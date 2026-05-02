@@ -535,14 +535,16 @@ function traitFieldWeightScale(typeKey = "", field = "") {
 
 function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
   const enumFieldValues = collectEnumFieldValueMap(record);
+  const enumFieldSource = record?.enum_fields || record?.image_traits || {};
   const priorityWeights = { essential: 0.35, normal: 0.1, low: 0.05 };
   const isExactSourceImage = Boolean(options.isExactSourceImage);
   const typeKey = String(record?.stage1?.seating_type || record?.seating_type || "").trim().toLowerCase();
   const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets, typeKey);
 
   const matched = [];
+  const matchedFields = [];
+  const contributions = new Map();
   const seen = new Set();
-  let weightedBoost = 0;
 
   for (const priority of ["essential", "normal", "low"]) {
     for (const bullet of bulletsByPriority[priority]) {
@@ -555,34 +557,75 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
       seen.add(normalizedBullet);
       const weightScale = parsedBullet ? traitFieldWeightScale(typeKey, parsedBullet.field) : (isBaseFinishBullet(rawBullet) ? 0.5 : 1);
       const storedValue = parsedBullet ? enumFieldValues.get(parsedBullet.field) : "";
+      const rawStoredValue = parsedBullet ? String(enumFieldSource?.[parsedBullet.field] ?? "").trim() : "";
       const matchesTraitValue = Boolean(parsedBullet && storedValue === parsedBullet.value);
+      let contributionValue = 0;
+      let contributionState = "neutral";
 
       if (matchesTraitValue) {
         if (!isAbsenceStyleMatchReason(rawBullet)) {
           matched.push(rawBullet);
+          matchedFields.push(parsedBullet.field);
         }
-        weightedBoost += priorityWeights[priority] * weightScale;
-        continue;
-      }
-
-      if ((priority === "essential" || priority === "normal") && !isExactSourceImage) {
+        contributionValue = priorityWeights[priority] * weightScale;
+        contributionState = "hit";
+      } else if ((priority === "essential" || priority === "normal") && !isExactSourceImage) {
         const groupedMiss = Boolean(
           parsedBullet &&
           storedValue &&
           sharesGroup(typeKey, parsedBullet.field, storedValue, parsedBullet.value)
         );
-        weightedBoost += (
+        contributionValue = (
           priority === "essential"
             ? essentialMissPenalty(rawBullet, { grouped: groupedMiss })
             : normalMissPenalty({ grouped: groupedMiss })
         ) * weightScale;
+        contributionState = groupedMiss ? "near-miss" : "miss";
+      }
+
+      if (parsedBullet) {
+        contributions.set(parsedBullet.field, {
+          field: parsedBullet.field,
+          raw_bullet: rawBullet,
+          expected_value: parsedBullet.value,
+          stored_value: rawStoredValue,
+          priority,
+          state: contributionState,
+          contribution: contributionValue,
+          bonus: 0
+        });
       }
     }
   }
 
+  const matchBonus = matched.length >= 3 ? 0.15 : 0;
+  if (matchBonus && matchedFields.length) {
+    const bonusField = matchedFields[0];
+    const existing = contributions.get(bonusField);
+    if (existing) {
+      existing.contribution += matchBonus;
+      existing.bonus += matchBonus;
+      contributions.set(bonusField, existing);
+    }
+  }
+
+  const contributionObject = Object.fromEntries(
+    [...contributions.entries()].map(([field, detail]) => [
+      field,
+      {
+        ...detail,
+        contribution: Number(detail.contribution.toFixed(4)),
+        bonus: Number(detail.bonus.toFixed(4))
+      }
+    ])
+  );
+  const totalValue = [...contributions.values()].reduce((sum, detail) => sum + Number(detail.contribution || 0), 0);
+
   return {
-    value: weightedBoost + (matched.length >= 3 ? 0.15 : 0),
-    matched
+    value: Number(totalValue.toFixed(6)),
+    matched,
+    contributions: contributionObject,
+    bonus: Number(matchBonus.toFixed(4))
   };
 }
 
@@ -897,6 +940,8 @@ export async function searchIndex({
           { label: "final score", value: Number(finalScore.toFixed(4)) }
         ],
         matched_traits: traitBoost.matched,
+        trait_contributions: traitBoost.contributions,
+        trait_boost_bonus: traitBoost.bonus,
         mismatch_traits: [],
         is_exact_source_image: isExactSourceImage,
         is_room_scene: Boolean(record.is_room_scene),

@@ -1553,21 +1553,6 @@ const DEBUG_SCORE_CORE_HEADERS = [
   { key: "source", label: "Source bonus", className: "debug-score-number" }
 ];
 
-const DEBUG_NEAR_MANDATORY_TERMS = [
-  "lumbar",
-  "caster",
-  "casters",
-  "wheel",
-  "wheels",
-  "mesh back",
-  "mesh backrest",
-  "angled metal legs",
-  "thin angled metal legs",
-  "curved armrests",
-  "slim curved armrests",
-  "rounded seat cushion"
-];
-
 const INLINE_REFINEMENT_EXCLUDED_FIELDS = new Set([]);
 
 const INLINE_REFINEMENT_LABELS = new Map([
@@ -1926,72 +1911,6 @@ function traitFieldWeightScale(typeKey = "", field = "") {
   return 1;
 }
 
-function essentialMissPenaltyValue(bulletValue = "") {
-  const normalized = String(bulletValue || "").trim().toLowerCase();
-  if (DEBUG_NEAR_MANDATORY_TERMS.some((term) => normalized.includes(term))) {
-    return -0.55;
-  }
-  return -0.2;
-}
-
-function normalMissPenaltyValue(grouped = false) {
-  return grouped ? -0.03 : -0.06;
-}
-
-function debugTraitValuesShareGroup(typeKey = "", field = "", value1 = "", value2 = "") {
-  const fieldConfig = getTraitFieldConfig(typeKey, field);
-  const groups = Array.isArray(fieldConfig?.groups) ? fieldConfig.groups : [];
-  const normalizedValue1 = normalizeTraitValue(value1);
-  const normalizedValue2 = normalizeTraitValue(value2);
-
-  if (!normalizedValue1 || !normalizedValue2 || normalizedValue1 === normalizedValue2 || !groups.length) {
-    return false;
-  }
-
-  return groups.some((group) => {
-    if (!Array.isArray(group)) {
-      return false;
-    }
-    const normalizedGroup = group.map((value) => normalizeTraitValue(value)).filter(Boolean);
-    return normalizedGroup.includes(normalizedValue1) && normalizedGroup.includes(normalizedValue2);
-  });
-}
-
-function computeDebugTraitContribution(queryEntry, storedValue, typeKey = null) {
-  if (!queryEntry) {
-    return { state: "neutral", contribution: 0 };
-  }
-
-  const normalizedStored = String(storedValue || "").trim().toLowerCase();
-  const normalizedExpected = String(queryEntry.value || "").trim().toLowerCase();
-  const weightScale = traitFieldWeightScale(typeKey, queryEntry.field);
-
-  if (normalizedStored && normalizedStored === normalizedExpected) {
-    const base = queryEntry.priority === "essential" ? 0.35 : queryEntry.priority === "low" ? 0.05 : 0.1;
-    return {
-      state: "hit",
-      contribution: Number((base * weightScale).toFixed(3))
-    };
-  }
-
-  if (queryEntry.priority === "essential" || queryEntry.priority === "normal") {
-    const groupedMiss = debugTraitValuesShareGroup(typeKey, queryEntry.field, storedValue, queryEntry.value);
-    return {
-      state: groupedMiss ? "near-miss" : "miss",
-      contribution: Number(((
-        queryEntry.priority === "essential"
-          ? essentialMissPenaltyValue(queryEntry.value) * (groupedMiss ? 0.5 : 1)
-          : normalMissPenaltyValue(groupedMiss)
-      ) * weightScale).toFixed(3))
-    };
-  }
-
-  return {
-    state: "miss",
-    contribution: 0
-  };
-}
-
 function formatContribution(value = 0) {
   const numeric = Number(value || 0);
   if (!numeric) {
@@ -2118,6 +2037,7 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
         ""
       ).trim(),
       enumFields: heroImage.enum_fields || result.debug?.image_traits || {},
+      traitContributions: heroImage.trait_contributions || result.debug?.trait_contributions || {},
       matchedTraits: heroImage.matched_traits || result.matched_traits || [],
       scoreBreakdown: breakdown
     });
@@ -2318,9 +2238,11 @@ async function renderDebugLightbox() {
     debugScoreFields.forEach((field) => {
       const td = document.createElement("td");
       const queryEntry = queryBulletMap.get(field);
-      const storedValue = String(row.enumFields?.[field] || "").trim();
-      const contribution = computeDebugTraitContribution(queryEntry, storedValue, row.seatingType);
-      columnTotals.set(field, Number((columnTotals.get(field) + contribution.contribution).toFixed(3)));
+      const detail = row.traitContributions?.[field] || null;
+      const storedValue = String(detail?.stored_value || row.enumFields?.[field] || "").trim();
+      const contributionValue = Number(detail?.contribution || 0);
+      const contributionState = String(detail?.state || (queryEntry ? "miss" : "neutral")).trim();
+      columnTotals.set(field, Number((columnTotals.get(field) + contributionValue).toFixed(3)));
 
       if (!queryEntry) {
         td.className = "debug-score-cell-neutral";
@@ -2331,14 +2253,14 @@ async function renderDebugLightbox() {
         meta.className = "debug-score-cell-meta";
         meta.textContent = "0";
         td.append(value, meta);
-      } else if (contribution.state === "hit") {
+      } else if (contributionState === "hit") {
         td.className = "debug-score-cell-hit";
         const value = document.createElement("span");
         value.className = "debug-score-cell-value";
         value.textContent = storedValue;
         const meta = document.createElement("span");
         meta.className = "debug-score-cell-meta";
-        meta.textContent = formatContribution(contribution.contribution);
+        meta.textContent = formatContribution(contributionValue);
         td.append(value, meta);
       } else {
         td.className = "debug-score-cell-miss";
@@ -2347,9 +2269,9 @@ async function renderDebugLightbox() {
         value.textContent = storedValue || "unknown";
         const meta = document.createElement("span");
         meta.className = "debug-score-cell-meta";
-        meta.textContent = contribution.state === "near-miss"
-          ? `near ${formatContribution(contribution.contribution)}`
-          : formatContribution(contribution.contribution);
+        meta.textContent = contributionState === "near-miss"
+          ? `near ${formatContribution(contributionValue)}`
+          : formatContribution(contributionValue);
         td.append(value, meta);
       }
 
@@ -2429,15 +2351,17 @@ function buildDebugTableTsv() {
       Number(row.sourceBonus || 0).toFixed(2),
       ...debugScoreFields.map((field) => {
         const queryEntry = queryBulletMap.get(field);
-        const storedValue = String(row.enumFields?.[field] || "").trim();
-        const contribution = computeDebugTraitContribution(queryEntry, storedValue, row.seatingType);
+        const detail = row.traitContributions?.[field] || null;
+        const storedValue = String(detail?.stored_value || row.enumFields?.[field] || "").trim();
+        const contributionValue = Number(detail?.contribution || 0);
+        const contributionState = String(detail?.state || (queryEntry ? "miss" : "neutral")).trim();
         if (!storedValue && !queryEntry) {
           return "";
         }
         if (!storedValue) {
-          return `unknown (${formatContribution(contribution.contribution)})`;
+          return `unknown (${contributionState === "near-miss" ? `near ${formatContribution(contributionValue)}` : formatContribution(contributionValue)})`;
         }
-        return `${storedValue} (${formatContribution(contribution.contribution)})`;
+        return `${storedValue} (${contributionState === "near-miss" ? `near ${formatContribution(contributionValue)}` : formatContribution(contributionValue)})`;
       })
     ];
     lines.push(values.join("\t"));
@@ -4225,10 +4149,6 @@ function getTraitFieldConfig(typeKey, fieldName) {
 }
 
 function getFieldPriority(typeKey = "", fieldName = "") {
-  const normalizedField = normalizeTraitFieldKey(fieldName);
-  if (String(typeKey || "").trim().toLowerCase() === "lounge_chair" && normalizedField === "arms_flush_with_back") {
-    return "essential";
-  }
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
