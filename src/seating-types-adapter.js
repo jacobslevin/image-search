@@ -29,16 +29,16 @@ function toLegacyFieldShape(field = {}) {
     allowed_values: cloneValue(field.allowed_values || [])
   };
 
-  if (field.priority !== undefined) {
-    legacy.priority = field.priority;
-  }
-
   if (Array.isArray(field.groups) && field.groups.length) {
     legacy.groups = cloneValue(field.groups);
   }
 
   if (field.value_definitions && typeof field.value_definitions === "object") {
     legacy.value_definitions = cloneValue(field.value_definitions);
+  }
+
+  if (field.priority !== undefined) {
+    legacy.priority = field.priority;
   }
 
   return legacy;

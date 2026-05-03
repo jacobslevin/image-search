@@ -20,6 +20,7 @@ test("adapter output deep-matches the existing seating-types.json file", () => {
   const expected = readJson(path.join(process.cwd(), "data", "seating-types.json"));
   const actual = loadSeatingTypesAdapter({ forceReload: true });
   assert.deepStrictEqual(actual, expected);
+  assert.equal(JSON.stringify(actual), JSON.stringify(expected));
 });
 
 test("adapter preserves seating category field counts and field ordering", () => {
