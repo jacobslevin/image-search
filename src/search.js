@@ -56,6 +56,16 @@ function resolveRecordVisualType(record = {}) {
   );
 }
 
+function addVisualTypeToStage1(stage1 = {}, fallbackVisualType = "") {
+  if (!stage1 || typeof stage1 !== "object") {
+    return stage1;
+  }
+  return {
+    ...stage1,
+    visual_type: normalizeVisualTypeKey(stage1.visual_type || stage1.seating_type || fallbackVisualType || "")
+  };
+}
+
 function buildTraitFieldConfigIndex(types = {}) {
   const index = new Map();
   Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
@@ -980,6 +990,7 @@ export async function searchIndex({
       stage_0_result: image.stage_0_result,
       effective_classification: getEffectiveClassification(image),
       seating_type: image.seating_type,
+      visual_type: resolveRecordVisualType(image),
       score: image.score,
       score_breakdown: image.score_breakdown || [],
       confidence_tier: image.confidence_tier,
@@ -1025,7 +1036,7 @@ export async function searchIndex({
           detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
           visual_traits: image.visual_traits,
           image_traits: image.image_traits || {},
-          stage1: image.stage1 || { seating_type: image.seating_type || "" },
+          stage1: addVisualTypeToStage1(image.stage1 || { seating_type: image.seating_type || "" }, resolveRecordVisualType(image)),
           stage2: image.stage2 || { visual_summary: image.visual_summary || "" }
         },
         contributing_images: 1,
@@ -1069,7 +1080,7 @@ export async function searchIndex({
         detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
         visual_traits: image.visual_traits,
         image_traits: image.image_traits || {},
-        stage1: image.stage1 || { seating_type: image.seating_type || "" },
+        stage1: addVisualTypeToStage1(image.stage1 || { seating_type: image.seating_type || "" }, resolveRecordVisualType(image)),
         stage2: image.stage2 || { visual_summary: image.visual_summary || "" }
       };
       existing.scene_filter = buildSceneFilterBadge(image, image.image_url);

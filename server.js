@@ -30,11 +30,13 @@ import {
   getUnmappedCategoryDecisionsPath,
   getLeafCategories,
   normalizeImageClassification,
+  normalizeVisualTypeKey,
   resolveVisualType,
   readJson,
   writeJson
 } from "./src/utils.js";
 import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
+import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +59,8 @@ const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
 const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
+const visualTypesRegistry = loadVisualTypesRegistry();
+const visualTypeLegacyAliases = visualTypesRegistry.legacyAliases || {};
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const PROMPT_LIBRARY_STAGE23_TYPES = [
   "lounge_chair",
@@ -861,6 +865,54 @@ function isAllVisualTypeRequest(input = null) {
   return false;
 }
 
+function resolvePayloadVisualType(payload = {}) {
+  return normalizeVisualTypeKey(
+    payload?.visual_type ||
+    payload?.seating_type ||
+    payload?.stage1?.visual_type ||
+    payload?.stage1?.seating_type ||
+    ""
+  );
+}
+
+function addVisualTypeField(payload = {}) {
+  return {
+    ...payload,
+    visual_type: resolvePayloadVisualType(payload)
+  };
+}
+
+function addVisualTypeToAnalysisPayload(analysis = {}) {
+  const visualType = resolvePayloadVisualType(analysis);
+  return {
+    ...analysis,
+    visual_type: visualType,
+    stage1: analysis?.stage1 && typeof analysis.stage1 === "object"
+      ? {
+          ...analysis.stage1,
+          visual_type: normalizeVisualTypeKey(analysis.stage1.visual_type || analysis.stage1.seating_type || visualType || "")
+        }
+      : analysis?.stage1
+  };
+}
+
+function addVisualTypeToRecordPayload(record = {}) {
+  if (!record || typeof record !== "object") {
+    return record;
+  }
+  const visualType = resolvePayloadVisualType(record);
+  return {
+    ...record,
+    visual_type: visualType,
+    stage1: record?.stage1 && typeof record.stage1 === "object"
+      ? {
+          ...record.stage1,
+          visual_type: normalizeVisualTypeKey(record.stage1.visual_type || record.stage1.seating_type || visualType || "")
+        }
+      : record?.stage1
+  };
+}
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -984,6 +1036,7 @@ function buildEvalCandidateProfile(record = {}) {
     brand: String(record.brand || "").trim(),
     category: String(record.category || "").trim(),
     seating_type: String(record.seating_type || "").trim(),
+    visual_type: normalizeVisualTypeKey(record.visual_type || record.seating_type || ""),
     visual_summary: String(record.visual_summary || "").trim(),
     traits: [...traitSet].sort()
   };
@@ -1915,6 +1968,7 @@ function cloneRefreshDiagnostics(value = null) {
     last_attempted_at: String(value.last_attempted_at || "").trim(),
     ai_refreshed_at: String(value.ai_refreshed_at || "").trim(),
     seating_type: String(value.seating_type || "").trim(),
+    visual_type: normalizeVisualTypeKey(value.visual_type || value.seating_type || ""),
     stage0_passing_count: Math.max(0, Number(value.stage0_passing_count) || 0),
     selected_product_image_count: Math.max(0, Number(value.selected_product_image_count) || 0),
     successful_extraction_count: Math.max(0, Number(value.successful_extraction_count) || 0),
@@ -2171,6 +2225,7 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     last_attempted_at: refreshedAt,
     ai_refreshed_at: refreshedAt,
     seating_type: representativeSeatingType,
+    visual_type: normalizeVisualTypeKey(representativeProductImage?.visual_type || representativeSeatingType || ""),
     stage0_passing_count: stage0PassingCount,
     selected_product_image_count: selectedProductImageCount,
     successful_extraction_count: successfulExtractionCount,
@@ -2189,6 +2244,7 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     caption_model_version: "openai:gpt-4.1",
     ai_refreshed_at: refreshedAt,
     seating_type: representativeSeatingType,
+    visual_type: normalizeVisualTypeKey(representativeProductImage?.visual_type || representativeSeatingType || ""),
     images: refreshedImages,
     progress: {
       product_cost_usd: productCostUsd,
@@ -2661,6 +2717,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
           stage_0_result: image.stage_0_result,
           effective_classification: getEffectiveClassification(image),
           seating_type: image.seating_type,
+          visual_type: normalizeVisualTypeKey(image.visual_type || image.seating_type || ""),
           matched_traits: image.matched_traits || [],
           trait_contributions: image.trait_contributions || {},
           enum_fields: image.enum_fields || image.image_traits || {},
@@ -2676,6 +2733,7 @@ function buildBrowseResults(catalog, index, limit = Infinity, sort = "auto", cat
               stage_0_result: heroImage.stage_0_result,
               effective_classification: getEffectiveClassification(heroImage),
               seating_type: heroImage.seating_type,
+              visual_type: normalizeVisualTypeKey(heroImage.visual_type || heroImage.seating_type || ""),
               matched_traits: heroImage.matched_traits || [],
               trait_contributions: heroImage.trait_contributions || {},
               enum_fields: heroImage.enum_fields || heroImage.image_traits || {},
@@ -2761,6 +2819,10 @@ const server = http.createServer(async (request, response) => {
       image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
       ranking_rules: getRankingRulesSummary(),
       seating_types: seatingTypes,
+      visual_types: seatingTypes,
+      seating_category_options: Object.keys(seatingTypes),
+      visual_type_options: Object.keys(seatingTypes),
+      legacy_aliases: visualTypeLegacyAliases,
       result_cutoff: getResultCutoffConfig()
     });
   }
@@ -2867,6 +2929,7 @@ const server = http.createServer(async (request, response) => {
           query_traits: null
         },
         seating_type_source: "all",
+        visual_type: "",
         total_results: results.length,
         browse_mode: true,
         results
@@ -2910,6 +2973,7 @@ const server = http.createServer(async (request, response) => {
       model: process.env.QUERY_MODEL
     });
     parsed.seating_type = resolvedVisualType || "";
+    parsed.visual_type = resolvedVisualType || "";
     let textQueryTraits = null;
     if (!imageAnalysis) {
       if (!resolvedVisualType) {
@@ -2962,10 +3026,12 @@ const server = http.createServer(async (request, response) => {
       debug,
       parsed,
       seating_type: resolvedVisualType || "",
+      visual_type: resolvedVisualType || "",
       seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
       seating_type_source: seatingTypeSource,
       category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
       seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
+      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
       selected_bullets: effectiveSelectedBullets,
       text_query_traits: textQueryTraits,
       query_embedding: queryEmbedding,
@@ -3071,6 +3137,7 @@ const server = http.createServer(async (request, response) => {
         query_embedding: blendedQueryEmbedding,
         debug,
         parsed,
+        visual_type: visualType || "",
         reranker_used: searchResponse.reranker_used,
         total_results: results.length,
         results
@@ -3331,8 +3398,9 @@ const server = http.createServer(async (request, response) => {
             !seatingTypes[resolvedVisualType]
           ),
           seating_category_options: Object.keys(seatingTypes),
+          visual_type_options: Object.keys(seatingTypes),
           analysis: {
-            ...analysis,
+            ...addVisualTypeToAnalysisPayload(analysis),
             image_preview_url: imageSource
           }
         });
@@ -3342,7 +3410,7 @@ const server = http.createServer(async (request, response) => {
 
       return json(response, 200, {
         analysis: {
-          ...analysis,
+          ...addVisualTypeToAnalysisPayload(analysis),
           trait_conflicts: traitConflicts,
           clarification_conflict: traitConflicts[0] || null,
           image_preview_url: imageSource
@@ -3448,7 +3516,7 @@ const server = http.createServer(async (request, response) => {
         refreshed_images: refreshedImages.length,
         caption_model_version: refreshedImages[0]?.caption_model_version || "",
         ai_refreshed_at: refreshedImages[0]?.ai_refreshed_at || "",
-        images: refreshedImages
+        images: refreshedImages.map((image) => addVisualTypeToRecordPayload(image))
       });
     } catch (error) {
       return json(response, 500, { error: error.message || "Product refresh failed." });
