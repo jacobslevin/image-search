@@ -122,7 +122,7 @@ export function isCategoryScopeBulletText(text = "") {
   }
 
   const field = raw.slice(0, separatorIndex).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_");
-  return field === "seating_type";
+  return field === "seating_type" || field === "visual_type";
 }
 
 export function stripCategoryScopeFromSelectedBullets(selectedBullets = {}) {
@@ -155,7 +155,7 @@ export function buildResultsPageSearch(searchState = {}) {
     .filter(Boolean)
     .forEach((value) => params.append("category", value));
   if (categoryScope.length && categoryScope[0] !== "all") {
-    params.set("seating_type", categoryScope[0]);
+    params.set("visual_type", categoryScope[0]);
   }
   if (refreshAgeFilter) {
     params.set("refresh_age", refreshAgeFilter);

@@ -36,6 +36,21 @@ test("stripCategoryScopeFromSelectedBullets removes legacy seating type bullets"
   );
 });
 
+test("stripCategoryScopeFromSelectedBullets removes canonical visual_type bullets too", () => {
+  assert.deepEqual(
+    stripCategoryScopeFromSelectedBullets({
+      essential: ["Visual Type: stool", "Base Material: wood"],
+      normal: ["Frame: metal"],
+      low: ["visual_type: lounge_chair"]
+    }),
+    {
+      essential: ["Base Material: wood"],
+      normal: ["Frame: metal"],
+      low: []
+    }
+  );
+});
+
 test("buildResultsPageSearch serializes category scope and filters", () => {
   assert.equal(
     buildResultsPageSearch({
@@ -45,6 +60,16 @@ test("buildResultsPageSearch serializes category scope and filters", () => {
       refreshAgeFilter: "1d"
     }),
     "q=chrome+sled+base&category=Lounge+Seating&category=Bench+Seating&refresh_age=1d"
+  );
+});
+
+test("buildResultsPageSearch prefers visual_type for canonical URL state", () => {
+  assert.equal(
+    buildResultsPageSearch({
+      query: "chrome sled base",
+      categoryScope: ["lounge_chair"]
+    }),
+    "q=chrome+sled+base&visual_type=lounge_chair"
   );
 });
 

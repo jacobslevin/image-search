@@ -99,6 +99,25 @@ const state = {
   landingOnlyMode: false
 };
 
+function getBootstrapRoutingTypes(bootstrap = state.bootstrap) {
+  return bootstrap?.visual_types || bootstrap?.seating_types || null;
+}
+
+function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
+  const options = bootstrap?.visual_type_options || bootstrap?.seating_category_options || [];
+  return Array.isArray(options) ? options : [];
+}
+
+function getPayloadVisualType(payload = {}) {
+  return String(
+    payload?.visual_type ||
+    payload?.seating_type ||
+    payload?.stage1?.visual_type ||
+    payload?.stage1?.seating_type ||
+    ""
+  ).trim();
+}
+
 const SEATING_CATEGORY_DISPLAY_NAMES = {
   task_collab_chair: "Work Chairs",
   guest_chair: "Multi-Use / Guest Chairs",
@@ -1044,7 +1063,7 @@ function getBrowseScopedCategoryKey(payload = state.lastPayload, query = state.l
 
 function getBrowseTraitFieldConfigs(categoryKey = "") {
   const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
-  const types = state.bootstrap?.seating_types?.types;
+  const types = getBootstrapRoutingTypes()?.types;
   if (!normalizedCategory || !types?.[normalizedCategory]) {
     return [];
   }
@@ -1059,7 +1078,7 @@ function getCategoryScopedImages(result = {}, categoryKey = "") {
     return [];
   }
   return (Array.isArray(result.matching_images) ? result.matching_images : [])
-    .filter((image) => normalizeSeatingCategoryKey(image?.seating_type) === normalizedCategory);
+    .filter((image) => normalizeSeatingCategoryKey(getPayloadVisualType(image)) === normalizedCategory);
 }
 
 function imageMatchesTraitFilters(image = {}, traitFilters = {}) {
@@ -1433,9 +1452,9 @@ function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
 
 function getResultStage1Category(result = {}) {
   const normalized = normalizeSeatingCategoryKey(
-    result.hero_image?.seating_type ||
-    normalizeMatchingImages(result)[0]?.seating_type ||
-    result.debug?.stage1?.seating_type ||
+    getPayloadVisualType(result.hero_image) ||
+    getPayloadVisualType(normalizeMatchingImages(result)[0]) ||
+    getPayloadVisualType(result.debug?.stage1) ||
     ""
   );
   return normalized;
@@ -1663,12 +1682,12 @@ function buildTraitFieldConfigIndex(seatingTypes) {
 }
 
 function getTraitFieldConfigIndex() {
-  if (!state.bootstrap?.seating_types) {
+  if (!getBootstrapRoutingTypes()) {
     return new Map();
   }
-  const version = String(state.bootstrap?.seating_types?.version || "");
+  const version = String(getBootstrapRoutingTypes()?.version || "");
   if (!state.traitFieldConfigIndex || state.traitFieldConfigIndexVersion !== version) {
-    state.traitFieldConfigIndex = buildTraitFieldConfigIndex(state.bootstrap.seating_types);
+    state.traitFieldConfigIndex = buildTraitFieldConfigIndex(getBootstrapRoutingTypes());
     state.traitFieldConfigIndexVersion = version;
   }
   return state.traitFieldConfigIndex;
@@ -1689,7 +1708,7 @@ function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
     return normalizedField;
   }
 
-  const seatingTypes = state.bootstrap?.seating_types;
+  const seatingTypes = getBootstrapRoutingTypes();
   const types = seatingTypes?.types;
   const fallbackType = seatingTypes?.default_type || "";
   const resolvedTypeKey = types?.[typeKey] ? typeKey : fallbackType;
@@ -2031,8 +2050,8 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
       traitBoost: scoreBreakdownValue(breakdown, "selected bullet boost"),
       sourceBonus: scoreBreakdownValue(breakdown, "source image exact-match boost"),
       seatingType: String(
-        heroImage.seating_type ||
-        result.debug?.stage1?.seating_type ||
+        getPayloadVisualType(heroImage) ||
+        getPayloadVisualType(result.debug?.stage1) ||
         state.currentSeatingType ||
         ""
       ).trim(),
@@ -2070,8 +2089,8 @@ function formatDebugImageCategory(image = {}) {
   const stage0 = String(image.stage_0_result || "").trim();
   const effectiveClassification = String(image.effective_classification || "").trim();
   const seatingType = String(
-    image.seating_type ||
-    image.stage1?.seating_type ||
+    getPayloadVisualType(image) ||
+    getPayloadVisualType(image.stage1) ||
     ""
   ).trim();
   const rawLabel = stage0 || "unknown";
@@ -2106,7 +2125,7 @@ async function fetchDebugPayload() {
         category: searchCategoryFilter,
         refresh_age: String(state.refreshAgeFilter || "").trim(),
         source_image_url: String(sourceImageUrl || "").trim(),
-        seating_type: state.currentSeatingType,
+        visual_type: state.currentSeatingType,
         reranker_enabled: false,
         debug: true
       })
@@ -2123,7 +2142,7 @@ async function fetchDebugPayload() {
       sort: state.sortMode,
       category: searchCategoryFilter,
       refresh_age: state.refreshAgeFilter,
-      seating_type: state.currentSeatingType,
+      visual_type: state.currentSeatingType,
       image_analysis: state.currentImageAnalysis,
       selected_bullets: normalizeSelectedBullets(state.currentSelectedBullets),
       debug: true
@@ -3843,7 +3862,7 @@ async function refineSearchResults({
       refresh_age: String(refreshAgeFilter || "").trim(),
       source_image_url: String(sourceImageUrl || "").trim(),
       reranker_enabled: Boolean(rerankerEnabled),
-      seating_type: seatingType,
+      visual_type: seatingType,
       ...(action && productId ? { action, product_id: productId } : {})
     })
   });
@@ -3892,8 +3911,8 @@ function applyActiveSearchContext({
   state.categoryFilter = normalizeCategoryFilter(categoryFilter);
   const resolvedSearchCategory = String(
     seatingType ||
-    payload?.seating_type ||
-    payload?.parsed?.seating_type ||
+    getPayloadVisualType(payload) ||
+    getPayloadVisualType(payload?.parsed) ||
     ""
   ).trim().toLowerCase();
   state.resultCategoryScope = state.categoryScopeMode === "inferred" && resolvedSearchCategory
@@ -4136,7 +4155,7 @@ async function removeProductRefinement(refinementId) {
 }
 
 function getTraitFieldConfig(typeKey, fieldName) {
-  const seatingTypes = state.bootstrap?.seating_types;
+  const seatingTypes = getBootstrapRoutingTypes();
   const types = seatingTypes?.types;
   if (!types || !Object.keys(types).length) {
     return null;
@@ -4158,7 +4177,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
 }
 
 function getTypeFields(typeKey = "") {
-  const seatingTypes = state.bootstrap?.seating_types;
+  const seatingTypes = getBootstrapRoutingTypes();
   const types = seatingTypes?.types;
   if (!types || !Object.keys(types).length) {
     return [];
@@ -4253,9 +4272,9 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const source = matchingImage || {};
   const heroSource = result.hero_image || {};
   const seatingType = String(
-    source.seating_type ||
-    heroSource.seating_type ||
-    result.debug?.stage1?.seating_type ||
+    getPayloadVisualType(source) ||
+    getPayloadVisualType(heroSource) ||
+    getPayloadVisualType(result.debug?.stage1) ||
     ""
   ).trim();
   const enumFields = source.enum_fields || heroSource.enum_fields || result.debug?.image_traits || {};
@@ -4294,8 +4313,9 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const imageAnalysis = {
     image_preview_url: source.image_url || heroSource.image_url || result.best_image_url || "",
     reference_image_mode: "stored",
+    visual_type: seatingType,
     seating_type: seatingType,
-    stage1: { seating_type: seatingType || "" },
+    stage1: { visual_type: seatingType || "", seating_type: seatingType || "" },
     image_traits: enumFields,
     stage2: {
       visual_summary: source.free_text?.visual_summary || heroSource.free_text?.visual_summary || result.debug?.visual_description || ""
@@ -4381,7 +4401,7 @@ function applyRefreshedProductToResults(refreshPayload) {
       const detectedTraits = formatImageTraitChips(
         refreshedImage.image_traits,
         6,
-        refreshedImage.seating_type
+        getPayloadVisualType(refreshedImage)
       );
       const matchedTraits = (refreshedImage.visual_highlights || detectedTraits).slice(0, 3);
       const existingMatchingImages = normalizeMatchingImages(result);
@@ -5151,7 +5171,7 @@ function formatStructuredTraitGroupsLine(field = {}) {
 }
 
 function structuredTraitTypeEntries() {
-  const seatingTypes = state.bootstrap?.seating_types;
+  const seatingTypes = getBootstrapRoutingTypes();
   const types = seatingTypes?.types;
   if (!types || !Object.keys(types).length) {
     throw new Error("Structured traits are not available yet.");
@@ -6654,7 +6674,7 @@ function normalizeMatchingImages(result = {}) {
   const browseCategoryKey = getBrowseScopedCategoryKey(state.lastPayload, state.lastQuery);
   const browseTraitFilters = normalizeTraitFilterState(state.traitFilters);
   if (isBrowsePayload(state.lastPayload, state.lastQuery) && browseCategoryKey) {
-    normalized = normalized.filter((image) => normalizeSeatingCategoryKey(image?.seating_type) === browseCategoryKey);
+    normalized = normalized.filter((image) => normalizeSeatingCategoryKey(getPayloadVisualType(image)) === browseCategoryKey);
     if (Object.keys(browseTraitFilters).length) {
       normalized = normalized.filter((image) => imageMatchesTraitFilters(image, browseTraitFilters));
     }
@@ -6665,10 +6685,10 @@ function normalizeMatchingImages(result = {}) {
       const heroEffectiveClassification = normalizeEffectiveClassification(
         result.hero_image?.effective_classification || result.hero_image?.stage_0_result
       );
-      const heroSeatingType = String(result.hero_image?.seating_type || "").trim().toLowerCase();
+      const heroSeatingType = String(getPayloadVisualType(result.hero_image) || "").trim().toLowerCase();
       const productOnly = normalized.filter((image) => image.effective_classification === "product");
       if (heroEffectiveClassification === "product" && heroSeatingType) {
-        const sameSeatingType = productOnly.filter((image) => String(image.seating_type || "").trim().toLowerCase() === heroSeatingType);
+        const sameSeatingType = productOnly.filter((image) => String(getPayloadVisualType(image) || "").trim().toLowerCase() === heroSeatingType);
         if (sameSeatingType.length) {
           return sameSeatingType;
         }
@@ -6851,9 +6871,9 @@ function getActiveImageContextForResult(result = {}) {
     imageUrl: resolvedImageUrl,
     matchingImage,
     seatingType: String(
-      matchingImage?.seating_type ||
-      result.hero_image?.seating_type ||
-      result.debug?.stage1?.seating_type ||
+      getPayloadVisualType(matchingImage) ||
+      getPayloadVisualType(result.hero_image) ||
+      getPayloadVisualType(result.debug?.stage1) ||
       state.currentSeatingType ||
       ""
     ).trim(),
@@ -7566,6 +7586,8 @@ async function runSearch(query, options = {}) {
   const requestedSeatingType = String(
     options.seatingType ??
     getPrimaryCategoryScopeSelection(state.resultCategoryScope) ??
+    imageAnalysis?.stage1?.visual_type ??
+    imageAnalysis?.visual_type ??
     imageAnalysis?.stage1?.seating_type ??
     imageAnalysis?.seating_type ??
     ""
@@ -7612,7 +7634,7 @@ async function runSearch(query, options = {}) {
             sort,
             category: effectiveCategoryFilter,
             refresh_age: refreshAgeFilter,
-            ...(apiRequestedSeatingType ? { seating_type: apiRequestedSeatingType } : {}),
+            ...(apiRequestedSeatingType ? { visual_type: apiRequestedSeatingType } : {}),
             image_analysis: imageAnalysis,
             selected_bullets: requestedSelectedBullets
           })
@@ -7622,7 +7644,7 @@ async function runSearch(query, options = {}) {
             ["q", normalizedQuery],
             ["source_image_url", sourceImageUrl],
             ["sort", sort],
-            ...(apiRequestedSeatingType ? [["seating_type", apiRequestedSeatingType]] : []),
+            ...(apiRequestedSeatingType ? [["visual_type", apiRequestedSeatingType]] : []),
             ...effectiveCategoryFilter.map((category) => ["category", category]),
             ["refresh_age", refreshAgeFilter]
           ]).toString()}`
@@ -7639,7 +7661,7 @@ async function runSearch(query, options = {}) {
       updateClarificationConflict(null);
       updateCategoryRequirement({
         query: normalizedQuery,
-        options: Array.isArray(payload?.seating_category_options) ? payload.seating_category_options : CATEGORY_REQUIREMENT_OPTION_KEYS,
+        options: Array.isArray(payload?.visual_type_options) ? payload.visual_type_options : Array.isArray(payload?.seating_category_options) ? payload.seating_category_options : CATEGORY_REQUIREMENT_OPTION_KEYS,
         message: "We could not determine the category of product you are looking for.\nPlease select an option below."
       });
       renderSearchComposer(normalizedQuery);
@@ -7680,7 +7702,8 @@ async function runSearch(query, options = {}) {
     const effectiveSeatingType = String(
       normalizedRequestedSeatingType === "all" ? "" :
       normalizedRequestedSeatingType ||
-      payload?.seating_type ||
+      getPayloadVisualType(payload) ||
+      payload?.text_query_traits?.enum_fields?.visual_type ||
       payload?.text_query_traits?.enum_fields?.seating_type ||
       ""
     ).trim();
@@ -7860,7 +7883,7 @@ async function composeQueryForBullets(selectedBullets = [], options = {}) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      seating_type: String(options.seatingType || state.currentImageAnalysis?.seating_type || "seating"),
+      visual_type: String(options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || "seating"),
       bullets: {
         essential: normalized.essential.filter((bullet) => isQueryComposableBullet(bullet)),
         normal: normalized.normal.filter((bullet) => isQueryComposableBullet(bullet)),
@@ -8042,8 +8065,10 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         updateClarificationConflict(null);
         updateCategoryRequirement({
           mode: "image_analysis",
-          options: Array.isArray(stage1Payload?.seating_category_options) && stage1Payload.seating_category_options.length
-            ? stage1Payload.seating_category_options
+          options: Array.isArray(stage1Payload?.visual_type_options) && stage1Payload.visual_type_options.length
+            ? stage1Payload.visual_type_options
+            : Array.isArray(stage1Payload?.seating_category_options) && stage1Payload.seating_category_options.length
+              ? stage1Payload.seating_category_options
             : Object.keys(SEATING_CATEGORY_DISPLAY_NAMES),
           message: "What kind of seating are you looking for?\nWe couldn't quite tell from the image.",
           requestBody: baseInput,
@@ -8053,8 +8078,8 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         return;
       }
       const resolvedType = String(
-        stage1Payload?.analysis?.seating_type ||
-        stage1Payload?.analysis?.stage1?.seating_type ||
+        getPayloadVisualType(stage1Payload?.analysis) ||
+        getPayloadVisualType(stage1Payload?.analysis?.stage1) ||
         ""
       ).trim();
       updateImageAnalyzeProgress("extract", {
@@ -8066,7 +8091,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       });
       analysisPayload = await requestImageAnalysis({
         ...body,
-        seating_type_override: resolvedType
+        visual_type_override: resolvedType
       }, {
         progressRequestId
       });
@@ -8080,7 +8105,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       });
       analysisPayload = await requestImageAnalysis({
         ...body,
-        seating_type_override: cachedCategory
+        visual_type_override: cachedCategory
       }, {
         progressRequestId
       });
@@ -8123,7 +8148,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     const payload = await refineSearchResults({
       queryEmbedding,
       selectedBullets,
-      seatingType: analysis?.seating_type || analysis?.stage1?.seating_type || "seating",
+      seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "seating",
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter,
       sourceImageUrl: analysis?.image_preview_url || state.cropPreviewUrl || "",
@@ -8135,7 +8160,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       selectedBullets,
       bulletControls,
       baseQueryEmbedding: payload?.query_embedding || queryEmbedding,
-      seatingType: analysis?.seating_type || analysis?.stage1?.seating_type || "",
+      seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
       imageAnalysis: analysis,
       productRefinements: [],
       categoryFilter: payload?.category_filter ?? state.categoryFilter,
@@ -8157,13 +8182,13 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         selectedBullets,
         bulletControls,
         baseQueryEmbedding: payload?.query_embedding || queryEmbedding,
-        seatingType: analysis?.seating_type || analysis?.stage1?.seating_type || "",
+        seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
         imageAnalysis: analysis,
         categoryFilter: payload?.category_filter ?? state.categoryFilter,
         refreshAgeFilter: payload?.refresh_age_filter ?? state.refreshAgeFilter
       });
       redirectToBrowseResults(resolvedQuery, {
-        seating_type: analysis?.seating_type || analysis?.stage1?.seating_type || ""
+        visual_type: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || ""
       });
       return;
     }
@@ -8269,7 +8294,7 @@ async function bootstrap() {
     const pendingImageSearchHandoff = consumeImageSearchHandoff();
     const initialQuery = String(launchParams.get("q") || "").trim();
     const initialCategoryFilter = normalizeCategoryFilter(launchParams.getAll("category"));
-    const initialCategoryScope = normalizeCategoryScopeSelection(launchParams.get("seating_type"), { maxSelections: 1 });
+    const initialCategoryScope = normalizeCategoryScopeSelection(launchParams.get("visual_type") || launchParams.get("seating_type"), { maxSelections: 1 });
     const initialPrimaryCategory = getPrimaryCategoryScopeSelection(initialCategoryScope) || "all";
     const initialRefreshAgeFilter = String(launchParams.get("refresh_age") || "").trim();
     state.resultCategoryScope = initialCategoryScope.length ? initialCategoryScope : ["all"];
@@ -8451,7 +8476,7 @@ elements.searchForm.addEventListener("submit", (event) => {
   }
   if (state.landingOnlyMode) {
     enterBrowseMode(requestQuery, {
-      seating_type: effectiveCategory
+      visual_type: effectiveCategory
     });
   }
   runSearch(requestQuery, {

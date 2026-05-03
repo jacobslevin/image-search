@@ -29,6 +29,16 @@ const elements = {
   exportButton: document.querySelector("#curateExportButton")
 };
 
+function getPayloadVisualType(payload = {}) {
+  return String(
+    payload?.visual_type ||
+    payload?.seating_type ||
+    payload?.stage1?.visual_type ||
+    payload?.stage1?.seating_type ||
+    ""
+  ).trim();
+}
+
 function apiUrl(pathname) {
   const path = String(pathname || "");
   if (!path.startsWith("/")) {
@@ -244,7 +254,7 @@ async function composeQueryForBullets(selectedBullets = [], options = {}) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      seating_type: String(options.seatingType || state.currentImageAnalysis?.seating_type || "seating"),
+      visual_type: String(options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || "seating"),
       bullets: normalized
     })
   });
@@ -484,7 +494,7 @@ async function analyzeSelectedImage() {
     const analysis = await requestImageAnalysis(body);
     const selectedBullets = normalizeSelectedBullets(bulletsFromAnalysis(analysis));
     const query = await composeQueryWithFallback(selectedBullets, {
-      seatingType: analysis?.seating_type || analysis?.stage1?.seating_type || "seating"
+      seatingType: getPayloadVisualType(analysis) || "seating"
     });
     const resolvedQuery = String(query || "").trim() || buildFallbackQueryFromStructuredBullets(selectedBullets);
 
