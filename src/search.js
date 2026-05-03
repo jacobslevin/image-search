@@ -4,7 +4,8 @@ import {
   getAllCategoryTerms,
   getCategoryDisplayLabel,
   getEffectiveClassification,
-  getLeafCategories
+  getLeafCategories,
+  normalizeVisualTypeKey
 } from "./utils.js";
 import { isSearchRecordEligible } from "./search-category-filter.js";
 import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
@@ -44,6 +45,16 @@ const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
+
+function resolveRecordVisualType(record = {}) {
+  return normalizeVisualTypeKey(
+    record?.stage1?.visual_type ||
+    record?.visual_type ||
+    record?.stage1?.seating_type ||
+    record?.seating_type ||
+    ""
+  );
+}
 
 function buildTraitFieldConfigIndex(types = {}) {
   const index = new Map();
@@ -533,7 +544,7 @@ function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
   const enumFieldSource = record?.enum_fields || record?.image_traits || {};
   const priorityWeights = { essential: 0.35, normal: 0.1, low: 0.05 };
   const isExactSourceImage = Boolean(options.isExactSourceImage);
-  const typeKey = String(record?.stage1?.seating_type || record?.seating_type || "").trim().toLowerCase();
+  const typeKey = resolveRecordVisualType(record);
   const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets, typeKey);
 
   const matched = [];
@@ -750,12 +761,15 @@ async function rerankProducts(query, products, apiKey) {
 
 function resolveImageSearchContext({ parsed, imageAnalysis, selectedBullets }) {
   const analysis = imageAnalysis && typeof imageAnalysis === "object" ? imageAnalysis : null;
-  const stage1Type = String(
+  const stage1Type = normalizeVisualTypeKey(
+    parsed?.visual_type ||
     parsed?.seating_type ||
+    analysis?.stage1?.visual_type ||
+    analysis?.visual_type ||
     analysis?.stage1?.seating_type ||
     analysis?.seating_type ||
     ""
-  ).trim().toLowerCase();
+  );
   const visualSummary = String(analysis?.stage2?.visual_summary || analysis?.visual_summary || "").trim();
   const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets);
 
@@ -873,7 +887,7 @@ export async function searchIndex({
     if (
       searchContext.stage1Type &&
       !isExactSourceImage &&
-      !compatibleStage1Types.has(String(record.stage1?.seating_type || record.seating_type || "").trim().toLowerCase())
+      !compatibleStage1Types.has(resolveRecordVisualType(record))
     ) {
       return false;
     }

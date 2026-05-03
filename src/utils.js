@@ -3,6 +3,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveRoutingKey as resolveRegistryRoutingKey } from "./visual-types-registry.js";
 
 export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
 export const IMAGE_CLASSIFICATIONS = new Set(["scene", "product", "product_detail"]);
@@ -171,7 +172,7 @@ const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
   "Bench Seating | Outdoor Seating": "Benches"
 });
 
-const ROUTING_KEY_TO_PIXELSEEK_TYPE = Object.freeze({
+const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({
   task_collab_chair: "Work Chairs",
   guest_chair: "Multi-Use / Guest Chairs",
   lounge_chair: "Lounge Seating",
@@ -179,7 +180,14 @@ const ROUTING_KEY_TO_PIXELSEEK_TYPE = Object.freeze({
   bench: "Benches"
 });
 
-export const ACTIVE_SEATING_TYPE_KEYS = Object.freeze(Object.keys(ROUTING_KEY_TO_PIXELSEEK_TYPE));
+const LEGACY_VISUAL_TYPE_VALUE_ALIASES = Object.freeze({
+  task_chair: "task_collab_chair",
+  collaborative_chair: "task_collab_chair",
+  perch_stool: "stool"
+});
+
+export const ACTIVE_VISUAL_TYPE_KEYS = Object.freeze(Object.keys(VISUAL_TYPE_TO_PIXELSEEK_LABEL));
+export const ACTIVE_SEATING_TYPE_KEYS = ACTIVE_VISUAL_TYPE_KEYS;
 
 let unmappedCategoryDecisionsCache = {
   path: "",
@@ -247,7 +255,7 @@ export function getPixelSeekType(record = {}, decisionsOverride = null) {
     return "INTENTIONALLY_EXCLUDED";
   }
   if (status === "mapped") {
-    const mappedType = ROUTING_KEY_TO_PIXELSEEK_TYPE[String(decision?.mapping_target || "").trim()];
+    const mappedType = VISUAL_TYPE_TO_PIXELSEEK_LABEL[String(decision?.mapping_target || "").trim()];
     if (mappedType) {
       return mappedType;
     }
@@ -255,26 +263,63 @@ export function getPixelSeekType(record = {}, decisionsOverride = null) {
   return PIXELSEEK_TYPE_BY_GROUPING[grouping] || "SKIP";
 }
 
-export function normalizeRoutingTypeKey(value = "") {
+function normalizeVisualTypeCandidate(value = "") {
   const normalized = String(value || "").trim().toLowerCase();
   if (!normalized) {
     return "";
   }
-  if (normalized === "task_chair" || normalized === "collaborative_chair") {
-    return "task_collab_chair";
+  return LEGACY_VISUAL_TYPE_VALUE_ALIASES[normalized] || normalized;
+}
+
+export function resolveVisualType(input = "") {
+  const tryResolve = (sourceField, value) => {
+    const normalizedValue = normalizeVisualTypeCandidate(value);
+    if (!normalizedValue) {
+      return null;
+    }
+    try {
+      return resolveRegistryRoutingKey({ [sourceField]: normalizedValue });
+    } catch {
+      return null;
+    }
+  };
+
+  if (typeof input === "string") {
+    return tryResolve("visual_type", input);
   }
-  if (normalized === "perch_stool") {
-    return "stool";
+
+  if (input && typeof input === "object") {
+    const direct = tryResolve("visual_type", input.visual_type);
+    if (direct) {
+      return direct;
+    }
+    const legacy = tryResolve("seating_type", input.seating_type);
+    if (legacy) {
+      return legacy;
+    }
   }
-  return ACTIVE_SEATING_TYPE_KEYS.includes(normalized) ? normalized : "";
+
+  return null;
+}
+
+export function normalizeVisualTypeKey(value = "") {
+  return resolveVisualType(value)?.visual_type || "";
+}
+
+export function normalizeRoutingTypeKey(value = "") {
+  return normalizeVisualTypeKey(value);
+}
+
+export function getVisualTypeLabel(typeKey = "") {
+  return VISUAL_TYPE_TO_PIXELSEEK_LABEL[normalizeVisualTypeKey(typeKey)] || "";
 }
 
 export function getPixelSeekTypeLabel(typeKey = "") {
-  return ROUTING_KEY_TO_PIXELSEEK_TYPE[normalizeRoutingTypeKey(typeKey)] || "";
+  return getVisualTypeLabel(typeKey);
 }
 
 export function normalizePixelSeekTypeFilter(value = "") {
-  const normalizedTypeKey = normalizeRoutingTypeKey(value);
+  const normalizedTypeKey = normalizeVisualTypeKey(value);
   if (normalizedTypeKey) {
     return normalizedTypeKey;
   }
@@ -284,7 +329,7 @@ export function normalizePixelSeekTypeFilter(value = "") {
     return "";
   }
 
-  const labelMatch = Object.entries(ROUTING_KEY_TO_PIXELSEEK_TYPE).find(([, label]) => (
+  const labelMatch = Object.entries(VISUAL_TYPE_TO_PIXELSEEK_LABEL).find(([, label]) => (
     String(label || "").trim().toLowerCase() === normalizedLabel
   ));
   return labelMatch?.[0] || "";

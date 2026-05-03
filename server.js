@@ -18,7 +18,7 @@ import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, sear
 import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
 import { buildPipelineDiagnostics, readPipelineDiagnosticsBaseline } from "./src/pipeline-diagnostics.js";
 import {
-  ACTIVE_SEATING_TYPE_KEYS,
+  ACTIVE_VISUAL_TYPE_KEYS,
   createId,
   ensureDir,
   getAllCategoryTerms,
@@ -30,6 +30,7 @@ import {
   getUnmappedCategoryDecisionsPath,
   getLeafCategories,
   normalizeImageClassification,
+  resolveVisualType,
   readJson,
   writeJson
 } from "./src/utils.js";
@@ -828,13 +829,36 @@ function json(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
-function normalizeRequestedSeatingType(value = "") {
-  const normalized = String(value || "").trim().toLowerCase();
-  return seatingTypes[normalized] ? normalized : "";
+function normalizeRequestedVisualType(input = null) {
+  if (typeof input === "string") {
+    return resolveVisualType({ visual_type: input })?.visual_type || "";
+  }
+
+  if (input && typeof input === "object") {
+    const canonical = String(input.visual_type || "").trim();
+    if (canonical) {
+      return resolveVisualType({ visual_type: canonical })?.visual_type || "";
+    }
+
+    const legacy = String(input.seating_type || "").trim().toLowerCase();
+    return seatingTypes[legacy] ? legacy : "";
+  }
+
+  return "";
 }
 
-function isAllSeatingTypeRequest(value = "") {
-  return String(value || "").trim().toLowerCase() === "all";
+function isAllVisualTypeRequest(input = null) {
+  if (typeof input === "string") {
+    return String(input || "").trim().toLowerCase() === "all";
+  }
+  if (input && typeof input === "object") {
+    const canonical = String(input.visual_type || "").trim();
+    if (canonical) {
+      return canonical.toLowerCase() === "all";
+    }
+    return String(input.seating_type || "").trim().toLowerCase() === "all";
+  }
+  return false;
 }
 
 function sleep(ms) {
@@ -2817,11 +2841,13 @@ const server = http.createServer(async (request, response) => {
     const debugParam = request.method === "POST" ? body.debug : url.searchParams.get("debug");
     const debug = debugParam === true || String(debugParam || "").trim().toLowerCase() === "true";
     const sort = String((request.method === "POST" ? body.sort : url.searchParams.get("sort")) || "auto").trim();
-    const rawRequestedSeatingType = request.method === "POST" ? body.seating_type : url.searchParams.get("seating_type");
-    const disableSeatingTypeInference = isAllSeatingTypeRequest(rawRequestedSeatingType);
-    const explicitSeatingType = disableSeatingTypeInference
+    const requestedVisualTypeInput = request.method === "POST"
+      ? { visual_type: body.visual_type, seating_type: body.seating_type }
+      : { visual_type: url.searchParams.get("visual_type"), seating_type: url.searchParams.get("seating_type") };
+    const disableVisualTypeInference = isAllVisualTypeRequest(requestedVisualTypeInput);
+    const explicitVisualType = disableVisualTypeInference
       ? ""
-      : normalizeRequestedSeatingType(rawRequestedSeatingType);
+      : normalizeRequestedVisualType(requestedVisualTypeInput);
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
     const rawSelectedBullets = body.selected_bullets;
     if (!query) {
@@ -2849,7 +2875,7 @@ const server = http.createServer(async (request, response) => {
 
     if (normalizedSearchCategories.invalid.length) {
       return json(response, 400, {
-        error: `Search category filters must use PixelSeek seating types (${ACTIVE_SEATING_TYPE_KEYS.join(", ")}) or display labels.`,
+        error: `Search category filters must use PixelSeek seating types (${ACTIVE_VISUAL_TYPE_KEYS.join(", ")}) or display labels.`,
         invalid_category_filters: normalizedSearchCategories.invalid
       });
     }
@@ -2861,43 +2887,43 @@ const server = http.createServer(async (request, response) => {
     }
 
     let inferredCategory = null;
-    let resolvedSeatingType = explicitSeatingType;
-    let seatingTypeSource = explicitSeatingType ? "explicit" : "all";
-    if (!imageAnalysis && !disableSeatingTypeInference) {
+    let resolvedVisualType = explicitVisualType;
+    let seatingTypeSource = explicitVisualType ? "explicit" : "all";
+    if (!imageAnalysis && !disableVisualTypeInference) {
       inferredCategory = await inferTextQueryCategory(query, {
         apiKey: process.env.OPENAI_API_KEY,
         model: "gpt-4o-mini"
       });
-      if (!resolvedSeatingType && inferredCategory?.status === "resolved") {
-        resolvedSeatingType = String(inferredCategory.category_key || "").trim();
+      if (!resolvedVisualType && inferredCategory?.status === "resolved") {
+        resolvedVisualType = String(inferredCategory.category_key || "").trim();
         seatingTypeSource = "inferred";
       }
     }
-    if (disableSeatingTypeInference) {
+    if (disableVisualTypeInference) {
       seatingTypeSource = "all";
     }
 
-    const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedSeatingType);
+    const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
 
     const parsed = await parseSearchQuery(query, index.brands || [], {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.QUERY_MODEL
     });
-    parsed.seating_type = resolvedSeatingType || "";
+    parsed.seating_type = resolvedVisualType || "";
     let textQueryTraits = null;
     if (!imageAnalysis) {
-      if (!resolvedSeatingType) {
-        console.warn("[text-query-traits] skipping extraction because seatingType is unresolved");
+      if (!resolvedVisualType) {
+        console.warn("[text-query-traits] skipping extraction because visualType is unresolved");
       } else {
         textQueryTraits = await extractTextQueryTraits(query, {
           apiKey: process.env.OPENAI_API_KEY,
           model: "gpt-4.1-mini",
-          seatingType: resolvedSeatingType
+          seatingType: resolvedVisualType
         });
       }
     }
     const effectiveSelectedBullets = mergeStructuredBullets(
-      resolvedSeatingType,
+      resolvedVisualType,
       textQueryTraits?.search_bullets,
       selectedBullets
     );
@@ -2935,10 +2961,10 @@ const server = http.createServer(async (request, response) => {
       source_image_url: sourceImageUrl,
       debug,
       parsed,
-      seating_type: resolvedSeatingType || "",
+      seating_type: resolvedVisualType || "",
       seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
       seating_type_source: seatingTypeSource,
-      category_required: Boolean(!resolvedSeatingType && inferredCategory?.status === "category_required"),
+      category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
       seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
       selected_bullets: effectiveSelectedBullets,
       text_query_traits: textQueryTraits,
@@ -2965,8 +2991,9 @@ const server = http.createServer(async (request, response) => {
       const refreshAge = String(body.refresh_age || "").trim();
       const sourceImageUrl = String(body.source_image_url || "").trim();
       const debug = body.debug === true || String(body.debug || "").trim().toLowerCase() === "true";
-      const seatingType = String(body.seating_type || "").trim();
-      const selectedBullets = normalizeStructuredBullets(body.selected_bullets, seatingType);
+      const requestedVisualTypeInput = { visual_type: body.visual_type, seating_type: body.seating_type };
+      const visualType = normalizeRequestedVisualType(requestedVisualTypeInput);
+      const selectedBullets = normalizeStructuredBullets(body.selected_bullets, visualType);
       const rerankerEnabled = body.reranker_enabled !== false;
       const action = String(body.action || "").trim();
       const productId = String(body.product_id || "").trim();
@@ -2976,7 +3003,7 @@ const server = http.createServer(async (request, response) => {
       }
       if (normalizedSearchCategories.invalid.length) {
         return json(response, 400, {
-          error: `Search category filters must use PixelSeek seating types (${ACTIVE_SEATING_TYPE_KEYS.join(", ")}) or display labels.`,
+          error: `Search category filters must use PixelSeek seating types (${ACTIVE_VISUAL_TYPE_KEYS.join(", ")}) or display labels.`,
           invalid_category_filters: normalizedSearchCategories.invalid
         });
       }
@@ -3013,8 +3040,8 @@ const server = http.createServer(async (request, response) => {
         visual_query: "",
         query_traits: null
       };
-      const imageAnalysis = seatingType
-        ? { stage1: { seating_type: seatingType } }
+      const imageAnalysis = visualType
+        ? { stage1: { seating_type: visualType } }
         : null;
       const searchResponse = await searchIndex({
         query: "",
@@ -3250,8 +3277,10 @@ const server = http.createServer(async (request, response) => {
         : null;
       const imageSource = imageDataUrl.startsWith("data:image/") ? imageDataUrl : imageUrl;
       const stage1Only = Boolean(body?.stage1_only);
-      const rawSeatingTypeOverride = String(body?.seating_type_override || "").trim();
-      const seatingTypeOverride = seatingTypes[rawSeatingTypeOverride] ? rawSeatingTypeOverride : "";
+      const visualTypeOverride = normalizeRequestedVisualType({
+        visual_type: body?.visual_type_override,
+        seating_type: body?.seating_type_override
+      });
       progressRequestId = String(body?.progress_request_id || "").trim();
       imageIdentifier = getQueryImageAnalysisIdentifier({
         imageSource,
@@ -3279,7 +3308,7 @@ const server = http.createServer(async (request, response) => {
         matchMode,
         focusArea,
         stage1Only,
-        seatingTypeOverride,
+        seatingTypeOverride: visualTypeOverride,
         progressCallback: (event = {}) => {
           if (!progressRequestId) {
             return;
@@ -3291,12 +3320,15 @@ const server = http.createServer(async (request, response) => {
       if (stage1Only) {
         const stage1Result = String(analysis?.stage1?.result || "").trim().toLowerCase();
         const seatingTypeConfidence = String(analysis?.field_confidence?.stage1?.seating_type || "").trim().toLowerCase();
-        const resolvedSeatingType = String(analysis?.seating_type || analysis?.stage1?.seating_type || "").trim();
+        const resolvedVisualType = normalizeRequestedVisualType({
+          visual_type: analysis?.visual_type || analysis?.stage1?.visual_type,
+          seating_type: analysis?.seating_type || analysis?.stage1?.seating_type
+        });
         return json(response, 200, {
           category_required: Boolean(
             stage1Result !== "product" ||
             seatingTypeConfidence !== "high" ||
-            !seatingTypes[resolvedSeatingType]
+            !seatingTypes[resolvedVisualType]
           ),
           seating_category_options: Object.keys(seatingTypes),
           analysis: {
@@ -3376,7 +3408,10 @@ const server = http.createServer(async (request, response) => {
         user_selected_value: body.user_selected_value == null ? null : String(body.user_selected_value).trim(),
         was_skipped: Boolean(body.was_skipped),
         search_query: String(body.search_query || "").trim(),
-        active_bullets: normalizeStructuredBullets(body.active_bullets, String(body.seating_type || "").trim()),
+        active_bullets: normalizeStructuredBullets(
+          body.active_bullets,
+          normalizeRequestedVisualType({ visual_type: body.visual_type, seating_type: body.seating_type })
+        ),
         training_example_version: 1
       };
 
@@ -3500,9 +3535,9 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/api/compose-query" && request.method === "POST") {
     try {
       const body = await readRequestJson(request);
-      const seatingType = String(body.seating_type || "seating").trim() || "seating";
-      const bullets = normalizeStructuredBullets(body.bullets, seatingType);
-      const query = await generateSearchQuery(seatingType, bullets, {
+      const visualType = normalizeRequestedVisualType({ visual_type: body.visual_type, seating_type: body.seating_type }) || "seating";
+      const bullets = normalizeStructuredBullets(body.bullets, visualType);
+      const query = await generateSearchQuery(visualType, bullets, {
         apiKey: process.env.OPENAI_API_KEY,
         visionModel: process.env.VISION_MODEL
       });

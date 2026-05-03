@@ -11,6 +11,7 @@ import {
   getEffectiveExtractionImageCap,
   getEffectiveClassification,
   getPixelSeekType,
+  normalizeVisualTypeKey,
   normalizeImageClassification,
   normalizeWhitespace,
   readJson,
@@ -52,7 +53,7 @@ const GPT_41_OUTPUT_COST_PER_TOKEN = 8 / 1_000_000;
 const GPT_41_NANO_INPUT_COST_PER_TOKEN = 0.10 / 1_000_000;
 const GPT_41_NANO_OUTPUT_COST_PER_TOKEN = 0.40 / 1_000_000;
 const IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT = 1;
-const PIXELSEEK_TYPE_TO_ROUTING_KEY = Object.freeze({
+const PIXELSEEK_TYPE_TO_VISUAL_TYPE = Object.freeze({
   "Lounge Seating": "lounge_chair",
   "Multi-Use / Guest Chairs": "guest_chair",
   "Work Chairs": "task_collab_chair",
@@ -856,10 +857,14 @@ function normalizeEnum(value, allowedValues = []) {
 }
 
 function ensureTypeKey(candidate) {
-  const raw = String(candidate || "").trim().toLowerCase();
+  const raw = normalizeVisualTypeKey(candidate);
   if (seatingTypes[raw]) return raw;
   if (TYPE_LABEL_TO_KEY[raw]) return TYPE_LABEL_TO_KEY[raw];
   return fallbackSeatingType;
+}
+
+function resolveStage1VisualType(stage1 = {}) {
+  return ensureTypeKey(stage1?.visual_type || stage1?.seating_type || "");
 }
 
 function normalizeStage1Result(result = "") {
@@ -2453,7 +2458,7 @@ async function analyzeImageStage123OpenAi(imageInput, options = {}) {
         attributes: {}
       };
     }
-    const seatingType = ensureTypeKey(stage1.seating_type);
+    const seatingType = resolveStage1VisualType(stage1);
     const stage2 = await describeVisualFormOpenAi(imageInput, { ...options, typeKey: seatingType });
     const stage3 = await extractImageTraitsOpenAi(imageInput, seatingType, stage1, stage2, options);
 
@@ -2488,7 +2493,7 @@ async function analyzeImageStage123OpenAi(imageInput, options = {}) {
     };
   }
 
-  const seatingType = ensureTypeKey(parsed.seating_type);
+  const seatingType = ensureTypeKey(parsed.visual_type || parsed.seating_type);
   return {
     result: "product",
     override_reason: null,
@@ -3018,7 +3023,7 @@ async function createTypedCaption(imageInput, options = {}, imageRecord = {}) {
 
   const voted = voteStage123Runs(selectedRuns);
   const stage1 = voted.stage1;
-  const seatingType = ensureTypeKey(stage1.seating_type);
+  const seatingType = resolveStage1VisualType(stage1);
   const stage2 = voted.stage2;
   const stage3 = voted.stage3;
 
@@ -3924,7 +3929,7 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
   }
 
   const pixelSeekType = getPixelSeekType(imageRecord);
-  const routingTypeKey = resolveCatalogRoutingTypeKey(pixelSeekType);
+  const routingTypeKey = resolveCatalogVisualTypeKey(pixelSeekType);
   if (pixelSeekType === "SKIP" || pixelSeekType === "INTENTIONALLY_EXCLUDED" || !routingTypeKey) {
     return {
       ...buildExcludedImageExtractionResult({
@@ -4142,9 +4147,9 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
 
   const stage0PassingEntries = classificationEntries.filter((entry) => String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase() === "product");
   const productType = getPixelSeekType(productImages[0]) || "";
-  const seatingType = resolveCatalogRoutingTypeKey(productType) || "";
-  const effectiveCap = getEffectiveExtractionImageCap(seatingType || productType);
-  const softCap = seatingType || productType;
+  const visualType = resolveCatalogVisualTypeKey(productType) || "";
+  const effectiveCap = getEffectiveExtractionImageCap(visualType || productType);
+  const softCap = visualType || productType;
   const selectedImageIds = new Set(
     stage0PassingEntries
       .slice(0, effectiveCap)
@@ -4187,7 +4192,7 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
     records,
     failed_images: failedImages,
     progress: {
-      seating_type: seatingType,
+      seating_type: visualType,
       stage0_passing_count: stage0PassingEntries.length,
       selected_product_image_count: selectedImageIds.size,
       successful_extraction_count: successfulExtractionCount,
@@ -4264,7 +4269,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
   const pixelSeekType = getPixelSeekType(imageRecord) !== "SKIP"
     ? getPixelSeekType(imageRecord)
     : getPixelSeekType(existingRecord);
-  const routingTypeKey = resolveCatalogRoutingTypeKey(pixelSeekType);
+  const routingTypeKey = resolveCatalogVisualTypeKey(pixelSeekType);
   if (pixelSeekType === "SKIP" || pixelSeekType === "INTENTIONALLY_EXCLUDED" || !routingTypeKey) {
     return {
       ...buildExcludedImageExtractionResult({
@@ -4471,7 +4476,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
       }
     };
   }
-  const seatingType = ensureTypeKey(stage1.seating_type);
+  const seatingType = resolveStage1VisualType(stage1);
   const { stage2, stage3, usage: stage23Usage } = await extractStage23CombinedOpenAi(imageInput, seatingType, stage1, options);
 
   const fieldMap = getFieldMap(seatingType);
@@ -4531,8 +4536,8 @@ function buildCatalogRoutingStage1Stub(typeKey = "") {
   };
 }
 
-function resolveCatalogRoutingTypeKey(pixelSeekType = "") {
-  const resolved = PIXELSEEK_TYPE_TO_ROUTING_KEY[String(pixelSeekType || "").trim()];
+function resolveCatalogVisualTypeKey(pixelSeekType = "") {
+  const resolved = PIXELSEEK_TYPE_TO_VISUAL_TYPE[String(pixelSeekType || "").trim()];
   return resolved || "";
 }
 
@@ -5142,7 +5147,7 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     );
   }
 
-  const seatingType = ensureTypeKey(stage1.seating_type);
+  const seatingType = resolveStage1VisualType(stage1);
   if (!seatingTypes[seatingType]) {
     throw new QueryImageAnalysisStageError(
       "stage1",
