@@ -248,6 +248,76 @@ function buildEmptyStage23Payload() {
   };
 }
 
+function buildResolvedRoutingStage1Stub(typeKey = "", routingSource = "mapping_v1") {
+  const visualTypeInfo = getVisualTypeInfo(typeKey, "");
+  const visualType = String(visualTypeInfo?.visual_type || typeKey || "").trim();
+  const family = String(visualTypeInfo?.family || "").trim();
+  return {
+    result: "product",
+    seating_type: visualType,
+    visual_type: visualType,
+    family,
+    type_routing_source: routingSource,
+    override_reason: null
+  };
+}
+
+function resolveRequestedCaptionVisualTypeInfo(imageRecord = {}, options = {}) {
+  return getVisualTypeInfo(
+    options.visual_type ||
+    options.visualType ||
+    options.seating_type ||
+    options.seatingType ||
+    imageRecord.visual_type ||
+    imageRecord.seating_type ||
+    "",
+    ""
+  );
+}
+
+function shouldUseCallerProvidedRouting(typeInfo = null) {
+  return String(typeInfo?.family || "").trim().toLowerCase() !== "seating" && Boolean(typeInfo?.visual_type);
+}
+
+function buildCallerProvidedTypedCaptionStub(imageDimensions = null, requestedTypeInfo = null) {
+  const stage1 = buildResolvedRoutingStage1Stub(requestedTypeInfo?.visual_type || "", "caller_provided");
+  const totalUsage = normalizeOpenAiUsage();
+  return {
+    image_dimensions: imageDimensions,
+    stage1,
+    ...buildEmptyStage23Payload(),
+    structured_caption: "",
+    raw_visual_highlights: [],
+    visual_highlights: [],
+    seating_type: String(stage1.seating_type || "").trim(),
+    visual_type: String(stage1.visual_type || "").trim(),
+    family: String(stage1.family || "").trim(),
+    image_traits: {},
+    spec_traits: {},
+    merged_traits: {},
+    trait_provenance: {},
+    visual_traits: toLegacyVisualTraits("", {}),
+    field_confidence: {
+      stage1: {
+        result: 1,
+        seating_type: 1
+      }
+    },
+    extraction_runs: 0,
+    analysis_api_call_count: 0,
+    api_call_count: 0,
+    type_routing_source: "caller_provided",
+    extraction_consensus: {
+      tiebreaker_used: false,
+      runs: [],
+      total_usage: {
+        ...totalUsage,
+        estimated_cost_usd: 0
+      }
+    }
+  };
+}
+
 function buildStage1OverrideVoteResult(result = "", overrideReason = null, confidence = "low") {
   const normalizedResult = normalizeStage1Result(result);
   return {
@@ -3052,6 +3122,18 @@ function traitsToPhrasesTyped(visualTraits = {}) {
 
 async function createTypedCaption(imageInput, options = {}, imageRecord = {}) {
   const imageDimensions = options.precomputedImageDimensions || await enforceMatchingSafeResolution(imageInput.image_url, options);
+  const requestedTypeInfo = resolveRequestedCaptionVisualTypeInfo(imageRecord, options);
+  if (shouldUseCallerProvidedRouting(requestedTypeInfo)) {
+    if (typeof options.progressCallback === "function") {
+      options.progressCallback({
+        type: "stage1_stubbed",
+        visual_type: requestedTypeInfo.visual_type,
+        family: requestedTypeInfo.family,
+        type_routing_source: "caller_provided"
+      });
+    }
+    return buildCallerProvidedTypedCaptionStub(imageDimensions, requestedTypeInfo);
+  }
   const requestedRuns = Number.isFinite(Number(options.extractionRuns))
     ? Math.max(2, Number(options.extractionRuns))
     : 3;
@@ -4625,11 +4707,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
 }
 
 function buildCatalogRoutingStage1Stub(typeKey = "") {
-  return {
-    result: "product",
-    seating_type: String(typeKey || ""),
-    override_reason: null
-  };
+  return buildResolvedRoutingStage1Stub(typeKey, "mapping_v1");
 }
 
 function resolveCatalogVisualTypeKey(pixelSeekType = "") {
