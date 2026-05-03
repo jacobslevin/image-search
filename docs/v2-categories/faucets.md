@@ -27,7 +27,7 @@ If foundation bugs surface during faucets implementation, they get fixed in the 
 | handle_count | 0, 1, 2, 3 | Ranking |
 | handle_style | lever, cross, knob, blade, wheel, none_visible | Ranking |
 | finish | (uses shared finish palette) | Ranking |
-| design_register | minimal, traditional | Ranking |
+| design_register | Minimal, Traditional, unknown | Ranking |
 | body_geometry | round, rectangular | Ranking |
 | spout_cross_section | round, rectangular | Ranking |
 
@@ -48,7 +48,7 @@ If foundation bugs surface during faucets implementation, they get fixed in the 
 
 ## Schema reuse declarations
 
-- `design_register` — shared with seating and tables. Faucets uses subset `{minimal, traditional}` of the canonical enum. Earlier proposed addition of `transitional` to the shared enumeration is rolled back.
+- `design_register` — shared with seating and tables. Faucets uses subset `{Minimal, Traditional, unknown}` of the canonical enum. Earlier proposed addition of `transitional` to the shared enumeration is rolled back.
 - `finish` — references the shared finish palette in the registry.
 - All other faucets traits are faucets-specific.
 
