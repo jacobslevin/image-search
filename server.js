@@ -33,6 +33,7 @@ import {
   readJson,
   writeJson
 } from "./src/utils.js";
+import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,13 +48,60 @@ const indexPath = getImageIndexPath();
 const unmappedCategoryDecisionsPath = getUnmappedCategoryDecisionsPath();
 const sceneFilterProgressPath = path.join(__dirname, "data", "scene-filter-progress.json");
 const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
-const seatingTypesPath = path.join(__dirname, "data", "seating-types.json");
 const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
 const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json");
 const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
 const traitCorrectionImagesDir = path.join(__dirname, "data", "trait-correction-images");
 const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
-const seatingTypesConfig = JSON.parse(fsSync.readFileSync(seatingTypesPath, "utf8"));
+function normalizeLegacySeatingField(fieldConfig = {}) {
+  const normalized = {
+    field: fieldConfig.field,
+    type: fieldConfig.type,
+    detectability: fieldConfig.detectability,
+    allowed_values: Array.isArray(fieldConfig.allowed_values) ? [...fieldConfig.allowed_values] : []
+  };
+
+  if (Object.prototype.hasOwnProperty.call(fieldConfig, "groups")) {
+    normalized.groups = fieldConfig.groups;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(fieldConfig, "value_definitions")) {
+    normalized.value_definitions = fieldConfig.value_definitions;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(fieldConfig, "priority")) {
+    normalized.priority = fieldConfig.priority;
+  }
+
+  return normalized;
+}
+
+function normalizeLegacySeatingTypeConfig(typeConfig = {}) {
+  return {
+    label: typeConfig.label,
+    visual_summary_categories: Array.isArray(typeConfig.visual_summary_categories)
+      ? [...typeConfig.visual_summary_categories]
+      : [],
+    fields: Array.isArray(typeConfig.fields)
+      ? typeConfig.fields.map((fieldConfig) => normalizeLegacySeatingField(fieldConfig))
+      : []
+  };
+}
+
+function loadLegacySeatingTypesConfig() {
+  const adapterConfig = loadSeatingTypesAdapter();
+  const normalizedTypes = {};
+  Object.entries(adapterConfig?.types || {}).forEach(([typeKey, typeConfig]) => {
+    normalizedTypes[typeKey] = normalizeLegacySeatingTypeConfig(typeConfig);
+  });
+  return {
+    version: String(adapterConfig?.version || ""),
+    default_type: String(adapterConfig?.default_type || ""),
+    types: normalizedTypes
+  };
+}
+
+const seatingTypesConfig = loadLegacySeatingTypesConfig();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
@@ -1859,7 +1907,7 @@ async function loadCatalog() {
 }
 
 async function loadSeatingTypes() {
-  return readJson(seatingTypesPath, { types: {}, default_type: "" });
+  return loadLegacySeatingTypesConfig();
 }
 
 function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString(), extra = {}) {
