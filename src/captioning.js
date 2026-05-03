@@ -18,6 +18,7 @@ import {
   tokenize,
   uniqueStrings
 } from "./utils.js";
+import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
 import { extractQueryTraits } from "./query-traits.js";
 import {
   getLoungeSofaTraitApplicability,
@@ -31,10 +32,9 @@ const execFileAsync = promisify(execFile);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const seatingTypesPath = path.join(__dirname, "..", "data", "seating-types.json");
 const pdfExtractPath = path.join(__dirname, "..", "data", "pdf-text-extract.json");
 
-const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"));
+const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
