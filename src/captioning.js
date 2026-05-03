@@ -11,6 +11,7 @@ import {
   getEffectiveExtractionImageCap,
   getEffectiveClassification,
   getPixelSeekType,
+  resolveVisualType,
   normalizeVisualTypeKey,
   normalizeImageClassification,
   normalizeWhitespace,
@@ -2741,6 +2742,66 @@ const LOW_VALUE_BULLET_BLOCKLIST = new Set([
   "4 legs"
 ]);
 
+export function resolveStage0RoutingContext(imageRecord = {}, options = {}) {
+  const explicitRouting = resolveVisualType({
+    visual_type:
+      options.visual_type ||
+      options.visualType ||
+      options.visual_type_override ||
+      options.visualTypeOverride ||
+      imageRecord.visual_type,
+    seating_type:
+      options.seating_type ||
+      options.seatingType ||
+      options.seating_type_override ||
+      options.seatingTypeOverride ||
+      imageRecord.seating_type
+  });
+  if (explicitRouting) {
+    return explicitRouting;
+  }
+
+  const pixelSeekType = getPixelSeekType(imageRecord);
+  const catalogVisualType = resolveCatalogVisualTypeKey(pixelSeekType);
+  if (catalogVisualType) {
+    return resolveVisualType({ visual_type: catalogVisualType });
+  }
+
+  return null;
+}
+
+export function buildStage0FurnitureCountPrompt(routingContext = null) {
+  const family = String(routingContext?.family || "").trim().toLowerCase();
+  if (family === "tables") {
+    return `Count the furniture in this photo. Furniture means: tables, desks, cabinets,
+shelving, benches, stools, chairs, sofas, or beds.
+
+Multiple of the same type count as 1.
+
+The intended product family for this image is tables.
+
+When the image contains a table product:
+- Count the primary table as the main furniture product.
+- A dominant table photographed in a room with surrounding chairs still counts as one furniture product.
+- Do not count accompanying chairs, stools, or other seating that merely support or surround the primary table.
+- Do not count faint background tables as additional furniture.
+- Count it as an additional furniture item only when a non-table furniture product is also substantially visible, or when another table-like product is clearly a separate co-primary furniture piece.
+
+Return only a number.`;
+  }
+
+  return `Count the furniture in this photo. Furniture means: chairs, sofas,
+tables, desks, cabinets, shelving, benches, stools, or beds.
+
+Multiple of the same type count as 1.
+
+A seating product with an integrated or attached table, tablet, or worksurface counts as one furniture product when that surface is structurally attached to the seating product itself or shares the same base or frame.
+
+Count it as a separate furniture item only when the table or worksurface stands on its own independent support structure or is clearly a separate companion piece.
+
+Return only a number.`;
+}
+
 const OBJECT_NOUNS = new Set(["chair", "table", "sofa", "stool", "bench", "desk", "seat", "furniture"]);
 const COMPONENT_NOUNS = new Set([
   "leg",
@@ -3298,19 +3359,11 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
   }
 
   const model = options.stage0Model || "gpt-4.1";
+  const routingContext = options.stage0RoutingContext || null;
   const { data: countData, usage: countUsage } = await callOpenAiJsonWithMeta({
     apiKey: options.apiKey,
     model,
-    systemPrompt: `Count the furniture in this photo. Furniture means: chairs, sofas,
-tables, desks, cabinets, shelving, benches, stools, or beds.
-
-Multiple of the same type count as 1.
-
-A seating product with an integrated or attached table, tablet, or worksurface counts as one furniture product when that surface is structurally attached to the seating product itself or shares the same base or frame.
-
-Count it as a separate furniture item only when the table or worksurface stands on its own independent support structure or is clearly a separate companion piece.
-
-Return only a number.`,
+    systemPrompt: buildStage0FurnitureCountPrompt(routingContext),
     userParts: [
       ...(imageInput.catalogContext
         ? [{ type: "input_text", text: imageInput.catalogContext }]
@@ -3384,6 +3437,7 @@ Return "full" or "partial".`,
 
 export async function classifyImageStage0Only(imageRecord = {}, options = {}) {
   const categories = normalizeCategories(imageRecord);
+  const stage0RoutingContext = resolveStage0RoutingContext(imageRecord, options);
   const imageDimensions = options.precomputedImageDimensions ||
     (imageRecord.image_width && imageRecord.image_height
       ? { width: Number(imageRecord.image_width), height: Number(imageRecord.image_height) }
@@ -3394,6 +3448,7 @@ export async function classifyImageStage0Only(imageRecord = {}, options = {}) {
   };
   const { data, usage } = await classifyStage0ProductSceneWithMeta(imageInput, {
     ...options,
+    stage0RoutingContext,
     precomputedImageDimensions: imageDimensions
   });
   return {
@@ -3838,10 +3893,12 @@ async function embedSearchText(searchText = "", options = {}) {
 
 export async function classifyImageStage0(imageRecord = {}, options = {}) {
   const categories = normalizeCategories(imageRecord);
+  const stage0RoutingContext = resolveStage0RoutingContext(imageRecord, options);
   const imageDimensions = options.precomputedImageDimensions ||
     await enforceMatchingSafeResolution(imageRecord.image_url, options);
   const optionsWithDimensions = {
     ...options,
+    stage0RoutingContext,
     precomputedImageDimensions: imageDimensions
   };
   const imageInput = {
