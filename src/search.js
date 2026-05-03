@@ -1,7 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
 import {
   cosineSimilarity,
   embedTextWithOpenAi,
@@ -11,6 +7,7 @@ import {
   getLeafCategories
 } from "./utils.js";
 import { isSearchRecordEligible } from "./search-category-filter.js";
+import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
 
 const RERANKER_ENABLED = true;
 const RERANKER_MODEL = "gpt-4o-mini";
@@ -43,10 +40,7 @@ const ROOM_SCENE_TERMS = [
   "area"
 ];
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const seatingTypesPath = path.join(__dirname, "..", "data", "seating-types.json");
-const seatingTypesConfig = JSON.parse(fs.readFileSync(seatingTypesPath, "utf8"));
+const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
