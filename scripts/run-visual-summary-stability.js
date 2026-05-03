@@ -3,12 +3,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { classifyImageStage0Only, extractStage23CombinedOpenAi } from "../src/captioning.js";
+import { loadSeatingTypesAdapter } from "../src/seating-types-adapter.js";
 import { getEffectiveExtractionImageCap, getPixelSeekType } from "../src/utils.js";
 
 const ROOT_DIR = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const INDEX_PATH = path.join(ROOT_DIR, "data", "image-index.json");
 const CATALOG_PATH = path.join(ROOT_DIR, "data", "normalized-catalog.json");
-const SEATING_TYPES_PATH = path.join(ROOT_DIR, "data", "seating-types.json");
 const OUTPUT_PATH = path.join(ROOT_DIR, "data", "stability-test-results.json");
 
 const TYPE_KEYS = ["lounge_chair", "task_collab_chair", "guest_chair", "stool", "bench"];
@@ -447,7 +447,7 @@ async function run() {
   const index = readJson(INDEX_PATH);
   const catalog = readJson(CATALOG_PATH);
   const catalogMaps = buildCatalogMaps(catalog);
-  const seatingTypes = readJson(SEATING_TYPES_PATH).types || {};
+  const seatingTypes = loadSeatingTypesAdapter().types || {};
   const selectedSamples = pickSamples(index, DEFAULT_SEED);
   const existingArtifact = fs.existsSync(OUTPUT_PATH) ? readJson(OUTPUT_PATH) : null;
   const results = Array.isArray(existingArtifact?.results) ? [...existingArtifact.results] : [];
