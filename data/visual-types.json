@@ -1,0 +1,1631 @@
+{
+  "version": "2.0",
+  "canonical_routing_field": "visual_type",
+  "legacy_aliases": {
+    "seating_type": {
+      "maps_to": "visual_type",
+      "status": "compatibility_alias"
+    }
+  },
+  "shared_values": {
+    "design_register_v1": {
+      "kind": "enum",
+      "values": [
+        "Minimal",
+        "Organic",
+        "Industrial",
+        "Traditional",
+        "Sculptural",
+        "Utilitarian",
+        "unknown"
+      ],
+      "labels": {
+        "Minimal": "Minimal",
+        "Organic": "Organic",
+        "Industrial": "Industrial",
+        "Traditional": "Traditional",
+        "Sculptural": "Sculptural",
+        "Utilitarian": "Utilitarian",
+        "unknown": "unknown"
+      }
+    },
+    "finish_palette_v1": {
+      "kind": "enum",
+      "values": [
+        "polished_chrome_nickel",
+        "brushed_nickel_stainless",
+        "matte_black",
+        "warm_gold_brass",
+        "bronze_dark",
+        "white",
+        "colored"
+      ],
+      "labels": {
+        "polished_chrome_nickel": "Polished chrome / nickel",
+        "brushed_nickel_stainless": "Brushed nickel / stainless",
+        "matte_black": "Matte black",
+        "warm_gold_brass": "Warm gold / brass",
+        "bronze_dark": "Bronze / dark",
+        "white": "White",
+        "colored": "Colored"
+      }
+    },
+    "mobility_v1": {
+      "kind": "enum",
+      "values": [
+        "Casters",
+        "Non-mobile",
+        "unknown"
+      ],
+      "labels": {
+        "Casters": "Casters",
+        "Non-mobile": "Non-mobile",
+        "unknown": "unknown"
+      }
+    }
+  },
+  "shared_fields": {
+    "design_register": {
+      "type": "enum",
+      "value_set": "design_register_v1"
+    },
+    "finish": {
+      "type": "enum",
+      "value_set": "finish_palette_v1"
+    },
+    "mobility": {
+      "type": "enum",
+      "value_set": "mobility_v1"
+    }
+  },
+  "families": {
+    "seating": {
+      "label": "Seating",
+      "archetype": "A",
+      "source_schema": "data/seating-types.json",
+      "categories": {
+        "task_collab_chair": {
+          "label": "Task & Collaborative Chair",
+          "visual_summary_categories": [
+            "five-star task chair",
+            "five-star glide chair",
+            "sled work chair",
+            "four-leg work chair"
+          ],
+          "fields": [
+            {
+              "field": "back_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Mesh / net",
+                "Upholstered",
+                "Plastic",
+                "Knit",
+                "unknown"
+              ]
+            },
+            {
+              "field": "back_profile",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Square / angular",
+                "Rounded / curved",
+                "unknown"
+              ]
+            },
+            {
+              "field": "arm_option",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Armless",
+                "Fixed arms",
+                "Adjustable arms",
+                "Integrated",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fixed arms",
+                  "Adjustable arms"
+                ]
+              ]
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "5-star with casters",
+                "5-star with glides",
+                "Sled",
+                "4-leg",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "5-star with casters",
+                  "5-star with glides"
+                ]
+              ]
+            },
+            {
+              "field": "base_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "Black",
+                "White",
+                "Polished chrome / aluminum",
+                "Painted color",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Black",
+                  "White",
+                  "Polished chrome / aluminum",
+                  "Painted color"
+                ]
+              ]
+            },
+            {
+              "field": "seat_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Molded plastic",
+                "Mesh / net",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "detectability": "yes"
+            }
+          ]
+        },
+        "lounge_chair": {
+          "label": "Lounge Chair",
+          "visual_summary_categories": [
+            "lounge chair",
+            "armless lounge chair",
+            "one-arm lounge chair",
+            "two-arm lounge chair",
+            "integrated lounge chair",
+            "high-back lounge chair",
+            "privacy lounge chair",
+            "ottoman",
+            "corner unit",
+            "modular component",
+            "sofa",
+            "modular sofa",
+            "modular seating"
+          ],
+          "fields": [
+            {
+              "field": "seat_height_type",
+              "type": "enum",
+              "detectability": "no",
+              "allowed_values": [
+                "Fixed height",
+                "Adjustable height"
+              ]
+            },
+            {
+              "field": "swivel_mechanism",
+              "type": "enum",
+              "detectability": "no",
+              "allowed_values": [
+                "Fixed / no swivel",
+                "Swivel",
+                "Tilt-swivel",
+                "Rocking"
+              ]
+            },
+            {
+              "field": "arm_option",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Armless",
+                "One arm",
+                "Two arms",
+                "Integrated / sculpted",
+                "unknown"
+              ]
+            },
+            {
+              "field": "body_construction",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Upholstered",
+                "Molded plastic shell",
+                "Molded plywood shell",
+                "Suspended / sling",
+                "Panel / privacy enclosure",
+                "unknown"
+              ],
+              "value_definitions": {
+                "Upholstered": "any upholstered lounge chair body, including both continuous shell forms and traditional frame-and-cushion constructions",
+                "Molded plastic shell": "hard plastic one-piece structural form is the visible seat and back surface",
+                "Molded plywood shell": "structural bent or molded plywood; wood grain is visible as the structural surface, not just a veneer overlay",
+                "Suspended / sling": "material is tensioned between a visible frame; seat and back hang rather than rest on a surface",
+                "Panel / privacy enclosure": "high side panels form a three-sided or four-sided enclosure, rising above shoulder or head level"
+              }
+            },
+            {
+              "field": "base_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "normal",
+              "allowed_values": [
+                "Black",
+                "White",
+                "Polished chrome / aluminum",
+                "Painted color",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Black",
+                  "White",
+                  "Polished chrome / aluminum",
+                  "Painted color"
+                ]
+              ]
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "4-leg",
+                "Sled",
+                "Pedestal",
+                "Square plate / plinth",
+                "Integrated base",
+                "Casters",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "4-leg",
+                  "Sled",
+                  "Pedestal",
+                  "Square plate / plinth",
+                  "Casters"
+                ]
+              ]
+            },
+            {
+              "field": "seat_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Unupholstered",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "back_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Matches seat",
+                "Independent fabric",
+                "Unupholstered shell",
+                "unknown"
+              ]
+            },
+            {
+              "field": "back_height",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Low",
+                "Mid",
+                "High",
+                "Full enclosure",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Low",
+                  "Mid"
+                ],
+                [
+                  "Mid",
+                  "High"
+                ]
+              ]
+            },
+            {
+              "field": "configuration",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Single seat",
+                "Double seat",
+                "Triple seat (or larger)",
+                "Modular component",
+                "Corner unit",
+                "Ottoman",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Double seat",
+                  "Triple seat (or larger)"
+                ],
+                [
+                  "Modular component",
+                  "Corner unit"
+                ]
+              ]
+            },
+            {
+              "field": "seat_construction",
+              "type": "enum",
+              "detectability": "stage4",
+              "priority": "normal",
+              "allowed_values": [
+                "Cushion Only",
+                "Cushion on Platform"
+              ]
+            },
+            {
+              "field": "narrow_arms",
+              "type": "enum",
+              "detectability": "stage4",
+              "priority": "normal",
+              "allowed_values": [
+                "Narrower",
+                "Wider"
+              ]
+            },
+            {
+              "field": "arms_flush_with_back",
+              "type": "enum",
+              "detectability": "stage4",
+              "priority": "essential",
+              "allowed_values": [
+                "Flush with Back",
+                "Below Back"
+              ]
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "detectability": "yes"
+            },
+            {
+              "field": "shape_character",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Soft / tapered",
+                "Boxy",
+                "unknown"
+              ]
+            },
+            {
+              "field": "plan_shape",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Round / semicircular",
+                "Trapezoidal",
+                "Reverse trapezoidal",
+                "Square / rectangular",
+                "unknown"
+              ]
+            }
+          ]
+        },
+        "stool": {
+          "label": "Stool",
+          "visual_summary_categories": [
+            "backless stool",
+            "low-back stool",
+            "full-back stool",
+            "perching stool",
+            "saddle stool",
+            "wobble stool",
+            "pedestal stool",
+            "four-leg stool",
+            "five-star caster stool",
+            "five-star glide stool",
+            "molded one-piece stool"
+          ],
+          "fields": [
+            {
+              "field": "seat_geometry",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Flat",
+                "Angled / perch",
+                "Saddle",
+                "Wobble / balance",
+                "unknown"
+              ]
+            },
+            {
+              "field": "back",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Backless",
+                "Low back",
+                "Full back",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Low back",
+                  "Full back"
+                ]
+              ]
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "5-star with casters",
+                "5-star with glides",
+                "4-leg",
+                "Pedestal",
+                "Molded one-piece",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "5-star with casters",
+                  "5-star with glides"
+                ]
+              ]
+            },
+            {
+              "field": "base_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "Black",
+                "White",
+                "Polished chrome / aluminum",
+                "Painted color",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Black",
+                  "White",
+                  "Polished chrome / aluminum",
+                  "Painted color"
+                ]
+              ]
+            },
+            {
+              "field": "seat_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Molded plastic",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "detectability": "yes"
+            }
+          ]
+        },
+        "guest_chair": {
+          "label": "Side & Guest Chair",
+          "visual_summary_categories": [
+            "four-leg guest chair",
+            "sled guest chair",
+            "cantilever guest chair",
+            "pedestal guest chair"
+          ],
+          "fields": [
+            {
+              "field": "base_type",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "4-leg",
+                "Sled",
+                "Cantilever",
+                "Pedestal",
+                "unknown"
+              ]
+            },
+            {
+              "field": "base_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "low",
+              "allowed_values": [
+                "Black",
+                "White",
+                "Polished chrome / aluminum",
+                "Painted color",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Black",
+                  "White",
+                  "Polished chrome / aluminum",
+                  "Painted color"
+                ]
+              ]
+            },
+            {
+              "field": "arm_option",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Armless",
+                "Open arm",
+                "Closed arm",
+                "Integrated",
+                "unknown"
+              ]
+            },
+            {
+              "field": "back_profile",
+              "type": "enum",
+              "detectability": "yes",
+              "priority": "essential",
+              "allowed_values": [
+                "Square / angular",
+                "Rounded / curved",
+                "unknown"
+              ]
+            },
+            {
+              "field": "frame_openness",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Open / see-through",
+                "Closed / solid",
+                "unknown"
+              ]
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "detectability": "yes"
+            },
+            {
+              "field": "seat_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Molded plastic",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "back_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Mesh / net",
+                "Molded plastic",
+                "Natural wood",
+                "Unupholstered",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "detectability": "yes"
+            }
+          ]
+        },
+        "bench": {
+          "label": "Bench",
+          "visual_summary_categories": [
+            "backless bench",
+            "low-back bench",
+            "full-back bench",
+            "double-seat bench",
+            "triple-seat bench",
+            "custom-width bench"
+          ],
+          "fields": [
+            {
+              "field": "configuration",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Double seat",
+                "Triple seat (or larger)",
+                "Custom width",
+                "unknown"
+              ]
+            },
+            {
+              "field": "frame_material",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Steel tube",
+                "Solid wood",
+                "Wood + steel",
+                "Upholstered",
+                "Metal sheet",
+                "unknown"
+              ]
+            },
+            {
+              "field": "base_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Black",
+                "White",
+                "Polished chrome / aluminum",
+                "Painted color",
+                "Natural wood",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Black",
+                  "White",
+                  "Polished chrome / aluminum",
+                  "Painted color"
+                ]
+              ]
+            },
+            {
+              "field": "seat_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Fabric",
+                "Leather",
+                "Natural wood",
+                "Metal",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Fabric",
+                  "Leather"
+                ]
+              ]
+            },
+            {
+              "field": "back_height",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Backless",
+                "Low back",
+                "Full back",
+                "unknown"
+              ],
+              "groups": [
+                [
+                  "Low back",
+                  "Full back"
+                ]
+              ]
+            },
+            {
+              "field": "back_finish",
+              "type": "enum",
+              "detectability": "yes",
+              "allowed_values": [
+                "Upholstered",
+                "Natural wood",
+                "Unupholstered",
+                "unknown"
+              ]
+            },
+            {
+              "field": "floor_interface",
+              "type": "enum",
+              "detectability": "no",
+              "allowed_values": [
+                "Polymer glides",
+                "Felt glides",
+                "Hard floor rated",
+                "Carpet rated"
+              ]
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "detectability": "yes"
+            }
+          ]
+        }
+      }
+    },
+    "tables": {
+      "label": "Tables",
+      "archetype": "A",
+      "source_spec": "docs/v2-categories/tables.md",
+      "categories": {
+        "conference": {
+          "label": "Conference",
+          "fields": [
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "priority": "high",
+              "detectability": "medium_high"
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "allowed_values": [
+                "Pedestal",
+                "4-leg",
+                "Trestle",
+                "T-leg",
+                "X-base",
+                "Tripod",
+                "Panel-slab",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_shape",
+              "type": "enum",
+              "allowed_values": [
+                "Round",
+                "Square",
+                "Rectangle",
+                "Oval",
+                "Soft-organic",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_material",
+              "type": "enum",
+              "allowed_values": [
+                "Wood-look",
+                "Stone-look",
+                "Solid-color",
+                "Glass",
+                "Metal",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "medium"
+            },
+            {
+              "field": "base_visual_weight",
+              "type": "enum",
+              "allowed_values": [
+                "Heavy/grounded",
+                "Light/airy",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "base_finish",
+              "inherits": "finish",
+              "priority": "medium",
+              "detectability": "medium"
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "priority": "low",
+              "detectability": "high_when_visible"
+            },
+            {
+              "field": "top_thickness",
+              "type": "enum",
+              "allowed_values": [
+                "Thin",
+                "Standard",
+                "Thick-slab",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "medium"
+            },
+            {
+              "field": "edge_profile",
+              "type": "enum",
+              "allowed_values": [
+                "Square",
+                "Eased",
+                "Beveled",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "low_medium"
+            },
+            {
+              "field": "power_data_integration",
+              "type": "enum",
+              "allowed_values": [
+                "Present",
+                "Not visible",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high_when_present"
+            }
+          ]
+        },
+        "occasional": {
+          "label": "Occasional",
+          "fields": [
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "priority": "high",
+              "detectability": "medium_high"
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "allowed_values": [
+                "Pedestal",
+                "4-leg",
+                "Trestle",
+                "T-leg",
+                "X-base",
+                "Tripod",
+                "Panel-slab",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_shape",
+              "type": "enum",
+              "allowed_values": [
+                "Round",
+                "Square",
+                "Rectangle",
+                "Oval",
+                "Soft-organic",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_material",
+              "type": "enum",
+              "allowed_values": [
+                "Wood-look",
+                "Stone-look",
+                "Solid-color",
+                "Glass",
+                "Metal",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "medium"
+            },
+            {
+              "field": "base_visual_weight",
+              "type": "enum",
+              "allowed_values": [
+                "Heavy/grounded",
+                "Light/airy",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "base_finish",
+              "inherits": "finish",
+              "priority": "medium",
+              "detectability": "medium"
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "priority": "low",
+              "detectability": "high_when_visible"
+            },
+            {
+              "field": "top_thickness",
+              "type": "enum",
+              "allowed_values": [
+                "Thin",
+                "Standard",
+                "Thick-slab",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "medium"
+            },
+            {
+              "field": "edge_profile",
+              "type": "enum",
+              "allowed_values": [
+                "Square",
+                "Eased",
+                "Beveled",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "low_medium"
+            },
+            {
+              "field": "height_register",
+              "type": "enum",
+              "allowed_values": [
+                "Coffee",
+                "End/Side",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            }
+          ]
+        },
+        "cafe_dining": {
+          "label": "Cafe/Dining",
+          "fields": [
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "priority": "high",
+              "detectability": "medium_high"
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "allowed_values": [
+                "Pedestal",
+                "4-leg",
+                "Trestle",
+                "T-leg",
+                "X-base",
+                "Tripod",
+                "Panel-slab",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_shape",
+              "type": "enum",
+              "allowed_values": [
+                "Round",
+                "Square",
+                "Rectangle",
+                "Oval",
+                "Soft-organic",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_material",
+              "type": "enum",
+              "allowed_values": [
+                "Wood-look",
+                "Stone-look",
+                "Solid-color",
+                "Glass",
+                "Metal",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "medium"
+            },
+            {
+              "field": "base_visual_weight",
+              "type": "enum",
+              "allowed_values": [
+                "Heavy/grounded",
+                "Light/airy",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "base_finish",
+              "inherits": "finish",
+              "priority": "medium",
+              "detectability": "medium"
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "priority": "low",
+              "detectability": "high_when_visible"
+            },
+            {
+              "field": "top_thickness",
+              "type": "enum",
+              "allowed_values": [
+                "Thin",
+                "Standard",
+                "Thick-slab",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "medium"
+            },
+            {
+              "field": "edge_profile",
+              "type": "enum",
+              "allowed_values": [
+                "Square",
+                "Eased",
+                "Beveled",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "low_medium"
+            },
+            {
+              "field": "height_register",
+              "type": "enum",
+              "allowed_values": [
+                "Sitting",
+                "Standing",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            }
+          ]
+        },
+        "training": {
+          "label": "Training",
+          "fields": [
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "priority": "high",
+              "detectability": "medium_high"
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "allowed_values": [
+                "Pedestal",
+                "4-leg",
+                "Trestle",
+                "T-leg",
+                "X-base",
+                "Tripod",
+                "Panel-slab",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_shape",
+              "type": "enum",
+              "allowed_values": [
+                "Round",
+                "Square",
+                "Rectangle",
+                "Oval",
+                "Soft-organic",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_material",
+              "type": "enum",
+              "allowed_values": [
+                "Wood-look",
+                "Stone-look",
+                "Solid-color",
+                "Glass",
+                "Metal",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "medium"
+            },
+            {
+              "field": "base_visual_weight",
+              "type": "enum",
+              "allowed_values": [
+                "Heavy/grounded",
+                "Light/airy",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "base_finish",
+              "inherits": "finish",
+              "priority": "medium",
+              "detectability": "medium"
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "priority": "low",
+              "detectability": "high_when_visible"
+            },
+            {
+              "field": "top_thickness",
+              "type": "enum",
+              "allowed_values": [
+                "Thin",
+                "Standard",
+                "Thick-slab",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "medium"
+            },
+            {
+              "field": "edge_profile",
+              "type": "enum",
+              "allowed_values": [
+                "Square",
+                "Eased",
+                "Beveled",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "low_medium"
+            },
+            {
+              "field": "height_register",
+              "type": "enum",
+              "allowed_values": [
+                "Sitting",
+                "Standing",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "power_data_integration",
+              "type": "enum",
+              "allowed_values": [
+                "Present",
+                "Not visible",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high_when_present"
+            }
+          ]
+        },
+        "huddle_collaborative": {
+          "label": "Huddle/Collaborative",
+          "fields": [
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "priority": "high",
+              "detectability": "medium_high"
+            },
+            {
+              "field": "base_type",
+              "type": "enum",
+              "allowed_values": [
+                "Pedestal",
+                "4-leg",
+                "Trestle",
+                "T-leg",
+                "X-base",
+                "Tripod",
+                "Panel-slab",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_shape",
+              "type": "enum",
+              "allowed_values": [
+                "Round",
+                "Square",
+                "Rectangle",
+                "Oval",
+                "Soft-organic",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "high"
+            },
+            {
+              "field": "top_material",
+              "type": "enum",
+              "allowed_values": [
+                "Wood-look",
+                "Stone-look",
+                "Solid-color",
+                "Glass",
+                "Metal",
+                "unknown"
+              ],
+              "priority": "high",
+              "detectability": "medium"
+            },
+            {
+              "field": "base_visual_weight",
+              "type": "enum",
+              "allowed_values": [
+                "Heavy/grounded",
+                "Light/airy",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "base_finish",
+              "inherits": "finish",
+              "priority": "medium",
+              "detectability": "medium"
+            },
+            {
+              "field": "mobility",
+              "inherits": "mobility",
+              "priority": "low",
+              "detectability": "high_when_visible"
+            },
+            {
+              "field": "top_thickness",
+              "type": "enum",
+              "allowed_values": [
+                "Thin",
+                "Standard",
+                "Thick-slab",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "medium"
+            },
+            {
+              "field": "edge_profile",
+              "type": "enum",
+              "allowed_values": [
+                "Square",
+                "Eased",
+                "Beveled",
+                "unknown"
+              ],
+              "priority": "low",
+              "detectability": "low_medium"
+            },
+            {
+              "field": "height_register",
+              "type": "enum",
+              "allowed_values": [
+                "Sitting",
+                "Standing",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high"
+            },
+            {
+              "field": "power_data_integration",
+              "type": "enum",
+              "allowed_values": [
+                "Present",
+                "Not visible",
+                "unknown"
+              ],
+              "priority": "medium",
+              "detectability": "high_when_present"
+            }
+          ]
+        }
+      }
+    },
+    "faucets": {
+      "label": "Faucets",
+      "archetype": "A",
+      "source_spec": "docs/v2-categories/faucets.md",
+      "categories": {
+        "kitchen_faucet": {
+          "label": "Kitchen Faucet",
+          "fields": [
+            {
+              "field": "mounting_type",
+              "type": "enum",
+              "allowed_values": [
+                "deck",
+                "wall"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "handle_count",
+              "type": "enum",
+              "allowed_values": [
+                "0",
+                "1",
+                "2",
+                "3"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "handle_style",
+              "type": "enum",
+              "allowed_values": [
+                "lever",
+                "cross",
+                "knob",
+                "blade",
+                "wheel",
+                "none_visible"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "finish",
+              "inherits": "finish",
+              "priority": "ranking"
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "allowed_subset": [
+                "Minimal",
+                "Traditional",
+                "unknown"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "body_geometry",
+              "type": "enum",
+              "allowed_values": [
+                "round",
+                "rectangular"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "spout_cross_section",
+              "type": "enum",
+              "allowed_values": [
+                "round",
+                "rectangular"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "spout_style",
+              "type": "enum",
+              "allowed_values": [
+                "gooseneck",
+                "straight",
+                "angular",
+                "articulating",
+                "bridge",
+                "pot-filler-folding"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "spout_articulation",
+              "type": "enum",
+              "allowed_values": [
+                "pull-spray",
+                "non-pull"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "side_spray",
+              "type": "enum",
+              "allowed_values": [
+                "Present",
+                "Absent",
+                "unknown"
+              ],
+              "priority": "descriptive"
+            }
+          ]
+        },
+        "bathroom_lavatory_faucet": {
+          "label": "Bathroom Lavatory Faucet",
+          "fields": [
+            {
+              "field": "mounting_type",
+              "type": "enum",
+              "allowed_values": [
+                "deck",
+                "wall"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "handle_count",
+              "type": "enum",
+              "allowed_values": [
+                "0",
+                "1",
+                "2",
+                "3"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "handle_style",
+              "type": "enum",
+              "allowed_values": [
+                "lever",
+                "cross",
+                "knob",
+                "blade",
+                "wheel",
+                "none_visible"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "finish",
+              "inherits": "finish",
+              "priority": "ranking"
+            },
+            {
+              "field": "design_register",
+              "inherits": "design_register",
+              "allowed_subset": [
+                "Minimal",
+                "Traditional",
+                "unknown"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "body_geometry",
+              "type": "enum",
+              "allowed_values": [
+                "round",
+                "rectangular"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "spout_cross_section",
+              "type": "enum",
+              "allowed_values": [
+                "round",
+                "rectangular"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "spout_style",
+              "type": "enum",
+              "allowed_values": [
+                "gooseneck",
+                "straight",
+                "angular",
+                "waterfall"
+              ],
+              "priority": "ranking"
+            },
+            {
+              "field": "configuration",
+              "type": "enum",
+              "allowed_values": [
+                "single-hole",
+                "centerset",
+                "widespread"
+              ],
+              "priority": "ranking"
+            }
+          ]
+        }
+      }
+    },
+    "finishes": {
+      "label": "Finishes",
+      "archetype": "B",
+      "source_spec": "docs/v2-categories/finishes.md",
+      "status": "phase_3_placeholder",
+      "note": "Parallel Archetype B pipeline. Full category structure, embedding model selection, color composition palette, and query-time extraction contract are deferred to Phase 3 architecture exploration.",
+      "categories": {}
+    }
+  },
+  "defaults": {
+    "family": "",
+    "visual_type": ""
+  }
+}
