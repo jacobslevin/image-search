@@ -1,11 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { loadSeatingTypesAdapter } from "../src/seating-types-adapter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const seatingTypesPath = path.join(__dirname, "..", "data", "seating-types.json");
 const indexPath = path.join(__dirname, "..", "data", "image-index.json");
 const backupPath = path.join(__dirname, "..", "data", "image-index.pre-ghost-field-cleanup-backup.json");
 const SAMPLE_LIMIT = 20;
@@ -84,7 +84,7 @@ function stripGhostEnumFieldsFromRecord(record, schemaFieldsByType, summary, loc
 }
 
 function main() {
-  const seatingTypesConfig = readJson(seatingTypesPath);
+  const seatingTypesConfig = loadSeatingTypesAdapter();
   const schemaFieldsByType = getSchemaFieldSetMap(seatingTypesConfig);
   const index = readJson(indexPath);
   const images = Array.isArray(index?.images) ? index.images : [];
