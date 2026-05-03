@@ -90,6 +90,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
 
 const STRUCTURED_BULLET_FIELD_ALIASES = new Map([
   ["arms", "arm_option"],
+  ["arm_height", "arms_flush_with_back"],
   ["base", "base_type"],
   ["design", "design_register"],
   ["shape", "shape_character"],
