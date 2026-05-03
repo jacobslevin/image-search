@@ -21,6 +21,7 @@ import {
   uniqueStrings
 } from "./utils.js";
 import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
+import { loadVisualTypesRegistry } from "./visual-types-registry.js";
 import { extractQueryTraits } from "./query-traits.js";
 import {
   getLoungeSofaTraitApplicability,
@@ -36,17 +37,36 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const pdfExtractPath = path.join(__dirname, "..", "data", "pdf-text-extract.json");
 
+const visualTypesRegistry = loadVisualTypesRegistry();
+const visualTypesConfig = visualTypesRegistry.getRegistry();
+const visualTypeEntries = visualTypesRegistry.listVisualTypes();
+const visualTypeConfigByKey = Object.freeze(
+  Object.fromEntries(
+    visualTypeEntries.map((entry) => {
+      const familyConfig = visualTypesConfig.families?.[entry.family] || {};
+      const categoryConfig = familyConfig.categories?.[entry.visual_type] || {};
+      return [entry.visual_type, {
+        ...entry,
+        ...categoryConfig
+      }];
+    })
+  )
+);
+const VISUAL_TYPE_LABEL_TO_KEY = visualTypeEntries.reduce((acc, entry) => {
+  acc[String(entry.label || "").toLowerCase()] = entry.visual_type;
+  return acc;
+}, {});
+const seatingVisualTypeKeys = Object.freeze(
+  visualTypeEntries
+    .filter((entry) => entry.family === "seating")
+    .map((entry) => entry.visual_type)
+);
+
 const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
-const stage1SeatingTypeEnum = [
-  "task_collab_chair",
-  "lounge_chair",
-  "stool",
-  "guest_chair",
-  "bench"
-];
+const stage1VisualTypeEnum = seatingVisualTypeKeys;
 const stage1ResultEnum = ["product", "product_detail", "scene"];
 const stage0ResultEnum = ["product", "scene", "product_detail"];
 const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
@@ -395,11 +415,6 @@ const LEGACY_TRAIT_DEFAULTS = {
   material_details: [],
   notable_features: []
 };
-
-const TYPE_LABEL_TO_KEY = Object.entries(seatingTypes).reduce((acc, [key, value]) => {
-  acc[String(value.label || "").toLowerCase()] = key;
-  return acc;
-}, {});
 
 let pdfExtractCache = null;
 export const MATCHING_SAFE_MIN_SHORT_SIDE = 591;
@@ -857,15 +872,39 @@ function normalizeEnum(value, allowedValues = []) {
   return getCanonical("unknown") || "";
 }
 
-function ensureTypeKey(candidate) {
+function getVisualTypeInfo(candidate, fallbackTypeKey = "") {
   const raw = normalizeVisualTypeKey(candidate);
-  if (seatingTypes[raw]) return raw;
-  if (TYPE_LABEL_TO_KEY[raw]) return TYPE_LABEL_TO_KEY[raw];
-  return fallbackSeatingType;
+  const resolvedVisualType = raw && visualTypeConfigByKey[raw]
+    ? raw
+    : "";
+  if (resolvedVisualType) {
+    return cloneKnownValue(visualTypeConfigByKey[resolvedVisualType]);
+  }
+
+  const normalizedLabel = String(candidate || "").trim().toLowerCase();
+  const labelMatch = VISUAL_TYPE_LABEL_TO_KEY[normalizedLabel];
+  if (labelMatch && visualTypeConfigByKey[labelMatch]) {
+    return cloneKnownValue(visualTypeConfigByKey[labelMatch]);
+  }
+
+  const fallback = normalizeVisualTypeKey(fallbackTypeKey);
+  if (fallback && visualTypeConfigByKey[fallback]) {
+    return cloneKnownValue(visualTypeConfigByKey[fallback]);
+  }
+
+  return null;
+}
+
+function ensureTypeKey(candidate) {
+  return getVisualTypeInfo(candidate, fallbackSeatingType)?.visual_type || fallbackSeatingType;
+}
+
+function resolveStage1VisualTypeInfo(stage1 = {}) {
+  return getVisualTypeInfo(stage1?.visual_type || stage1?.seating_type || "", fallbackSeatingType);
 }
 
 function resolveStage1VisualType(stage1 = {}) {
-  return ensureTypeKey(stage1?.visual_type || stage1?.seating_type || "");
+  return resolveStage1VisualTypeInfo(stage1)?.visual_type || fallbackSeatingType;
 }
 
 function normalizeStage1Result(result = "") {
@@ -1279,7 +1318,7 @@ function classifySchema() {
       },
       seating_type: {
         type: "string",
-        enum: [...stage1SeatingTypeEnum, ""]
+        enum: [...stage1VisualTypeEnum, ""]
       }
     },
     required: ["result", "override_reason", "seating_type"]
@@ -1453,7 +1492,7 @@ function consolidatedExtractionSchema() {
       },
       seating_type: {
         type: "string",
-        enum: stage1SeatingTypeEnum
+        enum: stage1VisualTypeEnum
       },
       visual_form: {
         type: "string"
@@ -1537,7 +1576,7 @@ Step 2: If this is not a product_detail shot, assess whether the image should be
 
 Step 3: Determine the seating_type when result is product.
 - Choose exactly one seating_type from this enum:
-  [${stage1SeatingTypeEnum.join(", ")}]
+  [${stage1VisualTypeEnum.join(", ")}]
 - Use catalog context only as a disambiguation hint, never as an override.
 
 Step 4: Based on that seating_type, write visual_form.
