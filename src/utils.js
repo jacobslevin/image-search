@@ -11,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const ROOT_DIR = path.resolve(__dirname, "..");
 export const DATA_DIR = path.join(ROOT_DIR, "data");
+const DEFAULT_LIVE_IMAGE_INDEX_PATH = "/Users/jacobslevin/Documents/Documents - Jacob’s Mac Studio/Jake 2.0/Codex/PixelSeek/image-index.json";
 
 function resolveOverridePath(envName, defaultPath) {
   const rawValue = String(process.env[envName] || "").trim();
@@ -21,7 +22,8 @@ function resolveOverridePath(envName, defaultPath) {
 }
 
 export function getImageIndexPath() {
-  return resolveOverridePath("IMAGE_INDEX_PATH", path.join(DATA_DIR, "image-index.json"));
+  // Canonical local live index path. Explicit IMAGE_INDEX_PATH still wins when set.
+  return resolveOverridePath("IMAGE_INDEX_PATH", DEFAULT_LIVE_IMAGE_INDEX_PATH);
 }
 
 export function getUnmappedCategoryDecisionsPath() {
