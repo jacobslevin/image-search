@@ -117,6 +117,31 @@ function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
   return getVisualTypeOptions(bootstrap);
 }
 
+function syncVisualTypeSelectOptions(select, allLabel = "All categories", bootstrap = state.bootstrap) {
+  if (!(select instanceof HTMLSelectElement)) {
+    return;
+  }
+  const previousValue = String(select.value || "").trim() || "all";
+  const options = getBootstrapRoutingTypeOptions(bootstrap);
+  select.replaceChildren();
+
+  const allOption = document.createElement("option");
+  allOption.value = "all";
+  allOption.textContent = allLabel;
+  select.appendChild(allOption);
+
+  options.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = formatVisualTypeLabel(value, bootstrap);
+    select.appendChild(option);
+  });
+
+  select.value = Array.from(select.options).some((option) => option.value === previousValue)
+    ? previousValue
+    : "all";
+}
+
 function getPayloadVisualType(payload = {}) {
   return String(
     payload?.visual_type ||
@@ -1291,6 +1316,7 @@ function syncBrowseCategoryControl(payload = state.lastPayload, query = state.la
   }
   const browseMode = isBrowsePayload(payload, query);
   const shouldShow = browseMode && !state.currentImageAnalysis;
+  syncVisualTypeSelectOptions(elements.browseCategorySelect, "All categories");
   elements.browseCategoryScopeBar.hidden = !shouldShow;
   elements.browseCategorySelect.value = getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all";
   elements.browseCategorySelect.disabled = state.categoryScopeLoading;
@@ -1520,6 +1546,7 @@ function renderSearchComposer(fullQuery = state.lastQuery) {
   const composerParts = showChip
     ? splitQueryAroundCategoryScope(fullQuery, selectedCategory)
     : { prefix: "", match: "", suffix: String(fullQuery || "").trim() };
+  syncVisualTypeSelectOptions(elements.searchCategorySelect, "All categories");
   elements.searchCategoryChipWrap.hidden = !showChip;
   searchField?.classList.toggle("has-inline-category", showChip);
   state.searchComposerPrefix = showChip ? composerParts.prefix : "";
@@ -7579,13 +7606,20 @@ async function runSearch(query, options = {}) {
     state.categoryScopeMode ||
     "all"
   ).trim().toLowerCase();
-  const inferredVisualTypeFromQuery = !options.visualType && !options.seatingType && !imageAnalysis
+  const normalizedOptionVisualType = normalizeVisualTypeKey(
+    String(options.visualType ?? options.seatingType ?? "").trim().toLowerCase() === "all"
+      ? ""
+      : (options.visualType ?? options.seatingType ?? "")
+  );
+  const normalizedScopeVisualType = getPrimaryCategoryScopeSelection(state.resultCategoryScope) === "all"
+    ? ""
+    : getPrimaryCategoryScopeSelection(state.resultCategoryScope);
+  const inferredVisualTypeFromQuery = !normalizedOptionVisualType && !imageAnalysis
     ? detectCategoryScopeFromQuery(normalizedQuery)
     : "";
   const requestedVisualType = String(
-    options.visualType ??
-    options.seatingType ??
-    getPrimaryCategoryScopeSelection(state.resultCategoryScope) ??
+    normalizedOptionVisualType ??
+    normalizedScopeVisualType ??
     inferredVisualTypeFromQuery ??
     imageAnalysis?.stage1?.visual_type ??
     imageAnalysis?.visual_type ??
@@ -7627,31 +7661,31 @@ async function runSearch(query, options = {}) {
 
   try {
     const shouldUsePostSearch = Boolean(imageAnalysis || apiRequestedVisualType);
+    const postRequestBody = {
+      q: normalizedQuery,
+      source_image_url: sourceImageUrl,
+      sort,
+      category: effectiveCategoryFilter,
+      refresh_age: refreshAgeFilter,
+      ...(apiRequestedVisualType ? { visual_type: apiRequestedVisualType } : {}),
+      image_analysis: imageAnalysis,
+      selected_bullets: requestedSelectedBullets
+    };
+    const getRequestUrl = `/api/search?${new URLSearchParams([
+      ["q", normalizedQuery],
+      ["source_image_url", sourceImageUrl],
+      ["sort", sort],
+      ...(apiRequestedVisualType ? [["visual_type", apiRequestedVisualType]] : []),
+      ...effectiveCategoryFilter.map((category) => ["category", category]),
+      ["refresh_age", refreshAgeFilter]
+    ]).toString()}`;
     const payload = shouldUsePostSearch
       ? await fetchJson("/api/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            q: normalizedQuery,
-            source_image_url: sourceImageUrl,
-            sort,
-            category: effectiveCategoryFilter,
-            refresh_age: refreshAgeFilter,
-            ...(apiRequestedVisualType ? { visual_type: apiRequestedVisualType } : {}),
-            image_analysis: imageAnalysis,
-            selected_bullets: requestedSelectedBullets
-          })
+          body: JSON.stringify(postRequestBody)
         })
-      : await fetchJson(
-          `/api/search?${new URLSearchParams([
-            ["q", normalizedQuery],
-            ["source_image_url", sourceImageUrl],
-            ["sort", sort],
-            ...(apiRequestedVisualType ? [["visual_type", apiRequestedVisualType]] : []),
-            ...effectiveCategoryFilter.map((category) => ["category", category]),
-            ["refresh_age", refreshAgeFilter]
-          ]).toString()}`
-        );
+      : await fetchJson(getRequestUrl);
     if (payload?.category_required && effectiveCategoryScopeMode === "all" && !apiRequestedVisualType) {
       setInitialSearchPending(false);
       state.lastQuery = normalizedQuery;
