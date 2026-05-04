@@ -1,3 +1,8 @@
+import {
+  buildStructuredInspirationBullets,
+  resolveCurateVisualType
+} from "./curate-bullets.js";
+
 const state = {
   bootstrap: null,
   selectedUploadFile: null,
@@ -153,74 +158,6 @@ function buildFallbackQueryFromStructuredBullets(selectedBullets = []) {
   return [...normalized.essential, ...normalized.normal].join(", ");
 }
 
-function isPresentBulletValue(value) {
-  if (value === null || value === undefined) {
-    return false;
-  }
-
-  const normalized = String(value).trim();
-  return normalized && normalized.toLowerCase() !== "unknown";
-}
-
-function isSingleSeatConfiguration(value) {
-  return String(value || "").trim().toLowerCase() === "single seat";
-}
-
-function isPlaceholderSeatFabric(value) {
-  return new Set(["fabric (specify category)", "col", "com", "unknown"]).has(
-    String(value || "").trim().toLowerCase()
-  );
-}
-
-function buildStructuredInspirationBullets(analysis = {}) {
-  const stage2 = analysis?.stage2 && typeof analysis.stage2 === "object" ? analysis.stage2 : {};
-  const imageTraits = analysis?.image_traits && typeof analysis.image_traits === "object" ? analysis.image_traits : {};
-  const bullets = [];
-
-  if (isPresentBulletValue(stage2.design_register)) {
-    bullets.push(stage2.design_register);
-  }
-  if (Array.isArray(stage2.distinctive_elements)) {
-    stage2.distinctive_elements.forEach((value) => {
-      if (isPresentBulletValue(value)) {
-        bullets.push(value);
-      }
-    });
-  }
-  if (isPresentBulletValue(imageTraits.back_style)) {
-    bullets.push(imageTraits.back_style);
-  }
-  if (isPresentBulletValue(imageTraits.body_construction)) {
-    bullets.push(imageTraits.body_construction);
-  }
-  if (isPresentBulletValue(imageTraits.arm_option) && String(imageTraits.arm_option).trim().toLowerCase() !== "none") {
-    bullets.push(imageTraits.arm_option);
-  }
-  if (isPresentBulletValue(imageTraits.arm_configuration)) {
-    bullets.push(imageTraits.arm_configuration);
-  }
-  if (isPresentBulletValue(imageTraits.base_type)) {
-    bullets.push(imageTraits.base_type);
-  }
-  if (isPresentBulletValue(imageTraits.configuration) && !isSingleSeatConfiguration(imageTraits.configuration)) {
-    bullets.push(imageTraits.configuration);
-  }
-  if (isPresentBulletValue(imageTraits.seat_fabric) && !isPlaceholderSeatFabric(imageTraits.seat_fabric)) {
-    bullets.push(imageTraits.seat_fabric);
-  }
-  if (isPresentBulletValue(imageTraits.base_finish)) {
-    bullets.push(imageTraits.base_finish);
-  }
-  if (isPresentBulletValue(imageTraits.seat_upholstery) && !isPlaceholderSeatFabric(imageTraits.seat_upholstery)) {
-    bullets.push(imageTraits.seat_upholstery);
-  }
-  if (isPresentBulletValue(imageTraits.back_upholstery)) {
-    bullets.push(imageTraits.back_upholstery);
-  }
-
-  return bullets;
-}
-
 function bulletsFromAnalysis(analysis) {
   if (analysis?.search_bullets && typeof analysis.search_bullets === "object") {
     const structured = normalizeSelectedBullets(analysis.search_bullets);
@@ -228,7 +165,10 @@ function bulletsFromAnalysis(analysis) {
       return structured;
     }
   }
-  const structuredBullets = buildStructuredInspirationBullets(analysis);
+  const structuredBullets = buildStructuredInspirationBullets(analysis, {
+    bootstrap: state.bootstrap,
+    visualType: resolveCurateVisualType(analysis)
+  });
   if (structuredBullets.length) {
     return normalizeSelectedBullets(structuredBullets);
   }
@@ -250,11 +190,13 @@ async function composeQueryForBullets(selectedBullets = [], options = {}) {
     return null;
   }
 
+  const resolvedVisualType = resolveCurateVisualType(state.currentImageAnalysis, options);
+
   const payload = await fetchJson("/api/compose-query", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      visual_type: String(options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || "seating"),
+      visual_type: resolvedVisualType,
       bullets: normalized
     })
   });
@@ -494,7 +436,7 @@ async function analyzeSelectedImage() {
     const analysis = await requestImageAnalysis(body);
     const selectedBullets = normalizeSelectedBullets(bulletsFromAnalysis(analysis));
     const query = await composeQueryWithFallback(selectedBullets, {
-      seatingType: getPayloadVisualType(analysis) || "seating"
+      visualType: resolveCurateVisualType(analysis)
     });
     const resolvedQuery = String(query || "").trim() || buildFallbackQueryFromStructuredBullets(selectedBullets);
 
