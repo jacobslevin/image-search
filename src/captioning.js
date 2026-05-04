@@ -79,7 +79,11 @@ const PIXELSEEK_TYPE_TO_VISUAL_TYPE = Object.freeze({
   "Multi-Use / Guest Chairs": "guest_chair",
   "Work Chairs": "task_collab_chair",
   "Stools": "stool",
-  "Benches": "bench"
+  "Benches": "bench",
+  "Conference": "conference",
+  "Occasional": "occasional",
+  "Cafe/Dining": "cafe_dining",
+  "Training": "training"
 });
 const LOUNGE_SOFA_NARROW_ARMS_THRESHOLD_PCT = 18;
 const LOUNGE_SOFA_FLUSH_WITH_BACK_MAX_DROP_PCT = 5;

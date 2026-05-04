@@ -157,6 +157,9 @@ export function getCategoryGroupingKey(record = {}) {
 }
 
 const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
+  "Conference Tables": "Conference",
+  "Conference Tables | Workplace": "Conference",
+  "Cafe Tables": "Cafe/Dining",
   "Lounge Seating": "Lounge Seating",
   "Lounge Seating | Modular Seating": "Lounge Seating",
   "Modular Seating": "Lounge Seating",
@@ -168,10 +171,13 @@ const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
   "High-performing Chairs / Stools | Workplace": "Work Chairs",
   "Other Work Chairs | Workplace": "Work Chairs",
   "Executive Chairs | Workplace": "Work Chairs",
+  "Occasional Tables": "Occasional",
   "Fixed-height Stools": "Stools",
   "Fixed-height Stools | Outdoor Seating": "Stools",
   "Bench Seating": "Benches",
-  "Bench Seating | Outdoor Seating": "Benches"
+  "Bench Seating | Outdoor Seating": "Benches",
+  "Training Tables": "Training",
+  "Training Tables | Workplace": "Training"
 });
 
 const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({
@@ -179,7 +185,11 @@ const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({
   guest_chair: "Multi-Use / Guest Chairs",
   lounge_chair: "Lounge Seating",
   stool: "Stools",
-  bench: "Benches"
+  bench: "Benches",
+  conference: "Conference",
+  occasional: "Occasional",
+  cafe_dining: "Cafe/Dining",
+  training: "Training"
 });
 
 const LEGACY_VISUAL_TYPE_VALUE_ALIASES = Object.freeze({
