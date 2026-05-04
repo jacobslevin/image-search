@@ -7703,8 +7703,8 @@ async function runSearch(query, options = {}) {
           ]
     );
     const effectiveVisualType = String(
-      normalizedRequestedVisualType === "all" ? "" :
-      normalizedRequestedVisualType ||
+      apiRequestedVisualType === "all" ? "" :
+      apiRequestedVisualType ||
       getPayloadVisualType(payload) ||
       payload?.text_query_traits?.enum_fields?.visual_type ||
       payload?.text_query_traits?.enum_fields?.seating_type ||
