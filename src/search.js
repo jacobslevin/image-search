@@ -9,6 +9,7 @@ import {
 } from "./utils.js";
 import { isSearchRecordEligible } from "./search-category-filter.js";
 import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
+import { loadVisualTypesRegistry } from "./visual-types-registry.js";
 
 const RERANKER_ENABLED = true;
 const RERANKER_MODEL = "gpt-4o-mini";
@@ -45,6 +46,38 @@ const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
+const visualTypesRegistry = loadVisualTypesRegistry();
+const visualTypeEntries = visualTypesRegistry.listVisualTypes();
+
+function buildVisualTypeConfigs() {
+  const configs = {};
+
+  Object.entries(seatingTypes || {}).forEach(([typeKey, typeConfig]) => {
+    configs[typeKey] = {
+      ...typeConfig,
+      family: "seating",
+      visual_type: typeKey
+    };
+  });
+
+  for (const entry of visualTypeEntries) {
+    const visualType = String(entry?.visual_type || "").trim();
+    const family = String(entry?.family || "").trim();
+    if (!visualType || !family || configs[visualType]) {
+      continue;
+    }
+    configs[visualType] = {
+      label: entry?.label || visualType,
+      family,
+      visual_type: visualType,
+      fields: visualTypesRegistry.getCategoryFields(family, visualType)
+    };
+  }
+
+  return configs;
+}
+
+const visualTypeConfigs = buildVisualTypeConfigs();
 
 function resolveRecordVisualType(record = {}) {
   return normalizeVisualTypeKey(
@@ -81,24 +114,24 @@ function buildTraitFieldConfigIndex(types = {}) {
   return index;
 }
 
-const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
+const traitFieldConfigIndex = buildTraitFieldConfigIndex(visualTypeConfigs);
 
-function getTypeFields(typeKey) {
-  return seatingTypes[typeKey]?.fields || seatingTypes[fallbackSeatingType]?.fields || [];
+export function getTypeFields(typeKey) {
+  return visualTypeConfigs[typeKey]?.fields || visualTypeConfigs[fallbackSeatingType]?.fields || [];
 }
 
-function getTraitFieldConfig(typeKey, fieldName) {
+export function getTraitFieldConfig(typeKey, fieldName) {
   const normalizedTypeKey = String(typeKey || "").trim();
   const normalizedFieldName = String(fieldName || "").trim();
   const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : fallbackSeatingType;
   return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
 }
 
-function getFieldPriority(typeKey = "", fieldName = "") {
+export function getFieldPriority(typeKey = "", fieldName = "") {
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
-  return priority === "essential" || priority === "low" || priority === "normal"
+  return priority === "essential" || priority === "low" || priority === "normal" || priority === "high" || priority === "medium"
     ? priority
     : "normal";
 }
@@ -168,7 +201,15 @@ function formatDetectedTraits(imageTraits = {}, typeKey, limit = 6) {
     ["arm_option", "Arms"],
     ["seat_upholstery", "Seat"],
     ["shell_material", "Shell"],
-    ["body_construction", "Body"]
+    ["body_construction", "Body"],
+    ["top_shape", "Top Shape"],
+    ["top_material", "Top Material"],
+    ["base_visual_weight", "Base Weight"],
+    ["mobility", "Mobility"],
+    ["top_thickness", "Top Thickness"],
+    ["edge_profile", "Edge Profile"],
+    ["height_register", "Height"],
+    ["power_data_integration", "Power/Data"]
   ]);
   const fieldMap = new Map(getTypeFields(typeKey).map((field) => [field.field, field]));
 
@@ -198,8 +239,8 @@ function normalizeTraitValue(value = "") {
   return String(value || "").toLowerCase().trim();
 }
 
-function expandCompatibleSeatingTypes(seatingType = "") {
-  const normalized = String(seatingType || "").trim().toLowerCase();
+function expandCompatibleVisualTypes(visualType = "") {
+  const normalized = String(visualType || "").trim().toLowerCase();
   if (!normalized) {
     return new Set();
   }
@@ -543,13 +584,19 @@ function traitFieldWeightScale(typeKey = "", field = "") {
   if (priority === "essential") {
     return 2;
   }
+  if (priority === "high") {
+    return 1.5;
+  }
+  if (priority === "medium") {
+    return 1;
+  }
   if (priority === "low") {
     return 0.5;
   }
   return 1;
 }
 
-function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
+export function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
   const enumFieldValues = collectEnumFieldValueMap(record);
   const enumFieldSource = record?.enum_fields || record?.image_traits || {};
   const priorityWeights = { essential: 0.35, normal: 0.1, low: 0.05 };
@@ -861,7 +908,7 @@ export async function searchIndex({
 }) {
   const canonicalSourceImageUrl = canonicalizeImageUrl(sourceImageUrl);
   const searchContext = resolveImageSearchContext({ parsed, imageAnalysis, selectedBullets });
-  const compatibleStage1Types = expandCompatibleSeatingTypes(searchContext.stage1Type);
+  const compatibleStage1Types = expandCompatibleVisualTypes(searchContext.stage1Type);
   const resolvedQueryEmbedding = Array.isArray(queryEmbedding) && queryEmbedding.length
       ? normalizeEmbedding(queryEmbedding)
       : await resolveQueryEmbedding({
@@ -1033,7 +1080,7 @@ export async function searchIndex({
           score_breakdown: image.score_breakdown,
           trait_contributions: image.trait_contributions || {},
           mismatch_traits: image.mismatch_traits,
-          detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
+          detected_traits: formatDetectedTraits(image.image_traits, resolveRecordVisualType(image), 6),
           visual_traits: image.visual_traits,
           image_traits: image.image_traits || {},
           stage1: addVisualTypeToStage1(image.stage1 || { seating_type: image.seating_type || "" }, resolveRecordVisualType(image)),
@@ -1077,7 +1124,7 @@ export async function searchIndex({
         score_breakdown: image.score_breakdown,
         trait_contributions: image.trait_contributions || {},
         mismatch_traits: image.mismatch_traits,
-        detected_traits: formatDetectedTraits(image.image_traits, image.seating_type, 6),
+        detected_traits: formatDetectedTraits(image.image_traits, resolveRecordVisualType(image), 6),
         visual_traits: image.visual_traits,
         image_traits: image.image_traits || {},
         stage1: addVisualTypeToStage1(image.stage1 || { seating_type: image.seating_type || "" }, resolveRecordVisualType(image)),
