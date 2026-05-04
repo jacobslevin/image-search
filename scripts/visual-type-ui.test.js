@@ -15,12 +15,14 @@ test("formatVisualTypeLabel preserves legacy seating labels and adds tables labe
   assert.equal(formatVisualTypeLabel("cafe_dining"), "Cafe/Dining");
 });
 
-test("buildRoutingTypesConfig merges tables fallback into seating-only bootstrap config", () => {
+test("buildRoutingTypesConfig returns bootstrap visual_types when provided", () => {
   const merged = buildRoutingTypesConfig({
     visual_types: {
       default_type: "lounge_chair",
       types: {
-        lounge_chair: { label: "Lounge Chair", fields: [] }
+        lounge_chair: { label: "Lounge Chair", fields: [] },
+        conference: { label: "Conference", fields: [] },
+        training: { label: "Training", fields: [] }
       }
     }
   });
@@ -32,9 +34,19 @@ test("buildRoutingTypesConfig merges tables fallback into seating-only bootstrap
 });
 
 test("isSupportedBrowseVisualType recognizes tables visual types", () => {
-  assert.equal(isSupportedBrowseVisualType("conference"), true);
-  assert.equal(isSupportedBrowseVisualType("cafe_dining"), true);
-  assert.equal(isSupportedBrowseVisualType("unknown_category"), false);
+  const bootstrap = {
+    visual_types: {
+      default_type: "lounge_chair",
+      types: {
+        lounge_chair: { label: "Lounge Chair", fields: [] },
+        conference: { label: "Conference", fields: [] },
+        cafe_dining: { label: "Cafe/Dining", fields: [] }
+      }
+    }
+  };
+  assert.equal(isSupportedBrowseVisualType("conference", bootstrap), true);
+  assert.equal(isSupportedBrowseVisualType("cafe_dining", bootstrap), true);
+  assert.equal(isSupportedBrowseVisualType("unknown_category", bootstrap), false);
 });
 
 test("getVisualTypeOptions includes both seating and tables categories", () => {
@@ -43,10 +55,12 @@ test("getVisualTypeOptions includes both seating and tables categories", () => {
       default_type: "lounge_chair",
       types: {
         lounge_chair: { label: "Lounge Chair", fields: [] },
-        bench: { label: "Bench", fields: [] }
+        bench: { label: "Bench", fields: [] },
+        conference: { label: "Conference", fields: [] },
+        training: { label: "Training", fields: [] }
       }
     },
-    visual_type_options: ["lounge_chair", "bench"]
+    visual_type_options: ["lounge_chair", "bench", "conference", "training"]
   });
 
   assert.ok(options.includes("conference"));

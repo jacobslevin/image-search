@@ -6,10 +6,9 @@ import {
   buildStructuredInspirationBullets,
   resolveCurateVisualType
 } from "../public/curate-bullets.js";
+import { buildBootstrapSchemaPayload } from "../src/bootstrap-visual-types.js";
 
-const seatingBootstrap = {
-  visual_types: JSON.parse(fs.readFileSync(new URL("../data/seating-types.json", import.meta.url), "utf8"))
-};
+const bootstrapPayload = buildBootstrapSchemaPayload();
 
 function legacySeatingBullets(analysis = {}) {
   const stage2 = analysis?.stage2 && typeof analysis.stage2 === "object" ? analysis.stage2 : {};
@@ -89,7 +88,7 @@ test("seating bullet harvesting remains byte-equivalent to the legacy seating lo
   };
 
   assert.deepEqual(
-    buildStructuredInspirationBullets(analysis, { bootstrap: seatingBootstrap }),
+    buildStructuredInspirationBullets(analysis, { bootstrap: bootstrapPayload }),
     normalizePriorityBulletList(legacySeatingBullets(analysis))
   );
 });
@@ -115,7 +114,7 @@ test("tables bullet harvesting produces tables fields for conference records", (
   };
 
   assert.deepEqual(
-    buildStructuredInspirationBullets(analysis, { bootstrap: seatingBootstrap }),
+    buildStructuredInspirationBullets(analysis, { bootstrap: bootstrapPayload }),
     [
       "Minimal",
       "Boat-shaped top",
@@ -148,7 +147,7 @@ test("tables bullet harvesting respects conditional trait scope by sub-category"
       height_register: "Sitting",
       power_data_integration: "Present"
     }
-  }, { bootstrap: seatingBootstrap });
+  }, { bootstrap: bootstrapPayload });
 
   const training = buildStructuredInspirationBullets({
     visual_type: "training",
@@ -165,7 +164,7 @@ test("tables bullet harvesting respects conditional trait scope by sub-category"
       height_register: "Sitting",
       power_data_integration: "Not visible"
     }
-  }, { bootstrap: seatingBootstrap });
+  }, { bootstrap: bootstrapPayload });
 
   assert.ok(cafeDining.includes("Sitting"));
   assert.ok(!cafeDining.includes("Present"));

@@ -37,6 +37,7 @@ import {
 } from "./src/utils.js";
 import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
+import { buildBootstrapSchemaPayload } from "./src/bootstrap-visual-types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,7 +61,6 @@ const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const visualTypesRegistry = loadVisualTypesRegistry();
-const visualTypeLegacyAliases = visualTypesRegistry.legacyAliases || {};
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const PROMPT_LIBRARY_STAGE23_TYPES = [
   "lounge_chair",
@@ -2810,6 +2810,10 @@ const server = http.createServer(async (request, response) => {
     const [{ catalog, index }, seatingTypes] = await Promise.all([loadCatalog(), loadSeatingTypes()]);
     const catalogLeafCategories = [...new Set(((catalog?.products || [])).flatMap((product) => getLeafCategories(product)).filter(Boolean))];
     const categorySource = catalogLeafCategories.sort((a, b) => a.localeCompare(b));
+    const bootstrapSchema = buildBootstrapSchemaPayload({
+      seatingTypesConfig: seatingTypes,
+      registryApi: visualTypesRegistry
+    });
     return json(response, 200, {
       has_index: Boolean(index?.images?.length),
       seed_queries: seedQueries,
@@ -2818,11 +2822,7 @@ const server = http.createServer(async (request, response) => {
       stats: catalog?.totals || { products: 0, images: 0 },
       image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
       ranking_rules: getRankingRulesSummary(),
-      seating_types: seatingTypes,
-      visual_types: seatingTypes,
-      seating_category_options: Object.keys(seatingTypes),
-      visual_type_options: Object.keys(seatingTypes),
-      legacy_aliases: visualTypeLegacyAliases,
+      ...bootstrapSchema,
       result_cutoff: getResultCutoffConfig()
     });
   }
