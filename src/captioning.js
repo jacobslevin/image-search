@@ -782,28 +782,17 @@ function getTypeFields(typeKey) {
   return seatingTypes[fallbackSeatingType]?.fields || [];
 }
 
-function buildTraitFieldConfigIndex(types = {}) {
-  const index = new Map();
-  Object.entries(types || {}).forEach(([typeKey, typeConfig]) => {
-    const fieldMap = new Map();
-    (typeConfig?.fields || []).forEach((fieldConfig) => {
-      const fieldName = String(fieldConfig?.field || "").trim();
-      if (fieldName) {
-        fieldMap.set(fieldName, fieldConfig);
-      }
-    });
-    index.set(typeKey, fieldMap);
-  });
-  return index;
-}
-
-const traitFieldConfigIndex = buildTraitFieldConfigIndex(seatingTypes);
-
 function getTraitFieldConfig(typeKey, fieldName) {
-  const normalizedTypeKey = String(typeKey || "").trim();
+  const resolvedTypeKey = resolveTextQueryTraitType(typeKey);
   const normalizedFieldName = String(fieldName || "").trim();
-  const resolvedTypeKey = traitFieldConfigIndex.has(normalizedTypeKey) ? normalizedTypeKey : fallbackSeatingType;
-  return traitFieldConfigIndex.get(resolvedTypeKey)?.get(normalizedFieldName) || null;
+  if (!normalizedFieldName) {
+    return null;
+  }
+
+  const fieldMap = new Map(
+    getTypeFields(resolvedTypeKey).map((fieldConfig = {}) => [String(fieldConfig.field || "").trim(), fieldConfig])
+  );
+  return fieldMap.get(normalizedFieldName) || null;
 }
 
 function getFieldPriority(typeKey = "", fieldName = "") {
@@ -816,11 +805,12 @@ function getFieldPriority(typeKey = "", fieldName = "") {
 }
 
 function resolveTextQueryTraitType(typeKey = "") {
-  const normalized = String(typeKey || "").trim();
-  if (!normalized || !seatingTypes[normalized]) {
-    return fallbackSeatingType;
+  const normalized = normalizeVisualTypeKey(typeKey);
+  const resolved = getVisualTypeInfo(normalized, "");
+  if (resolved?.visual_type) {
+    return resolved.visual_type;
   }
-  return normalized;
+  return fallbackSeatingType;
 }
 
 function getFieldMap(typeKey) {
@@ -3977,9 +3967,17 @@ const SEARCH_TIME_BULLET_FIELD_PRIORITY = [
   "base_finish"
 ];
 
+function getSearchTimeBulletFieldPriority(typeKey = "") {
+  const resolvedType = resolveTextQueryTraitType(typeKey);
+  if (getVisualTypeFamily(resolvedType) === "tables") {
+    return getTypeFields(resolvedType).map((field) => field.field).filter(Boolean);
+  }
+  return SEARCH_TIME_BULLET_FIELD_PRIORITY;
+}
+
 function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
   const priorityIndex = new Map(
-    SEARCH_TIME_BULLET_FIELD_PRIORITY.map((field, index) => [field, index])
+    getSearchTimeBulletFieldPriority(typeKey).map((field, index) => [field, index])
   );
 
   const selectedBullets = {
@@ -4028,13 +4026,10 @@ function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
 }
 
 function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
-  const normalizedSeatingType = String(seatingType || "").trim();
+  const normalizedSeatingType = resolveTextQueryTraitType(seatingType);
+  const family = getVisualTypeFamily(normalizedSeatingType);
   const heuristicTraits = extractQueryTraits(query);
   const enumFields = {};
-
-  if (normalizedSeatingType) {
-    enumFields.seating_type = normalizedSeatingType;
-  }
 
   if (normalizedSeatingType === "lounge_chair") {
     if (heuristicTraits.arms_present === false) {
@@ -4054,40 +4049,115 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
     }
   }
 
+  if (family === "tables") {
+    const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+    const shapeRules = [
+      { pattern: /\bsoft[-\s]?organic\b|\borganic\b/, value: "Soft-organic" },
+      { pattern: /\boval\b/, value: "Oval" },
+      { pattern: /\bround\b/, value: "Round" },
+      { pattern: /\bsquare\b/, value: "Square" },
+      { pattern: /\brectangular\b|\brectangle\b/, value: "Rectangle" }
+    ];
+    const baseTypeRules = [
+      { pattern: /\bpanel[-\s]?slab\b|\bplinth\b/, value: "Panel-slab" },
+      { pattern: /\btripod\b/, value: "Tripod" },
+      { pattern: /\btrestle\b/, value: "Trestle" },
+      { pattern: /\bt[-\s]?leg\b/, value: "T-leg" },
+      { pattern: /\bx[-\s]?base\b/, value: "X-base" },
+      { pattern: /\b4[-\s]?leg\b|\bfour[-\s]?leg\b|\bfour legs\b/, value: "4-leg" },
+      { pattern: /\bpedestal\b/, value: "Pedestal" }
+    ];
+    const topMaterialRules = [
+      { pattern: /\bmarble\b|\bgranite\b|\bquartz\b|\bterrazzo\b|\bstone\b/, value: "Stone-look" },
+      { pattern: /\bglass\b/, value: "Glass" },
+      { pattern: /\bmetal\b/, value: "Metal" },
+      { pattern: /\bwood\b|\bwooden\b|\boak\b|\bwalnut\b|\bash\b|\bmaple\b/, value: "Wood-look" }
+    ];
+
+    const firstMatch = (rules = []) => {
+      const matched = rules.find((rule) => rule.pattern.test(normalizedQuery));
+      return matched ? matched.value : "";
+    };
+
+    const topShape = firstMatch(shapeRules);
+    if (topShape) {
+      enumFields.top_shape = topShape;
+    }
+
+    const baseType = firstMatch(baseTypeRules);
+    if (baseType) {
+      enumFields.base_type = baseType;
+    }
+
+    const topMaterial = firstMatch(topMaterialRules);
+    if (topMaterial) {
+      enumFields.top_material = topMaterial;
+    }
+
+    if (/\bcasters?\b|\bwheels?\b|\brolling\b|\bmobile\b/.test(normalizedQuery)) {
+      enumFields.mobility = "Casters";
+    }
+    if (/\bthin\b|\bslim\b/.test(normalizedQuery)) {
+      enumFields.top_thickness = "Thin";
+    } else if (/\bthick\b|\bslab\b/.test(normalizedQuery)) {
+      enumFields.top_thickness = "Thick-slab";
+    }
+    if (/\bbeveled\b/.test(normalizedQuery)) {
+      enumFields.edge_profile = "Beveled";
+    } else if (/\beased\b|\brounded edge\b/.test(normalizedQuery)) {
+      enumFields.edge_profile = "Eased";
+    } else if (/\bsquare edge\b|\bsharp edge\b/.test(normalizedQuery)) {
+      enumFields.edge_profile = "Square";
+    }
+    if (/\blightweight\b|\bairy\b|\bopen base\b/.test(normalizedQuery)) {
+      enumFields.base_visual_weight = "Light/airy";
+    } else if (/\bgrounded\b|\bsubstantial\b|\bchunky\b|\bheavy\b/.test(normalizedQuery)) {
+      enumFields.base_visual_weight = "Heavy/grounded";
+    }
+    if (/\bminimal\b|\bclean[-\s]?lined\b/.test(normalizedQuery)) {
+      enumFields.design_register = "Minimal";
+    } else if (/\bsculptural\b/.test(normalizedQuery)) {
+      enumFields.design_register = "Sculptural";
+    } else if (/\butilitarian\b|\bflip[-\s]?top\b|\bnesting\b/.test(normalizedQuery)) {
+      enumFields.design_register = "Utilitarian";
+    }
+    if (normalizedSeatingType === "occasional") {
+      if (/\bcoffee table\b/.test(normalizedQuery)) {
+        enumFields.height_register = "Coffee";
+      } else if (/\bend table\b|\bside table\b/.test(normalizedQuery)) {
+        enumFields.height_register = "End/Side";
+      }
+    }
+    if (normalizedSeatingType === "cafe_dining" || normalizedSeatingType === "training" || normalizedSeatingType === "huddle_collaborative") {
+      if (/\bbar[-\s]?height\b|\bcounter[-\s]?height\b|\bstanding\b|\bstanding height\b/.test(normalizedQuery)) {
+        enumFields.height_register = "Standing";
+      } else if (/\bsitting\b|\bdining height\b|\bseated\b/.test(normalizedQuery)) {
+        enumFields.height_register = "Sitting";
+      }
+    }
+    if (normalizedSeatingType === "conference" || normalizedSeatingType === "training" || normalizedSeatingType === "huddle_collaborative") {
+      if (/\bpower\b|\bpowered\b|\boutlet\b|\bgrommet\b|\bdata\b|\busb\b/.test(normalizedQuery)) {
+        enumFields.power_data_integration = "Present";
+      }
+    }
+  }
+
   return enumFields;
 }
 
-const TEXT_QUERY_TRAIT_FIELDS = new Set([
-  "seating_type",
-  "back_finish",
-  "back_profile",
-  "arm_option",
-  "body_construction",
-  "back_height",
-  "back",
-  "configuration",
-  "seat_geometry",
-  "seat_finish",
-  "back_finish",
-  "mobility",
-  "design_register",
-  "frame_openness",
-  "base_type",
-  "base_finish",
-  "shape_character",
-  "plan_shape"
-]);
+function getTextQueryTraitFields(typeKey = "") {
+  return uniqueStrings(getTypeFields(resolveTextQueryTraitType(typeKey)).map((field) => String(field.field || "").trim()).filter(Boolean));
+}
 
 const TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD = Object.freeze({});
 
 function buildTextQueryTraitPrompt(seatingType = "") {
   const resolvedType = resolveTextQueryTraitType(seatingType);
+  const family = getVisualTypeFamily(resolvedType) || "seating";
+  const typeLabel = getVisualTypeLabel(resolvedType);
   const fields = getTypeFields(resolvedType);
   const fieldSet = new Set(fields.map((field) => field.field));
-  const fieldLines = [
-    `- seating_type: ${resolvedType}`,
-    ...fields.map((field) => `- ${field.field}: ${(field.allowed_values || []).join(" | ")}`)
-  ];
+  const fieldLines = fields.map((field) => `- ${field.field}: ${(field.allowed_values || []).join(" | ")}`);
   const mappingGuidance = [];
 
   for (const [field, lines] of Object.entries(TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD)) {
@@ -4098,17 +4168,27 @@ function buildTextQueryTraitPrompt(seatingType = "") {
   }
   mappingGuidance.push("- Not mentioned -> unknown");
 
+  const familySpecificExamples = family === "tables"
+    ? [
+        "- Example table mappings: 'round cafe table' -> top_shape may be Round; 'training table with casters' -> mobility may be Casters; 'bar-height cafe table' -> height_register may be Standing."
+      ]
+    : [
+        "- Example seating mappings: 'armless lounge chair' -> arm_option may be Armless; 'mesh task chair' -> back_finish may be Mesh / net."
+      ];
+
   return [
-    "You are a furniture attribute extractor. Given a text description or search query for seating, extract any structured traits that are clearly stated or strongly implied. Return JSON only with these fields. Only populate traits relevant to the specified seating_type. Return unknown for anything not mentioned or strongly implied. Never guess.",
+    `You are a furniture attribute extractor. Given a text description or search query for a ${family === "tables" ? "table" : "seating"} product, extract any structured traits that are clearly stated or strongly implied. Return JSON only with the fields listed below. Only populate traits valid for the specified visual_type. Return unknown for anything not mentioned or strongly implied. Never guess.`,
     "",
-    "The seating_type is fixed for this request:",
-    `- seating_type: ${resolvedType}`,
+    "The routing context is fixed for this request:",
+    `- visual_type: ${resolvedType} (${typeLabel})`,
+    `- family: ${family}`,
     "",
     `Fields to extract for ${resolvedType} only:`,
     ...fieldLines,
     "",
     "Mapping guidance:",
-    ...mappingGuidance
+    ...mappingGuidance,
+    ...familySpecificExamples
   ].join("\n");
 }
 
@@ -4207,7 +4287,9 @@ export async function inferTextQueryCategory(query = "", options = {}) {
 
 export async function extractTextQueryTraits(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query);
-  const resolvedType = resolveTextQueryTraitType(options.seatingType);
+  const requestedType = options.visualType || options.seatingType || "";
+  const resolvedType = resolveTextQueryTraitType(requestedType);
+  const family = getVisualTypeFamily(resolvedType) || "seating";
   const deterministicEnumFields = applyLoungeChairPlanShapeGuardrails(
     resolvedType,
     buildDeterministicTextQueryEnumFields(
@@ -4217,6 +4299,9 @@ export async function extractTextQueryTraits(query = "", options = {}) {
   );
   if (!normalizedQuery || !options.apiKey) {
     return {
+      visual_type: resolvedType,
+      family,
+      seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
       search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
     };
@@ -4258,10 +4343,10 @@ export async function extractTextQueryTraits(query = "", options = {}) {
     }
     const parsed = JSON.parse(raw);
     const enumFields = {};
-    const allowedFields = new Set(getTypeFields(resolvedType).map((field) => field.field));
+    const allowedFields = new Set(getTextQueryTraitFields(resolvedType));
 
-    for (const field of TEXT_QUERY_TRAIT_FIELDS) {
-      if (field !== "seating_type" && !allowedFields.has(field)) {
+    for (const field of allowedFields) {
+      if (!allowedFields.has(field)) {
         continue;
       }
       const value = normalizeWhitespace(parsed?.[field]);
@@ -4280,12 +4365,18 @@ export async function extractTextQueryTraits(query = "", options = {}) {
     );
 
     return {
+      visual_type: resolvedType,
+      family,
+      seating_type: resolvedType,
       enum_fields: mergedEnumFields,
       search_bullets: buildSearchTimeBullets(mergedEnumFields, resolvedType)
     };
   } catch (error) {
     console.error("Text-query trait extraction failed; continuing without generated bullets:", error);
     return {
+      visual_type: resolvedType,
+      family,
+      seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
       search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
     };

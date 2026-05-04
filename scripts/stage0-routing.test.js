@@ -37,7 +37,7 @@ test("Stage 0 resolves tables routing context from explicit visual_type", () => 
       source_field: "visual_type",
       visual_type: "conference",
       family: "tables",
-      label: "Conference",
+      label: "Conference Tables",
       family_label: "Tables"
     }
   );
