@@ -581,6 +581,27 @@ function getResolvedRegistryFieldsForVisualType(typeKey = "") {
   }
 }
 
+function getVisualTypeConfig(typeKey = "") {
+  const normalizedTypeKey = String(typeKey || "").trim();
+  if (seatingTypes[normalizedTypeKey]) {
+    return seatingTypes[normalizedTypeKey];
+  }
+
+  const typeInfo = getVisualTypeInfo(normalizedTypeKey, "");
+  if (!typeInfo?.visual_type) {
+    return null;
+  }
+
+  return {
+    label: typeInfo.label || typeInfo.visual_type,
+    fields: getResolvedRegistryFieldsForVisualType(typeInfo.visual_type)
+  };
+}
+
+function getVisualTypeLabel(typeKey = "") {
+  return String(getVisualTypeConfig(typeKey)?.label || typeKey || "Unknown type").trim();
+}
+
 function getTablesStage2FieldDefinitions(typeKey = "") {
   if (getVisualTypeFamily(typeKey) !== "tables") {
     return [];
@@ -749,7 +770,11 @@ export class QueryImageAnalysisStageError extends Error {
 }
 
 function getTypeFields(typeKey) {
-  return seatingTypes[typeKey]?.fields || seatingTypes[fallbackSeatingType]?.fields || [];
+  const typeConfig = getVisualTypeConfig(typeKey);
+  if (Array.isArray(typeConfig?.fields) && typeConfig.fields.length) {
+    return typeConfig.fields;
+  }
+  return seatingTypes[fallbackSeatingType]?.fields || [];
 }
 
 function buildTraitFieldConfigIndex(types = {}) {
@@ -1564,7 +1589,7 @@ function combinedStage23SchemaForType(typeKey) {
   };
 }
 
-function extractionSchemaForType(typeKey) {
+export function extractionSchemaForType(typeKey) {
   const fields = getStage23TypeFields(typeKey);
   const traitProperties = {};
   const required = [];
@@ -1707,7 +1732,7 @@ function buildPerTypeFieldGuide() {
 }
 
 function buildFieldGuideForType(typeKey) {
-  const typeConfig = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
+  const typeConfig = getVisualTypeConfig(typeKey) || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const fields = getStage23TypeFields(typeKey);
   const fieldLines = fields
     .map((entry) => {
@@ -2052,11 +2077,25 @@ ${buildVisualSummaryInstruction(typeKey)}`;
 }
 
 function extractionPrompt(typeKey) {
-  const type = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
+  const type = getVisualTypeConfig(typeKey) || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const fields = getStage23TypeFields(typeKey);
   const fieldLines = fields
     .map((entry) => `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]`)
     .join("\n");
+  if (getVisualTypeFamily(typeKey) === "tables") {
+    return `Analyze one furniture image and answer only schema-routed questions. Type route: ${type.label} (${typeKey}). Return strict JSON only.
+
+Rules:
+- Fill image_traits fields only for the listed fields.
+- Use the stage 2 visual summary plus the image itself to choose enum values.
+- If a trait is not visible or not applicable, use "unknown". Never guess. Never infer material from color alone.
+- Never invent values outside allowed enum values.
+- Ignore chairs, people, and non-primary scene objects.
+- For conditional traits, only answer the fields listed for this routed table type.
+- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with table form, support structure, and the most distinctive visual trait.
+- raw_visual_highlights is optional debug only, max 8 bullets.
+Fields: ${fieldLines}`;
+  }
   const stoolBackRule = typeKey === "stool"
     ? `${STOOL_CANONICAL_RULES}\n`
     : "";
@@ -2117,6 +2156,45 @@ function normalizeStage2(stage2 = {}) {
     design_register: normalizeEnum(stage2.design_register, ["minimal", "organic", "industrial", "traditional", "sculptural", "utilitarian"]) || "utilitarian",
     distinctive_elements: uniqueStrings(Array.isArray(stage2.distinctive_elements) ? stage2.distinctive_elements : []).slice(0, 5),
     visual_summary: normalizeWhitespace(stage2.visual_summary || "")
+  };
+}
+
+function buildStage23RoutingInstruction(typeKey, stage1 = {}, options = {}) {
+  const visualTypeLabel = getVisualTypeLabel(typeKey);
+  const routedVisualType = String(typeKey || "").trim();
+  const family = getVisualTypeFamily(typeKey);
+
+  if (options.typeRoutingSource === "mapping_v1") {
+    return family === "tables"
+      ? `Resolved visual_type is: ${routedVisualType}. Family: tables. Use this routed table type (${visualTypeLabel}) for all stage 2 and stage 3 outputs.`
+      : `Resolved PixelSeek type is: ${routedVisualType}. Use this as the routing type for all stage 2 and stage 3 outputs.`;
+  }
+
+  if (family === "tables") {
+    return `Routed visual_type: ${routedVisualType}. Family: tables. Use this routed table type (${visualTypeLabel}) for all stage 2 and stage 3 outputs.`;
+  }
+
+  return `Stage 1 seating_type result: ${stage1.seating_type}. Use this as the routing type for all stage 2 and stage 3 outputs.`;
+}
+
+function buildSingleRunFieldConfidence(typeKey = "", stage1 = {}, stage2 = {}, imageTraits = {}) {
+  const normalizedTypeKey = String(typeKey || "").trim();
+  const stage3Confidence = Object.fromEntries(
+    Object.keys(imageTraits || {}).map((fieldName) => [fieldName, "high"])
+  );
+
+  return {
+    stage1: {
+      result: normalizeStage1Result(stage1?.result) === "product" ? "high" : "low",
+      seating_type: normalizedTypeKey ? "high" : "low"
+    },
+    stage2: {
+      design_register: String(stage2?.design_register || "").trim() ? "high" : "low"
+    },
+    stage3: {
+      image_traits: stage3Confidence
+    },
+    image_traits: stage3Confidence
   };
 }
 
@@ -2435,7 +2513,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
     );
     return {
       reasoning: "",
-      structured_caption: sentenceCase(`${seatingTypes[typeKey]?.label || "Seating"} from inspiration image.`).replace(/\.*$/, "."),
+      structured_caption: sentenceCase(`${getVisualTypeLabel(typeKey) || "Furniture"} from inspiration image.`).replace(/\.*$/, "."),
       raw_visual_highlights: cleanVisualHighlights(buildDeterministicBulletsFromMergedTraits(typeKey, heuristicTraits)),
       image_traits: normalizeImageTraits(typeKey, heuristicTraits)
     };
@@ -2472,9 +2550,7 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
         : []),
       {
         type: "input_text",
-        text: options.typeRoutingSource === "mapping_v1"
-          ? `Resolved PixelSeek type is: ${typeKey}. Visual context: ${stage2.visual_summary}. Extract structured traits and write the structured_caption from the image.`
-          : `Seating type: ${stage1.seating_type}. Visual context: ${stage2.visual_summary}. Extract structured traits and write the structured_caption from the image.`
+        text: `${buildStage23RoutingInstruction(typeKey, stage1, options)} Visual context: ${stage2.visual_summary}. Extract structured traits and write the structured_caption from the image.`
       },
       { type: "input_image", image_url: imageInput.image_url, detail: "high" }
     ],
@@ -2506,7 +2582,44 @@ async function extractImageTraitsOpenAi(imageInput, typeKey, stage1, stage2, opt
 }
 
 export function combinedStage23Prompt(typeKey) {
-  const typeConfig = seatingTypes[typeKey] || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
+  const typeConfig = getVisualTypeConfig(typeKey) || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
+  if (getVisualTypeFamily(typeKey) === "tables") {
+    return `You are a furniture visual analyst. Analyze only the primary table product in the image. The visual_type has already been routed: ${typeConfig.label} (${typeKey}).
+
+Return strict JSON only.
+
+Stage 2: visual form
+- Describe only the primary table product.
+- Ignore the room, chairs, props, people, and secondary objects.
+- No brand or model names.
+- Focus on tabletop shape, proportions, support structure, surface character, design register, and distinctive details.
+- Use back_geometry = "none — not applicable to tables".
+- Use arm_geometry = "none — no arms on tables".
+
+Stage 3: attributes
+- Fill only the attributes listed below for this routed table type.
+- If a trait is not visible or not applicable, use "unknown".
+- Never invent values outside the allowed enums.
+- Use the image and stage 2 visual summary together to resolve the structured traits.
+
+Relevant attribute fields for this routed table type only:
+${buildFieldGuideForType(typeKey)}
+
+Return JSON with:
+- silhouette
+- proportions
+- structure_type
+- back_geometry
+- seat_geometry
+- arm_geometry
+- surface_language
+- design_register
+- distinctive_elements
+${buildVisualSummaryInstruction(typeKey)}
+- structured_caption
+- raw_visual_highlights
+- image_traits`;
+  }
   const stoolBackRule = typeKey === "stool"
     ? `${STOOL_CANONICAL_RULES}\n`
     : "";
@@ -2580,9 +2693,7 @@ export async function extractStage23CombinedOpenAi(imageInput, typeKey, stage1, 
         : []),
       {
         type: "input_text",
-        text: options.typeRoutingSource === "mapping_v1"
-          ? `Resolved PixelSeek type is: ${typeKey}. Use this as the routing type for all stage 2 and stage 3 outputs.`
-          : `Stage 1 seating_type result: ${stage1.seating_type}. Use this as the routing type for all stage 2 and stage 3 outputs.`
+        text: buildStage23RoutingInstruction(typeKey, stage1, options)
       },
       { type: "input_image", image_url: imageInput.image_url, detail: "high" }
     ],
@@ -3264,18 +3375,72 @@ async function createTypedCaption(imageInput, options = {}, imageRecord = {}) {
         type_routing_source: "caller_provided"
       });
     }
-    const stage2 = await describeVisualFormOpenAi(imageInput, {
-      ...options,
-      typeKey: requestedTypeInfo.visual_type,
-      typeRoutingSource: "caller_provided"
-    });
-    return buildCallerProvidedTypedCaptionResult(
-      imageDimensions,
-      requestedTypeInfo,
-      stage2,
-      options.apiKey ? { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 } : {},
-      options.apiKey ? 1 : 0
+    const stage1 = buildResolvedRoutingStage1Stub(requestedTypeInfo.visual_type || "", "caller_provided");
+    const { stage2, stage3, usage: stage23Usage } = await extractStage23CombinedOpenAi(
+      imageInput,
+      requestedTypeInfo.visual_type,
+      stage1,
+      {
+        ...options,
+        typeRoutingSource: "caller_provided"
+      }
     );
+    const fieldMap = getFieldMap(requestedTypeInfo.visual_type);
+    const imageTraits = {};
+    for (const [fieldName, value] of Object.entries(stage3.image_traits || {})) {
+      const field = fieldMap.get(fieldName);
+      if (!field) continue;
+      imageTraits[fieldName] = normalizeEnum(value, field.allowed_values);
+    }
+
+    const specTraits = await extractSpecTraits(requestedTypeInfo.visual_type, imageRecord);
+    const { merged_traits, trait_provenance } = mergeTraits(requestedTypeInfo.visual_type, imageTraits, specTraits);
+    const visualTraits = toLegacyVisualTraits(requestedTypeInfo.visual_type, merged_traits);
+    const visualHighlights = buildDeterministicBulletsFromMergedTraits(requestedTypeInfo.visual_type, merged_traits);
+    const fieldConfidence = buildSingleRunFieldConfidence(requestedTypeInfo.visual_type, stage1, stage2, imageTraits);
+    const totalUsage = normalizeOpenAiUsage(stage23Usage);
+
+    return {
+      image_dimensions: imageDimensions,
+      stage1,
+      stage2,
+      stage3: {
+        ...stage3,
+        image_traits: imageTraits
+      },
+      structured_caption: stage3.structured_caption,
+      raw_visual_highlights: stage3.raw_visual_highlights,
+      visual_highlights: visualHighlights,
+      seating_type: String(stage1.seating_type || "").trim(),
+      visual_type: String(stage1.visual_type || "").trim(),
+      family: String(stage1.family || "").trim(),
+      image_traits: imageTraits,
+      spec_traits: specTraits,
+      merged_traits,
+      trait_provenance,
+      visual_traits: visualTraits,
+      field_confidence: fieldConfidence,
+      extraction_runs: 1,
+      analysis_api_call_count: options.apiKey ? 1 : 0,
+      api_call_count: options.apiKey ? 1 : 0,
+      type_routing_source: "caller_provided",
+      extraction_consensus: {
+        tiebreaker_used: false,
+        runs: [
+          {
+            run: "run_1",
+            stage1: normalizeOpenAiUsage(),
+            stage23: totalUsage,
+            total: totalUsage,
+            estimated_cost_usd: estimateUsageCostUsd(totalUsage)
+          }
+        ],
+        total_usage: {
+          ...totalUsage,
+          estimated_cost_usd: estimateUsageCostUsd(totalUsage)
+        }
+      }
+    };
   }
   const requestedRuns = Number.isFinite(Number(options.extractionRuns))
     ? Math.max(2, Number(options.extractionRuns))

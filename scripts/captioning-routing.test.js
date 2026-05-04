@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { generateCaption, visualDescriptionPrompt } from "../src/captioning.js";
+import { combinedStage23Prompt, extractionSchemaForType, generateCaption, visualDescriptionPrompt } from "../src/captioning.js";
 
 const DEMO_OPTIONS = Object.freeze({
   provider: "demo",
@@ -13,7 +13,7 @@ const DEMO_OPTIONS = Object.freeze({
   }
 });
 
-test("generateCaption stubs Stage 1 from caller-provided tables visual_type without running seating classification", async () => {
+test("generateCaption routes caller-provided tables visual_type through Stage 2 and Stage 3 without seating classification", async () => {
   const events = [];
   const caption = await generateCaption(
     {
@@ -36,8 +36,9 @@ test("generateCaption stubs Stage 1 from caller-provided tables visual_type with
   assert.notEqual(caption.stage2.visual_summary, "");
   assert.equal(caption.visual_type, "conference");
   assert.equal(caption.family, "tables");
-  assert.equal(caption.extraction_runs, 0);
-  assert.deepEqual(caption.extraction_consensus.runs, []);
+  assert.equal(caption.extraction_runs, 1);
+  assert.ok(Object.keys(caption.image_traits || {}).length > 0);
+  assert.equal(caption.extraction_consensus.runs.length, 1);
   assert.ok(events.some((event) => event.type === "stage1_stubbed" && event.visual_type === "conference"));
   assert.ok(!events.some((event) => event.type === "stage1_started"));
 });
@@ -62,6 +63,43 @@ test("seating visual description prompt remains on the seating visual_summary_ca
   assert.match(prompt, /Available categories for this seating type/i);
   assert.match(prompt, /privacy lounge chair/i);
   assert.doesNotMatch(prompt, /FOCUS FIELDS FROM THE ROUTED TABLE SCHEMA/i);
+});
+
+test("conference table schema includes power_data_integration and excludes height_register", () => {
+  const schema = extractionSchemaForType("conference");
+  const fields = schema.properties.image_traits.properties;
+
+  assert.ok(fields.design_register);
+  assert.ok(fields.base_type);
+  assert.ok(fields.top_shape);
+  assert.ok(fields.power_data_integration);
+  assert.equal(fields.height_register, undefined);
+});
+
+test("cafe_dining table schema includes height_register and excludes power_data_integration", () => {
+  const schema = extractionSchemaForType("cafe_dining");
+  const fields = schema.properties.image_traits.properties;
+
+  assert.ok(fields.design_register);
+  assert.ok(fields.base_type);
+  assert.ok(fields.top_shape);
+  assert.ok(fields.height_register);
+  assert.equal(fields.power_data_integration, undefined);
+});
+
+test("lounge_chair schema remains on the existing seating field set", () => {
+  const schema = extractionSchemaForType("lounge_chair");
+  const fieldNames = Object.keys(schema.properties.image_traits.properties);
+
+  assert.ok(fieldNames.includes("design_register"));
+  assert.ok(fieldNames.includes("arm_option"));
+  assert.ok(fieldNames.includes("base_type"));
+  assert.ok(!fieldNames.includes("top_shape"));
+  assert.ok(!fieldNames.includes("power_data_integration"));
+});
+
+test("building the tables Stage 3 combined prompt does not throw", () => {
+  assert.doesNotThrow(() => combinedStage23Prompt("training"));
 });
 
 test("generateCaption with caller-provided seating visual_type still uses the seating Stage 1 path", async () => {
