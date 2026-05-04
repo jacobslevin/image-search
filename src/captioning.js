@@ -279,13 +279,16 @@ function shouldUseCallerProvidedRouting(typeInfo = null) {
   return String(typeInfo?.family || "").trim().toLowerCase() !== "seating" && Boolean(typeInfo?.visual_type);
 }
 
-function buildCallerProvidedTypedCaptionStub(imageDimensions = null, requestedTypeInfo = null) {
+function buildCallerProvidedTypedCaptionResult(imageDimensions = null, requestedTypeInfo = null, stage2 = null, usage = {}, analysisApiCallCount = 0) {
   const stage1 = buildResolvedRoutingStage1Stub(requestedTypeInfo?.visual_type || "", "caller_provided");
-  const totalUsage = normalizeOpenAiUsage();
+  const normalizedStage2 = stage2 ? normalizeStage2(stage2) : buildEmptyStage23Payload().stage2;
+  const totalUsage = normalizeOpenAiUsage(usage);
+  const apiCallCount = Number.isFinite(Number(analysisApiCallCount)) ? Number(analysisApiCallCount) : 0;
   return {
     image_dimensions: imageDimensions,
     stage1,
-    ...buildEmptyStage23Payload(),
+    stage2: normalizedStage2,
+    stage3: buildEmptyStage23Payload().stage3,
     structured_caption: "",
     raw_visual_highlights: [],
     visual_highlights: [],
@@ -304,15 +307,15 @@ function buildCallerProvidedTypedCaptionStub(imageDimensions = null, requestedTy
       }
     },
     extraction_runs: 0,
-    analysis_api_call_count: 0,
-    api_call_count: 0,
+    analysis_api_call_count: apiCallCount,
+    api_call_count: apiCallCount,
     type_routing_source: "caller_provided",
     extraction_consensus: {
       tiebreaker_used: false,
       runs: [],
       total_usage: {
         ...totalUsage,
-        estimated_cost_usd: 0
+        estimated_cost_usd: estimateUsageCostUsd(totalUsage)
       }
     }
   };
@@ -549,6 +552,94 @@ function getVisualSummaryCategoryList(typeKey = "") {
     : [];
 }
 
+const TABLE_STAGE2_CROSS_CUTTING_FIELD_ORDER = [
+  "top_shape",
+  "top_material",
+  "base_type",
+  "base_visual_weight",
+  "design_register",
+  "base_finish",
+  "mobility",
+  "top_thickness",
+  "edge_profile"
+];
+
+function getVisualTypeFamily(typeKey = "") {
+  return String(getVisualTypeInfo(typeKey, "")?.family || "").trim().toLowerCase();
+}
+
+function getResolvedRegistryFieldsForVisualType(typeKey = "") {
+  const typeInfo = getVisualTypeInfo(typeKey, "");
+  if (!typeInfo?.visual_type || !typeInfo.family) {
+    return [];
+  }
+
+  try {
+    return visualTypesRegistry.getCategoryFields(typeInfo.family, typeInfo.visual_type);
+  } catch {
+    return [];
+  }
+}
+
+function getTablesStage2FieldDefinitions(typeKey = "") {
+  if (getVisualTypeFamily(typeKey) !== "tables") {
+    return [];
+  }
+
+  const fieldMap = new Map(
+    getResolvedRegistryFieldsForVisualType(typeKey).map((fieldConfig = {}) => [fieldConfig.field, fieldConfig])
+  );
+
+  return TABLE_STAGE2_CROSS_CUTTING_FIELD_ORDER
+    .map((fieldName) => fieldMap.get(fieldName))
+    .filter(Boolean);
+}
+
+function buildTablesVisualSummaryInstruction(typeKey = "") {
+  const typeInfo = getVisualTypeInfo(typeKey, "");
+  const typeLabel = String(typeInfo?.label || typeKey || "table").trim();
+  const fieldDefinitions = getTablesStage2FieldDefinitions(typeKey);
+  const fieldLines = fieldDefinitions.length
+    ? fieldDefinitions.map((fieldConfig = {}) => {
+        const fieldName = String(fieldConfig.field || "").trim();
+        const allowedValues = Array.isArray(fieldConfig.allowed_values)
+          ? fieldConfig.allowed_values.filter((value) => String(value || "").trim().toLowerCase() !== "unknown")
+          : [];
+        return `  - ${fieldName}: ${allowedValues.join(", ")}`;
+      }).join("\n")
+    : "  - top_shape\n  - top_material\n  - base_type\n  - base_visual_weight\n  - design_register";
+
+  return `- visual_summary: A 2-3 sentence description of this ${typeLabel.toLowerCase()} for use in semantic search. Follow these rules strictly:
+
+  CATEGORY COMMITMENT: Begin with a specific table noun appropriate to the routed table type. Commit to what you see; avoid generic phrases like "furniture piece."
+
+  STRUCTURE: After the category noun, follow this order:
+  1. Tabletop shape and footprint read
+  2. Support structure and base relationship
+  3. Surface/material character of the top and base
+  4. One proportional or construction detail that distinguishes this table from similar products
+
+  FOCUS FIELDS FROM THE ROUTED TABLE SCHEMA:
+${fieldLines}
+
+  TABLE-SPECIFIC GUIDANCE:
+  - Treat tabletop shape, edge read, thickness impression, and base structure as the primary visual cues.
+  - Describe support structure precisely when visible: pedestal, 4-leg, trestle, T-leg, X-base, tripod, or panel-slab.
+  - Use base_visual_weight to explain whether the support reads light/airy or heavy/grounded.
+  - Mention mobility only if it is visually obvious.
+  - Do not include height_register or power_data_integration in the summary; those are structured extraction traits, not summary prose.
+  - If chairs or other furniture appear around the table, ignore them and describe only the table product itself.
+
+  LANGUAGE:
+  - Use specific, observable descriptors: "round top," "rectilinear slab," "central pedestal," "splayed legs," "thin eased edge."
+  - Avoid vague style words without specifics.
+  - Avoid hedging: "appears to be," "looks like," "seemingly." Commit to what you observe.
+  - Avoid marketing language.
+  - Lead with form and structure, not color. Use color only when it clarifies finish or material character.
+
+  EXTERNAL CONTEXT: If catalog context is provided (product name, brand, categories), use it only to resolve genuine visual ambiguity, not to override visual evidence.`;
+}
+
 const VISUAL_SUMMARY_PROMPT_CONFIG = {
   lounge_chair: {
     decision_rules: [
@@ -593,6 +684,9 @@ const VISUAL_SUMMARY_PROMPT_CONFIG = {
 };
 
 function buildVisualSummaryInstruction(typeKey = "") {
+  if (getVisualTypeFamily(typeKey) === "tables") {
+    return buildTablesVisualSummaryInstruction(typeKey);
+  }
   const categoryList = getVisualSummaryCategoryList(typeKey);
   const config = VISUAL_SUMMARY_PROMPT_CONFIG[String(typeKey || "").trim()] || {};
   const categoryCommitmentLine = categoryList.length
@@ -1909,7 +2003,31 @@ async function classifySeatingTypeOpenAi(imageInput, options = {}) {
   return normalizeStage1Classification(parsed);
 }
 
-function visualDescriptionPrompt(typeKey = "") {
+export function visualDescriptionPrompt(typeKey = "") {
+  if (getVisualTypeFamily(typeKey) === "tables") {
+    return `You are a furniture visual analyst. Describe the physical form of the primary table in the image in precise, searchable language.
+
+Rules:
+- Do not name the brand or model under any circumstances.
+- Do not describe the room, background, or any secondary objects.
+- Focus entirely on the table's visual geometry, support structure, and material character.
+- If the image is a lifestyle or environment shot with multiple objects, focus exclusively on the primary table product. Ignore chairs, people, room decor, walls, floors, and background elements entirely. Describe only the table itself.
+- If a feature is not present, state its absence explicitly.
+- Never infer material from color alone — only describe what is structurally observable.
+
+Return JSON only with these fields:
+- silhouette: overall tabletop outline and negative space when viewed from the front or main angle (1-2 sentences)
+- proportions: span, top thickness impression, and overall lightness/heaviness
+- structure_type: how it holds itself up — describe the support skeleton visually (pedestal, 4-leg, trestle, T-leg, X-base, tripod, panel-slab, etc.)
+- back_geometry: return "none — not applicable to tables"
+- seat_geometry: describe the tabletop geometry, edge profile, and thickness read
+- arm_geometry: return "none — no arms on tables"
+- surface_language: texture, sheen, and material character visible on dominant top and base surfaces
+- design_register: one of [minimal, organic, industrial, traditional, sculptural, utilitarian]
+- distinctive_elements: up to 5 short visual details that would distinguish this from similar tables. Each item must be 8 words or fewer.
+${buildVisualSummaryInstruction(typeKey)}`;
+  }
+
   return `You are a furniture visual analyst. Describe the physical form of the primary seating item in the image in precise, searchable language.
 
 Rules:
@@ -2524,19 +2642,33 @@ async function extractLoungeSofaTraitsOpenAi(imageInput, typeKey, stage3ImageTra
 }
 
 async function describeVisualFormOpenAi(imageInput, options = {}) {
+  const isTablesType = getVisualTypeFamily(options.typeKey || "") === "tables";
   if (!options.apiKey) {
-    return {
-      silhouette: "Primary seating object with a readable front-facing outline and conservative inferred geometry.",
-      proportions: "Proportions are estimated conservatively from the visible view.",
-      structure_type: "Visible support structure is described conservatively from the image.",
-      back_geometry: "Back geometry is summarized only at a high level.",
-      seat_geometry: "Seat geometry is summarized only at a high level.",
-      arm_geometry: "Arm geometry is noted conservatively based on visible evidence.",
-      surface_language: "Dominant surface character is inferred conservatively from visible materials.",
-      design_register: "utilitarian",
-      distinctive_elements: [],
-      visual_summary: "Primary seating object detected with conservative visual-form description. Geometry and support structure are summarized only from clearly visible cues."
-    };
+    return isTablesType
+      ? {
+          silhouette: "Primary table object with a readable tabletop outline and conservative inferred geometry.",
+          proportions: "Proportions are estimated conservatively from the visible span, top thickness, and support stance.",
+          structure_type: "Visible support structure is described conservatively from the image.",
+          back_geometry: "none — not applicable to tables",
+          seat_geometry: "Tabletop geometry and edge treatment are summarized only at a high level.",
+          arm_geometry: "none — no arms on tables",
+          surface_language: "Dominant top and base surface character is inferred conservatively from visible materials.",
+          design_register: "utilitarian",
+          distinctive_elements: [],
+          visual_summary: "Primary table object detected with conservative visual-form description. Tabletop geometry and support structure are summarized only from clearly visible cues."
+        }
+      : {
+          silhouette: "Primary seating object with a readable front-facing outline and conservative inferred geometry.",
+          proportions: "Proportions are estimated conservatively from the visible view.",
+          structure_type: "Visible support structure is described conservatively from the image.",
+          back_geometry: "Back geometry is summarized only at a high level.",
+          seat_geometry: "Seat geometry is summarized only at a high level.",
+          arm_geometry: "Arm geometry is noted conservatively based on visible evidence.",
+          surface_language: "Dominant surface character is inferred conservatively from visible materials.",
+          design_register: "utilitarian",
+          distinctive_elements: [],
+          visual_summary: "Primary seating object detected with conservative visual-form description. Geometry and support structure are summarized only from clearly visible cues."
+        };
   }
 
   const parsed = await callOpenAiJson({
@@ -3132,7 +3264,18 @@ async function createTypedCaption(imageInput, options = {}, imageRecord = {}) {
         type_routing_source: "caller_provided"
       });
     }
-    return buildCallerProvidedTypedCaptionStub(imageDimensions, requestedTypeInfo);
+    const stage2 = await describeVisualFormOpenAi(imageInput, {
+      ...options,
+      typeKey: requestedTypeInfo.visual_type,
+      typeRoutingSource: "caller_provided"
+    });
+    return buildCallerProvidedTypedCaptionResult(
+      imageDimensions,
+      requestedTypeInfo,
+      stage2,
+      options.apiKey ? { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 } : {},
+      options.apiKey ? 1 : 0
+    );
   }
   const requestedRuns = Number.isFinite(Number(options.extractionRuns))
     ? Math.max(2, Number(options.extractionRuns))

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { generateCaption } from "../src/captioning.js";
+import { generateCaption, visualDescriptionPrompt } from "../src/captioning.js";
 
 const DEMO_OPTIONS = Object.freeze({
   provider: "demo",
@@ -33,12 +33,35 @@ test("generateCaption stubs Stage 1 from caller-provided tables visual_type with
   assert.equal(caption.stage1.visual_type, "conference");
   assert.equal(caption.stage1.family, "tables");
   assert.equal(caption.stage1.type_routing_source, "caller_provided");
+  assert.notEqual(caption.stage2.visual_summary, "");
   assert.equal(caption.visual_type, "conference");
   assert.equal(caption.family, "tables");
   assert.equal(caption.extraction_runs, 0);
   assert.deepEqual(caption.extraction_consensus.runs, []);
   assert.ok(events.some((event) => event.type === "stage1_stubbed" && event.visual_type === "conference"));
   assert.ok(!events.some((event) => event.type === "stage1_started"));
+});
+
+test("tables visual description prompt is derived from registry-backed cross-cutting fields", () => {
+  const prompt = visualDescriptionPrompt("training");
+
+  assert.match(prompt, /primary table/i);
+  assert.match(prompt, /top_shape/i);
+  assert.match(prompt, /top_material/i);
+  assert.match(prompt, /base_type/i);
+  assert.match(prompt, /base_visual_weight/i);
+  assert.match(prompt, /design_register/i);
+  assert.doesNotMatch(prompt, /^  - height_register:/m);
+  assert.doesNotMatch(prompt, /^  - power_data_integration:/m);
+});
+
+test("seating visual description prompt remains on the seating visual_summary_categories path", () => {
+  const prompt = visualDescriptionPrompt("lounge_chair");
+
+  assert.match(prompt, /primary seating item/i);
+  assert.match(prompt, /Available categories for this seating type/i);
+  assert.match(prompt, /privacy lounge chair/i);
+  assert.doesNotMatch(prompt, /FOCUS FIELDS FROM THE ROUTED TABLE SCHEMA/i);
 });
 
 test("generateCaption with caller-provided seating visual_type still uses the seating Stage 1 path", async () => {
