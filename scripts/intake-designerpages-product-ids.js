@@ -21,20 +21,31 @@ import {
   parseDesignerPagesProductId,
   parseDesignerPagesProductPayload
 } from "../src/designerpages.js";
+import {
+  buildExistingDesignerPagesProductKey,
+  buildExistingDesignerPagesProductLookup,
+  findExistingDesignerPagesProduct
+} from "../src/designerpages-intake.js";
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_CATALOG_PATH = path.join(DATA_DIR, "normalized-catalog.json");
 const DEFAULT_FLAGGED_PATH = path.join(DATA_DIR, "designerpages-intake-flagged.json");
 const DEFAULT_SKIP_LOG_PATH = path.join(DATA_DIR, "import-skipped-log.json");
+const DEFAULT_REPORT_PATH = path.join(DATA_DIR, "designerpages-intake-report.json");
 const MIN_SHORT_SIDE = 591;
 
 function usage() {
-  console.error("Usage: node scripts/intake-designerpages-product-ids.js --source path/to/product-ids.csv [--catalog data/normalized-catalog.json] [--flagged data/designerpages-intake-flagged.json]");
+  console.error("Usage: node scripts/intake-designerpages-product-ids.js --source path/to/product-ids.csv [--catalog data/normalized-catalog.json] [--flagged data/designerpages-intake-flagged.json] [--report data/designerpages-intake-report.json]");
   process.exit(1);
 }
 
 function parseArgs(argv = []) {
-  const args = { source: "", catalog: DEFAULT_CATALOG_PATH, flagged: DEFAULT_FLAGGED_PATH };
+  const args = {
+    source: "",
+    catalog: DEFAULT_CATALOG_PATH,
+    flagged: DEFAULT_FLAGGED_PATH,
+    report: DEFAULT_REPORT_PATH
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
     if (arg === "--source") {
@@ -49,6 +60,11 @@ function parseArgs(argv = []) {
     }
     if (arg === "--flagged") {
       args.flagged = path.resolve(argv[index + 1] || "");
+      index += 1;
+      continue;
+    }
+    if (arg === "--report") {
+      args.report = path.resolve(argv[index + 1] || "");
       index += 1;
     }
   }
@@ -210,23 +226,7 @@ function buildCatalogOutput(products = []) {
 }
 
 function buildExistingProductKey(product = {}) {
-  const sourceProductId = normalizeWhitespace(product.source_product_id);
-  if (sourceProductId) {
-    return `designerpages:${sourceProductId}`;
-  }
-
-  const websiteId = parseDesignerPagesProductId(product.website || "");
-  if (websiteId) {
-    return `designerpages:${websiteId}`;
-  }
-
-  const productId = normalizeWhitespace(product.product_id);
-  const suffixMatch = productId.match(/(\d+)$/);
-  if (suffixMatch) {
-    return `designerpages:${suffixMatch[1]}`;
-  }
-
-  return productId ? `product:${productId}` : "";
+  return buildExistingDesignerPagesProductKey(product);
 }
 
 function buildPhase1ProductRecord(scraped = {}, acceptedImageUrls = []) {
@@ -285,6 +285,7 @@ if (!productIds.length) {
 const existingCatalog = await readJson(args.catalog, { generated_at: "", totals: { products: 0, images: 0 }, brands: [], categories: [], products: [], images: [] });
 const existingFlagged = await readJson(args.flagged, { generated_at: "", total: 0, products: [] });
 const existingSkipLog = await readJson(DEFAULT_SKIP_LOG_PATH, []);
+const runStartedAt = new Date().toISOString();
 const mergedProducts = new Map();
 for (const product of existingCatalog.products || []) {
   const key = buildExistingProductKey(product);
@@ -292,14 +293,29 @@ for (const product of existingCatalog.products || []) {
     mergedProducts.set(key, product);
   }
 }
+const existingDesignerPagesProducts = buildExistingDesignerPagesProductLookup(existingCatalog.products || []);
 
 const acceptedProducts = [];
 const flaggedProducts = [];
 const skippedProducts = [];
+const skippedExistingProducts = [];
 
 for (const [index, productId] of productIds.entries()) {
   const productUrl = buildDesignerPagesProductUrl(productId);
   console.log(`[${index + 1}/${productIds.length}] Intake ${productId}`);
+
+  const existingProduct = findExistingDesignerPagesProduct(existingDesignerPagesProducts, productId);
+  if (existingProduct) {
+    skippedExistingProducts.push({
+      source_product_id: productId,
+      product_id: normalizeWhitespace(existingProduct.product_id),
+      name: normalizeWhitespace(existingProduct.name),
+      brand: normalizeWhitespace(existingProduct.brand),
+      reason: "already exists in catalog"
+    });
+    console.log(`  skipped: already exists as ${normalizeWhitespace(existingProduct.product_id) || "(unknown product id)"}`);
+    continue;
+  }
 
   try {
     const html = await fetchDesignerPagesProductHtml(productUrl);
@@ -353,6 +369,7 @@ for (const [index, productId] of productIds.entries()) {
       continue;
     }
     mergedProducts.set(`designerpages:${productId}`, nextProduct);
+    existingDesignerPagesProducts.set(productId, nextProduct);
     acceptedProducts.push({
       source_product_id: productId,
       product_id: nextProduct.product_id,
@@ -385,11 +402,28 @@ await writeJson(args.flagged, {
   products: nextFlaggedProducts
 });
 await writeJson(DEFAULT_SKIP_LOG_PATH, [...(Array.isArray(existingSkipLog) ? existingSkipLog : []), ...skippedProducts]);
+await writeJson(args.report, {
+  generated_at: new Date().toISOString(),
+  started_at: runStartedAt,
+  submitted_product_ids: productIds,
+  submitted_total: productIds.length,
+  accepted_products: acceptedProducts,
+  accepted_total: acceptedProducts.length,
+  skipped_existing_products: skippedExistingProducts,
+  skipped_existing_total: skippedExistingProducts.length,
+  flagged_products: flaggedProducts,
+  flagged_total: flaggedProducts.length,
+  skipped_unmapped_products: skippedProducts,
+  skipped_unmapped_total: skippedProducts.length,
+  resulting_catalog_totals: nextCatalog.totals
+});
 
 console.log(`Accepted ${acceptedProducts.length} product(s).`);
 console.log(`Flagged ${flaggedProducts.length} product(s) this run.`);
+console.log(`Skipped ${skippedExistingProducts.length} product(s) because they already exist in the catalog.`);
 console.log(`Skipped ${skippedProducts.length} product(s) for unmapped category grouping.`);
 console.log(`Catalog now has ${nextCatalog.totals.products} product(s) and ${nextCatalog.totals.images} Phase 1 image record(s).`);
 console.log(`Wrote ${args.catalog}`);
 console.log(`Wrote ${args.flagged}`);
 console.log(`Wrote ${DEFAULT_SKIP_LOG_PATH}`);
+console.log(`Wrote ${args.report}`);
