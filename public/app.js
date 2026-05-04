@@ -17,6 +17,7 @@ import {
   isSupportedBrowseVisualType,
   resolveStoredVisualType
 } from "./visual-type-ui.js";
+import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
 
 const state = {
   debug: false,
@@ -7584,23 +7585,22 @@ async function runSearch(query, options = {}) {
   const requestedVisualType = String(
     options.visualType ??
     options.seatingType ??
-    inferredVisualTypeFromQuery ??
     getPrimaryCategoryScopeSelection(state.resultCategoryScope) ??
+    inferredVisualTypeFromQuery ??
     imageAnalysis?.stage1?.visual_type ??
     imageAnalysis?.visual_type ??
     imageAnalysis?.stage1?.seating_type ??
     imageAnalysis?.seating_type ??
     ""
   ).trim();
-  const normalizedRequestedVisualType = requestedCategoryScopeMode === "all"
-    ? "all"
-    : requestedVisualType;
-  const effectiveCategoryScopeMode = requestedCategoryScopeMode === "all" && inferredVisualTypeFromQuery
-    ? "explicit"
-    : requestedCategoryScopeMode;
-  const apiRequestedVisualType = effectiveCategoryScopeMode === "explicit"
-    ? normalizedRequestedVisualType
-    : "";
+  const {
+    effectiveCategoryScopeMode,
+    apiRequestedVisualType
+  } = resolveSearchVisualTypeRequest({
+    requestedCategoryScopeMode,
+    explicitVisualType: requestedVisualType,
+    inferredVisualTypeFromQuery
+  });
   const requestedSelectedBullets = normalizeSelectedBullets(options.selectedBullets);
   const requestedBulletControls = normalizeBulletControls(
     options.bulletControls?.length
