@@ -1,13 +1,22 @@
 import { RESULT_CUTOFF_DEFAULTS, findCutoff } from "./result-cutoff.js";
 import {
   buildResultsPageSearch,
+  detectCategoryScopeFromQuery,
   getPrimaryCategoryScopeSelection,
   normalizeCategoryScopeSelection,
-  normalizeSeatingCategoryKey,
+  normalizeVisualTypeKey,
   splitQueryAroundCategoryScope,
   stripCategoryScopeFromQuery,
   stripCategoryScopeFromSelectedBullets
 } from "./category-scope.js";
+import {
+  buildRoutingTypesConfig,
+  formatVisualTypeLabel,
+  getVisualTypeDisplayNameMap,
+  getVisualTypeOptions,
+  isSupportedBrowseVisualType,
+  resolveStoredVisualType
+} from "./visual-type-ui.js";
 
 const state = {
   debug: false,
@@ -48,7 +57,7 @@ const state = {
   currentSelectedBullets: { essential: [], normal: [], low: [] },
   currentBulletControls: [],
   pendingBulletControls: null,
-  currentSeatingType: "",
+  currentVisualType: "",
   currentImageAnalysis: null,
   clarificationConflict: null,
   categoryRequirement: null,
@@ -59,7 +68,7 @@ const state = {
   originalQueryEmbedding: [],
   originalSelectedBullets: { essential: [], normal: [], low: [] },
   originalBulletControls: [],
-  originalSeatingType: "",
+  originalVisualType: "",
   originalImageAnalysis: null,
   originalProductRefinements: [],
   originalCategoryFilter: [],
@@ -100,12 +109,11 @@ const state = {
 };
 
 function getBootstrapRoutingTypes(bootstrap = state.bootstrap) {
-  return bootstrap?.visual_types || bootstrap?.seating_types || null;
+  return buildRoutingTypesConfig(bootstrap);
 }
 
 function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
-  const options = bootstrap?.visual_type_options || bootstrap?.seating_category_options || [];
-  return Array.isArray(options) ? options : [];
+  return getVisualTypeOptions(bootstrap);
 }
 
 function getPayloadVisualType(payload = {}) {
@@ -118,27 +126,12 @@ function getPayloadVisualType(payload = {}) {
   ).trim();
 }
 
-const SEATING_CATEGORY_DISPLAY_NAMES = {
-  task_collab_chair: "Work Chairs",
-  guest_chair: "Multi-Use / Guest Chairs",
-  lounge_chair: "Lounge Seating",
-  bench: "Benches",
-  stool: "Stools"
-};
-
-const CATEGORY_REQUIREMENT_OPTION_KEYS = Object.keys(SEATING_CATEGORY_DISPLAY_NAMES)
+const CATEGORY_REQUIREMENT_OPTION_KEYS = Object.keys(getVisualTypeDisplayNameMap())
   .sort((left, right) => {
-    const leftLabel = SEATING_CATEGORY_DISPLAY_NAMES[left] || left;
-    const rightLabel = SEATING_CATEGORY_DISPLAY_NAMES[right] || right;
+    const leftLabel = formatVisualTypeLabel(left);
+    const rightLabel = formatVisualTypeLabel(right);
     return leftLabel.localeCompare(rightLabel);
   });
-const BROWSE_TRAIT_FILTER_SUPPORTED_TYPES = new Set([
-  "task_collab_chair",
-  "guest_chair",
-  "lounge_chair",
-  "stool",
-  "bench"
-]);
 
 const BATCH_PROGRESS_DISMISS_KEY = "image-search.batch-progress-dismissed";
 const IMAGE_SEARCH_HANDOFF_KEY = "image-search.pending-image-handoff";
@@ -1023,17 +1016,6 @@ function setCategoryFilterMode(isSearchMode) {
   }
 }
 
-function formatSeatingCategoryLabel(value = "") {
-  const normalized = normalizeSeatingCategoryKey(value);
-  if (normalized === "all") {
-    return "All categories";
-  }
-  if (normalized === "unspecified") {
-    return "Unspecified";
-  }
-  return SEATING_CATEGORY_DISPLAY_NAMES[normalized] || formatTraitFieldLabel(normalized) || normalized;
-}
-
 function normalizeTraitFilterState(source = {}) {
   if (!source || typeof source !== "object") {
     return {};
@@ -1050,7 +1032,7 @@ function isMissingBrowseTraitValue(value = "") {
 }
 
 function isSupportedBrowseTraitCategory(categoryKey = "") {
-  return BROWSE_TRAIT_FILTER_SUPPORTED_TYPES.has(normalizeSeatingCategoryKey(categoryKey));
+  return isSupportedBrowseVisualType(categoryKey, state.bootstrap);
 }
 
 function getBrowseScopedCategoryKey(payload = state.lastPayload, query = state.lastQuery) {
@@ -1058,11 +1040,11 @@ function getBrowseScopedCategoryKey(payload = state.lastPayload, query = state.l
     return "";
   }
   const categoryKey = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
-  return categoryKey && categoryKey !== "all" ? normalizeSeatingCategoryKey(categoryKey) : "";
+  return categoryKey && categoryKey !== "all" ? normalizeVisualTypeKey(categoryKey) : "";
 }
 
 function getBrowseTraitFieldConfigs(categoryKey = "") {
-  const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
+  const normalizedCategory = normalizeVisualTypeKey(categoryKey);
   const types = getBootstrapRoutingTypes()?.types;
   if (!normalizedCategory || !types?.[normalizedCategory]) {
     return [];
@@ -1073,12 +1055,12 @@ function getBrowseTraitFieldConfigs(categoryKey = "") {
 }
 
 function getCategoryScopedImages(result = {}, categoryKey = "") {
-  const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
+  const normalizedCategory = normalizeVisualTypeKey(categoryKey);
   if (!normalizedCategory) {
     return [];
   }
   return (Array.isArray(result.matching_images) ? result.matching_images : [])
-    .filter((image) => normalizeSeatingCategoryKey(getPayloadVisualType(image)) === normalizedCategory);
+    .filter((image) => normalizeVisualTypeKey(getPayloadVisualType(image)) === normalizedCategory);
 }
 
 function imageMatchesTraitFilters(image = {}, traitFilters = {}) {
@@ -1329,7 +1311,7 @@ async function handleCategoryScopeSelectionChange(nextRawValue = "") {
           previousMatch,
           composerParts.suffix
         )
-      : stripVagueSeatingReferenceFromQuery(composerParts.plain || state.lastQuery || "", nextPrimaryCategory)
+      : stripVagueVisualTypeReferenceFromQuery(composerParts.plain || state.lastQuery || "", nextPrimaryCategory)
     : composerParts.plain || state.lastQuery || "";
   if (categoryChanged) {
     clearBrowseTraitFilters();
@@ -1361,7 +1343,7 @@ async function handleCategoryScopeSelectionChange(nextRawValue = "") {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: nextPrimaryCategory || "all",
+    visualType: nextPrimaryCategory || "all",
     categoryScopeMode: state.categoryScopeMode,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
@@ -1385,7 +1367,7 @@ async function handleCategoryScopeSelectionChange(nextRawValue = "") {
 }
 
 function getCategoryPhraseForQuery(value = "", options = {}) {
-  const normalized = normalizeSeatingCategoryKey(value);
+  const normalized = normalizeVisualTypeKey(value);
   const singular = options?.singular === true;
   const phrases = singular
     ? {
@@ -1393,14 +1375,24 @@ function getCategoryPhraseForQuery(value = "", options = {}) {
         guest_chair: "guest chair",
         lounge_chair: "lounge chair",
         bench: "bench",
-        stool: "stool"
+        stool: "stool",
+        conference: "conference table",
+        occasional: "occasional table",
+        cafe_dining: "cafe table",
+        training: "training table",
+        huddle_collaborative: "huddle table"
       }
     : {
         task_collab_chair: "work chairs",
         guest_chair: "guest chairs",
         lounge_chair: "lounge seating",
         bench: "benches",
-        stool: "stools"
+        stool: "stools",
+        conference: "conference tables",
+        occasional: "occasional tables",
+        cafe_dining: "cafe tables",
+        training: "training tables",
+        huddle_collaborative: "huddle tables"
       };
   return phrases[normalized] || "";
 }
@@ -1410,13 +1402,13 @@ function shouldUseSingularCategoryPhrase(matchText = "") {
   if (!normalized) {
     return false;
   }
-  if (/\b(chairs|seats|benches|stools)\b/.test(normalized)) {
+  if (/\b(chairs|seats|benches|stools|tables)\b/.test(normalized)) {
     return false;
   }
-  if (/\bseating\b/.test(normalized)) {
+  if (/\b(seating|table)\b/.test(normalized)) {
     return false;
   }
-  return /\b(chair|seat|work chair|guest chair|lounge chair|task chair|collaborative chair|bench|stool)\b/.test(normalized);
+  return /\b(chair|seat|work chair|guest chair|lounge chair|task chair|collaborative chair|bench|stool|table|conference table|boardroom table|side table|end table|accent table|coffee table|cafe table|dining table|bistro table|kitchen table|restaurant table|training table|flip table|flip-top table|folding table|seminar table|classroom table|huddle table|collaboration table|team table)\b/.test(normalized);
 }
 
 function getCategoryPhraseForComposer(categoryKey = "", matchText = "") {
@@ -1435,7 +1427,7 @@ function buildInlineCategoryScopedQuery(categoryKey = "", prefix = "", matchText
 }
 
 function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
-  const normalizedCategory = normalizeSeatingCategoryKey(categoryKey);
+  const normalizedCategory = normalizeVisualTypeKey(categoryKey);
   const categoryPhrase = getCategoryPhraseForQuery(normalizedCategory);
   const residual = String(residualQuery || "").trim();
   if (!categoryPhrase) {
@@ -1451,7 +1443,7 @@ function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
 }
 
 function getResultStage1Category(result = {}) {
-  const normalized = normalizeSeatingCategoryKey(
+  const normalized = normalizeVisualTypeKey(
     getPayloadVisualType(result.hero_image) ||
     getPayloadVisualType(normalizeMatchingImages(result)[0]) ||
     getPayloadVisualType(result.debug?.stage1) ||
@@ -1464,7 +1456,7 @@ function getSearchResultCategoryOptions(payload = state.lastPayload) {
   return [...new Set((payload?.results || [])
     .map((result) => getResultStage1Category(result))
     .filter(Boolean))]
-    .sort((left, right) => formatSeatingCategoryLabel(left).localeCompare(formatSeatingCategoryLabel(right)));
+    .sort((left, right) => formatVisualTypeLabel(left, state.bootstrap).localeCompare(formatVisualTypeLabel(right, state.bootstrap)));
 }
 
 function shouldShowSearchCategoryChip() {
@@ -1476,15 +1468,15 @@ function shouldShowSearchCategoryChip() {
   );
 }
 
-function stripVagueSeatingReferenceFromQuery(query = "", selectedCategory = "") {
-  const normalizedSelectedCategory = normalizeSeatingCategoryKey(selectedCategory);
+function stripVagueVisualTypeReferenceFromQuery(query = "", selectedCategory = "") {
+  const normalizedSelectedCategory = normalizeVisualTypeKey(selectedCategory);
   let nextQuery = String(query || "").trim();
 
-  Object.keys(SEATING_CATEGORY_DISPLAY_NAMES).forEach((categoryKey) => {
+  Object.keys(getVisualTypeDisplayNameMap(state.bootstrap)).forEach((categoryKey) => {
     nextQuery = stripCategoryScopeFromQuery(nextQuery, categoryKey);
   });
 
-  nextQuery = nextQuery.replace(/\b(chair|chairs|seating|seat|seats)\b/gi, " ");
+  nextQuery = nextQuery.replace(/\b(chair|chairs|seating|seat|seats|table|tables)\b/gi, " ");
   nextQuery = nextQuery.replace(/\s+/g, " ").trim();
   nextQuery = nextQuery.replace(/^[,/\-:;]+/, " ");
   nextQuery = nextQuery.replace(/\s+[,/\-:;]+/g, " ");
@@ -1729,7 +1721,7 @@ function resolveStructuredBulletField(typeKey = "", fieldLabel = "") {
   return aliasMatch || normalizedField;
 }
 
-function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = state.currentSeatingType) {
+function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = state.currentVisualType) {
   const raw = String(bullet || "").trim();
   const separatorIndex = raw.indexOf(":");
   if (!raw || separatorIndex === -1) {
@@ -1748,17 +1740,17 @@ function parseStructuredBulletEntry(bullet = "", priority = "normal", typeKey = 
   return { field, value, priority };
 }
 
-function defaultPriorityForBulletField(field = "", typeKey = state.currentSeatingType) {
+function defaultPriorityForBulletField(field = "", typeKey = state.currentVisualType) {
   const normalizedField = normalizeTraitFieldKey(field);
   return getFieldPriority(typeKey, normalizedField);
 }
 
-function defaultPriorityForBulletText(bullet = "", typeKey = state.currentSeatingType) {
+function defaultPriorityForBulletText(bullet = "", typeKey = state.currentVisualType) {
   const parsed = parseStructuredBulletEntry(bullet, "normal", typeKey);
   return parsed ? defaultPriorityForBulletField(parsed.field, typeKey) : "normal";
 }
 
-function buildQueryBulletMap(selectedBullets = [], typeKey = state.currentSeatingType) {
+function buildQueryBulletMap(selectedBullets = [], typeKey = state.currentVisualType) {
   const normalized = normalizeSelectedBullets(selectedBullets);
   const map = new Map();
 
@@ -1844,7 +1836,7 @@ function getCachedImageAnalysisCategory(body = {}) {
     return "";
   }
   return state.imageAnalysisCategorySelection?.key === cacheKey
-    ? String(state.imageAnalysisCategorySelection?.seatingType || "").trim()
+    ? String(state.imageAnalysisCategorySelection?.visualType || state.imageAnalysisCategorySelection?.seatingType || "").trim()
     : "";
 }
 
@@ -2049,10 +2041,10 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
       embeddingScore: scoreBreakdownValue(breakdown, "embedding similarity"),
       traitBoost: scoreBreakdownValue(breakdown, "selected bullet boost"),
       sourceBonus: scoreBreakdownValue(breakdown, "source image exact-match boost"),
-      seatingType: String(
+      visualType: String(
         getPayloadVisualType(heroImage) ||
         getPayloadVisualType(result.debug?.stage1) ||
-        state.currentSeatingType ||
+        state.currentVisualType ||
         ""
       ).trim(),
       enumFields: heroImage.enum_fields || result.debug?.image_traits || {},
@@ -2066,7 +2058,7 @@ function buildDebugScoreRows(payload = state.debugPayload || state.lastPayload) 
 }
 
 function getDebugScoreFields(selectedBullets = state.currentSelectedBullets) {
-  const activeTypeKey = String(state.currentSeatingType || "").trim();
+  const activeTypeKey = String(state.currentVisualType || "").trim();
   const normalized = normalizeSelectedBullets(selectedBullets, activeTypeKey);
   const orderedSchemaFields = getOrderedSchemaFieldsForType(activeTypeKey);
   const selectedFieldSet = new Set();
@@ -2088,7 +2080,7 @@ function getDebugScoreFields(selectedBullets = state.currentSelectedBullets) {
 function formatDebugImageCategory(image = {}) {
   const stage0 = String(image.stage_0_result || "").trim();
   const effectiveClassification = String(image.effective_classification || "").trim();
-  const seatingType = String(
+  const visualType = String(
     getPayloadVisualType(image) ||
     getPayloadVisualType(image.stage1) ||
     ""
@@ -2100,8 +2092,8 @@ function formatDebugImageCategory(image = {}) {
     `effective: ${effectiveLabel}`
   ];
 
-  if (seatingType) {
-    parts.push(`seating: ${formatSeatingCategoryLabel(seatingType)}`);
+  if (visualType) {
+    parts.push(`visual type: ${formatVisualTypeLabel(visualType, state.bootstrap)}`);
   }
 
   return parts.join(" | ");
@@ -2125,7 +2117,7 @@ async function fetchDebugPayload() {
         category: searchCategoryFilter,
         refresh_age: String(state.refreshAgeFilter || "").trim(),
         source_image_url: String(sourceImageUrl || "").trim(),
-        visual_type: state.currentSeatingType,
+        visual_type: state.currentVisualType,
         reranker_enabled: false,
         debug: true
       })
@@ -2142,7 +2134,7 @@ async function fetchDebugPayload() {
       sort: state.sortMode,
       category: searchCategoryFilter,
       refresh_age: state.refreshAgeFilter,
-      visual_type: state.currentSeatingType,
+      visual_type: state.currentVisualType,
       image_analysis: state.currentImageAnalysis,
       selected_bullets: normalizeSelectedBullets(state.currentSelectedBullets),
       debug: true
@@ -2154,7 +2146,7 @@ async function fetchDebugPayload() {
 async function renderDebugLightbox() {
   const payload = await fetchDebugPayload();
   const rows = buildDebugScoreRows(payload);
-  const debugTypeKey = String(state.currentSeatingType || rows[0]?.seatingType || "").trim();
+  const debugTypeKey = String(state.currentVisualType || rows[0]?.visualType || "").trim();
   const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets, debugTypeKey);
   const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
   const debugTraitGroups = getDebugTraitGroupsForType(debugTypeKey, debugScoreFields);
@@ -2337,7 +2329,7 @@ async function renderDebugLightbox() {
 
 function buildDebugTableTsv() {
   const rows = buildDebugScoreRows(state.debugPayload || state.lastPayload);
-  const debugTypeKey = String(state.currentSeatingType || rows[0]?.seatingType || "").trim();
+  const debugTypeKey = String(state.currentVisualType || rows[0]?.visualType || "").trim();
   const queryBulletMap = buildQueryBulletMap(state.currentSelectedBullets, debugTypeKey);
   const debugScoreFields = getDebugScoreFields(state.currentSelectedBullets);
   const headers = [
@@ -2406,7 +2398,7 @@ function normalizePriorityBulletList(values = []) {
   return normalized;
 }
 
-function normalizeSelectedBullets(selectedBullets = [], typeKey = state.currentSeatingType) {
+function normalizeSelectedBullets(selectedBullets = [], typeKey = state.currentVisualType) {
   if (Array.isArray(selectedBullets)) {
     const normalized = { essential: [], normal: [], low: [] };
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
@@ -3036,7 +3028,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
 
   const tableTitle = document.createElement("h3");
   tableTitle.className = "rules-card-title";
-  tableTitle.textContent = "By seating type";
+  tableTitle.textContent = "By visual type";
 
   const tableMeta = document.createElement("p");
   tableMeta.className = "rules-summary-intro";
@@ -3058,7 +3050,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th>Seating type</th>
+        <th>Visual type</th>
         <th>Images</th>
         <th>Tiebreakers</th>
         <th>Trait health</th>
@@ -3117,7 +3109,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
       categoryCell.appendChild(indicator);
     }
     const categoryLabel = document.createElement("span");
-    categoryLabel.textContent = formatSeatingCategoryLabel(categoryKey);
+    categoryLabel.textContent = formatVisualTypeLabel(categoryKey);
     categoryCell.appendChild(categoryLabel);
 
     const imagesCell = document.createElement("td");
@@ -3350,7 +3342,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
 
   unmappedCard.append(unmappedTitle, unmappedIntro);
 
-  const mappingOptions = Object.entries(SEATING_CATEGORY_DISPLAY_NAMES)
+  const mappingOptions = Object.entries(getVisualTypeDisplayNameMap(state.bootstrap))
     .sort((left, right) => left[1].localeCompare(right[1]));
 
   const renderUnmappedSection = (titleText, entries = [], resolved = false) => {
@@ -3383,7 +3375,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
         : "";
       const statusSuffix = resolved
         ? ` • ${entry.status === "mapped"
-          ? `mapped to ${formatSeatingCategoryLabel(entry.mapping_target || "")}`
+          ? `mapped to ${formatVisualTypeLabel(entry.mapping_target || "")}`
           : "intentionally excluded"}`
         : "";
       heading.textContent = `${entry.grouping} — ${Number(entry.count || 0)} ${Number(entry.count || 0) === 1 ? "product" : "products"}${firstSeen}${statusSuffix}`;
@@ -3419,7 +3411,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
             const payload = await updateUnmappedCategoryDecision(entry.grouping, "mapped", select.value);
             state.extractionSummary = payload.extraction_summary || state.extractionSummary;
             renderExtractionSummary();
-            setStatus(`Mapped ${entry.grouping} to ${formatSeatingCategoryLabel(select.value)}.`, "info");
+            setStatus(`Mapped ${entry.grouping} to ${formatVisualTypeLabel(select.value)}.`, "info");
           } catch (error) {
             setStatus(error.message || "Failed to store mapping decision.", "error");
           }
@@ -3844,7 +3836,8 @@ function openBatchRefreshStream() {
 async function refineSearchResults({
   queryEmbedding = state.currentQueryEmbedding,
   selectedBullets = state.currentSelectedBullets,
-  seatingType = state.currentSeatingType,
+  visualType = state.currentVisualType,
+  seatingType = "",
   categoryFilter = state.categoryFilter,
   refreshAgeFilter = state.refreshAgeFilter,
   sourceImageUrl = state.currentImageAnalysis?.image_preview_url || "",
@@ -3862,7 +3855,7 @@ async function refineSearchResults({
       refresh_age: String(refreshAgeFilter || "").trim(),
       source_image_url: String(sourceImageUrl || "").trim(),
       reranker_enabled: Boolean(rerankerEnabled),
-      visual_type: seatingType,
+      visual_type: String(visualType || seatingType || "").trim(),
       ...(action && productId ? { action, product_id: productId } : {})
     })
   });
@@ -3881,6 +3874,7 @@ function applyActiveSearchContext({
   selectedBullets = { essential: [], normal: [], low: [] },
   bulletControls = [],
   baseQueryEmbedding = null,
+  visualType = "",
   seatingType = "",
   imageAnalysis = null,
   productRefinements = [],
@@ -3901,8 +3895,9 @@ function applyActiveSearchContext({
     ]
   );
   state.pendingBulletControls = null;
-  state.currentSeatingType = String(seatingType || "").trim().toLowerCase() === "all" ? "" : String(seatingType || "").trim();
-  state.categoryScopeMode = String(payload?.seating_type_source || "").trim() || (state.currentSeatingType ? "explicit" : "all");
+  const resolvedVisualType = String(visualType || seatingType || "").trim();
+  state.currentVisualType = resolvedVisualType.toLowerCase() === "all" ? "" : resolvedVisualType;
+  state.categoryScopeMode = String(payload?.seating_type_source || "").trim() || (state.currentVisualType ? "explicit" : "all");
   state.searchInputEditedSinceLastSearch = false;
   state.categorySelectionTouchedSinceLastSearch = false;
   state.currentImageAnalysis = imageAnalysis && typeof imageAnalysis === "object" ? cloneValue(imageAnalysis) : null;
@@ -3910,7 +3905,7 @@ function applyActiveSearchContext({
   state.currentProductRefinements = normalizeProductRefinements(productRefinements);
   state.categoryFilter = normalizeCategoryFilter(categoryFilter);
   const resolvedSearchCategory = String(
-    seatingType ||
+    resolvedVisualType ||
     getPayloadVisualType(payload) ||
     getPayloadVisualType(payload?.parsed) ||
     ""
@@ -3948,7 +3943,7 @@ function applyActiveSearchContext({
     state.originalQueryEmbedding = Array.isArray(payload?.query_embedding) ? [...payload.query_embedding] : [];
     state.originalSelectedBullets = normalizeSelectedBullets(selectedBullets);
     state.originalBulletControls = normalizeBulletControls(state.currentBulletControls);
-    state.originalSeatingType = String(seatingType || "").trim().toLowerCase() === "all" ? "" : String(seatingType || "").trim();
+    state.originalVisualType = resolvedVisualType.toLowerCase() === "all" ? "" : resolvedVisualType;
     state.originalImageAnalysis = imageAnalysis && typeof imageAnalysis === "object" ? cloneValue(imageAnalysis) : null;
     state.originalProductRefinements = normalizeProductRefinements(productRefinements);
     state.originalCategoryFilter = [...state.categoryFilter];
@@ -4025,7 +4020,7 @@ async function rerankResults({
     const payload = await refineSearchResults({
       queryEmbedding,
       selectedBullets,
-      seatingType: state.currentSeatingType,
+      visualType: state.currentVisualType,
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter
     });
@@ -4035,7 +4030,7 @@ async function rerankResults({
       selectedBullets,
       bulletControls,
       baseQueryEmbedding,
-      seatingType: state.currentSeatingType,
+      visualType: state.currentVisualType,
       imageAnalysis: state.currentImageAnalysis,
       productRefinements,
       categoryFilter: state.categoryFilter,
@@ -4271,20 +4266,20 @@ function buildStoredImageSearchBullets(imageTraits = {}, typeKey = null) {
 function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const source = matchingImage || {};
   const heroSource = result.hero_image || {};
-  const seatingType = String(
+  const visualType = String(
     getPayloadVisualType(source) ||
     getPayloadVisualType(heroSource) ||
     getPayloadVisualType(result.debug?.stage1) ||
     ""
   ).trim();
   const enumFields = source.enum_fields || heroSource.enum_fields || result.debug?.image_traits || {};
-  const bulletTexts = buildStoredImageSearchBullets(enumFields, seatingType);
+  const bulletTexts = buildStoredImageSearchBullets(enumFields, visualType);
   const fallbackMatchedTraits = Array.isArray(result.matched_traits)
     ? result.matched_traits.map((entry) => String(entry || "").trim()).filter(Boolean)
     : [];
   const selectedBullets = normalizeSelectedBullets(
     bulletTexts.length ? bulletTexts : fallbackMatchedTraits,
-    seatingType
+    visualType
   );
   const bulletControls = normalizeBulletControls(
     [
@@ -4313,9 +4308,9 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   const imageAnalysis = {
     image_preview_url: source.image_url || heroSource.image_url || result.best_image_url || "",
     reference_image_mode: "stored",
-    visual_type: seatingType,
-    seating_type: seatingType,
-    stage1: { visual_type: seatingType || "", seating_type: seatingType || "" },
+    visual_type: visualType,
+    seating_type: visualType,
+    stage1: { visual_type: visualType || "", seating_type: visualType || "" },
     image_traits: enumFields,
     stage2: {
       visual_summary: source.free_text?.visual_summary || heroSource.free_text?.visual_summary || result.debug?.visual_description || ""
@@ -4327,7 +4322,7 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
     embedding,
     selectedBullets,
     bulletControls,
-    seatingType,
+    visualType,
     imageAnalysis
   };
 }
@@ -4350,7 +4345,7 @@ async function searchFromStoredImage(result = {}, matchingImage = null) {
     const payload = await refineSearchResults({
       queryEmbedding: context.embedding,
       selectedBullets: context.selectedBullets,
-      seatingType: context.seatingType,
+      visualType: context.visualType,
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter,
       sourceImageUrl: context.imageAnalysis.image_preview_url
@@ -4361,7 +4356,7 @@ async function searchFromStoredImage(result = {}, matchingImage = null) {
       selectedBullets: context.selectedBullets,
       bulletControls: context.bulletControls,
       baseQueryEmbedding: context.embedding,
-      seatingType: context.seatingType,
+      visualType: context.visualType,
       imageAnalysis: context.imageAnalysis,
       productRefinements: [],
       categoryFilter: state.categoryFilter,
@@ -4857,14 +4852,14 @@ function renderContextPills(parsed = {}) {
     const pill = document.createElement("span");
     pill.className = "context-pill context-filter-pill is-active";
     const label = document.createElement("span");
-    label.textContent = formatSeatingCategoryLabel(activeSeatingType);
+    label.textContent = formatVisualTypeLabel(activeSeatingType, state.bootstrap);
     pill.appendChild(label);
 
     if (!state.currentImageAnalysis) {
       const clear = document.createElement("button");
       clear.type = "button";
       clear.className = "context-pill-clear";
-      clear.setAttribute("aria-label", `Remove ${formatSeatingCategoryLabel(activeSeatingType)} filter`);
+      clear.setAttribute("aria-label", `Remove ${formatVisualTypeLabel(activeSeatingType, state.bootstrap)} filter`);
       clear.textContent = "✕";
       clear.addEventListener("click", (event) => {
         event.preventDefault();
@@ -4882,7 +4877,7 @@ function renderContextPills(parsed = {}) {
           sort: state.sortMode,
           categoryFilter: state.categoryFilter,
           refreshAgeFilter: state.refreshAgeFilter,
-          seatingType: "all",
+          visualType: "all",
           categoryScopeMode: "all"
         });
       });
@@ -4981,14 +4976,14 @@ function renderClarificationBar() {
   const options = document.createElement("div");
   options.className = "clarification-options clarification-options-category";
   const optionEntries = categoryRequirement.options
-    .map((option) => normalizeSeatingCategoryKey(option))
+    .map((option) => normalizeVisualTypeKey(option))
     .filter((option) => option && option !== "all")
     .sort((left, right) => {
-      const leftLabel = formatSeatingCategoryLabel(left);
-      const rightLabel = formatSeatingCategoryLabel(right);
+      const leftLabel = formatVisualTypeLabel(left, state.bootstrap);
+      const rightLabel = formatVisualTypeLabel(right, state.bootstrap);
       return leftLabel.localeCompare(rightLabel);
     })
-    .map((option) => ({ value: option, label: formatSeatingCategoryLabel(option) }));
+    .map((option) => ({ value: option, label: formatVisualTypeLabel(option, state.bootstrap) }));
 
   optionEntries.forEach((option) => {
     const pill = document.createElement("button");
@@ -5008,18 +5003,18 @@ function renderClarificationBar() {
         if (cacheKey) {
           state.imageAnalysisCategorySelection = {
             key: cacheKey,
-            seatingType: categoryKey
+            visualType: categoryKey
           };
         }
         updateCategoryRequirement(null);
         runImageAnalysisSearch(requestBody, focusArea, {
-          seatingTypeOverride: categoryKey
+          visualTypeOverride: categoryKey
         }).catch((error) => {
           setStatus(error.message || "Failed to apply category selection.", "error");
         });
         return;
       }
-      const nextQuery = stripVagueSeatingReferenceFromQuery(state.lastQuery || "", categoryKey);
+      const nextQuery = stripVagueVisualTypeReferenceFromQuery(state.lastQuery || "", categoryKey);
       updateCategoryRequirement(null);
       state.resultCategoryScope = [categoryKey];
       state.categoryScopeMode = "explicit";
@@ -5027,7 +5022,7 @@ function renderClarificationBar() {
         sort: state.sortMode,
         categoryFilter: state.categoryFilter,
         refreshAgeFilter: state.refreshAgeFilter,
-        seatingType: categoryKey,
+        visualType: categoryKey,
         categoryScopeMode: "explicit",
         sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
         imageAnalysis: state.currentImageAnalysis,
@@ -6275,13 +6270,13 @@ function formatRefineBulletParts(text = "") {
   const label = raw.slice(0, colonIndex).trim().replace(/_/g, " ");
   const value = raw.slice(colonIndex + 1).trim();
   const normalizedLabel = label.toLowerCase();
-  const normalizedField = resolveStructuredBulletField(state.currentSeatingType, label);
+  const normalizedField = resolveStructuredBulletField(state.currentVisualType, label);
   return {
     label: normalizedField
-      ? formatInlineRefinementFieldLabel(normalizedField, state.currentSeatingType)
+      ? formatInlineRefinementFieldLabel(normalizedField, state.currentVisualType)
       : toTitleCaseWords(label),
-    value: normalizedLabel === "seating type"
-      ? formatSeatingCategoryLabel(value)
+    value: normalizedLabel === "seating type" || normalizedLabel === "visual type"
+      ? formatVisualTypeLabel(value, state.bootstrap)
       : formatFrontendTraitValue(normalizedField, value)
   };
 }
@@ -6674,7 +6669,7 @@ function normalizeMatchingImages(result = {}) {
   const browseCategoryKey = getBrowseScopedCategoryKey(state.lastPayload, state.lastQuery);
   const browseTraitFilters = normalizeTraitFilterState(state.traitFilters);
   if (isBrowsePayload(state.lastPayload, state.lastQuery) && browseCategoryKey) {
-    normalized = normalized.filter((image) => normalizeSeatingCategoryKey(getPayloadVisualType(image)) === browseCategoryKey);
+    normalized = normalized.filter((image) => normalizeVisualTypeKey(getPayloadVisualType(image)) === browseCategoryKey);
     if (Object.keys(browseTraitFilters).length) {
       normalized = normalized.filter((image) => imageMatchesTraitFilters(image, browseTraitFilters));
     }
@@ -6870,11 +6865,11 @@ function getActiveImageContextForResult(result = {}) {
   return {
     imageUrl: resolvedImageUrl,
     matchingImage,
-    seatingType: String(
+    visualType: String(
       getPayloadVisualType(matchingImage) ||
       getPayloadVisualType(result.hero_image) ||
       getPayloadVisualType(result.debug?.stage1) ||
-      state.currentSeatingType ||
+      state.currentVisualType ||
       ""
     ).trim(),
     imageTraits: matchingImage?.enum_fields || result.hero_image?.enum_fields || result.debug?.image_traits || {}
@@ -6892,7 +6887,7 @@ function getRefinementEmbeddingForResult(result = {}, matchingImage = null) {
 
 function buildInlineRefinementPanelState(result = {}, mode = "more") {
   const imageContext = getActiveImageContextForResult(result);
-  const allTraits = buildInlineRefinementTraits(imageContext.imageTraits, imageContext.seatingType);
+  const allTraits = buildInlineRefinementTraits(imageContext.imageTraits, imageContext.visualType);
   const activeFieldMap = buildActiveBulletFieldMap();
   const availableTraits = allTraits
     .map((trait) => {
@@ -7141,7 +7136,7 @@ function renderResults(payload, query) {
     setResultCountMarkup(0, "results found");
     setStatus(
       activeScopeCategory && activeScopeCategory !== "all"
-        ? `No matches in ${formatSeatingCategoryLabel(activeScopeCategory)}. Try another?`
+        ? `No matches in ${formatVisualTypeLabel(activeScopeCategory, state.bootstrap)}. Try another?`
         : "No results matched that combination of category, brand, and visual traits.",
       "empty"
     );
@@ -7583,8 +7578,13 @@ async function runSearch(query, options = {}) {
     state.categoryScopeMode ||
     "all"
   ).trim().toLowerCase();
-  const requestedSeatingType = String(
+  const inferredVisualTypeFromQuery = !options.visualType && !options.seatingType && !imageAnalysis
+    ? detectCategoryScopeFromQuery(normalizedQuery)
+    : "";
+  const requestedVisualType = String(
+    options.visualType ??
     options.seatingType ??
+    inferredVisualTypeFromQuery ??
     getPrimaryCategoryScopeSelection(state.resultCategoryScope) ??
     imageAnalysis?.stage1?.visual_type ??
     imageAnalysis?.visual_type ??
@@ -7592,11 +7592,14 @@ async function runSearch(query, options = {}) {
     imageAnalysis?.seating_type ??
     ""
   ).trim();
-  const normalizedRequestedSeatingType = requestedCategoryScopeMode === "all"
+  const normalizedRequestedVisualType = requestedCategoryScopeMode === "all"
     ? "all"
-    : requestedSeatingType;
-  const apiRequestedSeatingType = requestedCategoryScopeMode === "explicit"
-    ? normalizedRequestedSeatingType
+    : requestedVisualType;
+  const effectiveCategoryScopeMode = requestedCategoryScopeMode === "all" && inferredVisualTypeFromQuery
+    ? "explicit"
+    : requestedCategoryScopeMode;
+  const apiRequestedVisualType = effectiveCategoryScopeMode === "explicit"
+    ? normalizedRequestedVisualType
     : "";
   const requestedSelectedBullets = normalizeSelectedBullets(options.selectedBullets);
   const requestedBulletControls = normalizeBulletControls(
@@ -7623,7 +7626,7 @@ async function runSearch(query, options = {}) {
   setResultsLoading(normalizedQuery ? "Embedding the visual query and ranking image captions..." : "Loading catalog products...");
 
   try {
-    const shouldUsePostSearch = Boolean(imageAnalysis || apiRequestedSeatingType);
+    const shouldUsePostSearch = Boolean(imageAnalysis || apiRequestedVisualType);
     const payload = shouldUsePostSearch
       ? await fetchJson("/api/search", {
           method: "POST",
@@ -7634,7 +7637,7 @@ async function runSearch(query, options = {}) {
             sort,
             category: effectiveCategoryFilter,
             refresh_age: refreshAgeFilter,
-            ...(apiRequestedSeatingType ? { visual_type: apiRequestedSeatingType } : {}),
+            ...(apiRequestedVisualType ? { visual_type: apiRequestedVisualType } : {}),
             image_analysis: imageAnalysis,
             selected_bullets: requestedSelectedBullets
           })
@@ -7644,16 +7647,16 @@ async function runSearch(query, options = {}) {
             ["q", normalizedQuery],
             ["source_image_url", sourceImageUrl],
             ["sort", sort],
-            ...(apiRequestedSeatingType ? [["visual_type", apiRequestedSeatingType]] : []),
+            ...(apiRequestedVisualType ? [["visual_type", apiRequestedVisualType]] : []),
             ...effectiveCategoryFilter.map((category) => ["category", category]),
             ["refresh_age", refreshAgeFilter]
           ]).toString()}`
         );
-    if (payload?.category_required && requestedCategoryScopeMode === "all" && !apiRequestedSeatingType) {
+    if (payload?.category_required && effectiveCategoryScopeMode === "all" && !apiRequestedVisualType) {
       setInitialSearchPending(false);
       state.lastQuery = normalizedQuery;
       state.lastPayload = { ...payload, results: [] };
-      state.currentSeatingType = "";
+      state.currentVisualType = "";
       state.resultCategoryScope = ["all"];
       state.categoryScopeMode = "all";
       state.currentSelectedBullets = requestedSelectedBullets;
@@ -7699,20 +7702,20 @@ async function runSearch(query, options = {}) {
             ...effectiveSelectedBullets.low.map((text) => ({ text, priority: "low" }))
           ]
     );
-    const effectiveSeatingType = String(
-      normalizedRequestedSeatingType === "all" ? "" :
-      normalizedRequestedSeatingType ||
+    const effectiveVisualType = String(
+      normalizedRequestedVisualType === "all" ? "" :
+      normalizedRequestedVisualType ||
       getPayloadVisualType(payload) ||
       payload?.text_query_traits?.enum_fields?.visual_type ||
       payload?.text_query_traits?.enum_fields?.seating_type ||
       ""
     ).trim();
-    const normalizedStoredQuery = payload?.seating_type_source === "inferred" && effectiveSeatingType
+    const normalizedStoredQuery = payload?.seating_type_source === "inferred" && effectiveVisualType
       ? buildSearchQueryFromComposer(
-          effectiveSeatingType,
+          effectiveVisualType,
           stripCategoryScopeFromQuery(
             String(payload?.parsed?.visual_query || normalizedQuery).trim(),
-            effectiveSeatingType
+            effectiveVisualType
           )
         )
       : normalizedQuery;
@@ -7722,7 +7725,7 @@ async function runSearch(query, options = {}) {
       selectedBullets: effectiveSelectedBullets,
       bulletControls: effectiveBulletControls,
       baseQueryEmbedding: payload?.query_embedding,
-      seatingType: effectiveSeatingType,
+      visualType: effectiveVisualType,
       imageAnalysis,
       productRefinements,
       categoryFilter: payload?.category_filter ?? effectiveCategoryFilter,
@@ -7883,7 +7886,7 @@ async function composeQueryForBullets(selectedBullets = [], options = {}) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      visual_type: String(options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || "seating"),
+      visual_type: String(options.visualType || options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || ""),
       bullets: {
         essential: normalized.essential.filter((bullet) => isQueryComposableBullet(bullet)),
         normal: normalized.normal.filter((bullet) => isQueryComposableBullet(bullet)),
@@ -8034,7 +8037,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
   }
 
   const body = focusArea ? { ...baseInput, focus_area: focusArea } : { ...baseInput };
-  const cachedCategory = String(options.seatingTypeOverride || getCachedImageAnalysisCategory(baseInput) || "").trim();
+  const cachedCategory = String(options.visualTypeOverride || options.seatingTypeOverride || getCachedImageAnalysisCategory(baseInput) || "").trim();
   const progressRequestId = buildImageAnalyzeProgressRequestId();
   setImageAnalyzeLoading(true);
   startImageAnalyzeProgressPolling(progressRequestId);
@@ -8069,8 +8072,8 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
             ? stage1Payload.visual_type_options
             : Array.isArray(stage1Payload?.seating_category_options) && stage1Payload.seating_category_options.length
               ? stage1Payload.seating_category_options
-            : Object.keys(SEATING_CATEGORY_DISPLAY_NAMES),
-          message: "What kind of seating are you looking for?\nWe couldn't quite tell from the image.",
+              : CATEGORY_REQUIREMENT_OPTION_KEYS,
+          message: "What kind of product are you looking for?\nWe couldn't quite tell from the image.",
           requestBody: baseInput,
           focusArea: focusArea ? normalizeFocusArea(focusArea) : null
         });
@@ -8099,7 +8102,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       updateImageAnalyzeProgress("extract", {
         percent: 30,
         percentLabel: "30–85%",
-        detail: `Extracting visual traits as ${formatSeatingCategoryLabel(cachedCategory)}.`,
+        detail: `Extracting visual traits as ${formatVisualTypeLabel(cachedCategory, state.bootstrap)}.`,
         indeterminate: true,
         extractTarget: resolveImageAnalyzeExtractTarget(1, 2)
       });
@@ -8148,7 +8151,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     const payload = await refineSearchResults({
       queryEmbedding,
       selectedBullets,
-      seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "seating",
+      visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter,
       sourceImageUrl: analysis?.image_preview_url || state.cropPreviewUrl || "",
@@ -8160,7 +8163,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       selectedBullets,
       bulletControls,
       baseQueryEmbedding: payload?.query_embedding || queryEmbedding,
-      seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
+      visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
       imageAnalysis: analysis,
       productRefinements: [],
       categoryFilter: payload?.category_filter ?? state.categoryFilter,
@@ -8182,7 +8185,8 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         selectedBullets,
         bulletControls,
         baseQueryEmbedding: payload?.query_embedding || queryEmbedding,
-        seatingType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
+        visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
+        visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
         imageAnalysis: analysis,
         categoryFilter: payload?.category_filter ?? state.categoryFilter,
         refreshAgeFilter: payload?.refresh_age_filter ?? state.refreshAgeFilter
@@ -8363,7 +8367,7 @@ async function bootstrap() {
         selectedBullets: pendingImageSearchHandoff.selectedBullets,
         bulletControls: pendingImageSearchHandoff.bulletControls,
         baseQueryEmbedding: pendingImageSearchHandoff.baseQueryEmbedding,
-        seatingType: pendingImageSearchHandoff.seatingType,
+        visualType: resolveStoredVisualType(pendingImageSearchHandoff),
         imageAnalysis: pendingImageSearchHandoff.imageAnalysis,
         productRefinements: [],
         categoryFilter: pendingImageSearchHandoff.categoryFilter,
@@ -8384,7 +8388,7 @@ async function bootstrap() {
       await runSearch(initialQuery, {
         categoryFilter: initialCategoryFilter,
         refreshAgeFilter: initialRefreshAgeFilter,
-        seatingType: initialPrimaryCategory || "all",
+        visualType: initialPrimaryCategory || "all",
         categoryScopeMode: initialPrimaryCategory && initialPrimaryCategory !== "all"
           ? "explicit"
           : "all"
@@ -8483,7 +8487,7 @@ elements.searchForm.addEventListener("submit", (event) => {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: effectiveCategory,
+    visualType: effectiveCategory,
     categoryScopeMode: effectiveCategoryScopeMode
   });
 });
@@ -8506,7 +8510,7 @@ elements.sortSelect?.addEventListener("change", () => {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
+    visualType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
     categoryScopeMode: state.categoryScopeMode,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
@@ -8530,7 +8534,7 @@ elements.categoryFilterOptions?.addEventListener("change", (event) => {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
+    visualType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
     categoryScopeMode: state.categoryScopeMode,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
@@ -8595,7 +8599,7 @@ elements.refreshAgeFilterSelect?.addEventListener("change", () => {
     sort: state.sortMode,
     categoryFilter: state.categoryFilter,
     refreshAgeFilter: state.refreshAgeFilter,
-    seatingType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
+    visualType: getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all",
     categoryScopeMode: state.categoryScopeMode,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
@@ -8629,7 +8633,7 @@ elements.resetSearchButton?.addEventListener("click", () => {
   state.currentQueryEmbedding = [...state.originalQueryEmbedding];
   state.currentSelectedBullets = normalizeSelectedBullets(state.originalSelectedBullets);
   state.currentBulletControls = normalizeBulletControls(state.originalBulletControls);
-  state.currentSeatingType = state.originalSeatingType;
+  state.currentVisualType = state.originalVisualType;
   state.currentImageAnalysis = state.originalImageAnalysis ? cloneValue(state.originalImageAnalysis) : null;
     state.currentProductRefinements = normalizeProductRefinements(state.originalProductRefinements);
     state.categoryFilter = normalizeCategoryFilter(state.originalCategoryFilter);

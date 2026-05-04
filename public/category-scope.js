@@ -1,4 +1,4 @@
-export function normalizeSeatingCategoryKey(value = "") {
+export function normalizeVisualTypeKey(value = "") {
   const normalized = String(value || "").trim().toLowerCase();
   if (normalized === "task_chair" || normalized === "collaborative_chair") {
     return "task_collab_chair";
@@ -9,20 +9,31 @@ export function normalizeSeatingCategoryKey(value = "") {
   return normalized;
 }
 
+export function normalizeSeatingCategoryKey(value = "") {
+  return normalizeVisualTypeKey(value);
+}
+
 const CATEGORY_SCOPE_PHRASES = {
   task_collab_chair: ["task chair", "task chairs", "work chair", "work chairs", "collaborative chair", "collaborative chairs"],
   guest_chair: ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chair", "multi-use guest chairs"],
   lounge_chair: ["lounge seating", "lounge chair", "lounge chairs", "lounge"],
   bench: ["bench seating", "bench", "benches"],
-  stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"]
+  stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"],
+  conference: ["conference table", "conference tables", "boardroom table", "boardroom tables"],
+  occasional: ["occasional table", "occasional tables", "side table", "side tables", "end table", "end tables", "accent table", "accent tables", "coffee table", "coffee tables"],
+  cafe_dining: ["cafe table", "cafe tables", "dining table", "dining tables", "bistro table", "bistro tables", "kitchen table", "kitchen tables", "restaurant table", "restaurant tables"],
+  training: ["training table", "training tables", "flip table", "flip tables", "flip-top table", "flip-top tables", "folding table", "folding tables", "seminar table", "seminar tables", "classroom table", "classroom tables"],
+  huddle_collaborative: ["huddle table", "huddle tables", "collaboration table", "collaboration tables", "team table", "team tables"]
 };
 
-const GENERIC_SEATING_REFERENCE_PHRASES = [
+const GENERIC_VISUAL_TYPE_REFERENCE_PHRASES = [
   "chair",
   "chairs",
   "seating",
   "seat",
-  "seats"
+  "seats",
+  "table",
+  "tables"
 ];
 
 function escapeRegExp(value = "") {
@@ -41,7 +52,7 @@ export function normalizeCategoryScopeSelection(values = [], options = {}) {
 
   for (const value of input) {
     const raw = String(value || "").trim().toLowerCase();
-    const key = raw === "all" ? "all" : normalizeSeatingCategoryKey(raw);
+    const key = raw === "all" ? "all" : normalizeVisualTypeKey(raw);
     if (!key || seen.has(key)) {
       continue;
     }
@@ -60,7 +71,35 @@ export function getPrimaryCategoryScopeSelection(values = []) {
 }
 
 export function getCategoryScopePhrases(categoryScope = "") {
-  return CATEGORY_SCOPE_PHRASES[normalizeSeatingCategoryKey(categoryScope)] || [];
+  return CATEGORY_SCOPE_PHRASES[normalizeVisualTypeKey(categoryScope)] || [];
+}
+
+export function detectCategoryScopeFromQuery(query = "") {
+  const rawQuery = String(query || "");
+  const matches = [];
+
+  Object.entries(CATEGORY_SCOPE_PHRASES).forEach(([categoryKey, phrases]) => {
+    phrases.forEach((phrase) => {
+      const match = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, "i").exec(rawQuery);
+      if (match && typeof match.index === "number") {
+        matches.push({
+          categoryKey,
+          phrase,
+          index: match.index,
+          length: match[0].length
+        });
+      }
+    });
+  });
+
+  matches.sort((left, right) => {
+    if (right.length !== left.length) {
+      return right.length - left.length;
+    }
+    return left.index - right.index;
+  });
+
+  return matches[0]?.categoryKey || "";
 }
 
 export function splitQueryAroundCategoryScope(query = "", categoryScope = "") {
@@ -80,7 +119,7 @@ export function splitQueryAroundCategoryScope(query = "", categoryScope = "") {
     };
   }
 
-  for (const phrase of GENERIC_SEATING_REFERENCE_PHRASES) {
+  for (const phrase of GENERIC_VISUAL_TYPE_REFERENCE_PHRASES) {
     const match = new RegExp(`\\b${escapeRegExp(phrase)}\\b`, "i").exec(rawQuery);
     if (!match || typeof match.index !== "number") {
       continue;
@@ -101,7 +140,7 @@ export function splitQueryAroundCategoryScope(query = "", categoryScope = "") {
 }
 
 export function stripCategoryScopeFromQuery(query = "", categoryScope = "") {
-  const normalizedCategory = normalizeSeatingCategoryKey(categoryScope);
+  const normalizedCategory = normalizeVisualTypeKey(categoryScope);
   const phrases = CATEGORY_SCOPE_PHRASES[normalizedCategory] || [];
   let nextQuery = String(query || "");
 

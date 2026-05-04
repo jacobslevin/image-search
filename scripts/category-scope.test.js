@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   buildResultsPageSearch,
+  detectCategoryScopeFromQuery,
   getPrimaryCategoryScopeSelection,
   normalizeCategoryScopeSelection,
   stripCategoryScopeFromQuery,
@@ -82,4 +83,12 @@ test("stripCategoryScopeFromQuery removes inferred lounge category phrases", () 
     stripCategoryScopeFromQuery("lounge chairs with concealed bases", "lounge_chair"),
     "concealed bases"
   );
+});
+
+test("detectCategoryScopeFromQuery recognizes table phrases across all five sub-categories", () => {
+  assert.equal(detectCategoryScopeFromQuery("show me conference tables"), "conference");
+  assert.equal(detectCategoryScopeFromQuery("I need a coffee table"), "occasional");
+  assert.equal(detectCategoryScopeFromQuery("find a cafe table for a patio"), "cafe_dining");
+  assert.equal(detectCategoryScopeFromQuery("looking for a flip-top training table"), "training");
+  assert.equal(detectCategoryScopeFromQuery("need a team table for a project room"), "huddle_collaborative");
 });
