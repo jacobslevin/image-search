@@ -6,11 +6,11 @@ const LEGACY_VISUAL_TYPE_DISPLAY_NAMES = {
   lounge_chair: "Lounge Seating",
   bench: "Benches",
   stool: "Stools",
-  conference: "Conference",
-  occasional: "Occasional",
-  cafe_dining: "Cafe/Dining",
-  training: "Training",
-  huddle_collaborative: "Huddle/Collaborative"
+  conference: "Conference Tables",
+  occasional: "Occasional Tables",
+  cafe_dining: "Cafe/Dining Tables",
+  training: "Training Tables",
+  huddle_collaborative: "Huddle/Collaborative Tables"
 };
 
 export function buildRoutingTypesConfig(bootstrap = null) {

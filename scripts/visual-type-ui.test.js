@@ -11,8 +11,8 @@ import {
 
 test("formatVisualTypeLabel preserves legacy seating labels and adds tables labels", () => {
   assert.equal(formatVisualTypeLabel("lounge_chair"), "Lounge Seating");
-  assert.equal(formatVisualTypeLabel("conference"), "Conference");
-  assert.equal(formatVisualTypeLabel("cafe_dining"), "Cafe/Dining");
+  assert.equal(formatVisualTypeLabel("conference"), "Conference Tables");
+  assert.equal(formatVisualTypeLabel("cafe_dining"), "Cafe/Dining Tables");
 });
 
 test("buildRoutingTypesConfig returns bootstrap visual_types when provided", () => {
@@ -21,8 +21,8 @@ test("buildRoutingTypesConfig returns bootstrap visual_types when provided", () 
       default_type: "lounge_chair",
       types: {
         lounge_chair: { label: "Lounge Chair", fields: [] },
-        conference: { label: "Conference", fields: [] },
-        training: { label: "Training", fields: [] }
+        conference: { label: "Conference Tables", fields: [] },
+        training: { label: "Training Tables", fields: [] }
       }
     }
   });
@@ -39,8 +39,8 @@ test("isSupportedBrowseVisualType recognizes tables visual types", () => {
       default_type: "lounge_chair",
       types: {
         lounge_chair: { label: "Lounge Chair", fields: [] },
-        conference: { label: "Conference", fields: [] },
-        cafe_dining: { label: "Cafe/Dining", fields: [] }
+        conference: { label: "Conference Tables", fields: [] },
+        cafe_dining: { label: "Cafe/Dining Tables", fields: [] }
       }
     }
   };
@@ -56,8 +56,8 @@ test("getVisualTypeOptions includes both seating and tables categories", () => {
       types: {
         lounge_chair: { label: "Lounge Chair", fields: [] },
         bench: { label: "Bench", fields: [] },
-        conference: { label: "Conference", fields: [] },
-        training: { label: "Training", fields: [] }
+        conference: { label: "Conference Tables", fields: [] },
+        training: { label: "Training Tables", fields: [] }
       }
     },
     visual_type_options: ["lounge_chair", "bench", "conference", "training"]

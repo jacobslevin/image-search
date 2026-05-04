@@ -186,10 +186,11 @@ const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({
   lounge_chair: "Lounge Seating",
   stool: "Stools",
   bench: "Benches",
-  conference: "Conference",
-  occasional: "Occasional",
-  cafe_dining: "Cafe/Dining",
-  training: "Training"
+  conference: "Conference Tables",
+  occasional: "Occasional Tables",
+  cafe_dining: "Cafe/Dining Tables",
+  training: "Training Tables",
+  huddle_collaborative: "Huddle/Collaborative Tables"
 });
 
 const LEGACY_VISUAL_TYPE_VALUE_ALIASES = Object.freeze({

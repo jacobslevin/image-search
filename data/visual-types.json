@@ -829,7 +829,7 @@
       "source_spec": "docs/v2-categories/tables.md",
       "categories": {
         "conference": {
-          "label": "Conference",
+          "label": "Conference Tables",
           "fields": [
             {
               "field": "design_register",
@@ -942,7 +942,7 @@
           ]
         },
         "occasional": {
-          "label": "Occasional",
+          "label": "Occasional Tables",
           "fields": [
             {
               "field": "design_register",
@@ -1055,7 +1055,7 @@
           ]
         },
         "cafe_dining": {
-          "label": "Cafe/Dining",
+          "label": "Cafe/Dining Tables",
           "fields": [
             {
               "field": "design_register",
@@ -1168,7 +1168,7 @@
           ]
         },
         "training": {
-          "label": "Training",
+          "label": "Training Tables",
           "fields": [
             {
               "field": "design_register",
@@ -1292,7 +1292,7 @@
           ]
         },
         "huddle_collaborative": {
-          "label": "Huddle/Collaborative",
+          "label": "Huddle/Collaborative Tables",
           "fields": [
             {
               "field": "design_register",
