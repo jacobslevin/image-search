@@ -56,17 +56,19 @@ If foundation bugs surface during faucets implementation, they get fixed in the 
 
 ### Shared finish palette
 
-Seven canonical values shared with tables and seating:
+Nine canonical values shared with tables and seating:
 
-- `polished_chrome_nickel`
-- `brushed_nickel_stainless`
-- `matte_black`
-- `warm_gold_brass`
-- `bronze_dark`
-- `white`
-- `colored`
+- `Polished chrome / nickel`
+- `Brushed nickel / stainless`
+- `Matte black`
+- `Warm gold / brass`
+- `Bronze / dark`
+- `White`
+- `Gray`
+- `Painted color`
+- `Unknown`
 
-Two-tone finishes are modeled as composite enum values (e.g., `chrome_polished_with_brass`) added to the palette as needed when real product data warrants them. Multi-value field support is explicitly NOT being added; single-scalar-per-field runtime assumption is preserved.
+Two-tone finishes are modeled as composite enum values (e.g., `Polished chrome with brass`) added to the palette as needed when real product data warrants them. Multi-value field support is explicitly NOT being added; single-scalar-per-field runtime assumption is preserved.
 
 ## Out of scope (explicit exclusions)
 
@@ -84,7 +86,7 @@ These were considered and excluded — recording them so they aren't relitigated
 
 - `spout_style: angular` may split into sub-types (single-bend, two-bend, three-bend/bracket) if internal variation matters in real product mix
 - `spout_cross_section` may gain a third value (e.g., `softsquare`) if binary under-resolves real variation
-- `finish: colored` may break into named colors (red, green, blue, etc.) when volume justifies per-color buckets
+- `finish: Painted color` may break into named colors (red, green, blue, etc.) when volume justifies per-color buckets
 - Vision extraction reliability validation on close-pair distinctions that survived the bar (gooseneck vs. straight at borderline curvatures; round vs. rectangular for hybrid bodies)
 - Sub-category routing accuracy (kitchen vs. bathroom-lavatory)
 

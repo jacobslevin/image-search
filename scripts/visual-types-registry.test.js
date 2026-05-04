@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -59,14 +60,44 @@ test("getCategoryFields resolves inherited seating and tables fields", () => {
   assert.ok(tableBaseFinish);
   assert.equal(tableBaseFinish.value_set, "finish_palette_v1");
   assert.deepEqual(tableBaseFinish.allowed_values, [
-    "polished_chrome_nickel",
-    "brushed_nickel_stainless",
-    "matte_black",
-    "warm_gold_brass",
-    "bronze_dark",
-    "white",
-    "colored"
+    "Polished chrome / nickel",
+    "Brushed nickel / stainless",
+    "Matte black",
+    "Warm gold / brass",
+    "Bronze / dark",
+    "White",
+    "Gray",
+    "Painted color",
+    "Unknown"
   ]);
+});
+
+test("shared finish palette uses Title case values and includes Gray, Painted color, and Unknown", () => {
+  const finishField = resolveSharedField("finish", { forceReload: true });
+  assert.deepEqual(finishField.allowed_values, [
+    "Polished chrome / nickel",
+    "Brushed nickel / stainless",
+    "Matte black",
+    "Warm gold / brass",
+    "Bronze / dark",
+    "White",
+    "Gray",
+    "Painted color",
+    "Unknown"
+  ]);
+  assert.ok(finishField.allowed_values.every((value) => /[A-Z]/.test(value[0])));
+});
+
+test("tables and faucets docs reference the refined shared finish palette values", () => {
+  const tablesDoc = fsSync.readFileSync(new URL("../docs/v2-categories/tables.md", import.meta.url), "utf8");
+  const faucetsDoc = fsSync.readFileSync(new URL("../docs/v2-categories/faucets.md", import.meta.url), "utf8");
+
+  assert.match(tablesDoc, /Painted color/);
+  assert.match(tablesDoc, /Gray/);
+  assert.match(tablesDoc, /Unknown/);
+  assert.match(faucetsDoc, /Painted color/);
+  assert.match(faucetsDoc, /Gray/);
+  assert.match(faucetsDoc, /Unknown/);
 });
 
 test("getCategoryFields narrows allowed_subset for faucet design_register", () => {

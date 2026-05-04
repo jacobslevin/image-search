@@ -32,22 +32,26 @@
     "finish_palette_v1": {
       "kind": "enum",
       "values": [
-        "polished_chrome_nickel",
-        "brushed_nickel_stainless",
-        "matte_black",
-        "warm_gold_brass",
-        "bronze_dark",
-        "white",
-        "colored"
+        "Polished chrome / nickel",
+        "Brushed nickel / stainless",
+        "Matte black",
+        "Warm gold / brass",
+        "Bronze / dark",
+        "White",
+        "Gray",
+        "Painted color",
+        "Unknown"
       ],
       "labels": {
-        "polished_chrome_nickel": "Polished chrome / nickel",
-        "brushed_nickel_stainless": "Brushed nickel / stainless",
-        "matte_black": "Matte black",
-        "warm_gold_brass": "Warm gold / brass",
-        "bronze_dark": "Bronze / dark",
-        "white": "White",
-        "colored": "Colored"
+        "Polished chrome / nickel": "Polished chrome / nickel",
+        "Brushed nickel / stainless": "Brushed nickel / stainless",
+        "Matte black": "Matte black",
+        "Warm gold / brass": "Warm gold / brass",
+        "Bronze / dark": "Bronze / dark",
+        "White": "White",
+        "Gray": "Gray",
+        "Painted color": "Painted color",
+        "Unknown": "Unknown"
       }
     },
     "mobility_v1": {
