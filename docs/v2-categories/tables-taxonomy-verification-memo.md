@@ -191,7 +191,7 @@ Step 10 could not compute per-field pass-1 vs pass-2 disagreement rates because 
 - a diagnostic mode that stores pass outputs
 - or a separate analysis path that persists pass-level trait data outside the canonical production record
 
-This is best treated as a Phase 2 enhancement.
+This is best treated as a deferred follow-up enhancement.
 
 ### 8d. Hero Image Selection During Ingestion
 
@@ -226,7 +226,7 @@ Per the `9a-2` compatibility decision, top-level `seating_type` continues to exi
 
 ### 8i. Seating Finish Palette Reconciliation
 
-Seating uses an inline finish palette (`Black`, `Natural wood`, `Painted color`, `Polished chrome / aluminum`, `White`, `Unknown`) that predates the shared `finish_palette_v1` used by tables and faucets. The post-`10c` shared palette is more granular but doesn't include `Natural wood`. Eventually, all three categories should use a unified palette so that finish-based search behaves consistently across categories. This is meaningful Phase 2 taxonomy work that affects all three families.
+Seating uses an inline finish palette (`Black`, `Natural wood`, `Painted color`, `Polished chrome / aluminum`, `White`, `Unknown`) that predates the shared `finish_palette_v1` used by tables and faucets. The post-`10c` shared palette is more granular but doesn't include `Natural wood`. Eventually, all three categories should use a unified palette so that finish-based search behaves consistently across categories. This is meaningful later taxonomy work that affects all three families.
 
 ## 9. Phase 1 Status Snapshot
 
@@ -234,7 +234,7 @@ At the end of step 10:
 
 - planned steps `1-9` were complete
 - step `10` was complete
-- step `11` (adapter retirement) remained optional and was deferred to Phase 2
+- step `11` (adapter retirement) remained optional and was deferred as post-Phase-1 follow-up
 - step `12` was added based on step 10 findings and must land before Phase 1 closes
 
 Practical status: tables now ship in v2 as a real category foundation, and step `12` is the main remaining blocker before calling the Phase 1 tables work closed.
