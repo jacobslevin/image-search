@@ -7,8 +7,7 @@ import { promisify } from "node:util";
 
 import {
   DATA_DIR,
-  buildImportSkipLogEntry,
-  getPixelSeekType,
+  getCategoryGroupingKey,
   looksLikeImageUrl,
   normalizeWhitespace,
   readJson,
@@ -30,7 +29,6 @@ import {
 const execFileAsync = promisify(execFile);
 const DEFAULT_CATALOG_PATH = path.join(DATA_DIR, "normalized-catalog.json");
 const DEFAULT_FLAGGED_PATH = path.join(DATA_DIR, "designerpages-intake-flagged.json");
-const DEFAULT_SKIP_LOG_PATH = path.join(DATA_DIR, "import-skipped-log.json");
 const DEFAULT_REPORT_PATH = path.join(DATA_DIR, "designerpages-intake-report.json");
 const MIN_SHORT_SIDE = 591;
 
@@ -284,7 +282,6 @@ if (!productIds.length) {
 
 const existingCatalog = await readJson(args.catalog, { generated_at: "", totals: { products: 0, images: 0 }, brands: [], categories: [], products: [], images: [] });
 const existingFlagged = await readJson(args.flagged, { generated_at: "", total: 0, products: [] });
-const existingSkipLog = await readJson(DEFAULT_SKIP_LOG_PATH, []);
 const runStartedAt = new Date().toISOString();
 const mergedProducts = new Map();
 for (const product of existingCatalog.products || []) {
@@ -297,7 +294,6 @@ const existingDesignerPagesProducts = buildExistingDesignerPagesProductLookup(ex
 
 const acceptedProducts = [];
 const flaggedProducts = [];
-const skippedProducts = [];
 const skippedExistingProducts = [];
 
 for (const [index, productId] of productIds.entries()) {
@@ -363,18 +359,15 @@ for (const [index, productId] of productIds.entries()) {
     }
 
     const nextProduct = buildPhase1ProductRecord(scraped, uniqueStrings(passingImageUrls));
-    if (getPixelSeekType(nextProduct) === "SKIP") {
-      skippedProducts.push(buildImportSkipLogEntry(nextProduct, "import", new Date().toISOString()));
-      console.log("  skipped: unmapped category grouping");
-      continue;
-    }
     mergedProducts.set(`designerpages:${productId}`, nextProduct);
     existingDesignerPagesProducts.set(productId, nextProduct);
     acceptedProducts.push({
       source_product_id: productId,
       product_id: nextProduct.product_id,
       name: nextProduct.name,
-      accepted_images: nextProduct.image_urls.length
+      accepted_images: nextProduct.image_urls.length,
+      category_grouping: getCategoryGroupingKey(nextProduct),
+      raw_category: normalizeWhitespace(nextProduct.raw_category)
     });
     console.log(`  accepted: ${nextProduct.image_urls.length} qualifying image(s)`);
   } catch (error) {
@@ -401,7 +394,6 @@ await writeJson(args.flagged, {
   total: nextFlaggedProducts.length,
   products: nextFlaggedProducts
 });
-await writeJson(DEFAULT_SKIP_LOG_PATH, [...(Array.isArray(existingSkipLog) ? existingSkipLog : []), ...skippedProducts]);
 await writeJson(args.report, {
   generated_at: new Date().toISOString(),
   started_at: runStartedAt,
@@ -413,17 +405,15 @@ await writeJson(args.report, {
   skipped_existing_total: skippedExistingProducts.length,
   flagged_products: flaggedProducts,
   flagged_total: flaggedProducts.length,
-  skipped_unmapped_products: skippedProducts,
-  skipped_unmapped_total: skippedProducts.length,
+  skipped_unmapped_products: [],
+  skipped_unmapped_total: 0,
   resulting_catalog_totals: nextCatalog.totals
 });
 
 console.log(`Accepted ${acceptedProducts.length} product(s).`);
 console.log(`Flagged ${flaggedProducts.length} product(s) this run.`);
 console.log(`Skipped ${skippedExistingProducts.length} product(s) because they already exist in the catalog.`);
-console.log(`Skipped ${skippedProducts.length} product(s) for unmapped category grouping.`);
 console.log(`Catalog now has ${nextCatalog.totals.products} product(s) and ${nextCatalog.totals.images} Phase 1 image record(s).`);
 console.log(`Wrote ${args.catalog}`);
 console.log(`Wrote ${args.flagged}`);
-console.log(`Wrote ${DEFAULT_SKIP_LOG_PATH}`);
 console.log(`Wrote ${args.report}`);
