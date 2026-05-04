@@ -3,7 +3,9 @@
 node_modules/
 .DS_Store
 data/image-index.json
+data/normalized-catalog.json
 data/import-skipped-log.json
+data/designerpages-intake-*.json
 data/*-backup.json
 data/stage0-v2-results.json
 data/stage0-v2-retry-results.json
