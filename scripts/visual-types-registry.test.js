@@ -62,6 +62,7 @@ test("getCategoryFields resolves inherited seating and tables fields", () => {
   assert.deepEqual(tableBaseFinish.allowed_values, [
     "Polished chrome / nickel",
     "Brushed nickel / stainless",
+    "Natural wood",
     "Matte black",
     "Warm gold / brass",
     "Bronze / dark",
@@ -72,11 +73,12 @@ test("getCategoryFields resolves inherited seating and tables fields", () => {
   ]);
 });
 
-test("shared finish palette uses Title case values and includes Gray, Painted color, and Unknown", () => {
+test("shared finish palette uses Title case values and includes Natural wood, Gray, Painted color, and Unknown", () => {
   const finishField = resolveSharedField("finish", { forceReload: true });
   assert.deepEqual(finishField.allowed_values, [
     "Polished chrome / nickel",
     "Brushed nickel / stainless",
+    "Natural wood",
     "Matte black",
     "Warm gold / brass",
     "Bronze / dark",
@@ -92,9 +94,11 @@ test("tables and faucets docs reference the refined shared finish palette values
   const tablesDoc = fsSync.readFileSync(new URL("../docs/v2-categories/tables.md", import.meta.url), "utf8");
   const faucetsDoc = fsSync.readFileSync(new URL("../docs/v2-categories/faucets.md", import.meta.url), "utf8");
 
+  assert.match(tablesDoc, /Natural wood/);
   assert.match(tablesDoc, /Painted color/);
   assert.match(tablesDoc, /Gray/);
   assert.match(tablesDoc, /Unknown/);
+  assert.match(faucetsDoc, /Natural wood/);
   assert.match(faucetsDoc, /Painted color/);
   assert.match(faucetsDoc, /Gray/);
   assert.match(faucetsDoc, /Unknown/);
@@ -106,6 +110,18 @@ test("getCategoryFields narrows allowed_subset for faucet design_register", () =
   assert.ok(designRegister);
   assert.equal(designRegister.inherits, "design_register");
   assert.deepEqual(designRegister.allowed_values, ["Minimal", "Traditional", "unknown"]);
+});
+
+test("tables base_finish includes Natural wood while faucets finish excludes it", () => {
+  const tableFields = getCategoryFields("tables", "conference", { forceReload: true });
+  const tableBaseFinish = tableFields.find((field) => field.field === "base_finish");
+  assert.ok(tableBaseFinish);
+  assert.ok(tableBaseFinish.allowed_values.includes("Natural wood"));
+
+  const faucetFields = getCategoryFields("faucets", "kitchen_faucet", { forceReload: true });
+  const faucetFinish = faucetFields.find((field) => field.field === "finish");
+  assert.ok(faucetFinish);
+  assert.ok(!faucetFinish.allowed_values.includes("Natural wood"));
 });
 
 test("getCategoryFields returns the expected flat field lists across families", () => {

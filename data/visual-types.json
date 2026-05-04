@@ -34,6 +34,7 @@
       "values": [
         "Polished chrome / nickel",
         "Brushed nickel / stainless",
+        "Natural wood",
         "Matte black",
         "Warm gold / brass",
         "Bronze / dark",
@@ -45,6 +46,7 @@
       "labels": {
         "Polished chrome / nickel": "Polished chrome / nickel",
         "Brushed nickel / stainless": "Brushed nickel / stainless",
+        "Natural wood": "Natural wood",
         "Matte black": "Matte black",
         "Warm gold / brass": "Warm gold / brass",
         "Bronze / dark": "Bronze / dark",
@@ -895,6 +897,18 @@
             {
               "field": "base_finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Natural wood",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "medium",
               "detectability": "medium"
             },
@@ -1008,6 +1022,18 @@
             {
               "field": "base_finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Natural wood",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "medium",
               "detectability": "medium"
             },
@@ -1121,6 +1147,18 @@
             {
               "field": "base_finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Natural wood",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "medium",
               "detectability": "medium"
             },
@@ -1234,6 +1272,18 @@
             {
               "field": "base_finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Natural wood",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "medium",
               "detectability": "medium"
             },
@@ -1358,6 +1408,18 @@
             {
               "field": "base_finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Natural wood",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "medium",
               "detectability": "medium"
             },
@@ -1461,6 +1523,17 @@
             {
               "field": "finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "ranking"
             },
             {
@@ -1564,6 +1637,17 @@
             {
               "field": "finish",
               "inherits": "finish",
+              "allowed_subset": [
+                "Polished chrome / nickel",
+                "Brushed nickel / stainless",
+                "Matte black",
+                "Warm gold / brass",
+                "Bronze / dark",
+                "White",
+                "Gray",
+                "Painted color",
+                "Unknown"
+              ],
               "priority": "ranking"
             },
             {

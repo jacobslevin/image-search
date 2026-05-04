@@ -29,7 +29,7 @@ Huddle/Collaborative does not have a unique visual signature distinct from Cafe/
 | top_shape | Round, Square, Rectangle, Oval, Soft-organic, unknown | High | Ranking | High | Soft-organic captures racetrack/pill/rounded-rectangle silhouettes that read distinct from true rectangles or ovals. |
 | top_material | Wood-look, Stone-look, Solid-color, Glass, Metal, unknown | High | Ranking | Medium | Visual class only. Does not attempt to distinguish veneer from laminate from solid wood — those are not visually separable. |
 | base_visual_weight | Heavy/grounded, Light/airy, unknown | Medium | Ranking | High | Captures the "feel" distinction between solid/massive bases (full panels, drum pedestals) and open/linear bases (thin legs, wire frames). Independent of base_type. |
-| base_finish | (uses shared finish palette) | Medium | Ranking | Medium | Reused from seating verbatim. References the shared finish palette in the registry: Polished chrome / nickel, Brushed nickel / stainless, Matte black, Warm gold / brass, Bronze / dark, White, Gray, Painted color, Unknown. |
+| base_finish | (uses shared finish palette) | Medium | Ranking | Medium | References the shared finish palette in the registry and includes `Natural wood` for tables, since exposed wood bases are a real and commonly-occurring table signal. Current tables value set: Polished chrome / nickel, Brushed nickel / stainless, Natural wood, Matte black, Warm gold / brass, Bronze / dark, White, Gray, Painted color, Unknown. |
 | mobility | Casters, Non-mobile, unknown | Low | Descriptive | High when visible | Reused from seating. Glides vs. levelers below detection resolution; collapsed into Non-mobile. |
 | top_thickness | Thin, Standard, Thick-slab, unknown | Low | Descriptive | Medium for extremes only | Detection focuses on flagging extremes; nullable when not determinable. |
 | edge_profile | Square, Eased, Beveled, unknown | Low | Descriptive | Low-medium | Most likely trait to be silently wrong. Should be willing to leave null. |
@@ -81,7 +81,7 @@ These were considered and excluded — recording them so they aren't relitigated
 For implementation, these field names and value sets match the existing seating schema and should be modeled as the same fields, not as parallel fields with different names:
 
 - `design_register` — full value set match with seating
-- `base_finish` — references the shared finish palette (`Polished chrome / nickel`, `Brushed nickel / stainless`, `Matte black`, `Warm gold / brass`, `Bronze / dark`, `White`, `Gray`, `Painted color`, `Unknown`)
+- `base_finish` — references the shared finish palette and uses the tables-scoped subset (`Polished chrome / nickel`, `Brushed nickel / stainless`, `Natural wood`, `Matte black`, `Warm gold / brass`, `Bronze / dark`, `White`, `Gray`, `Painted color`, `Unknown`)
 - `mobility` — full value set match with seating
 - `base_type` — field name shared with seating; tables expand the value set with table-specific values
 

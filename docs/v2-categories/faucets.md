@@ -49,14 +49,14 @@ If foundation bugs surface during faucets implementation, they get fixed in the 
 ## Schema reuse declarations
 
 - `design_register` — shared with seating and tables. Faucets uses subset `{Minimal, Traditional, unknown}` of the canonical enum. Earlier proposed addition of `transitional` to the shared enumeration is rolled back.
-- `finish` — references the shared finish palette in the registry.
+- `finish` — references the shared finish palette in the registry, but faucets use a scoped subset that excludes `Natural wood` even though that value exists in the shared palette for tables.
 - All other faucets traits are faucets-specific.
 
 ## Foundation infrastructure asks
 
 ### Shared finish palette
 
-Nine canonical values shared with tables and seating:
+The shared palette now contains ten canonical values, but faucets use the non-wood subset:
 
 - `Polished chrome / nickel`
 - `Brushed nickel / stainless`
@@ -67,6 +67,8 @@ Nine canonical values shared with tables and seating:
 - `Gray`
 - `Painted color`
 - `Unknown`
+
+`Natural wood` exists in the shared palette for tables, but is not part of faucets' `finish` value set.
 
 Two-tone finishes are modeled as composite enum values (e.g., `Polished chrome with brass`) added to the palette as needed when real product data warrants them. Multi-value field support is explicitly NOT being added; single-scalar-per-field runtime assumption is preserved.
 
