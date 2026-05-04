@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  buildStage0CompletenessPrompt,
   buildStage0FurnitureCountPrompt,
   resolveStage0RoutingContext
 } from "../src/captioning.js";
@@ -61,6 +62,19 @@ test("Stage 0 furniture-count prompt stays conservative for seating and faucets"
 test("Stage 0 furniture-count prompt becomes table-aware for tables family", () => {
   const tablesPrompt = buildStage0FurnitureCountPrompt(resolveStage0RoutingContext({ visual_type: "conference" }));
   assert.match(tablesPrompt, /The intended product family for this image is tables/i);
-  assert.match(tablesPrompt, /Do not count accompanying chairs, stools, or other seating that merely support or surround the primary table/i);
-  assert.match(tablesPrompt, /Count it as an additional furniture item only when a non-table furniture product is also substantially visible/i);
+  assert.match(tablesPrompt, /If the image reads as a real environment or lifestyle scene, do NOT collapse it to 1 just because one table is dominant/i);
+  assert.match(tablesPrompt, /Environmental scene indicators include architectural context such as walls, windows, ceilings, floors, outdoor views/i);
+  assert.match(tablesPrompt, /In a conference room, cafe, restaurant, lounge, or other fully realized environment, count surrounding independent chairs as additional furniture pieces/i);
+});
+
+test("Stage 0 completeness prompt distinguishes environmental tables scenes while leaving seating unchanged", () => {
+  const tablesPrompt = buildStage0CompletenessPrompt(resolveStage0RoutingContext({ visual_type: "conference" }));
+  assert.match(tablesPrompt, /Assess the primary table product in this photo/i);
+  assert.match(tablesPrompt, /\"environmental\" if the full table may be visible but the image reads as a fully realized room/i);
+  assert.match(tablesPrompt, /Return only "full", "partial", or "environmental"/i);
+
+  const seatingPrompt = buildStage0CompletenessPrompt(resolveStage0RoutingContext({ visual_type: "lounge_chair" }));
+  assert.match(seatingPrompt, /Can you see the full silhouette of the furniture piece in this photo/i);
+  assert.match(seatingPrompt, /Return "full" or "partial"/i);
+  assert.doesNotMatch(seatingPrompt, /environmental/i);
 });

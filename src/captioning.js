@@ -3120,19 +3120,20 @@ export function resolveStage0RoutingContext(imageRecord = {}, options = {}) {
 export function buildStage0FurnitureCountPrompt(routingContext = null) {
   const family = String(routingContext?.family || "").trim().toLowerCase();
   if (family === "tables") {
-    return `Count the furniture in this photo. Furniture means: tables, desks, cabinets,
-shelving, benches, stools, chairs, sofas, or beds.
+    return `Count the distinct primary furniture pieces in this photo. Furniture means: tables, desks, cabinets, shelving, benches, stools, chairs, sofas, or beds.
 
-Multiple of the same type count as 1.
+Multiple of the same type count as 1 only when they read as a single tightly presented catalog grouping rather than a real room scene.
 
 The intended product family for this image is tables.
 
-When the image contains a table product:
-- Count the primary table as the main furniture product.
-- A dominant table photographed in a room with surrounding chairs still counts as one furniture product.
-- Do not count accompanying chairs, stools, or other seating that merely support or surround the primary table.
-- Do not count faint background tables as additional furniture.
-- Count it as an additional furniture item only when a non-table furniture product is also substantially visible, or when another table-like product is clearly a separate co-primary furniture piece.
+Use these rules carefully:
+- A clean studio, cutout, or plain-background product presentation of one table counts as 1.
+- A clean catalog presentation of one table with its immediately accompanying chairs can still count as 1 when the image reads like a product lineup or showroom-style isolated grouping rather than a fully realized room.
+- If the image reads as a real environment or lifestyle scene, do NOT collapse it to 1 just because one table is dominant.
+- Environmental scene indicators include architectural context such as walls, windows, ceilings, floors, outdoor views, lighting that defines a real space, decor or plants, circulation space, multiple room zones, or multiple independently usable furniture pieces distributed through the space.
+- In a conference room, cafe, restaurant, lounge, or other fully realized environment, count surrounding independent chairs as additional furniture pieces rather than as part of the table.
+- If the image clearly shows a room or lifestyle setting built around the table, count more than 1.
+- Do not count faint background furniture only when it is truly negligible and the image still reads as a clean product presentation rather than a room.
 
 Return only a number.`;
   }
@@ -3147,6 +3148,27 @@ A seating product with an integrated or attached table, tablet, or worksurface c
 Count it as a separate furniture item only when the table or worksurface stands on its own independent support structure or is clearly a separate companion piece.
 
 Return only a number.`;
+}
+
+export function buildStage0CompletenessPrompt(routingContext = null) {
+  const family = String(routingContext?.family || "").trim().toLowerCase();
+  if (family === "tables") {
+    return `Assess the primary table product in this photo.
+
+Return one of exactly three answers:
+- "full" if the full silhouette of the primary table is visible and the image reads like a clean product presentation
+- "partial" if only part of the primary table is visible or key parts of the silhouette are cropped/missing
+- "environmental" if the full table may be visible but the image reads as a fully realized room, lifestyle, hospitality, workplace, or outdoor environment rather than a clean product shot
+
+Environmental indicators include visible architecture, windows, ceilings, flooring, decor, plants, multiple furniture zones, or a scene that reads as an occupied/styled room rather than isolated product photography.
+
+Return only "full", "partial", or "environmental".`;
+  }
+
+  return `Can you see the full silhouette of the furniture piece in this photo,
+or only part of it?
+
+Return "full" or "partial".`;
 }
 
 const OBJECT_NOUNS = new Set(["chair", "table", "sofa", "stool", "bench", "desk", "seat", "furniture"]);
@@ -3825,10 +3847,7 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
   const { data: completenessData, usage: completenessUsage } = await callOpenAiJsonWithMeta({
     apiKey: options.apiKey,
     model,
-    systemPrompt: `Can you see the full silhouette of the furniture piece in this photo,
-or only part of it?
-
-Return "full" or "partial".`,
+    systemPrompt: buildStage0CompletenessPrompt(routingContext),
     userParts: [
       ...(imageInput.catalogContext
         ? [{ type: "input_text", text: imageInput.catalogContext }]
@@ -3847,7 +3866,9 @@ Return "full" or "partial".`,
   });
 
   const rawCompleteness = String(completenessData?.answer || "").trim().toLowerCase();
-  const result = rawCompleteness.includes("partial")
+  const result = rawCompleteness.includes("environmental")
+    ? "scene"
+    : rawCompleteness.includes("partial")
     ? "product_detail"
     : rawCompleteness.includes("full")
       ? "product"
