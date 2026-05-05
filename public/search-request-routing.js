@@ -23,6 +23,6 @@ export function resolveSearchVisualTypeRequest({
 
   return {
     effectiveCategoryScopeMode: "all",
-    apiRequestedVisualType: "all"
+    apiRequestedVisualType: ""
   };
 }

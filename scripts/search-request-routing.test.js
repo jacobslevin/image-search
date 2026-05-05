@@ -32,7 +32,7 @@ test("query 'lounge chair' with categoryScopeMode all sends lounge_chair", () =>
   );
 });
 
-test("query without detectable category and categoryScopeMode all sends all", () => {
+test("query without detectable category and categoryScopeMode all sends empty apiRequestedVisualType", () => {
   assert.deepEqual(
     resolveSearchVisualTypeRequest({
       requestedCategoryScopeMode: "all",
@@ -41,7 +41,7 @@ test("query without detectable category and categoryScopeMode all sends all", ()
     }),
     {
       effectiveCategoryScopeMode: "all",
-      apiRequestedVisualType: "all"
+      apiRequestedVisualType: ""
     }
   );
 });
@@ -58,4 +58,21 @@ test("user-selected explicit category wins over phrase detection", () => {
       apiRequestedVisualType: "lounge_chair"
     }
   );
+});
+
+test("clarification gate can fire for unscoped ambiguous searches because apiRequestedVisualType stays empty", () => {
+  const { effectiveCategoryScopeMode, apiRequestedVisualType } = resolveSearchVisualTypeRequest({
+    requestedCategoryScopeMode: "all",
+    explicitVisualType: "",
+    inferredVisualTypeFromQuery: detectCategoryScopeFromQuery("conference room")
+  });
+
+  const payload = { category_required: true };
+  const shouldClarify = Boolean(
+    payload.category_required &&
+    effectiveCategoryScopeMode === "all" &&
+    !apiRequestedVisualType
+  );
+
+  assert.equal(shouldClarify, true);
 });
