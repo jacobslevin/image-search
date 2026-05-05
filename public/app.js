@@ -21,6 +21,7 @@ import {
 } from "./visual-type-ui.js";
 import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
 import { hasSearchComposerClearableContent } from "./search-composer-ui.js";
+import { isInlineRefinementDetectabilityEligible } from "./inline-refinement-ui.js";
 import { shouldShowClearResultsButton } from "./search-results-ui.js";
 
 const state = {
@@ -2740,7 +2741,7 @@ function isEligibleInlineRefinementField(field = "", typeKey = null) {
   }
 
   const fieldConfig = getTraitFieldConfig(typeKey, normalizedField);
-  if (fieldConfig && String(fieldConfig.detectability || "").trim().toLowerCase() !== "yes") {
+  if (fieldConfig && !isInlineRefinementDetectabilityEligible(fieldConfig.detectability)) {
     return false;
   }
 
