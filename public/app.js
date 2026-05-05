@@ -2639,10 +2639,17 @@ function focusSearchComposerAtEnd() {
 }
 
 function clearSearchComposer() {
-  setSearchInputValue("");
   state.searchInputEditedSinceLastSearch = true;
+  state.categorySelectionTouchedSinceLastSearch = false;
+  state.resultCategoryScope = ["all"];
+  state.categoryScopeMode = "all";
+  setSearchInputValue("");
+  renderSearchComposer("");
   updateCategoryRequirement(null);
+  state.clarificationConflict = null;
   state.inlineRefinementPanel = null;
+  closeInlineRefinementPanel();
+  syncSearchPageUrl();
   focusSearchComposerAtEnd();
 }
 
