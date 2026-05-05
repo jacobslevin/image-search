@@ -4,8 +4,10 @@ import assert from "node:assert/strict";
 import {
   buildStage0CompletenessPrompt,
   buildStage0FurnitureCountPrompt,
+  resolveCatalogVisualTypeKey,
   resolveStage0RoutingContext
 } from "../src/captioning.js";
+import { getPixelSeekType } from "../src/utils.js";
 
 test("Stage 0 resolves seating routing context from explicit visual_type and legacy fallback", () => {
   assert.deepEqual(
@@ -34,6 +36,26 @@ test("Stage 0 resolves seating routing context from explicit visual_type and leg
 test("Stage 0 resolves tables routing context from explicit visual_type", () => {
   assert.deepEqual(
     resolveStage0RoutingContext({ visual_type: "conference" }),
+    {
+      source_field: "visual_type",
+      visual_type: "conference",
+      family: "tables",
+      label: "Conference Tables",
+      family_label: "Tables"
+    }
+  );
+});
+
+test("clean conference-table catalog records round-trip through grouping routing into Stage 0 tables context", () => {
+  const catalogRecord = {
+    b_level: ["Workplace"],
+    c_level: ["Conference Tables"]
+  };
+
+  assert.equal(getPixelSeekType(catalogRecord, {}), "conference");
+  assert.equal(resolveCatalogVisualTypeKey(getPixelSeekType(catalogRecord, {})), "conference");
+  assert.deepEqual(
+    resolveStage0RoutingContext(catalogRecord),
     {
       source_field: "visual_type",
       visual_type: "conference",

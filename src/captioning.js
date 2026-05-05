@@ -75,6 +75,16 @@ const GPT_41_NANO_INPUT_COST_PER_TOKEN = 0.10 / 1_000_000;
 const GPT_41_NANO_OUTPUT_COST_PER_TOKEN = 0.40 / 1_000_000;
 const IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT = 1;
 const PIXELSEEK_TYPE_TO_VISUAL_TYPE = Object.freeze({
+  lounge_chair: "lounge_chair",
+  guest_chair: "guest_chair",
+  task_collab_chair: "task_collab_chair",
+  stool: "stool",
+  bench: "bench",
+  conference: "conference",
+  occasional: "occasional",
+  cafe_dining: "cafe_dining",
+  training: "training",
+  huddle_collaborative: "huddle_collaborative",
   "Lounge Seating": "lounge_chair",
   "Multi-Use / Guest Chairs": "guest_chair",
   "Work Chairs": "task_collab_chair",
@@ -5135,7 +5145,11 @@ function buildCatalogRoutingStage1Stub(typeKey = "") {
   return buildResolvedRoutingStage1Stub(typeKey, "mapping_v1");
 }
 
-function resolveCatalogVisualTypeKey(pixelSeekType = "") {
+export function resolveCatalogVisualTypeKey(pixelSeekType = "") {
+  const direct = normalizeVisualTypeKey(pixelSeekType);
+  if (direct) {
+    return direct;
+  }
   const resolved = PIXELSEEK_TYPE_TO_VISUAL_TYPE[String(pixelSeekType || "").trim()];
   return resolved || "";
 }

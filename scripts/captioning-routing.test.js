@@ -1,7 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { combinedStage23Prompt, extractionSchemaForType, generateCaption, visualDescriptionPrompt } from "../src/captioning.js";
+import {
+  combinedStage23Prompt,
+  extractionSchemaForType,
+  generateCaption,
+  resolveCatalogVisualTypeKey,
+  visualDescriptionPrompt
+} from "../src/captioning.js";
 
 const DEMO_OPTIONS = Object.freeze({
   provider: "demo",
@@ -41,6 +47,13 @@ test("generateCaption routes caller-provided tables visual_type through Stage 2 
   assert.equal(caption.extraction_consensus.runs.length, 1);
   assert.ok(events.some((event) => event.type === "stage1_stubbed" && event.visual_type === "conference"));
   assert.ok(!events.some((event) => event.type === "stage1_started"));
+});
+
+test("catalog routing accepts canonical table keys and legacy display labels", () => {
+  assert.equal(resolveCatalogVisualTypeKey("conference"), "conference");
+  assert.equal(resolveCatalogVisualTypeKey("Conference Tables"), "conference");
+  assert.equal(resolveCatalogVisualTypeKey("training"), "training");
+  assert.equal(resolveCatalogVisualTypeKey("Training Tables"), "training");
 });
 
 test("tables visual description prompt is derived from registry-backed cross-cutting fields", () => {

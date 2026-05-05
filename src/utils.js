@@ -157,27 +157,27 @@ export function getCategoryGroupingKey(record = {}) {
 }
 
 const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
-  "Conference Tables": "Conference",
-  "Conference Tables | Workplace": "Conference",
-  "Cafe Tables": "Cafe/Dining",
-  "Lounge Seating": "Lounge Seating",
-  "Lounge Seating | Modular Seating": "Lounge Seating",
-  "Modular Seating": "Lounge Seating",
-  "Lounge Seating | Outdoor Seating": "Lounge Seating",
-  "Multi-use Guest Chairs": "Multi-Use / Guest Chairs",
-  "Stacking / Nesting Chairs": "Multi-Use / Guest Chairs",
-  "Multi-use Guest Chairs | Stacking / Nesting Chairs": "Multi-Use / Guest Chairs",
-  "Multi-use Guest Chairs | Outdoor Seating": "Multi-Use / Guest Chairs",
-  "High-performing Chairs / Stools | Workplace": "Work Chairs",
-  "Other Work Chairs | Workplace": "Work Chairs",
-  "Executive Chairs | Workplace": "Work Chairs",
-  "Occasional Tables": "Occasional",
-  "Fixed-height Stools": "Stools",
-  "Fixed-height Stools | Outdoor Seating": "Stools",
-  "Bench Seating": "Benches",
-  "Bench Seating | Outdoor Seating": "Benches",
-  "Training Tables": "Training",
-  "Training Tables | Workplace": "Training"
+  "Conference Tables": "conference",
+  "Conference Tables | Workplace": "conference",
+  "Cafe Tables": "cafe_dining",
+  "Lounge Seating": "lounge_chair",
+  "Lounge Seating | Modular Seating": "lounge_chair",
+  "Modular Seating": "lounge_chair",
+  "Lounge Seating | Outdoor Seating": "lounge_chair",
+  "Multi-use Guest Chairs": "guest_chair",
+  "Stacking / Nesting Chairs": "guest_chair",
+  "Multi-use Guest Chairs | Stacking / Nesting Chairs": "guest_chair",
+  "Multi-use Guest Chairs | Outdoor Seating": "guest_chair",
+  "High-performing Chairs / Stools | Workplace": "task_collab_chair",
+  "Other Work Chairs | Workplace": "task_collab_chair",
+  "Executive Chairs | Workplace": "task_collab_chair",
+  "Occasional Tables": "occasional",
+  "Fixed-height Stools": "stool",
+  "Fixed-height Stools | Outdoor Seating": "stool",
+  "Bench Seating": "bench",
+  "Bench Seating | Outdoor Seating": "bench",
+  "Training Tables": "training",
+  "Training Tables | Workplace": "training"
 });
 
 const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({

@@ -3,31 +3,31 @@ import assert from "node:assert/strict";
 
 import { getPixelSeekType } from "../src/utils.js";
 
-test("minimal exact table grouping mappings route to the expected PixelSeek labels", () => {
+test("minimal exact table grouping mappings route to the expected canonical visual_type keys", () => {
   const expectations = [
     {
       record: { b_level: ["Occasional Tables"] },
-      expected: "Occasional"
+      expected: "occasional"
     },
     {
       record: { b_level: ["Conference Tables"] },
-      expected: "Conference"
+      expected: "conference"
     },
     {
       record: { b_level: ["Conference Tables", "Workplace"] },
-      expected: "Conference"
+      expected: "conference"
     },
     {
       record: { b_level: ["Cafe Tables"] },
-      expected: "Cafe/Dining"
+      expected: "cafe_dining"
     },
     {
       record: { b_level: ["Training Tables"] },
-      expected: "Training"
+      expected: "training"
     },
     {
       record: { b_level: ["Training Tables", "Workplace"] },
-      expected: "Training"
+      expected: "training"
     }
   ];
 
@@ -39,7 +39,7 @@ test("minimal exact table grouping mappings route to the expected PixelSeek labe
 test("representative seating grouping still routes the same way", () => {
   assert.equal(
     getPixelSeekType({ b_level: ["Multi-use Guest Chairs"] }, {}),
-    "Multi-Use / Guest Chairs"
+    "guest_chair"
   );
 });
 
