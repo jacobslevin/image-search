@@ -20,6 +20,7 @@ env:
   EB_S3_BUCKET: ${{ vars.EB_S3_BUCKET }}
   CONFIG_JSON_S3_URI: ${{ vars.CONFIG_JSON_S3_URI }}
   CONFIG_JSON_DEST_PATH: ${{ vars.CONFIG_JSON_DEST_PATH }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
   deploy:
@@ -57,6 +58,14 @@ jobs:
             --region "$AWS_REGION"
 
           ls -l "$CONFIG_JSON_DEST_PATH"
+      - name: Run pre-deploy scripts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "$OPENAI_API_KEY" || (echo "Missing OPENAI_API_KEY secret" && exit 1)
+
+          node scripts/normalize-products.js
+          node scripts/build-index.js
 
       - name: Create source bundle
         run: |
