@@ -7225,6 +7225,7 @@ function renderResults(payload, query) {
   if (elements.clearResultsButton) {
     elements.clearResultsButton.hidden = !shouldShowClearResultsButton({
       landingOnlyMode: state.landingOnlyMode,
+      isBrowseMode,
       visibleResultCount: visibleResults.length
     });
   }

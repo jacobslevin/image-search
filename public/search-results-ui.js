@@ -1,3 +1,7 @@
-export function shouldShowClearResultsButton({ landingOnlyMode = false, visibleResultCount = 0 } = {}) {
-  return !landingOnlyMode && Number(visibleResultCount) > 0;
+export function shouldShowClearResultsButton({
+  landingOnlyMode = false,
+  isBrowseMode = false,
+  visibleResultCount = 0
+} = {}) {
+  return !landingOnlyMode && !isBrowseMode && Number(visibleResultCount) > 0;
 }
