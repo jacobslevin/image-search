@@ -1,4 +1,4 @@
-export function shouldShowClearResultsButton({
+export function shouldShowResetSearchButton({
   landingOnlyMode = false,
   isBrowseMode = false,
   visibleResultCount = 0

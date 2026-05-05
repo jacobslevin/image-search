@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { shouldShowClearResultsButton } from "../public/search-results-ui.js";
+import { shouldShowResetSearchButton } from "../public/search-results-ui.js";
 
-test("clear results button is hidden on landing state", () => {
+test("reset search button is hidden on landing state", () => {
   assert.equal(
-    shouldShowClearResultsButton({
+    shouldShowResetSearchButton({
       landingOnlyMode: true,
       isBrowseMode: false,
       visibleResultCount: 12
@@ -14,9 +14,9 @@ test("clear results button is hidden on landing state", () => {
   );
 });
 
-test("clear results button is hidden in browse mode", () => {
+test("reset search button is hidden in browse mode", () => {
   assert.equal(
-    shouldShowClearResultsButton({
+    shouldShowResetSearchButton({
       landingOnlyMode: false,
       isBrowseMode: true,
       visibleResultCount: 31
@@ -25,9 +25,9 @@ test("clear results button is hidden in browse mode", () => {
   );
 });
 
-test("clear results button is hidden when there are no visible results", () => {
+test("reset search button is hidden when there are no visible results", () => {
   assert.equal(
-    shouldShowClearResultsButton({
+    shouldShowResetSearchButton({
       landingOnlyMode: false,
       isBrowseMode: false,
       visibleResultCount: 0
@@ -36,9 +36,9 @@ test("clear results button is hidden when there are no visible results", () => {
   );
 });
 
-test("clear results button is shown when results are visible off the homepage", () => {
+test("reset search button is shown when results are visible off the homepage", () => {
   assert.equal(
-    shouldShowClearResultsButton({
+    shouldShowResetSearchButton({
       landingOnlyMode: false,
       isBrowseMode: false,
       visibleResultCount: 31

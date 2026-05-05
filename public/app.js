@@ -22,7 +22,7 @@ import {
 import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
 import { hasSearchComposerClearableContent } from "./search-composer-ui.js";
 import { isInlineRefinementDetectabilityEligible } from "./inline-refinement-ui.js";
-import { shouldShowClearResultsButton } from "./search-results-ui.js";
+import { shouldShowResetSearchButton } from "./search-results-ui.js";
 
 const state = {
   debug: false,
@@ -376,7 +376,6 @@ const elements = {
   resultsLayout: document.querySelector(".results-layout"),
   resultsSidebar: document.querySelector("#resultsSidebar"),
   resultCount: document.querySelector("#resultCount"),
-  clearResultsButton: document.querySelector("#clearResultsButton"),
   searchForm: document.querySelector("#searchForm"),
   clearSearchInputButton: document.querySelector("#clearSearchInputButton"),
   searchCategoryPrefix: document.querySelector("#searchCategoryPrefix"),
@@ -3944,7 +3943,12 @@ function updateResetSearchVisibility() {
   if (!elements.resetSearchButton) {
     return;
   }
-  elements.resetSearchButton.hidden = !state.refinementActive || !state.originalPayload;
+  const visibleResults = getVisibleResults(state.lastPayload, state.lastQuery);
+  elements.resetSearchButton.hidden = !shouldShowResetSearchButton({
+    landingOnlyMode: state.landingOnlyMode,
+    isBrowseMode: isBrowsePayload(state.lastPayload, state.lastQuery),
+    visibleResultCount: visibleResults.length
+  });
 }
 
 function applyActiveSearchContext({
@@ -7223,13 +7227,7 @@ function renderResults(payload, query) {
     resultsHeader.hidden = Boolean(state.categoryRequirement);
     resultsHeader.classList.toggle("is-search-mode", !isBrowseMode);
   }
-  if (elements.clearResultsButton) {
-    elements.clearResultsButton.hidden = !shouldShowClearResultsButton({
-      landingOnlyMode: state.landingOnlyMode,
-      isBrowseMode,
-      visibleResultCount: visibleResults.length
-    });
-  }
+  updateResetSearchVisibility();
   if (elements.resultsGrid) {
     elements.resultsGrid.classList.toggle("is-browse-grid", isBrowseMode);
   }
@@ -8634,11 +8632,6 @@ elements.clearSearchInputButton?.addEventListener("click", (event) => {
   clearSearchComposer();
 });
 
-elements.clearResultsButton?.addEventListener("click", (event) => {
-  event.preventDefault();
-  returnToHomepageState();
-});
-
 elements.sortSelect?.addEventListener("change", () => {
   state.sortMode = elements.sortSelect.value || "auto";
   runSearch(getSearchComposerRequestQuery(state.lastQuery), {
@@ -8760,39 +8753,7 @@ elements.refineDrawerBackdrop?.addEventListener("click", () => {
 });
 
 elements.resetSearchButton?.addEventListener("click", () => {
-  if (!state.originalPayload) {
-    return;
-  }
-
-  state.currentBaseQueryEmbedding = [...state.originalBaseQueryEmbedding];
-  state.currentQueryEmbedding = [...state.originalQueryEmbedding];
-  state.currentSelectedBullets = normalizeSelectedBullets(state.originalSelectedBullets);
-  state.currentBulletControls = normalizeBulletControls(state.originalBulletControls);
-  state.currentVisualType = state.originalVisualType;
-  state.currentImageAnalysis = state.originalImageAnalysis ? cloneValue(state.originalImageAnalysis) : null;
-    state.currentProductRefinements = normalizeProductRefinements(state.originalProductRefinements);
-    state.categoryFilter = normalizeCategoryFilter(state.originalCategoryFilter);
-    state.resultCategoryScope = normalizeCategoryScopeSelection(state.originalResultCategoryScope, { maxSelections: 1 });
-    state.categoryScopeMode = state.originalCategoryScopeMode || "all";
-    state.refreshAgeFilter = state.originalRefreshAgeFilter;
-    clearBrowseTraitFilters();
-    state.refinementActive = false;
-  state.categoryScopeLoading = false;
-  if (elements.categoryFilterButton) {
-    elements.categoryFilterButton.textContent = formatCategoryFilterLabel(state.categoryFilter);
-  }
-  if (elements.categoryFilterOptions) {
-    elements.categoryFilterOptions.querySelectorAll('input[type="checkbox"]').forEach((input) => {
-      input.checked = state.categoryFilter.includes(input.value);
-    });
-  }
-  if (elements.refreshAgeFilterSelect) {
-    elements.refreshAgeFilterSelect.value = state.refreshAgeFilter;
-  }
-  renderSearchComposer(state.originalQuery);
-  closeRefineDrawer();
-  updateResetSearchVisibility();
-  renderResults(cloneValue(state.originalPayload), state.originalQuery);
+  returnToHomepageState();
 });
 
 elements.manageSelectionButton?.addEventListener("click", () => {
