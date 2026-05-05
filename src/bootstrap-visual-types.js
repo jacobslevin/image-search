@@ -68,6 +68,21 @@ export function getAllVisualTypeOptions(options = {}) {
   return registryApi.listVisualTypes().map((entry) => entry.visual_type);
 }
 
+export function buildVisualTypeFamilyMap(options = {}) {
+  const registryApi = options.registryApi || loadVisualTypesRegistry(options);
+  return Object.fromEntries(
+    registryApi.listVisualTypes().map((entry) => [entry.visual_type, entry.family])
+  );
+}
+
+export function buildVisualTypeFamilyLabels(options = {}) {
+  const registryApi = options.registryApi || loadVisualTypesRegistry(options);
+  const families = registryApi.getRegistry()?.families || {};
+  return Object.fromEntries(
+    Object.entries(families).map(([familyKey, familyConfig]) => [familyKey, String(familyConfig?.label || familyKey).trim()])
+  );
+}
+
 export function buildBootstrapSchemaPayload(options = {}) {
   const seatingTypesConfig = options.seatingTypesConfig || loadSeatingTypesAdapter(options);
   const registryApi = options.registryApi || loadVisualTypesRegistry(options);
@@ -89,6 +104,8 @@ export function buildBootstrapSchemaPayload(options = {}) {
     visual_types: cloneValue(visualTypesConfig),
     seating_category_options: Object.keys(seatingTypesConfig?.types || {}),
     visual_type_options: visibleVisualTypeOptions,
+    visual_type_family_map: buildVisualTypeFamilyMap({ ...options, registryApi }),
+    visual_type_family_labels: buildVisualTypeFamilyLabels({ ...options, registryApi }),
     legacy_aliases: cloneValue(registryApi.legacyAliases || {})
   };
 }

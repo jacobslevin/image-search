@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { loadSeatingTypesAdapter } from "../src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "../src/visual-types-registry.js";
-import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "../src/bootstrap-visual-types.js";
+import { buildBootstrapSchemaPayload, buildVisualTypeFamilyLabels, buildVisualTypeFamilyMap, getAllVisualTypeOptions } from "../src/bootstrap-visual-types.js";
 
 test("/api/bootstrap schema payload includes tables visual_types alongside unchanged seating_types", () => {
   const seatingTypes = loadSeatingTypesAdapter();
@@ -81,4 +81,17 @@ test("getAllVisualTypeOptions exposes the full registry for server-side clarific
   assert.ok(options.includes("training"));
   assert.ok(options.includes("kitchen_faucet"));
   assert.ok(options.includes("bathroom_lavatory_faucet"));
+});
+
+test("bootstrap exposes visual type family metadata for grouped clarification UI", () => {
+  const familyMap = buildVisualTypeFamilyMap();
+  const familyLabels = buildVisualTypeFamilyLabels();
+  const payload = buildBootstrapSchemaPayload();
+
+  assert.equal(familyMap.conference, "tables");
+  assert.equal(familyMap.lounge_chair, "seating");
+  assert.equal(familyMap.kitchen_faucet, "faucets");
+  assert.equal(familyLabels.tables, "Tables");
+  assert.equal(payload.visual_type_family_map.training, "tables");
+  assert.equal(payload.visual_type_family_labels.faucets, "Faucets");
 });

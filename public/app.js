@@ -14,6 +14,7 @@ import {
   formatVisualTypeLabel,
   getVisualTypeDisplayNameMap,
   getVisualTypeOptions,
+  groupVisualTypeOptionsByFamily,
   isSupportedBrowseVisualType,
   resolveStoredVisualType
 } from "./visual-type-ui.js";
@@ -5003,17 +5004,17 @@ function renderClarificationBar() {
 
   const options = document.createElement("div");
   options.className = "clarification-options clarification-options-category";
-  const optionEntries = categoryRequirement.options
+  const normalizedOptions = categoryRequirement.options
     .map((option) => normalizeVisualTypeKey(option))
     .filter((option) => option && option !== "all")
-    .sort((left, right) => {
-      const leftLabel = formatVisualTypeLabel(left, state.bootstrap);
-      const rightLabel = formatVisualTypeLabel(right, state.bootstrap);
-      return leftLabel.localeCompare(rightLabel);
-    })
-    .map((option) => ({ value: option, label: formatVisualTypeLabel(option, state.bootstrap) }));
+    .filter((option, index, values) => values.indexOf(option) === index);
+  const groupedOptions = groupVisualTypeOptionsByFamily(normalizedOptions, state.bootstrap);
+  const singleFamilyMode = groupedOptions.length <= 1;
+  const activeFamily = singleFamilyMode
+    ? groupedOptions[0]?.family || ""
+    : String(categoryRequirement.activeFamily || groupedOptions[0]?.family || "").trim().toLowerCase();
 
-  optionEntries.forEach((option) => {
+  const createCategoryPill = (option) => {
     const pill = document.createElement("button");
     pill.type = "button";
     pill.className = "clarification-pill clarification-pill-category";
@@ -5060,8 +5061,43 @@ function renderClarificationBar() {
         setStatus(error.message || "Failed to apply category selection.", "error");
       });
     });
-    options.appendChild(pill);
-  });
+    return pill;
+  };
+
+  if (singleFamilyMode) {
+    (groupedOptions[0]?.options || []).forEach((option) => {
+      options.appendChild(createCategoryPill(option));
+    });
+  } else {
+    const familyButtons = document.createElement("div");
+    familyButtons.className = "clarification-families";
+
+    groupedOptions.forEach((group) => {
+      const familyButton = document.createElement("button");
+      familyButton.type = "button";
+      familyButton.className = `clarification-pill clarification-pill-category clarification-pill-family${group.family === activeFamily ? " is-active" : ""}`;
+      familyButton.textContent = group.label;
+      familyButton.addEventListener("click", () => {
+        updateCategoryRequirement({
+          ...categoryRequirement,
+          activeFamily: group.family
+        });
+      });
+      familyButtons.appendChild(familyButton);
+    });
+
+    options.appendChild(familyButtons);
+
+    const selectedGroup = groupedOptions.find((group) => group.family === activeFamily) || groupedOptions[0];
+    if (selectedGroup) {
+      const subcategories = document.createElement("div");
+      subcategories.className = "clarification-subcategories";
+      selectedGroup.options.forEach((option) => {
+        subcategories.appendChild(createCategoryPill(option));
+      });
+      options.appendChild(subcategories);
+    }
+  }
 
   const close = document.createElement("button");
   close.type = "button";

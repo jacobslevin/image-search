@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   buildRoutingTypesConfig,
   formatVisualTypeLabel,
+  groupVisualTypeOptionsByFamily,
   getVisualTypeOptions,
   isSupportedBrowseVisualType,
   resolveStoredVisualType
@@ -74,4 +75,49 @@ test("resolveStoredVisualType migrates legacy seating-named state and prefers ca
     resolveStoredVisualType({ currentVisualType: "training", currentSeatingType: "conference" }),
     "training"
   );
+});
+
+test("groupVisualTypeOptionsByFamily groups filtered clarification options hierarchically", () => {
+  const bootstrap = {
+    visual_types: {
+      default_type: "lounge_chair",
+      types: {
+        lounge_chair: { label: "Lounge Seating", fields: [] },
+        guest_chair: { label: "Multi-Use / Guest Chairs", fields: [] },
+        conference: { label: "Conference Tables", fields: [] },
+        kitchen_faucet: { label: "Kitchen Faucets", fields: [] }
+      }
+    },
+    visual_type_family_map: {
+      lounge_chair: "seating",
+      guest_chair: "seating",
+      conference: "tables",
+      kitchen_faucet: "faucets"
+    },
+    visual_type_family_labels: {
+      seating: "Seating",
+      tables: "Tables",
+      faucets: "Faucets"
+    }
+  };
+
+  const groups = groupVisualTypeOptionsByFamily(["conference", "guest_chair", "lounge_chair"], bootstrap);
+
+  assert.deepEqual(groups, [
+    {
+      family: "tables",
+      label: "Tables",
+      options: [
+        { value: "conference", label: "Conference Tables" }
+      ]
+    },
+    {
+      family: "seating",
+      label: "Seating",
+      options: [
+        { value: "lounge_chair", label: "Lounge Seating" },
+        { value: "guest_chair", label: "Multi-Use / Guest Chairs" }
+      ]
+    }
+  ]);
 });

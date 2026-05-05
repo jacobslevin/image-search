@@ -83,5 +83,35 @@ test("inferTextQueryCategory returns clarification for ambiguous spatial queries
   assert.equal(conferenceRoom.status, "category_required");
   assert.equal(office.status, "category_required");
   assert.ok(conferenceRoom.options.includes("conference"));
-  assert.ok(conferenceRoom.options.includes("lounge_chair"));
+  assert.ok(conferenceRoom.options.includes("task_collab_chair"));
+  assert.ok(conferenceRoom.options.includes("guest_chair"));
+  assert.equal(conferenceRoom.options.includes("kitchen_faucet"), false);
+  assert.equal(office.options.includes("bathroom_lavatory_faucet"), false);
+});
+
+test("inferTextQueryCategory filters clarification options to plausible families", async () => {
+  const chair = await inferTextQueryCategory("chair");
+  const table = await inferTextQueryCategory("table");
+  const faucet = await inferTextQueryCategory("faucet");
+  const kitchen = await inferTextQueryCategory("kitchen");
+
+  assert.equal(chair.status, "category_required");
+  assert.ok(chair.options.includes("lounge_chair"));
+  assert.ok(chair.options.includes("guest_chair"));
+  assert.equal(chair.options.includes("conference"), false);
+  assert.equal(chair.options.includes("kitchen_faucet"), false);
+
+  assert.equal(table.status, "category_required");
+  assert.ok(table.options.includes("conference"));
+  assert.ok(table.options.includes("training"));
+  assert.equal(table.options.includes("lounge_chair"), false);
+  assert.equal(table.options.includes("kitchen_faucet"), false);
+
+  assert.equal(faucet.status, "category_required");
+  assert.deepEqual(faucet.options, ["kitchen_faucet", "bathroom_lavatory_faucet"]);
+
+  assert.equal(kitchen.status, "category_required");
+  assert.ok(kitchen.options.includes("kitchen_faucet"));
+  assert.ok(kitchen.options.includes("cafe_dining"));
+  assert.ok(kitchen.options.includes("stool"));
 });

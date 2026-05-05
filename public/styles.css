@@ -2921,10 +2921,25 @@ body.landing-home .seed-query.is-active {
 }
 
 .clarification-options-category {
+  display: grid;
   justify-content: center;
   gap: 12px;
   margin-left: 0;
   max-width: 520px;
+}
+
+.clarification-families,
+.clarification-subcategories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.clarification-pill-family.is-active {
+  background: #7c6df0;
+  color: #fff;
+  border-color: rgba(124, 109, 240, 0.92);
 }
 
 .clarification-pill {

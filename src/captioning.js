@@ -57,9 +57,7 @@ const VISUAL_TYPE_LABEL_TO_KEY = visualTypeEntries.reduce((acc, entry) => {
   return acc;
 }, {});
 const textQueryCategoryKeys = Object.freeze(visualTypeEntries.map((entry) => entry.visual_type));
-const inferableTextQueryCategoryEntries = Object.freeze(
-  visualTypeEntries.filter((entry) => entry.family === "seating" || entry.family === "tables")
-);
+const inferableTextQueryCategoryEntries = Object.freeze(visualTypeEntries);
 const seatingVisualTypeKeys = Object.freeze(
   visualTypeEntries
     .filter((entry) => entry.family === "seating")
@@ -4264,6 +4262,71 @@ const AMBIGUOUS_SPATIAL_QUERY_PATTERNS = [
   /\bspace\b/
 ];
 
+const CLARIFICATION_FAMILY_RULES = Object.freeze([
+  { family: "seating", patterns: [/\bchair\b/, /\bchairs\b/, /\bseating\b/, /\bbench\b/, /\bbenches\b/, /\bstool\b/, /\bstools\b/, /\blounge\b/, /\blobby\b/] },
+  { family: "tables", patterns: [/\btable\b/, /\btables\b/, /\bdesk\b/, /\bdesks\b/, /\bconference\b/, /\bboardroom\b/, /\bmeeting\b/, /\bdining\b/, /\bcafe\b/, /\btraining\b/, /\bhuddle\b/, /\bcollaboration\b/] },
+  { family: "faucets", patterns: [/\bfaucet\b/, /\bfaucets\b/, /\btap\b/, /\btaps\b/, /\bspigot\b/, /\bspigots\b/, /\bsink\b/, /\bsinks\b/, /\blavatory\b/, /\bkitchen\b/, /\bbathroom\b/] }
+]);
+
+const SPATIAL_QUERY_OPTION_RULES = Object.freeze([
+  {
+    patterns: [/\bconference room\b/, /\bmeeting room\b/, /\bboardroom\b/],
+    visualTypes: ["conference", "huddle_collaborative", "task_collab_chair", "guest_chair", "bench"]
+  },
+  {
+    patterns: [/\boffice\b/, /\bopen office\b/, /\bworkspace\b/, /\bworkplace\b/],
+    visualTypes: ["conference", "training", "huddle_collaborative", "task_collab_chair", "guest_chair", "lounge_chair", "bench", "stool"]
+  },
+  {
+    patterns: [/\bkitchen\b/],
+    visualTypes: ["kitchen_faucet", "cafe_dining", "occasional", "stool", "bench", "guest_chair"]
+  },
+  {
+    patterns: [/\bbathroom\b/, /\bwashroom\b/, /\brestroom\b/],
+    visualTypes: ["bathroom_lavatory_faucet", "bench", "stool", "guest_chair"]
+  },
+  {
+    patterns: [/\blobby\b/, /\blounge\b/, /\breception\b/, /\bwaiting area\b/],
+    visualTypes: ["lounge_chair", "guest_chair", "bench", "stool"]
+  },
+  {
+    patterns: [/\brestaurant\b/, /\bcafe environment\b/, /\bdining room\b/],
+    visualTypes: ["cafe_dining", "guest_chair", "stool", "bench"]
+  }
+]);
+
+function getFamilyVisualTypeOptions(family = "") {
+  const normalizedFamily = String(family || "").trim().toLowerCase();
+  return inferableTextQueryCategoryEntries
+    .filter((entry) => String(entry.family || "").trim().toLowerCase() === normalizedFamily)
+    .map((entry) => entry.visual_type);
+}
+
+function getPlausibleClarificationOptions(query = "") {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  const directPhraseMatch = inferCategoryFromPhrases(normalizedQuery);
+  if (directPhraseMatch.categoryKey) {
+    return [directPhraseMatch.categoryKey];
+  }
+
+  const spatialRule = SPATIAL_QUERY_OPTION_RULES.find((rule) => rule.patterns.some((pattern) => pattern.test(normalizedQuery)));
+  if (spatialRule) {
+    return [...spatialRule.visualTypes];
+  }
+
+  const matchedFamilies = CLARIFICATION_FAMILY_RULES
+    .filter((rule) => rule.patterns.some((pattern) => pattern.test(normalizedQuery)))
+    .map((rule) => rule.family);
+  if (matchedFamilies.length === 1) {
+    return getFamilyVisualTypeOptions(matchedFamilies[0]);
+  }
+  if (matchedFamilies.length > 1) {
+    return uniqueStrings(matchedFamilies.flatMap((family) => getFamilyVisualTypeOptions(family)));
+  }
+
+  return [];
+}
+
 function textQueryCategoryInferenceSchema() {
   return {
     type: "object",
@@ -4328,12 +4391,13 @@ function inferCategoryFromPhrases(query = "") {
 
 export async function inferTextQueryCategory(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query).toLowerCase();
-  const defaultOptions = [...TEXT_QUERY_CATEGORY_KEYS];
+  const defaultOptions = getPlausibleClarificationOptions(normalizedQuery);
+  const fallbackOptions = defaultOptions.length ? defaultOptions : [...TEXT_QUERY_CATEGORY_KEYS];
   if (!normalizedQuery) {
     return {
       status: "category_required",
       confidence: "low",
-      options: defaultOptions
+      options: fallbackOptions
     };
   }
 
@@ -4345,7 +4409,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       status: "resolved",
       confidence: "high",
       category_key: phraseMatch.categoryKey,
-      options: defaultOptions,
+      options: fallbackOptions,
       matched_terms: [phraseMatch.matchedPhrase]
     };
   }
@@ -4354,7 +4418,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     return {
       status: "category_required",
       confidence: "low",
-      options: defaultOptions
+      options: fallbackOptions
     };
   }
 
@@ -4362,7 +4426,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     return {
       status: "category_required",
       confidence: "low",
-      options: defaultOptions
+      options: fallbackOptions
     };
   }
 
@@ -4383,7 +4447,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       return {
         status: "category_required",
         confidence: "low",
-        options: defaultOptions
+        options: fallbackOptions
       };
     }
 
@@ -4391,14 +4455,14 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       status: "resolved",
       confidence: "high",
       category_key: categoryKey,
-      options: defaultOptions,
+      options: fallbackOptions,
       matched_terms: []
     };
   } catch {
     return {
       status: "category_required",
       confidence: "low",
-      options: defaultOptions
+      options: fallbackOptions
     };
   }
 }

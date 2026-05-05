@@ -13,6 +13,12 @@ const LEGACY_VISUAL_TYPE_DISPLAY_NAMES = {
   huddle_collaborative: "Huddle/Collaborative Tables"
 };
 
+const DEFAULT_FAMILY_LABELS = {
+  seating: "Seating",
+  tables: "Tables",
+  faucets: "Faucets"
+};
+
 export function buildRoutingTypesConfig(bootstrap = null) {
   const bootstrapConfig = bootstrap?.visual_types || bootstrap?.seating_types || null;
   return bootstrapConfig && typeof bootstrapConfig === "object"
@@ -61,6 +67,56 @@ export function getVisualTypeOptions(bootstrap = null) {
     .map((value) => normalizeVisualTypeKey(value))
     .filter(Boolean)
     .sort((left, right) => formatVisualTypeLabel(left, bootstrap).localeCompare(formatVisualTypeLabel(right, bootstrap)));
+}
+
+export function getVisualTypeFamilyMap(bootstrap = null) {
+  const rawMap = bootstrap?.visual_type_family_map;
+  if (!rawMap || typeof rawMap !== "object") {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(rawMap)
+      .map(([typeKey, familyKey]) => [normalizeVisualTypeKey(typeKey), String(familyKey || "").trim().toLowerCase()])
+      .filter(([typeKey, familyKey]) => typeKey && familyKey)
+  );
+}
+
+export function getVisualTypeFamilyLabelMap(bootstrap = null) {
+  const rawMap = bootstrap?.visual_type_family_labels;
+  return {
+    ...DEFAULT_FAMILY_LABELS,
+    ...Object.fromEntries(
+      Object.entries(rawMap && typeof rawMap === "object" ? rawMap : {})
+        .map(([familyKey, label]) => [String(familyKey || "").trim().toLowerCase(), String(label || "").trim()])
+        .filter(([familyKey, label]) => familyKey && label)
+    )
+  };
+}
+
+export function groupVisualTypeOptionsByFamily(optionValues = [], bootstrap = null) {
+  const familyMap = getVisualTypeFamilyMap(bootstrap);
+  const familyLabelMap = getVisualTypeFamilyLabelMap(bootstrap);
+  const grouped = new Map();
+
+  optionValues
+    .map((option) => normalizeVisualTypeKey(option))
+    .filter((option) => option && option !== "all")
+    .forEach((option) => {
+      const family = familyMap[option] || "other";
+      if (!grouped.has(family)) {
+        grouped.set(family, []);
+      }
+      grouped.get(family).push(option);
+    });
+
+  return [...grouped.entries()]
+    .map(([family, values]) => ({
+      family,
+      label: familyLabelMap[family] || family,
+      options: values
+        .sort((left, right) => formatVisualTypeLabel(left, bootstrap).localeCompare(formatVisualTypeLabel(right, bootstrap)))
+        .map((value) => ({ value, label: formatVisualTypeLabel(value, bootstrap) }))
+    }));
 }
 
 export function isSupportedBrowseVisualType(categoryKey = "", bootstrap = null) {
