@@ -7,6 +7,7 @@ import {
   groupVisualTypeOptionsByFamily,
   getVisualTypeOptions,
   isSupportedBrowseVisualType,
+  resolveClarificationFamilySelection,
   resolveStoredVisualType
 } from "../public/visual-type-ui.js";
 
@@ -120,4 +121,47 @@ test("groupVisualTypeOptionsByFamily groups filtered clarification options hiera
       ]
     }
   ]);
+});
+
+test("resolveClarificationFamilySelection leaves multi-family clarification neutral until user clicks", () => {
+  const groupedOptions = [
+    {
+      family: "tables",
+      label: "Tables",
+      options: [{ value: "conference", label: "Conference Tables" }]
+    },
+    {
+      family: "seating",
+      label: "Seating",
+      options: [{ value: "guest_chair", label: "Multi-Use / Guest Chairs" }]
+    }
+  ];
+
+  assert.deepEqual(resolveClarificationFamilySelection(groupedOptions, ""), {
+    singleFamilyMode: false,
+    activeFamily: "",
+    visibleOptions: []
+  });
+
+  assert.deepEqual(resolveClarificationFamilySelection(groupedOptions, "seating"), {
+    singleFamilyMode: false,
+    activeFamily: "seating",
+    visibleOptions: [{ value: "guest_chair", label: "Multi-Use / Guest Chairs" }]
+  });
+});
+
+test("resolveClarificationFamilySelection still shows direct sub-categories for single-family cases", () => {
+  const groupedOptions = [
+    {
+      family: "tables",
+      label: "Tables",
+      options: [{ value: "conference", label: "Conference Tables" }]
+    }
+  ];
+
+  assert.deepEqual(resolveClarificationFamilySelection(groupedOptions, ""), {
+    singleFamilyMode: true,
+    activeFamily: "tables",
+    visibleOptions: [{ value: "conference", label: "Conference Tables" }]
+  });
 });

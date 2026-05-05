@@ -16,6 +16,7 @@ import {
   getVisualTypeOptions,
   groupVisualTypeOptionsByFamily,
   isSupportedBrowseVisualType,
+  resolveClarificationFamilySelection,
   resolveStoredVisualType
 } from "./visual-type-ui.js";
 import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
@@ -5009,10 +5010,8 @@ function renderClarificationBar() {
     .filter((option) => option && option !== "all")
     .filter((option, index, values) => values.indexOf(option) === index);
   const groupedOptions = groupVisualTypeOptionsByFamily(normalizedOptions, state.bootstrap);
-  const singleFamilyMode = groupedOptions.length <= 1;
-  const activeFamily = singleFamilyMode
-    ? groupedOptions[0]?.family || ""
-    : String(categoryRequirement.activeFamily || groupedOptions[0]?.family || "").trim().toLowerCase();
+  const familySelection = resolveClarificationFamilySelection(groupedOptions, categoryRequirement.activeFamily);
+  const { singleFamilyMode, activeFamily } = familySelection;
 
   const createCategoryPill = (option) => {
     const pill = document.createElement("button");
@@ -5088,11 +5087,10 @@ function renderClarificationBar() {
 
     options.appendChild(familyButtons);
 
-    const selectedGroup = groupedOptions.find((group) => group.family === activeFamily) || groupedOptions[0];
-    if (selectedGroup) {
+    if (familySelection.visibleOptions.length) {
       const subcategories = document.createElement("div");
       subcategories.className = "clarification-subcategories";
-      selectedGroup.options.forEach((option) => {
+      familySelection.visibleOptions.forEach((option) => {
         subcategories.appendChild(createCategoryPill(option));
       });
       options.appendChild(subcategories);

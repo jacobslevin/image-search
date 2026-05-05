@@ -119,6 +119,26 @@ export function groupVisualTypeOptionsByFamily(optionValues = [], bootstrap = nu
     }));
 }
 
+export function resolveClarificationFamilySelection(groupedOptions = [], activeFamily = "") {
+  const groups = Array.isArray(groupedOptions) ? groupedOptions : [];
+  const singleFamilyMode = groups.length <= 1;
+  if (singleFamilyMode) {
+    return {
+      singleFamilyMode: true,
+      activeFamily: groups[0]?.family || "",
+      visibleOptions: groups[0]?.options || []
+    };
+  }
+
+  const normalizedActiveFamily = String(activeFamily || "").trim().toLowerCase();
+  const selectedGroup = groups.find((group) => group.family === normalizedActiveFamily) || null;
+  return {
+    singleFamilyMode: false,
+    activeFamily: selectedGroup?.family || "",
+    visibleOptions: selectedGroup?.options || []
+  };
+}
+
 export function isSupportedBrowseVisualType(categoryKey = "", bootstrap = null) {
   const normalized = normalizeVisualTypeKey(categoryKey);
   return Boolean(normalized && buildRoutingTypesConfig(bootstrap).types?.[normalized]);
