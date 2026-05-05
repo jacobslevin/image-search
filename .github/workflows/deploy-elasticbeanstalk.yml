@@ -5,6 +5,13 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag a to deploy'
+        required: true
+        type: string      
+
 permissions:
   id-token: write
   contents: read
@@ -21,6 +28,7 @@ env:
   CONFIG_JSON_S3_URI: ${{ vars.CONFIG_JSON_S3_URI }}
   CONFIG_JSON_DEST_PATH: ${{ vars.CONFIG_JSON_DEST_PATH }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  TAG_TO_DEPLOY: ${{ inputs.tag }}
 
 jobs:
   deploy:
@@ -30,6 +38,18 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Show selected revision
+        run: |
+          echo "Git ref: $GITHUB_REF"
+          echo "Git ref name: $GITHUB_REF_NAME"
+          echo "Requested tag: ${TAG_TO_DEPLOY:-not manually provided}"
+
+          git status
+          git log -1 --oneline
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6.1.0
@@ -69,7 +89,10 @@ jobs:
 
       - name: Create source bundle
         run: |
-          VERSION_LABEL="${GITHUB_REF_NAME}-${GITHUB_SHA::7}-$(date +%Y%m%d%H%M%S)"
+          SAFE_REF="${TAG_TO_DEPLOY:-$GITHUB_REF_NAME}"
+          SAFE_REF="$(echo "$SAFE_REF" | tr '/:@ ' '----')"
+
+          VERSION_LABEL="${SAFE_REF}-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}"
           ARTIFACT_NAME="app-${VERSION_LABEL}.zip"
 
           echo "VERSION_LABEL=$VERSION_LABEL" >> "$GITHUB_ENV"
