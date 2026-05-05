@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { loadSeatingTypesAdapter } from "../src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "../src/visual-types-registry.js";
-import { buildBootstrapSchemaPayload } from "../src/bootstrap-visual-types.js";
+import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "../src/bootstrap-visual-types.js";
 
 test("/api/bootstrap schema payload includes tables visual_types alongside unchanged seating_types", () => {
   const seatingTypes = loadSeatingTypesAdapter();
@@ -71,4 +71,14 @@ test("seating_category_options stay seating-only while visual_type_options inclu
 
   assert.ok(payload.visual_type_options.includes("conference"));
   assert.ok(payload.visual_type_options.includes("training"));
+});
+
+test("getAllVisualTypeOptions exposes the full registry for server-side clarification fallbacks", () => {
+  const options = getAllVisualTypeOptions();
+
+  assert.ok(options.includes("lounge_chair"));
+  assert.ok(options.includes("conference"));
+  assert.ok(options.includes("training"));
+  assert.ok(options.includes("kitchen_faucet"));
+  assert.ok(options.includes("bathroom_lavatory_faucet"));
 });

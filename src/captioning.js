@@ -56,6 +56,10 @@ const VISUAL_TYPE_LABEL_TO_KEY = visualTypeEntries.reduce((acc, entry) => {
   acc[String(entry.label || "").toLowerCase()] = entry.visual_type;
   return acc;
 }, {});
+const textQueryCategoryKeys = Object.freeze(visualTypeEntries.map((entry) => entry.visual_type));
+const inferableTextQueryCategoryEntries = Object.freeze(
+  visualTypeEntries.filter((entry) => entry.family === "seating" || entry.family === "tables")
+);
 const seatingVisualTypeKeys = Object.freeze(
   visualTypeEntries
     .filter((entry) => entry.family === "seating")
@@ -4223,12 +4227,41 @@ function buildTextQueryTraitPrompt(seatingType = "") {
   ].join("\n");
 }
 
-export const TEXT_QUERY_CATEGORY_KEYS = [
-  "task_collab_chair",
-  "guest_chair",
-  "lounge_chair",
-  "bench",
-  "stool"
+export const TEXT_QUERY_CATEGORY_KEYS = textQueryCategoryKeys;
+
+const TEXT_QUERY_CATEGORY_PHRASES = Object.freeze({
+  task_collab_chair: ["task chair", "task chairs", "work chair", "work chairs", "collaborative chair", "collaborative chairs"],
+  guest_chair: ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chair", "multi-use guest chairs"],
+  lounge_chair: ["lounge seating", "lounge chair", "lounge chairs", "lounge"],
+  bench: ["bench seating", "bench", "benches"],
+  stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"],
+  conference: ["conference table", "conference tables", "boardroom table", "boardroom tables"],
+  occasional: ["occasional table", "occasional tables", "side table", "side tables", "end table", "end tables", "accent table", "accent tables", "coffee table", "coffee tables"],
+  cafe_dining: ["cafe table", "cafe tables", "dining table", "dining tables", "bistro table", "bistro tables", "kitchen table", "kitchen tables", "restaurant table", "restaurant tables"],
+  training: ["training table", "training tables", "flip table", "flip tables", "flip-top table", "flip-top tables", "folding table", "folding tables", "seminar table", "seminar tables", "classroom table", "classroom tables"],
+  huddle_collaborative: ["huddle table", "huddle tables", "collaboration table", "collaboration tables", "team table", "team tables"],
+  kitchen_faucet: ["kitchen faucet", "kitchen faucets", "pull-down faucet", "pull-down faucets", "pull out faucet", "pull out faucets"],
+  bathroom_lavatory_faucet: ["bathroom faucet", "bathroom faucets", "lavatory faucet", "lavatory faucets", "sink faucet", "sink faucets"]
+});
+
+const AMBIGUOUS_SPATIAL_QUERY_PATTERNS = [
+  /\bconference room\b/,
+  /\bmeeting room\b/,
+  /\bboardroom\b/,
+  /\boffice\b/,
+  /\boffice setting\b/,
+  /\boffice environment\b/,
+  /\bworkspace\b/,
+  /\bworkplace\b/,
+  /\brestaurant\b/,
+  /\bcafe environment\b/,
+  /\bdining room\b/,
+  /\bshowroom\b/,
+  /\blobby\b/,
+  /\blounge area\b/,
+  /\benvironment\b/,
+  /\broom\b/,
+  /\bspace\b/
 ];
 
 function textQueryCategoryInferenceSchema() {
@@ -4246,28 +4279,82 @@ function textQueryCategoryInferenceSchema() {
 }
 
 function buildTextQueryCategoryInferencePrompt() {
-  return `Determine which seating category a user query most likely refers to.
+  const categoryLines = inferableTextQueryCategoryEntries.map((entry) => (
+    `- ${entry.visual_type}: ${entry.label}. Family: ${entry.family_label}.`
+  ));
+
+  return `Determine which product category a user query most likely refers to.
 
 Available categories:
-- task_collab_chair: Task & Collaborative Chair. Desk, office, conference, classroom, or ergonomic work chairs, often upright and may have casters or adjustability.
-- guest_chair: Side & Guest Chair. Visitor, reception, side, stacking, nesting, or multipurpose guest seating with limited adjustability.
-- lounge_chair: Lounge Chair. Lounge chairs, club chairs, accent chairs, sofas, modular lounge pieces, privacy lounge seating, and backless upholstered companion pieces such as poufs or footrests for relaxed posture.
-- bench: Bench. Benches and banquettes intended for multiple people on one continuous seat.
-- stool: Stool. Bar stools, counter stools, drafting stools, perch stools, saddle stools, and active stools.
+${categoryLines.join("\n")}
 
-Return a single high-confidence category_key when the query clearly points to one category.
-Return category_required only when the query is genuinely ambiguous or too generic to resolve confidently.
+Return a single high-confidence category_key only when the query clearly points to one product category.
+Return category_required when the query is ambiguous, could refer to multiple product families, or primarily describes a room, environment, or space rather than a product category.
 
 Return JSON only.`;
 }
 
+function inferCategoryFromPhrases(query = "") {
+  const matches = [];
+
+  Object.entries(TEXT_QUERY_CATEGORY_PHRASES).forEach(([categoryKey, phrases]) => {
+    phrases.forEach((phrase) => {
+      const escapedPhrase = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const match = new RegExp(`\\b${escapedPhrase}\\b`, "i").exec(query);
+      if (match && typeof match.index === "number") {
+        matches.push({
+          categoryKey,
+          phrase,
+          index: match.index,
+          length: match[0].length
+        });
+      }
+    });
+  });
+
+  matches.sort((left, right) => {
+    if (right.length !== left.length) {
+      return right.length - left.length;
+    }
+    return left.index - right.index;
+  });
+
+  return {
+    categoryKey: matches[0]?.categoryKey || "",
+    matchedPhrase: matches[0]?.phrase || "",
+    matches
+  };
+}
+
 export async function inferTextQueryCategory(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  const defaultOptions = [...TEXT_QUERY_CATEGORY_KEYS];
   if (!normalizedQuery) {
     return {
       status: "category_required",
       confidence: "low",
-      options: [...TEXT_QUERY_CATEGORY_KEYS]
+      options: defaultOptions
+    };
+  }
+
+  const phraseMatch = inferCategoryFromPhrases(normalizedQuery);
+  const hasSpatialAmbiguity = AMBIGUOUS_SPATIAL_QUERY_PATTERNS.some((pattern) => pattern.test(normalizedQuery));
+
+  if (phraseMatch.categoryKey && !hasSpatialAmbiguity) {
+    return {
+      status: "resolved",
+      confidence: "high",
+      category_key: phraseMatch.categoryKey,
+      options: defaultOptions,
+      matched_terms: [phraseMatch.matchedPhrase]
+    };
+  }
+
+  if (hasSpatialAmbiguity) {
+    return {
+      status: "category_required",
+      confidence: "low",
+      options: defaultOptions
     };
   }
 
@@ -4275,7 +4362,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     return {
       status: "category_required",
       confidence: "low",
-      options: [...TEXT_QUERY_CATEGORY_KEYS]
+      options: defaultOptions
     };
   }
 
@@ -4296,7 +4383,7 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       return {
         status: "category_required",
         confidence: "low",
-        options: [...TEXT_QUERY_CATEGORY_KEYS]
+        options: defaultOptions
       };
     }
 
@@ -4304,14 +4391,14 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       status: "resolved",
       confidence: "high",
       category_key: categoryKey,
-      options: [...TEXT_QUERY_CATEGORY_KEYS],
+      options: defaultOptions,
       matched_terms: []
     };
   } catch {
     return {
       status: "category_required",
       confidence: "low",
-      options: [...TEXT_QUERY_CATEGORY_KEYS]
+      options: defaultOptions
     };
   }
 }

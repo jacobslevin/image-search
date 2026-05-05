@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractTextQueryTraits } from "../src/captioning.js";
+import { extractTextQueryTraits, inferTextQueryCategory } from "../src/captioning.js";
 
 test("conference tables query produces table-shaped enum fields", async () => {
   const traits = await extractTextQueryTraits("conference tables with wood legs", {
@@ -64,4 +64,24 @@ test("seating query regression remains functionally equivalent", async () => {
     [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("arm option: Armless")
   );
+});
+
+test("inferTextQueryCategory resolves direct seating and tables phrases", async () => {
+  const lounge = await inferTextQueryCategory("lounge chair");
+  const conference = await inferTextQueryCategory("conference table");
+
+  assert.equal(lounge.status, "resolved");
+  assert.equal(lounge.category_key, "lounge_chair");
+  assert.equal(conference.status, "resolved");
+  assert.equal(conference.category_key, "conference");
+});
+
+test("inferTextQueryCategory returns clarification for ambiguous spatial queries", async () => {
+  const conferenceRoom = await inferTextQueryCategory("conference room");
+  const office = await inferTextQueryCategory("office");
+
+  assert.equal(conferenceRoom.status, "category_required");
+  assert.equal(office.status, "category_required");
+  assert.ok(conferenceRoom.options.includes("conference"));
+  assert.ok(conferenceRoom.options.includes("lounge_chair"));
 });

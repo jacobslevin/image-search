@@ -37,7 +37,7 @@ import {
 } from "./src/utils.js";
 import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
-import { buildBootstrapSchemaPayload } from "./src/bootstrap-visual-types.js";
+import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "./src/bootstrap-visual-types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,6 +60,7 @@ const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
 const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
+const allVisualTypeOptions = getAllVisualTypeOptions();
 const visualTypesRegistry = loadVisualTypesRegistry();
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const PROMPT_LIBRARY_STAGE23_TYPES = [
@@ -3030,8 +3031,8 @@ const server = http.createServer(async (request, response) => {
       seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
       seating_type_source: seatingTypeSource,
       category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
-      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
-      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : Object.keys(seatingTypes),
+      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
       selected_bullets: effectiveSelectedBullets,
       text_query_traits: textQueryTraits,
       query_embedding: queryEmbedding,
@@ -3395,10 +3396,10 @@ const server = http.createServer(async (request, response) => {
           category_required: Boolean(
             stage1Result !== "product" ||
             seatingTypeConfidence !== "high" ||
-            !seatingTypes[resolvedVisualType]
+            !resolvedVisualType
           ),
-          seating_category_options: Object.keys(seatingTypes),
-          visual_type_options: Object.keys(seatingTypes),
+          seating_category_options: allVisualTypeOptions,
+          visual_type_options: allVisualTypeOptions,
           analysis: {
             ...addVisualTypeToAnalysisPayload(analysis),
             image_preview_url: imageSource

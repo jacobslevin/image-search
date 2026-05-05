@@ -63,6 +63,11 @@ export function createVisualTypesBootstrapConfig(options = {}) {
   };
 }
 
+export function getAllVisualTypeOptions(options = {}) {
+  const registryApi = options.registryApi || loadVisualTypesRegistry(options);
+  return registryApi.listVisualTypes().map((entry) => entry.visual_type);
+}
+
 export function buildBootstrapSchemaPayload(options = {}) {
   const seatingTypesConfig = options.seatingTypesConfig || loadSeatingTypesAdapter(options);
   const registryApi = options.registryApi || loadVisualTypesRegistry(options);
@@ -71,10 +76,13 @@ export function buildBootstrapSchemaPayload(options = {}) {
     seatingTypesConfig,
     registryApi
   });
-  const visibleVisualTypeOptions = registryApi
-    .listVisualTypes()
-    .filter((entry) => entry.family === "seating" || entry.family === "tables")
-    .map((entry) => entry.visual_type);
+  const visibleVisualTypeOptions = getAllVisualTypeOptions({
+    ...options,
+    registryApi
+  }).filter((visualType) => {
+    const entry = registryApi.resolveRoutingKey(visualType);
+    return entry?.family === "seating" || entry?.family === "tables";
+  });
 
   return {
     seating_types: cloneValue(seatingTypesConfig),
