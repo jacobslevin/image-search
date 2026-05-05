@@ -327,8 +327,11 @@ h1 {
 
 .search-query-flow {
   flex: 1 1 auto;
+  display: flex;
+  align-items: center;
   min-width: 0;
   padding-left: 25px;
+  padding-right: 8px;
   color: #6b7280;
   font-size: 1.02rem;
   line-height: 1.75;
@@ -417,7 +420,9 @@ h1 {
 }
 
 .search-input {
-  display: inline;
+  display: inline-block;
+  flex: 1 1 auto;
+  min-width: 0;
   outline: 0;
   background: transparent;
   color: #6b7280;
@@ -467,17 +472,18 @@ h1 {
 
 .search-clear-button {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
+  width: 26px;
+  height: 26px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-right: 2px;
+  margin-left: 8px;
   border: none;
   border-radius: 999px;
-  background: transparent;
-  color: #8a90a6;
-  font-size: 1.3rem;
+  background: rgba(149, 155, 177, 0.14);
+  color: #7c859c;
+  font-size: 1rem;
+  font-weight: 500;
   line-height: 1;
   cursor: pointer;
   transition: background-color 140ms ease, color 140ms ease;
@@ -488,8 +494,8 @@ h1 {
 }
 
 .search-clear-button:hover {
-  background: rgba(124, 109, 240, 0.1);
-  color: #5348b8;
+  background: rgba(124, 109, 240, 0.14);
+  color: #4d42ab;
 }
 
 .search-clear-button:focus-visible {

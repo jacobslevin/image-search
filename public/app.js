@@ -2641,9 +2641,8 @@ function focusSearchComposerAtEnd() {
 function clearSearchComposer() {
   setSearchInputValue("");
   state.searchInputEditedSinceLastSearch = true;
-  state.categoryRequirement = null;
+  updateCategoryRequirement(null);
   state.inlineRefinementPanel = null;
-  renderCategoryRequirement();
   focusSearchComposerAtEnd();
 }
 
