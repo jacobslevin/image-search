@@ -20,6 +20,7 @@ import {
   resolveStoredVisualType
 } from "./visual-type-ui.js";
 import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
+import { hasSearchComposerClearableContent } from "./search-composer-ui.js";
 
 const state = {
   debug: false,
@@ -374,6 +375,7 @@ const elements = {
   resultsSidebar: document.querySelector("#resultsSidebar"),
   resultCount: document.querySelector("#resultCount"),
   searchForm: document.querySelector("#searchForm"),
+  clearSearchInputButton: document.querySelector("#clearSearchInputButton"),
   searchCategoryPrefix: document.querySelector("#searchCategoryPrefix"),
   searchCategoryChipWrap: document.querySelector("#searchCategoryChipWrap"),
   searchCategorySelect: document.querySelector("#searchCategorySelect"),
@@ -1574,6 +1576,7 @@ function renderSearchComposer(fullQuery = state.lastQuery) {
     elements.searchInput.replaceChildren();
     elements.searchInput.textContent = String(fullQuery || "").trim();
   }
+  updateSearchComposerClearButton();
 }
 
 const BULLET_PRIORITY_LABELS = {
@@ -2564,6 +2567,7 @@ function setSearchInputValue(value = "") {
     elements.searchInput.textContent = String(value || "");
   }
   autoResizeSearchInput();
+  updateSearchComposerClearButton();
 }
 
 function getSearchComposerTextParts() {
@@ -2609,6 +2613,38 @@ function getSearchComposerTextParts() {
     suffix: normalizedSuffix,
     plain: [normalizedPrefix, normalizedSuffix].filter(Boolean).join(" ").trim()
   };
+}
+
+function updateSearchComposerClearButton() {
+  if (!elements.clearSearchInputButton) {
+    return;
+  }
+  elements.clearSearchInputButton.hidden = !hasSearchComposerClearableContent(getSearchComposerTextParts());
+}
+
+function focusSearchComposerAtEnd() {
+  if (!elements.searchInput) {
+    return;
+  }
+  elements.searchInput.focus();
+  const selection = window.getSelection?.();
+  if (!selection) {
+    return;
+  }
+  const range = document.createRange();
+  range.selectNodeContents(elements.searchInput);
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+}
+
+function clearSearchComposer() {
+  setSearchInputValue("");
+  state.searchInputEditedSinceLastSearch = true;
+  state.categoryRequirement = null;
+  state.inlineRefinementPanel = null;
+  renderCategoryRequirement();
+  focusSearchComposerAtEnd();
 }
 
 function isQueryComposableBullet(bullet = "") {
@@ -8562,6 +8598,7 @@ elements.searchForm.addEventListener("submit", (event) => {
 elements.searchInput?.addEventListener("input", () => {
   state.searchInputEditedSinceLastSearch = true;
   autoResizeSearchInput();
+  updateSearchComposerClearButton();
 });
 
 elements.searchInput?.addEventListener("keydown", (event) => {
@@ -8569,6 +8606,12 @@ elements.searchInput?.addEventListener("keydown", (event) => {
     event.preventDefault();
     elements.searchForm?.requestSubmit();
   }
+});
+
+elements.clearSearchInputButton?.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  clearSearchComposer();
 });
 
 elements.sortSelect?.addEventListener("change", () => {
