@@ -13,6 +13,9 @@ import {
 
 const args = process.argv.slice(2);
 const sourceArgIndex = args.indexOf("--source");
+// This script only normalizes the local CSV import folder. It is not the source
+// of truth for the larger Designer Pages-derived browse corpus; that broader
+// local catalog is maintained separately from the CSV import path.
 const csvDirectory = sourceArgIndex >= 0
   ? path.resolve(args[sourceArgIndex + 1])
   : path.resolve("Product Data with Images");

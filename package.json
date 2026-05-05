@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "pdf-parse": "^1.1.1"
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.20.0"
   },
   "scripts": {
     "test": "npm run test:cutoff && npm run test:category-filter",
     "normalize": "node scripts/normalize-products.js",
+    "db:setup": "node scripts/setup-postgres-dev.js",
+    "db:migrate:catalog": "node scripts/migrate-normalized-catalog-to-postgres.js",
+    "db:migrate:index": "node scripts/migrate-image-index-to-postgres.js",
     "intake:designerpages": "node scripts/intake-designerpages-product-ids.js",
     "index": "node scripts/build-index.js",
     "import": "node scripts/import-catalog.js",
