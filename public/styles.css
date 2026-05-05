@@ -2476,8 +2476,31 @@ body.landing-home .seed-query.is-active {
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
   min-width: 0;
   grid-column: 1;
+}
+
+.results-inline-clear-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #7b8193;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.results-inline-clear-button[hidden] {
+  display: none;
+}
+
+.results-inline-clear-button:hover,
+.results-inline-clear-button:focus-visible {
+  color: #4d42ab;
 }
 
 .results-header p {

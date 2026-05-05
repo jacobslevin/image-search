@@ -21,6 +21,7 @@ import {
 } from "./visual-type-ui.js";
 import { resolveSearchVisualTypeRequest } from "./search-request-routing.js";
 import { hasSearchComposerClearableContent } from "./search-composer-ui.js";
+import { shouldShowClearResultsButton } from "./search-results-ui.js";
 
 const state = {
   debug: false,
@@ -374,6 +375,7 @@ const elements = {
   resultsLayout: document.querySelector(".results-layout"),
   resultsSidebar: document.querySelector("#resultsSidebar"),
   resultCount: document.querySelector("#resultCount"),
+  clearResultsButton: document.querySelector("#clearResultsButton"),
   searchForm: document.querySelector("#searchForm"),
   clearSearchInputButton: document.querySelector("#clearSearchInputButton"),
   searchCategoryPrefix: document.querySelector("#searchCategoryPrefix"),
@@ -422,6 +424,10 @@ function enterBrowseMode(query = "", extraParams = {}) {
   const targetPath = HOME_PATH;
   const nextUrl = buildBrowseUrl(query, extraParams, targetPath);
   window.history.pushState({}, "", nextUrl);
+}
+
+function returnToHomepageState() {
+  window.location.href = HOME_PATH;
 }
 
 function buildBrowseUrl(query = "", extraParams = {}, targetPath = CURRENT_URL.pathname) {
@@ -7216,6 +7222,12 @@ function renderResults(payload, query) {
     resultsHeader.hidden = Boolean(state.categoryRequirement);
     resultsHeader.classList.toggle("is-search-mode", !isBrowseMode);
   }
+  if (elements.clearResultsButton) {
+    elements.clearResultsButton.hidden = !shouldShowClearResultsButton({
+      landingOnlyMode: state.landingOnlyMode,
+      visibleResultCount: visibleResults.length
+    });
+  }
   if (elements.resultsGrid) {
     elements.resultsGrid.classList.toggle("is-browse-grid", isBrowseMode);
   }
@@ -8618,6 +8630,11 @@ elements.clearSearchInputButton?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
   clearSearchComposer();
+});
+
+elements.clearResultsButton?.addEventListener("click", (event) => {
+  event.preventDefault();
+  returnToHomepageState();
 });
 
 elements.sortSelect?.addEventListener("change", () => {
