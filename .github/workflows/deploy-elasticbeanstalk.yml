@@ -29,6 +29,13 @@ env:
   CONFIG_JSON_DEST_PATH: ${{ vars.CONFIG_JSON_DEST_PATH }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   TAG_TO_DEPLOY: ${{ inputs.tag }}
+  PGHOST: ${{vars.PGHOST}}
+  PGPORT: ${{vars.PGPORT}}
+  PGDATABASE: ${{vars.PGDATABASE}}
+  PGUSER: ${{vars.PGUSER}}
+  PGPASSWORD: ${{secrets.PGPASSWORD}}
+  PGSSLMODE: ${{vars.PGSSLMODE}}
+  NODE_ENV: ${{vars.NODE_ENV}}
 
 jobs:
   deploy:
