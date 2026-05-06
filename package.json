@@ -13,6 +13,7 @@
     "db:setup": "node scripts/setup-postgres-dev.js",
     "db:migrate:catalog": "node scripts/migrate-normalized-catalog-to-postgres.js",
     "db:migrate:index": "node scripts/migrate-image-index-to-postgres.js",
+    "db:merge:canonical": "node scripts/merge-canonical.js",
     "intake:designerpages": "node scripts/intake-designerpages-product-ids.js",
     "index": "node scripts/build-index.js",
     "import": "node scripts/import-catalog.js",

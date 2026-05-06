@@ -38,6 +38,12 @@ import {
 import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
 import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "./src/bootstrap-visual-types.js";
+import {
+  findCanonicalProductTargetEmbedding,
+  loadCanonicalBootstrapData,
+  loadCanonicalBrowseIndex,
+  loadCanonicalSearchIndex
+} from "./src/postgres-read-model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1931,13 +1937,53 @@ async function composeSearchQueryFromBullets(bullets = [], apiKey) {
   return normalizedQuery;
 }
 
-async function loadCatalog() {
+async function loadJsonCatalog() {
   const [catalog, index] = await Promise.all([readJson(normalizedPath), readJson(indexPath)]);
   return { catalog, index };
 }
 
 async function loadSeatingTypes() {
   return loadSeatingTypesAdapter();
+}
+
+async function loadCanonicalReadModelForBrowse() {
+  return loadCanonicalBrowseIndex();
+}
+
+async function loadCanonicalReadModelForSearch({
+  queryEmbedding = [],
+  parsed = null,
+  imageAnalysis = null,
+  sourceImageUrl = "",
+  includeSourceImage = false
+} = {}) {
+  const stage1Type = normalizeVisualTypeKey(
+    imageAnalysis?.stage1?.visual_type ||
+    imageAnalysis?.stage1?.seating_type ||
+    parsed?.visual_type ||
+    parsed?.seating_type ||
+    ""
+  );
+  const compatibleVisualTypes = (() => {
+    if (!stage1Type) {
+      return [];
+    }
+    if (stage1Type === "task_collab_chair") {
+      return ["task_collab_chair", "task_chair", "collaborative_chair"];
+    }
+    if (stage1Type === "stool") {
+      return ["stool", "perch_stool"];
+    }
+    return [stage1Type];
+  })();
+
+  return loadCanonicalSearchIndex({
+    queryEmbedding,
+    brand: parsed?.brand || "",
+    compatibleVisualTypes,
+    sourceImageUrl,
+    includeSourceImage
+  });
 }
 
 function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toISOString(), extra = {}) {
@@ -2445,7 +2491,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
 }
 
 async function refreshProductIndex(productId) {
-  const { catalog, index } = await loadCatalog();
+  const { catalog, index } = await loadJsonCatalog();
   if (!catalog?.images?.length) {
     throw new Error("Normalized catalog not found. Run `npm run normalize` first.");
   }
@@ -2465,7 +2511,7 @@ async function refreshProductIndex(productId) {
 }
 
 async function refreshProductsIndex(productIds = []) {
-  const { catalog, index } = await loadCatalog();
+  const { catalog, index } = await loadJsonCatalog();
   if (!catalog?.images?.length || !index?.images?.length) {
     throw new Error("Index not found. Run `npm run normalize` and `npm run index` first.");
   }
@@ -2808,19 +2854,17 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (url.pathname === "/api/bootstrap") {
-    const [{ catalog, index }, seatingTypes] = await Promise.all([loadCatalog(), loadSeatingTypes()]);
-    const catalogLeafCategories = [...new Set(((catalog?.products || [])).flatMap((product) => getLeafCategories(product)).filter(Boolean))];
-    const categorySource = catalogLeafCategories.sort((a, b) => a.localeCompare(b));
+    const [bootstrapData, seatingTypes] = await Promise.all([loadCanonicalBootstrapData(), loadSeatingTypes()]);
     const bootstrapSchema = buildBootstrapSchemaPayload({
       seatingTypesConfig: seatingTypes,
       registryApi: visualTypesRegistry
     });
     return json(response, 200, {
-      has_index: Boolean(index?.images?.length),
+      has_index: Boolean(bootstrapData.has_index),
       seed_queries: seedQueries,
-      brands: catalog?.brands || [],
-      categories: categorySource,
-      stats: catalog?.totals || { products: 0, images: 0 },
+      brands: bootstrapData.brands || [],
+      categories: bootstrapData.categories || [],
+      stats: bootstrapData.stats || { products: 0, images: 0 },
       image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
       ranking_rules: getRankingRulesSummary(),
       ...bootstrapSchema,
@@ -2890,8 +2934,6 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (url.pathname === "/api/search") {
-    const { catalog, index } = await loadCatalog();
-
     const body = request.method === "POST" ? await readRequestJson(request) : {};
     const query = String((request.method === "POST" ? body.q : url.searchParams.get("q")) || "").trim();
     const category = request.method === "POST"
@@ -2914,10 +2956,13 @@ const server = http.createServer(async (request, response) => {
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
     const rawSelectedBullets = body.selected_bullets;
     if (!query) {
-      const results = filterResultsByRefreshAge(
-        buildBrowseResults(catalog, index, Infinity, sort, category),
-        refreshAge
-      );
+      const { catalog, index } = await loadCanonicalReadModelForBrowse();
+      let results = buildBrowseResults(catalog, index, Infinity, sort, category);
+      const browseVisualTypeFilters = explicitVisualType ? [explicitVisualType] : normalizedSearchCategories.normalized;
+      if (browseVisualTypeFilters.length) {
+        results = filterSearchResultsByCategory(results, browseVisualTypeFilters);
+      }
+      results = filterResultsByRefreshAge(results, refreshAge);
       return json(response, 200, {
         query,
         category_filter: category,
@@ -2944,12 +2989,6 @@ const server = http.createServer(async (request, response) => {
       });
     }
 
-    if (!index?.images?.length) {
-      return json(response, 409, {
-        error: "Search index not found. Browsing works from the catalog, but visual search needs `npm run index`."
-      });
-    }
-
     let inferredCategory = null;
     let resolvedVisualType = explicitVisualType;
     let seatingTypeSource = explicitVisualType ? "explicit" : "all";
@@ -2969,7 +3008,8 @@ const server = http.createServer(async (request, response) => {
 
     const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
 
-    const parsed = await parseSearchQuery(query, index.brands || [], {
+    const bootstrapData = await loadCanonicalBootstrapData();
+    const parsed = await parseSearchQuery(query, bootstrapData.brands || [], {
       apiKey: process.env.OPENAI_API_KEY,
       model: process.env.QUERY_MODEL
     });
@@ -2998,10 +3038,42 @@ const server = http.createServer(async (request, response) => {
       selectedBullets: effectiveSelectedBullets,
       apiKey: process.env.OPENAI_API_KEY
     });
+    const canonicalIndex = await loadCanonicalReadModelForSearch({
+      queryEmbedding,
+      parsed,
+      imageAnalysis,
+      sourceImageUrl,
+      includeSourceImage: debug
+    });
+    if (!canonicalIndex?.images?.length) {
+      return json(response, 200, {
+        query,
+        category_filter: category,
+        refresh_age_filter: refreshAge,
+        sort,
+        match_mode: matchMode,
+        source_image_url: sourceImageUrl,
+        debug,
+        parsed,
+        seating_type: resolvedVisualType || "",
+        visual_type: resolvedVisualType || "",
+        seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
+        seating_type_source: seatingTypeSource,
+        category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
+        seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+        visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+        selected_bullets: effectiveSelectedBullets,
+        text_query_traits: textQueryTraits,
+        query_embedding: queryEmbedding,
+        reranker_used: false,
+        total_results: 0,
+        results: []
+      });
+    }
     const searchResponse = await searchIndex({
       query,
       parsed,
-      index,
+      index: canonicalIndex,
       sourceImageUrl,
       sort,
       imageAnalysis,
@@ -3044,13 +3116,6 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/refine-search" && request.method === "POST") {
     try {
-      const { index } = await loadCatalog();
-      if (!index) {
-        return json(response, 409, {
-          error: "Index not found. Run `npm run normalize` and `npm run index` first."
-        });
-      }
-
       const body = await readRequestJson(request);
       const queryEmbedding = Array.isArray(body.query_embedding) ? body.query_embedding.map((value) => Number(value)) : [];
       const category = Array.isArray(body.category) ? body.category : body.category ? [body.category] : [];
@@ -3084,14 +3149,12 @@ const server = http.createServer(async (request, response) => {
           return json(response, 400, { error: "action must be 'more' or 'less'." });
         }
 
-        const targetRecord = (index.images || [])
-          .filter((record) => record.product_id === productId && getEffectiveClassification(record) === "product")
-          .sort((a, b) => String(b.confidence_tier || "").localeCompare(String(a.confidence_tier || "")))[0];
-        if (!targetRecord?.visual_summary_embedding?.length) {
+        const targetEmbedding = await findCanonicalProductTargetEmbedding(productId);
+        if (!targetEmbedding?.length) {
           return json(response, 404, { error: "Target product embedding not found." });
         }
 
-        const normalizedTarget = normalizeEmbedding(targetRecord.visual_summary_embedding);
+        const normalizedTarget = normalizeEmbedding(targetEmbedding);
         blendedQueryEmbedding = normalizeEmbedding(
           blendedQueryEmbedding.map((value, index) =>
             action === "more"
@@ -3110,10 +3173,17 @@ const server = http.createServer(async (request, response) => {
       const imageAnalysis = visualType
         ? { stage1: { seating_type: visualType } }
         : null;
+      const canonicalIndex = await loadCanonicalReadModelForSearch({
+        queryEmbedding: blendedQueryEmbedding,
+        parsed,
+        imageAnalysis,
+        sourceImageUrl,
+        includeSourceImage: debug
+      });
       const searchResponse = await searchIndex({
         query: "",
         parsed,
-        index,
+        index: canonicalIndex,
         sourceImageUrl,
         sort: "auto",
         imageAnalysis,
@@ -3539,7 +3609,7 @@ const server = http.createServer(async (request, response) => {
         return json(response, 409, { error: "A bulk AI refresh is already running." });
       }
 
-      const { catalog, index } = await loadCatalog();
+      const { catalog, index } = await loadJsonCatalog();
       if (!catalog?.images?.length) {
         return json(response, 409, {
           error: "Normalized catalog not found. Run `npm run normalize` first."

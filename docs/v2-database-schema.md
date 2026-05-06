@@ -155,6 +155,32 @@ The vector columns are present now so data can be loaded and verified. Approxima
 - stores embeddings in `vector(1536)`
 - stores extracted trait/state payloads in `jsonb`
 
+### `scripts/merge-canonical.js`
+
+- rebuilds the canonical product/image layer from the two source-aware tables
+- primary product match: trailing numeric Designer Pages ID
+- fallback product match: exact `brand + product_name` only when uniquely unclaimed
+- primary image match: exact `image_url`
+- preserves source provenance in link tables
+
+## Stage 1.5b read-path note
+
+The `1.5b` read-path migration uses PostgreSQL as the source of truth for:
+
+- bootstrap metadata
+- browse mode
+- text search
+- refine-search
+
+Search uses `pgvector` for brute-force candidate retrieval from `canonical_images` and then keeps the existing JavaScript-side result shaping and reranking behavior on the returned candidate set.
+
+The write/update flows still remain JSON-backed during `1.5b`, including:
+
+- product refresh
+- bulk refresh
+- eval writebacks
+- extraction-summary style tooling tied to the JSON index
+
 ## Relationships
 
 ```mermaid
