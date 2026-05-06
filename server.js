@@ -53,6 +53,7 @@ const envFiles = [
   path.join(__dirname, ".env")
 ];
 const publicDir = path.join(__dirname, "public");
+const packageJsonPath = path.join(__dirname, "package.json");
 const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
 const normalizedPath = path.join(__dirname, "data", "normalized-catalog.json");
 const indexPath = getImageIndexPath();
@@ -115,6 +116,14 @@ const PROMPT_LIBRARY_SECTION_RANGES = {
 };
 const QUERY_IMAGE_PROGRESS_TTL_MS = 10 * 60 * 1000;
 const queryImageProgressStore = new Map();
+const APP_VERSION = (() => {
+  try {
+    return String(JSON.parse(fsSync.readFileSync(packageJsonPath, "utf8"))?.version || "").trim();
+  } catch (error) {
+    console.error("[version] failed to read package.json version", error);
+    return "";
+  }
+})();
 
 function pruneQueryImageProgressStore(now = Date.now()) {
   for (const [requestId, entry] of queryImageProgressStore.entries()) {
@@ -2890,6 +2899,10 @@ const server = http.createServer(async (request, response) => {
     }
   }
 
+  if (url.pathname === "/api/version") {
+    return json(response, 200, { version: APP_VERSION });
+  }
+
   if (url.pathname === "/api/bootstrap") {
     const startedAt = Date.now();
     console.log("[bootstrap] request received", {
@@ -2924,6 +2937,7 @@ const server = http.createServer(async (request, response) => {
       });
       return json(response, 200, {
         has_index: Boolean(bootstrapData.has_index),
+        version: APP_VERSION,
         seed_queries: seedQueries,
         brands: bootstrapData.brands || [],
         categories: bootstrapData.categories || [],

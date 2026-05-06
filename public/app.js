@@ -118,6 +118,15 @@ function getBootstrapRoutingTypes(bootstrap = state.bootstrap) {
   return buildRoutingTypesConfig(bootstrap);
 }
 
+function renderAppVersion(version = "") {
+  if (!elements.appVersionIndicator) {
+    return;
+  }
+  const normalizedVersion = String(version || "").trim();
+  elements.appVersionIndicator.textContent = normalizedVersion ? `v${normalizedVersion}` : "";
+  elements.appVersionIndicator.hidden = !normalizedVersion;
+}
+
 function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
   return getVisualTypeOptions(bootstrap);
 }
@@ -260,6 +269,7 @@ const focusDrag = {
 };
 
 const elements = {
+  appVersionIndicator: document.querySelector("#appVersionIndicator"),
   cardTemplate: document.querySelector("#cardTemplate"),
   closeImageModal: document.querySelector("#closeImageModal"),
   closeStructuredTraitsModal: document.querySelector("#closeStructuredTraitsModal"),
@@ -8384,6 +8394,7 @@ async function bootstrap() {
     state.categoryScopeLoading = false;
     syncManageToolbar();
     state.bootstrap = await fetchJson("/api/bootstrap");
+    renderAppVersion(state.bootstrap?.version || "");
     renderCategoryFilterOptions(state.bootstrap.categories || []);
     renderSearchComposer();
     if (elements.refreshAgeFilterSelect) {

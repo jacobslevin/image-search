@@ -47,12 +47,13 @@ OpenAI:
 
 ## Deploy steps for Ariel
 
-1. Pull tag `v0.3.0` or deploy `v2` at the same commit.
+1. Pull the intended release tag or deploy `v2` at the same commit.
 2. Set the EB environment variables listed above.
 3. Verify `OPENAI_API_KEY` is still present.
 4. Deploy the application via Elastic Beanstalk.
 5. After deploy, verify:
    - homepage loads
+   - the UI version label matches the release tag
    - browse returns products
    - text search works
    - table search works
@@ -61,3 +62,4 @@ OpenAI:
 
 - Phase 1.5 moved the app read paths from JSON files to canonical PostgreSQL tables.
 - Source-data refresh and extraction write paths still remain JSON-backed for now; that does not block the production read deployment.
+- Bump `package.json`'s `version` field alongside each release tag so the UI version indicator stays accurate.
