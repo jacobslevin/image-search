@@ -40,6 +40,17 @@ const normalizedPath = catalogArgIndex >= 0
   : path.join(DATA_DIR, "normalized-catalog.json");
 const indexPath = getImageIndexPath();
 
+const skipIndexBuild =
+  String(process.env.SKIP_INDEX_BUILD || "").trim().toLowerCase() === "true" ||
+  String(process.env.NODE_ENV || "").trim().toLowerCase() === "production";
+
+if (skipIndexBuild) {
+  console.log(
+    `[build-index] Skipping JSON index build for this environment. Runtime reads from Postgres; no image-index.json build is required.`
+  );
+  process.exit(0);
+}
+
 function canonicalizeImageUrl(value = "") {
   const input = String(value || "").trim();
   if (!input) {
