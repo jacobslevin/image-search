@@ -998,12 +998,7 @@ function apiUrl(pathname) {
     return path;
   }
 
-  const currentPort = window.location.port || (window.location.protocol === "https:" ? "443" : "80");
-  if (currentPort === "3001") {
-    return path;
-  }
-
-  return `${window.location.protocol}//${window.location.hostname}:3001${path}`;
+  return path;
 }
 
 function buildDesignerPagesProductUrl(productId = "") {
@@ -2865,7 +2860,7 @@ async function fetchJson(url, options) {
   try {
     response = await fetch(requestUrl, mergedOptions);
   } catch (error) {
-    throw new Error("Failed to reach the local server. Refresh the page and try again.");
+    throw new Error("Failed to reach the server. Refresh the page and try again.");
   }
   const responseText = await response.text();
   let payload = null;
