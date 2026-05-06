@@ -206,6 +206,47 @@ async function fetchCanonicalJoinedRows(whereSql = "", params = [], orderSql = "
   return result.rows;
 }
 
+function buildSearchClauses({
+  brand = "",
+  compatibleVisualTypes = [],
+  sourceImageUrl = "",
+  includeSourceImage = false,
+  embeddingColumn = "search_text_embedding"
+}) {
+  const params = [];
+  const clauses = [
+    `ci.${embeddingColumn} IS NOT NULL`,
+    `ci.effective_classification = 'product'`,
+    `ci.excluded = false`
+  ];
+
+  const normalizedBrand = normalizeText(brand).trim();
+  if (normalizedBrand) {
+    params.push(normalizedBrand);
+    clauses.push(`cp.brand = $${params.length}`);
+  }
+
+  const normalizedVisualTypes = (Array.isArray(compatibleVisualTypes) ? compatibleVisualTypes : [])
+    .map((value) => normalizeVisualTypeKey(value))
+    .filter(Boolean);
+  if (normalizedVisualTypes.length) {
+    params.push(normalizedVisualTypes);
+    clauses.push(`ci.visual_type = ANY($${params.length}::text[])`);
+  }
+
+  const canonicalSourceImageUrl = canonicalizeImageUrl(sourceImageUrl);
+  if (canonicalSourceImageUrl && !includeSourceImage) {
+    params.push(canonicalSourceImageUrl);
+    clauses.push(`regexp_replace(ci.image_url, '[#?].*$', '') <> $${params.length}`);
+  }
+
+  return {
+    params,
+    clauses,
+    canonicalSourceImageUrl
+  };
+}
+
 export async function loadCanonicalBootstrapData() {
   const [countsResult, productResult] = await Promise.all([
     queryPostgres(
@@ -268,55 +309,60 @@ export async function loadCanonicalSearchIndex({
     };
   }
 
-  const params = [];
-  const clauses = [
-    `(ci.search_text_embedding IS NOT NULL OR ci.visual_summary_embedding IS NOT NULL)`,
-    `ci.effective_classification = 'product'`,
-    `ci.excluded = false`
-  ];
-
-  params.push(vectorLiteral);
-  const distanceSql = `(
-    CASE
-      WHEN ci.search_text_embedding IS NOT NULL THEN ci.search_text_embedding
-      ELSE ci.visual_summary_embedding
-    END <=> $${params.length}::vector
-  )`;
-
-  const normalizedBrand = normalizeText(brand).trim();
-  if (normalizedBrand) {
-    params.push(normalizedBrand);
-    clauses.push(`cp.brand = $${params.length}`);
-  }
-
-  const normalizedVisualTypes = (Array.isArray(compatibleVisualTypes) ? compatibleVisualTypes : [])
-    .map((value) => normalizeVisualTypeKey(value))
-    .filter(Boolean);
-  if (normalizedVisualTypes.length) {
-    params.push(normalizedVisualTypes);
-    clauses.push(`ci.visual_type = ANY($${params.length}::text[])`);
-  }
-
-  const canonicalSourceImageUrl = canonicalizeImageUrl(sourceImageUrl);
-  if (canonicalSourceImageUrl && !includeSourceImage) {
-    params.push(canonicalSourceImageUrl);
-    clauses.push(`regexp_replace(ci.image_url, '[#?].*$', '') <> $${params.length}`);
-  }
-
-  params.push(Math.max(1, Number(limit) || SEARCH_CANDIDATE_LIMIT));
-  const limitPlaceholder = `$${params.length}`;
+  const effectiveLimit = Math.max(1, Number(limit) || SEARCH_CANDIDATE_LIMIT);
+  const primarySearch = buildSearchClauses({
+    brand,
+    compatibleVisualTypes,
+    sourceImageUrl,
+    includeSourceImage,
+    embeddingColumn: "search_text_embedding"
+  });
+  primarySearch.params.unshift(vectorLiteral);
+  const primaryLimitParams = [...primarySearch.params, effectiveLimit];
+  const primaryDistanceSql = `ci.search_text_embedding <=> $1::vector`;
 
   const rows = await fetchCanonicalJoinedRows(
-    `WHERE ${clauses.join(" AND ")}`,
-    params,
-    `ORDER BY ${distanceSql} ASC, cp.canonical_key, ci.id LIMIT ${limitPlaceholder}`
+    `WHERE ${primarySearch.clauses.map((clause, index) => clause.replace(/\$(\d+)/g, (_, n) => `$${Number(n) + 1}`)).join(" AND ")}`,
+    primaryLimitParams,
+    `ORDER BY ${primaryDistanceSql} ASC, cp.canonical_key, ci.id LIMIT $${primaryLimitParams.length}`
   );
 
-  const includeExactSourceImage = canonicalSourceImageUrl && includeSourceImage;
+  if (rows.length < effectiveLimit) {
+    const fallbackSearch = buildSearchClauses({
+      brand,
+      compatibleVisualTypes,
+      sourceImageUrl,
+      includeSourceImage,
+      embeddingColumn: "visual_summary_embedding"
+    });
+    fallbackSearch.params.unshift(vectorLiteral);
+    const fallbackParams = [...fallbackSearch.params, effectiveLimit - rows.length];
+    const fallbackDistanceSql = `ci.visual_summary_embedding <=> $1::vector`;
+    const fallbackRows = await fetchCanonicalJoinedRows(
+      `WHERE ${
+        [
+          ...fallbackSearch.clauses.map((clause, index) => clause.replace(/\$(\d+)/g, (_, n) => `$${Number(n) + 1}`)),
+          `ci.search_text_embedding IS NULL`
+        ].join(" AND ")
+      }`,
+      fallbackParams,
+      `ORDER BY ${fallbackDistanceSql} ASC, cp.canonical_key, ci.id LIMIT $${fallbackParams.length}`
+    );
+    const seen = new Set(rows.map((row) => `${row.canonical_key}::${row.canonical_image_key}`));
+    for (const row of fallbackRows) {
+      const key = `${row.canonical_key}::${row.canonical_image_key}`;
+      if (!seen.has(key)) {
+        rows.push(row);
+        seen.add(key);
+      }
+    }
+  }
+
+  const includeExactSourceImage = primarySearch.canonicalSourceImageUrl && includeSourceImage;
   if (includeExactSourceImage) {
     const exactRows = await fetchCanonicalJoinedRows(
       `WHERE regexp_replace(ci.image_url, '[#?].*$', '') = $1`,
-      [canonicalSourceImageUrl]
+      [primarySearch.canonicalSourceImageUrl]
     );
       const seen = new Set(rows.map((row) => `${row.canonical_key}::${row.canonical_image_key}`));
       for (const row of exactRows) {

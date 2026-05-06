@@ -252,6 +252,20 @@ CREATE INDEX IF NOT EXISTS idx_canonical_images_effective_classification ON cano
 CREATE INDEX IF NOT EXISTS idx_canonical_images_enum_fields ON canonical_images USING GIN (enum_fields);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_image_traits ON canonical_images USING GIN (image_traits);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_payload ON canonical_images USING GIN (merged_payload);
+CREATE INDEX IF NOT EXISTS idx_canonical_images_search_text_embedding_hnsw
+  ON canonical_images
+  USING hnsw (search_text_embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64)
+  WHERE search_text_embedding IS NOT NULL
+    AND effective_classification = 'product'
+    AND excluded = FALSE;
+CREATE INDEX IF NOT EXISTS idx_canonical_images_visual_summary_embedding_hnsw
+  ON canonical_images
+  USING hnsw (visual_summary_embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64)
+  WHERE visual_summary_embedding IS NOT NULL
+    AND effective_classification = 'product'
+    AND excluded = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_canonical_image_sources_image_id ON canonical_image_sources (image_id);
 CREATE INDEX IF NOT EXISTS idx_canonical_image_sources_canonical_image_id ON canonical_image_sources (canonical_image_id);
