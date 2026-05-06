@@ -8,6 +8,12 @@ function toOptionalNumber(value) {
   return Number.isFinite(numeric) ? numeric : undefined;
 }
 
+function getSslConfig() {
+  const sslMode = String(process.env.PGSSLMODE || "").trim().toLowerCase();
+  // Production RDS can opt in with PGSSLMODE=require. Local Postgres remains non-SSL by default.
+  return sslMode === "require" ? { rejectUnauthorized: false } : undefined;
+}
+
 export function getPostgresConfig() {
   return {
     host: String(process.env.PGHOST || "").trim() || undefined,
@@ -15,9 +21,15 @@ export function getPostgresConfig() {
     database: String(process.env.PGDATABASE || "").trim() || DEFAULT_DATABASE,
     user: String(process.env.PGUSER || "").trim() || undefined,
     password: String(process.env.PGPASSWORD || "").trim() || undefined,
+    ssl: getSslConfig(),
+    keepAlive: true,
     max: toOptionalNumber(process.env.PGPOOL_MAX) || 10,
     idleTimeoutMillis: toOptionalNumber(process.env.PGPOOL_IDLE_TIMEOUT_MS) || 30000,
-    connectionTimeoutMillis: toOptionalNumber(process.env.PGPOOL_CONNECTION_TIMEOUT_MS) || 5000
+    connectionTimeoutMillis: toOptionalNumber(process.env.PGPOOL_CONNECTION_TIMEOUT_MS) || 15000,
+    statement_timeout: toOptionalNumber(process.env.PG_STATEMENT_TIMEOUT_MS) ?? 0,
+    query_timeout: toOptionalNumber(process.env.PG_QUERY_TIMEOUT_MS) ?? 0,
+    lock_timeout: toOptionalNumber(process.env.PG_LOCK_TIMEOUT_MS) ?? 0,
+    idle_in_transaction_session_timeout: toOptionalNumber(process.env.PG_IDLE_IN_TXN_TIMEOUT_MS) ?? 0
   };
 }
 

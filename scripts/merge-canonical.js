@@ -225,6 +225,189 @@ function vectorLiteral(value) {
   return `[${value.map((entry) => Number(entry)).join(",")}]`;
 }
 
+const DEFAULT_BATCH_SIZE = Math.max(1, Number(process.env.CANONICAL_MERGE_BATCH_SIZE) || 500);
+const IMAGE_INSERT_BATCH_SIZE = Math.max(1, Number(process.env.CANONICAL_IMAGE_BATCH_SIZE) || 100);
+
+function chunkArray(items, chunkSize) {
+  const chunks = [];
+  for (let index = 0; index < items.length; index += chunkSize) {
+    chunks.push(items.slice(index, index + chunkSize));
+  }
+  return chunks;
+}
+
+function formatDuration(milliseconds) {
+  const seconds = Math.round(milliseconds / 1000);
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${minutes}m ${remainder}s`;
+}
+
+async function runBatchedMutations(client, label, items, mutateItem, batchSize = DEFAULT_BATCH_SIZE) {
+  if (!items.length) {
+    console.log(`[merge-canonical] ${label}: 0/0`);
+    return;
+  }
+
+  const startedAt = Date.now();
+  let processed = 0;
+  for (const batch of chunkArray(items, batchSize)) {
+    await client.query("BEGIN");
+    try {
+      for (const item of batch) {
+        await mutateItem(item);
+      }
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    }
+    processed += batch.length;
+    console.log(
+      `[merge-canonical] ${label}: ${processed}/${items.length} inserted (${Math.round((processed / items.length) * 100)}%) after ${formatDuration(Date.now() - startedAt)}`
+    );
+  }
+}
+
+function buildValuesSql(rowCount, castSuffixes) {
+  let parameterIndex = 1;
+  const groups = [];
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+    const placeholders = castSuffixes.map((suffix) => `$${parameterIndex++}${suffix}`);
+    groups.push(`(${placeholders.join(", ")})`);
+  }
+  return groups.join(",\n      ");
+}
+
+function canonicalImageParamValues(payload) {
+  return [
+    payload.canonical_product_id,
+    payload.canonical_image_key,
+    payload.image_url,
+    payload.product_name,
+    payload.brand,
+    payload.a_level,
+    payload.b_level,
+    payload.c_level,
+    payload.category,
+    payload.visual_type,
+    payload.family,
+    payload.seating_type,
+    payload.pixelseek_type,
+    payload.type_routing_source,
+    payload.stage_0_result,
+    JSON.stringify(payload.stage_1_override),
+    payload.stage_1_override_result,
+    payload.stage_1_override_reason,
+    payload.effective_classification,
+    JSON.stringify(payload.enum_fields),
+    JSON.stringify(payload.field_confidence),
+    JSON.stringify(payload.free_text),
+    payload.reasoning,
+    payload.plan_shape_reasoning,
+    payload.tiebreaker_triggered,
+    payload.confidence_tier,
+    JSON.stringify(payload.tokens),
+    JSON.stringify(payload.cost),
+    payload.extraction_timestamp,
+    payload.excluded,
+    payload.excluded_reason,
+    JSON.stringify(payload.image_traits),
+    payload.visual_summary,
+    payload.structured_caption,
+    JSON.stringify(payload.stage1),
+    JSON.stringify(payload.stage2),
+    JSON.stringify(payload.stage3),
+    payload.search_text,
+    vectorLiteral(payload.visual_summary_embedding),
+    vectorLiteral(payload.search_text_embedding),
+    payload.image_width,
+    payload.image_height,
+    payload.image_short_side,
+    payload.ai_refreshed_at,
+    payload.merge_strategy,
+    payload.merge_confidence,
+    payload.source_count,
+    payload.preferred_source_system,
+    payload.catalog_image_id,
+    payload.image_index_image_id,
+    payload.is_catalog_primary_image,
+    JSON.stringify(payload.image_metadata),
+    JSON.stringify(payload.merged_payload)
+  ];
+}
+
+async function insertCanonicalImagesBatch(client, payloads) {
+  if (!payloads.length) {
+    return [];
+  }
+  const castSuffixes = [
+    "", "", "", "", "",
+    "::text[]", "::text[]", "::text[]", "",
+    "", "", "", "", "", "", "::jsonb",
+    "", "", "", "::jsonb", "::jsonb", "::jsonb", "", "", "", "", "::jsonb", "::jsonb",
+    "", "", "", "::jsonb", "", "", "::jsonb", "::jsonb", "::jsonb",
+    "", "::vector", "::vector", "", "", "", "",
+    "", "", "", "", "", "", "", "::jsonb", "::jsonb"
+  ];
+  const params = payloads.flatMap(canonicalImageParamValues);
+  let parameterIndex = 1;
+  const valuesSql = payloads
+    .map(() => {
+      const placeholders = castSuffixes.map((suffix) => `$${parameterIndex++}${suffix}`);
+      return `(${placeholders.join(", ")}, NOW())`;
+    })
+    .join(",\n      ");
+  const result = await client.query(
+    `INSERT INTO canonical_images (
+      canonical_product_id, canonical_image_key, image_url, product_name, brand, a_level, b_level, c_level, category,
+      visual_type, family, seating_type, pixelseek_type, type_routing_source, stage_0_result, stage_1_override,
+      stage_1_override_result, stage_1_override_reason, effective_classification, enum_fields, field_confidence,
+      free_text, reasoning, plan_shape_reasoning, tiebreaker_triggered, confidence_tier, tokens, cost,
+      extraction_timestamp, excluded, excluded_reason, image_traits, visual_summary, structured_caption, stage1, stage2, stage3,
+      search_text, visual_summary_embedding, search_text_embedding, image_width, image_height, image_short_side, ai_refreshed_at,
+      merge_strategy, merge_confidence, source_count, preferred_source_system, catalog_image_id, image_index_image_id,
+      is_catalog_primary_image, image_metadata, merged_payload, updated_at
+    ) VALUES
+      ${valuesSql}
+    RETURNING id, canonical_image_key`,
+    params
+  );
+  return result.rows;
+}
+
+function canonicalImageSourceParamValues(payload) {
+  return [
+    payload.canonical_image_id,
+    payload.image_id,
+    payload.source_system,
+    payload.source_image_id,
+    payload.match_strategy,
+    payload.match_confidence,
+    payload.is_preferred_source,
+    JSON.stringify(payload.source_payload)
+  ];
+}
+
+async function insertCanonicalImageSourcesBatch(client, payloads) {
+  if (!payloads.length) {
+    return;
+  }
+  const castSuffixes = ["", "", "", "", "", "", "", "::jsonb"];
+  const params = payloads.flatMap(canonicalImageSourceParamValues);
+  const valuesSql = buildValuesSql(payloads.length, castSuffixes);
+  await client.query(
+    `INSERT INTO canonical_image_sources (
+      canonical_image_id, image_id, source_system, source_image_id, match_strategy, match_confidence, is_preferred_source, source_payload
+    ) VALUES
+      ${valuesSql}`,
+    params
+  );
+}
+
 async function truncateCanonicalTables(client) {
   await client.query(`
     TRUNCATE canonical_image_sources, canonical_images, canonical_product_sources, canonical_products
@@ -387,13 +570,14 @@ async function insertCanonicalImageSource(client, payload) {
 
 async function main() {
   await initializeSchema();
-  const client = await createDevClient();
+  const readClient = await createDevClient();
+  const writeClient = await createDevClient();
 
   try {
-    const catalogProducts = await loadProducts(client, CATALOG_SOURCE_SYSTEM);
-    const imageIndexProducts = await loadProducts(client, IMAGE_INDEX_SOURCE_SYSTEM);
-    const catalogImages = await loadImages(client, CATALOG_SOURCE_SYSTEM);
-    const imageIndexImages = await loadImages(client, IMAGE_INDEX_SOURCE_SYSTEM);
+    const catalogProducts = await loadProducts(readClient, CATALOG_SOURCE_SYSTEM);
+    const imageIndexProducts = await loadProducts(readClient, IMAGE_INDEX_SOURCE_SYSTEM);
+    const catalogImages = await loadImages(readClient, CATALOG_SOURCE_SYSTEM);
+    const imageIndexImages = await loadImages(readClient, IMAGE_INDEX_SOURCE_SYSTEM);
 
     const imageIndexByTail = buildTailIndex(imageIndexProducts);
     const imageIndexByExactName = buildExactNameIndex(imageIndexProducts);
@@ -507,8 +691,10 @@ async function main() {
       mergeStats.image_index_only += 1;
     }
 
-    await client.query("BEGIN");
-    await truncateCanonicalTables(client);
+    const stagedCanonicalProducts = [];
+    const stagedCanonicalProductSources = [];
+    const stagedCanonicalImages = [];
+    const stagedCanonicalImageSources = [];
 
     for (const plan of canonicalProductPlans) {
       const canonicalFields = chooseCanonicalProductFields(plan.catalogProduct, plan.imageIndexProduct);
@@ -518,7 +704,7 @@ async function main() {
         catalogProduct: plan.catalogProduct,
         imageIndexProduct: plan.imageIndexProduct
       });
-      const canonicalProductId = await insertCanonicalProduct(client, {
+      stagedCanonicalProducts.push({
         canonical_key: canonicalKey,
         dp_numeric_id: plan.dpNumericId,
         ...canonicalFields,
@@ -536,8 +722,8 @@ async function main() {
       });
 
       if (plan.catalogProduct) {
-        await insertCanonicalProductSource(client, {
-          canonical_product_id: canonicalProductId,
+        stagedCanonicalProductSources.push({
+          canonical_product_key: canonicalKey,
           product_id: plan.catalogProduct.id,
           source_system: plan.catalogProduct.source_system,
           source_product_id: plan.catalogProduct.source_product_id,
@@ -549,8 +735,8 @@ async function main() {
         });
       }
       if (plan.imageIndexProduct) {
-        await insertCanonicalProductSource(client, {
-          canonical_product_id: canonicalProductId,
+        stagedCanonicalProductSources.push({
+          canonical_product_key: canonicalKey,
           product_id: plan.imageIndexProduct.id,
           source_system: plan.imageIndexProduct.source_system,
           source_product_id: plan.imageIndexProduct.source_product_id,
@@ -579,9 +765,10 @@ async function main() {
         }
 
         const canonicalImageFields = chooseCanonicalImageFields(catalogImage, imageIndexImage, canonicalFields);
-        const canonicalImageId = await insertCanonicalImage(client, {
-          canonical_product_id: canonicalProductId,
-          canonical_image_key: imageCanonicalKey(canonicalKey, canonicalImageFields.image_url, catalogImage.source_image_id),
+        const canonicalImageKey = imageCanonicalKey(canonicalKey, canonicalImageFields.image_url, catalogImage.source_image_id);
+        stagedCanonicalImages.push({
+          canonical_product_key: canonicalKey,
+          canonical_image_key: canonicalImageKey,
           ...canonicalImageFields,
           merge_strategy: imageIndexImage ? "image_url" : catalogImage.source_system,
           merge_confidence: imageIndexImage ? "high" : "single_source",
@@ -595,8 +782,8 @@ async function main() {
           }
         });
 
-        await insertCanonicalImageSource(client, {
-          canonical_image_id: canonicalImageId,
+        stagedCanonicalImageSources.push({
+          canonical_image_key: canonicalImageKey,
           image_id: catalogImage.id,
           source_system: catalogImage.source_system,
           source_image_id: catalogImage.source_image_id,
@@ -607,8 +794,8 @@ async function main() {
         });
 
         if (imageIndexImage) {
-          await insertCanonicalImageSource(client, {
-            canonical_image_id: canonicalImageId,
+          stagedCanonicalImageSources.push({
+            canonical_image_key: canonicalImageKey,
             image_id: imageIndexImage.id,
             source_system: imageIndexImage.source_system,
             source_image_id: imageIndexImage.source_image_id,
@@ -625,9 +812,10 @@ async function main() {
           continue;
         }
         const canonicalImageFields = chooseCanonicalImageFields(null, imageIndexImage, canonicalFields);
-        const canonicalImageId = await insertCanonicalImage(client, {
-          canonical_product_id: canonicalProductId,
-          canonical_image_key: imageCanonicalKey(canonicalKey, canonicalImageFields.image_url, imageIndexImage.source_image_id),
+        const canonicalImageKey = imageCanonicalKey(canonicalKey, canonicalImageFields.image_url, imageIndexImage.source_image_id);
+        stagedCanonicalImages.push({
+          canonical_product_key: canonicalKey,
+          canonical_image_key: canonicalImageKey,
           ...canonicalImageFields,
           merge_strategy: imageIndexImage.source_system,
           merge_confidence: "single_source",
@@ -641,8 +829,8 @@ async function main() {
           }
         });
 
-        await insertCanonicalImageSource(client, {
-          canonical_image_id: canonicalImageId,
+        stagedCanonicalImageSources.push({
+          canonical_image_key: canonicalImageKey,
           image_id: imageIndexImage.id,
           source_system: imageIndexImage.source_system,
           source_image_id: imageIndexImage.source_image_id,
@@ -654,12 +842,94 @@ async function main() {
       }
     }
 
-    await client.query("COMMIT");
+    await writeClient.query("BEGIN");
+    try {
+      await truncateCanonicalTables(writeClient);
+      await writeClient.query("COMMIT");
+    } catch (error) {
+      await writeClient.query("ROLLBACK");
+      throw error;
+    }
+
+    const canonicalProductIdByKey = new Map();
+    const canonicalImageIdByKey = new Map();
+
+    await runBatchedMutations(
+      writeClient,
+      "canonical_products",
+      stagedCanonicalProducts,
+      async (payload) => {
+        const canonicalProductId = await insertCanonicalProduct(writeClient, payload);
+        canonicalProductIdByKey.set(payload.canonical_key, canonicalProductId);
+      }
+    );
+
+    await runBatchedMutations(
+      writeClient,
+      "canonical_product_sources",
+      stagedCanonicalProductSources,
+      async (payload) => {
+        await insertCanonicalProductSource(writeClient, {
+          ...payload,
+          canonical_product_id: canonicalProductIdByKey.get(payload.canonical_product_key)
+        });
+      }
+    );
+
+    const imageBatches = chunkArray(stagedCanonicalImages, IMAGE_INSERT_BATCH_SIZE);
+    const imageStartedAt = Date.now();
+    let insertedImages = 0;
+    for (const batch of imageBatches) {
+      const resolvedBatch = batch.map((payload) => ({
+        ...payload,
+        canonical_product_id: canonicalProductIdByKey.get(payload.canonical_product_key)
+      }));
+      await writeClient.query("BEGIN");
+      try {
+        const insertedRows = await insertCanonicalImagesBatch(writeClient, resolvedBatch);
+        for (const row of insertedRows) {
+          canonicalImageIdByKey.set(row.canonical_image_key, row.id);
+        }
+        await writeClient.query("COMMIT");
+      } catch (error) {
+        await writeClient.query("ROLLBACK");
+        throw error;
+      }
+      insertedImages += batch.length;
+      console.log(
+        `[merge-canonical] canonical_images: ${insertedImages}/${stagedCanonicalImages.length} inserted (${Math.round((insertedImages / stagedCanonicalImages.length) * 100)}%) after ${formatDuration(Date.now() - imageStartedAt)}`
+      );
+    }
+
+    const imageSourceBatches = chunkArray(stagedCanonicalImageSources, DEFAULT_BATCH_SIZE);
+    const imageSourceStartedAt = Date.now();
+    let insertedImageSources = 0;
+    for (const batch of imageSourceBatches) {
+      const resolvedBatch = batch.map((payload) => ({
+        ...payload,
+        canonical_image_id: canonicalImageIdByKey.get(payload.canonical_image_key)
+      }));
+      await writeClient.query("BEGIN");
+      try {
+        await insertCanonicalImageSourcesBatch(writeClient, resolvedBatch);
+        await writeClient.query("COMMIT");
+      } catch (error) {
+        await writeClient.query("ROLLBACK");
+        throw error;
+      }
+      insertedImageSources += batch.length;
+      console.log(
+        `[merge-canonical] canonical_image_sources: ${insertedImageSources}/${stagedCanonicalImageSources.length} inserted (${Math.round((insertedImageSources / stagedCanonicalImageSources.length) * 100)}%) after ${formatDuration(Date.now() - imageSourceStartedAt)}`
+      );
+    }
 
     console.log(
       JSON.stringify(
         {
           canonical_products_expected: canonicalProductPlans.length,
+          canonical_images_expected: stagedCanonicalImages.length,
+          canonical_product_sources_expected: stagedCanonicalProductSources.length,
+          canonical_image_sources_expected: stagedCanonicalImageSources.length,
           matched_by_tail: mergeStats.matched_by_tail,
           matched_by_exact_name: mergeStats.matched_by_exact_name,
           catalog_only: mergeStats.catalog_only,
@@ -671,10 +941,10 @@ async function main() {
       )
     );
   } catch (error) {
-    await client.query("ROLLBACK");
     throw error;
   } finally {
-    await client.end();
+    await readClient.end();
+    await writeClient.end();
   }
 }
 

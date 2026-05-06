@@ -1,5 +1,5 @@
 import {
-  DEV_DATABASE_NAME,
+  APP_DATABASE_NAME,
   IMAGE_INDEX_SOURCE_SYSTEM,
   LIVE_IMAGE_INDEX_PATH,
   createDevClient,
@@ -330,14 +330,14 @@ async function main() {
       sourcePath: LIVE_IMAGE_INDEX_PATH,
       recordCount: rows.length,
       notes: {
-        database: DEV_DATABASE_NAME
+        database: APP_DATABASE_NAME
       }
     });
     await client.query("COMMIT");
     console.log(
       JSON.stringify(
         {
-          database: DEV_DATABASE_NAME,
+          database: APP_DATABASE_NAME,
           source: LIVE_IMAGE_INDEX_PATH,
           image_records: rows.length,
           products_seen: productIdCache.size

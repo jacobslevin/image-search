@@ -1,6 +1,6 @@
 import {
   CATALOG_SOURCE_SYSTEM,
-  DEV_DATABASE_NAME,
+  APP_DATABASE_NAME,
   NORMALIZED_CATALOG_PATH,
   createDevClient,
   normalizeArray,
@@ -160,7 +160,7 @@ async function main() {
       sourcePath: NORMALIZED_CATALOG_PATH,
       recordCount: products.length,
       notes: {
-        database: DEV_DATABASE_NAME,
+        database: APP_DATABASE_NAME,
         image_count: images.length,
         source_catalog: normalizeJson(catalog.source_catalog),
         source_selection: normalizeJson(catalog.source_selection)
@@ -170,7 +170,7 @@ async function main() {
     console.log(
       JSON.stringify(
         {
-          database: DEV_DATABASE_NAME,
+          database: APP_DATABASE_NAME,
           source: NORMALIZED_CATALOG_PATH,
           products: products.length,
           images: images.length

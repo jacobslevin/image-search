@@ -8,19 +8,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const DEV_DATABASE_NAME = "pixelseek_dev";
+export const APP_DATABASE_NAME = process.env.PGDATABASE || DEV_DATABASE_NAME;
 export const CATALOG_SOURCE_SYSTEM = "normalized_catalog";
 export const IMAGE_INDEX_SOURCE_SYSTEM = "image_index";
 export const SCHEMA_SQL_PATH = path.join(__dirname, "..", "db", "pixelseek-dev-schema.sql");
 export const NORMALIZED_CATALOG_PATH = path.join(ROOT_DIR, "data", "normalized-catalog.json");
 export const LIVE_IMAGE_INDEX_PATH = getImageIndexPath();
 
-function baseConnectionConfig(database = process.env.PGDATABASE || "postgres") {
+function getSslConfig() {
+  const sslMode = String(process.env.PGSSLMODE || "").trim().toLowerCase();
+  // Local Postgres runs without SSL by default. RDS can opt in with PGSSLMODE=require.
+  return sslMode === "require" ? { rejectUnauthorized: false } : undefined;
+}
+
+function toOptionalNumber(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
+function baseConnectionConfig(database = "postgres") {
   return {
     host: process.env.PGHOST,
     port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
     user: process.env.PGUSER,
     password: process.env.PGPASSWORD,
-    database
+    database,
+    ssl: getSslConfig(),
+    keepAlive: true,
+    statement_timeout: toOptionalNumber(process.env.PG_STATEMENT_TIMEOUT_MS) ?? 0,
+    query_timeout: toOptionalNumber(process.env.PG_QUERY_TIMEOUT_MS) ?? 0,
+    lock_timeout: toOptionalNumber(process.env.PG_LOCK_TIMEOUT_MS) ?? 0,
+    idle_in_transaction_session_timeout: toOptionalNumber(process.env.PG_IDLE_IN_TXN_TIMEOUT_MS) ?? 0
   };
 }
 
@@ -31,11 +49,21 @@ export async function createClient(database) {
 }
 
 export async function ensureDevDatabase() {
+  try {
+    const targetClient = await createClient(APP_DATABASE_NAME);
+    await targetClient.end();
+    return;
+  } catch (error) {
+    if (error?.code !== "3D000") {
+      throw error;
+    }
+  }
+
   const adminClient = await createClient("postgres");
   try {
-    const result = await adminClient.query("SELECT 1 FROM pg_database WHERE datname = $1", [DEV_DATABASE_NAME]);
+    const result = await adminClient.query("SELECT 1 FROM pg_database WHERE datname = $1", [APP_DATABASE_NAME]);
     if (result.rowCount === 0) {
-      await adminClient.query(`CREATE DATABASE "${DEV_DATABASE_NAME}"`);
+      await adminClient.query(`CREATE DATABASE "${APP_DATABASE_NAME}"`);
     }
   } finally {
     await adminClient.end();
@@ -44,7 +72,7 @@ export async function ensureDevDatabase() {
 
 export async function initializeSchema() {
   const schemaSql = await fs.readFile(SCHEMA_SQL_PATH, "utf8");
-  const client = await createClient(DEV_DATABASE_NAME);
+  const client = await createClient(APP_DATABASE_NAME);
   try {
     await client.query(schemaSql);
   } finally {
@@ -53,7 +81,7 @@ export async function initializeSchema() {
 }
 
 export async function createDevClient() {
-  return createClient(DEV_DATABASE_NAME);
+  return createClient(APP_DATABASE_NAME);
 }
 
 export async function readJsonFile(filePath) {
