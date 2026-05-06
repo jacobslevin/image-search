@@ -249,6 +249,15 @@ CREATE INDEX IF NOT EXISTS idx_canonical_images_product_id ON canonical_images (
 CREATE INDEX IF NOT EXISTS idx_canonical_images_visual_type ON canonical_images (visual_type);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_family ON canonical_images (family);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_effective_classification ON canonical_images (effective_classification);
+CREATE INDEX IF NOT EXISTS idx_canonical_images_browse_hero_lookup
+  ON canonical_images (canonical_product_id, visual_type, effective_classification, is_catalog_primary_image, ai_refreshed_at DESC, id)
+  WHERE excluded = false;
+CREATE INDEX IF NOT EXISTS idx_canonical_images_search_text_prefilter
+  ON canonical_images (effective_classification, excluded, visual_type)
+  WHERE search_text_embedding IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_canonical_images_visual_summary_prefilter
+  ON canonical_images (effective_classification, excluded, visual_type)
+  WHERE visual_summary_embedding IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_canonical_images_enum_fields ON canonical_images USING GIN (enum_fields);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_image_traits ON canonical_images USING GIN (image_traits);
 CREATE INDEX IF NOT EXISTS idx_canonical_images_payload ON canonical_images USING GIN (merged_payload);

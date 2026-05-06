@@ -42,7 +42,7 @@ import { getPostgresPoolStats, runPostgresConnectionTest, queryPostgres } from "
 import {
   findCanonicalProductTargetEmbedding,
   loadCanonicalBootstrapData,
-  loadCanonicalBrowseIndex,
+  loadCanonicalBrowseResults,
   loadCanonicalSearchIndex
 } from "./src/postgres-read-model.js";
 
@@ -1947,8 +1947,8 @@ async function loadSeatingTypes() {
   return loadSeatingTypesAdapter();
 }
 
-async function loadCanonicalReadModelForBrowse() {
-  return loadCanonicalBrowseIndex();
+async function loadCanonicalReadModelForBrowse({ compatibleVisualTypes = [] } = {}) {
+  return loadCanonicalBrowseResults({ compatibleVisualTypes });
 }
 
 async function loadCanonicalReadModelForSearch({
@@ -3030,12 +3030,13 @@ const server = http.createServer(async (request, response) => {
     const imageAnalysis = body.image_analysis && typeof body.image_analysis === "object" ? body.image_analysis : null;
     const rawSelectedBullets = body.selected_bullets;
     if (!query) {
-      const { catalog, index } = await loadCanonicalReadModelForBrowse();
-      let results = buildBrowseResults(catalog, index, Infinity, sort, category);
       const browseVisualTypeFilters = explicitVisualType ? [explicitVisualType] : normalizedSearchCategories.normalized;
+      let results = await loadCanonicalReadModelForBrowse({ compatibleVisualTypes: browseVisualTypeFilters });
+      results = filterResultsByCategory(results, category);
       if (browseVisualTypeFilters.length) {
         results = filterSearchResultsByCategory(results, browseVisualTypeFilters);
       }
+      results.sort((left, right) => compareProductsBySort(left, right, sort, true));
       results = filterResultsByRefreshAge(results, refreshAge);
       return json(response, 200, {
         query,
