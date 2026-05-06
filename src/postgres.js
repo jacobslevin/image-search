@@ -2,6 +2,7 @@ import { Pool } from "pg";
 
 const DEFAULT_DATABASE = "pixelseek_dev";
 let pool = null;
+let queryCounter = 0;
 
 function toOptionalNumber(value) {
   const numeric = Number(value);
@@ -33,9 +34,42 @@ export function getPostgresConfig() {
   };
 }
 
+function summarizeSql(text = "") {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+
+export function getPostgresPoolStats() {
+  const activePool = getPostgresPool();
+  return {
+    totalCount: activePool.totalCount,
+    idleCount: activePool.idleCount,
+    waitingCount: activePool.waitingCount
+  };
+}
+
 export function getPostgresPool() {
   if (!pool) {
+    const config = getPostgresConfig();
+    console.log("[postgres] creating pool", {
+      host: config.host || "local-default",
+      port: config.port || 5432,
+      database: config.database,
+      user: config.user || "(default)",
+      ssl: Boolean(config.ssl),
+      max: config.max,
+      idleTimeoutMillis: config.idleTimeoutMillis,
+      connectionTimeoutMillis: config.connectionTimeoutMillis
+    });
     pool = new Pool(getPostgresConfig());
+    pool.on("connect", () => {
+      console.log("[postgres] pool client connected", getPostgresPoolStats());
+    });
+    pool.on("acquire", () => {
+      console.log("[postgres] pool client acquired", getPostgresPoolStats());
+    });
+    pool.on("release", () => {
+      console.log("[postgres] pool client released", getPostgresPoolStats());
+    });
     pool.on("error", (error) => {
       console.error("[postgres] pool error", error);
     });
@@ -44,7 +78,45 @@ export function getPostgresPool() {
 }
 
 export async function queryPostgres(text, params = []) {
-  return getPostgresPool().query(text, params);
+  const queryId = ++queryCounter;
+  const sql = summarizeSql(text);
+  console.log(`[postgres] query ${queryId} requested`, {
+    sql,
+    params: params.length,
+    pool: getPostgresPoolStats()
+  });
+  const startedAt = Date.now();
+  try {
+    const result = await getPostgresPool().query(text, params);
+    console.log(`[postgres] query ${queryId} returned`, {
+      rowCount: result.rowCount,
+      durationMs: Date.now() - startedAt,
+      pool: getPostgresPoolStats()
+    });
+    return result;
+  } catch (error) {
+    console.error(`[postgres] query ${queryId} failed`, {
+      durationMs: Date.now() - startedAt,
+      message: error?.message || String(error),
+      sql,
+      pool: getPostgresPoolStats()
+    });
+    throw error;
+  }
+}
+
+export async function runPostgresConnectionTest() {
+  console.log("[postgres] PG connection test starting");
+  try {
+    const result = await queryPostgres("SELECT 1 AS ok");
+    console.log("[postgres] PG connection test complete: success", {
+      rows: result.rows
+    });
+    return result.rows?.[0] || { ok: 1 };
+  } catch (error) {
+    console.error("[postgres] PG connection test complete: failure", error);
+    throw error;
+  }
 }
 
 export function vectorToSqlLiteral(values = []) {

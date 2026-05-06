@@ -38,6 +38,7 @@ import {
 import { loadSeatingTypesAdapter } from "./src/seating-types-adapter.js";
 import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
 import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "./src/bootstrap-visual-types.js";
+import { getPostgresPoolStats, runPostgresConnectionTest, queryPostgres } from "./src/postgres.js";
 import {
   findCanonicalProductTargetEmbedding,
   loadCanonicalBootstrapData,
@@ -2850,26 +2851,99 @@ const server = http.createServer(async (request, response) => {
   }
 
   if (url.pathname === "/api/health") {
-    return json(response, 200, { ok: true });
+    const startedAt = Date.now();
+    console.log("[health] request received", {
+      method: request.method,
+      path: url.pathname
+    });
+    try {
+      console.log("[health] simple query starting", {
+        pool: getPostgresPoolStats()
+      });
+      const result = await queryPostgres("SELECT 1 AS ok FROM canonical_products LIMIT 1");
+      const durationMs = Date.now() - startedAt;
+      console.log("[health] simple query returned", {
+        durationMs,
+        rowCount: result.rowCount,
+        pool: getPostgresPoolStats()
+      });
+      return json(response, 200, {
+        ok: true,
+        status: "healthy",
+        duration_ms: durationMs,
+        row_count: result.rowCount,
+        pool: getPostgresPoolStats()
+      });
+    } catch (error) {
+      const durationMs = Date.now() - startedAt;
+      console.error("[health] failed", {
+        durationMs,
+        message: error?.message || String(error),
+        pool: getPostgresPoolStats()
+      });
+      return json(response, 500, {
+        ok: false,
+        status: "error",
+        duration_ms: durationMs,
+        error: error?.message || "Health check failed."
+      });
+    }
   }
 
   if (url.pathname === "/api/bootstrap") {
-    const [bootstrapData, seatingTypes] = await Promise.all([loadCanonicalBootstrapData(), loadSeatingTypes()]);
-    const bootstrapSchema = buildBootstrapSchemaPayload({
-      seatingTypesConfig: seatingTypes,
-      registryApi: visualTypesRegistry
+    const startedAt = Date.now();
+    console.log("[bootstrap] request received", {
+      method: request.method,
+      path: url.pathname,
+      pool: getPostgresPoolStats()
     });
-    return json(response, 200, {
-      has_index: Boolean(bootstrapData.has_index),
-      seed_queries: seedQueries,
-      brands: bootstrapData.brands || [],
-      categories: bootstrapData.categories || [],
-      stats: bootstrapData.stats || { products: 0, images: 0 },
-      image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
-      ranking_rules: getRankingRulesSummary(),
-      ...bootstrapSchema,
-      result_cutoff: getResultCutoffConfig()
-    });
+    try {
+      console.log("[bootstrap] loadCanonicalBootstrapData starting");
+      console.log(
+        "[bootstrap] loadCanonicalBootstrapData queries",
+        "SELECT count(*) FROM canonical_products / canonical_images and product listing query"
+      );
+      const bootstrapPromise = loadCanonicalBootstrapData();
+      console.log("[bootstrap] loadSeatingTypes starting");
+      const seatingTypesPromise = loadSeatingTypes();
+      const [bootstrapData, seatingTypes] = await Promise.all([bootstrapPromise, seatingTypesPromise]);
+      console.log("[bootstrap] data sources returned", {
+        durationMs: Date.now() - startedAt,
+        brandCount: bootstrapData?.brands?.length || 0,
+        categoryCount: bootstrapData?.categories?.length || 0,
+        stats: bootstrapData?.stats || null,
+        pool: getPostgresPoolStats()
+      });
+      console.log("[bootstrap] buildBootstrapSchemaPayload starting");
+      const bootstrapSchema = buildBootstrapSchemaPayload({
+        seatingTypesConfig: seatingTypes,
+        registryApi: visualTypesRegistry
+      });
+      console.log("[bootstrap] response payload prep complete", {
+        durationMs: Date.now() - startedAt
+      });
+      return json(response, 200, {
+        has_index: Boolean(bootstrapData.has_index),
+        seed_queries: seedQueries,
+        brands: bootstrapData.brands || [],
+        categories: bootstrapData.categories || [],
+        stats: bootstrapData.stats || { products: 0, images: 0 },
+        image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
+        ranking_rules: getRankingRulesSummary(),
+        ...bootstrapSchema,
+        result_cutoff: getResultCutoffConfig()
+      });
+    } catch (error) {
+      console.error("[bootstrap] failed", {
+        durationMs: Date.now() - startedAt,
+        message: error?.message || String(error),
+        stack: error?.stack || null,
+        pool: getPostgresPoolStats()
+      });
+      return json(response, 500, {
+        error: error?.message || "Bootstrap failed."
+      });
+    }
   }
 
   if (url.pathname === "/api/extraction-summary" && request.method === "GET") {
@@ -3705,6 +3779,10 @@ const server = http.createServer(async (request, response) => {
 });
 
 await loadLocalEnv();
+
+runPostgresConnectionTest().catch((error) => {
+  console.error("[startup] PG connection test failed", error);
+});
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "127.0.0.1";
