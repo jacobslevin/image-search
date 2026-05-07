@@ -208,6 +208,13 @@ const IMAGE_ANALYZE_PROGRESS_STEPS = [
   { id: "match", label: "Match", percent: 90, title: "Matching catalog products...", detail: "Matching against catalog" },
   { id: "complete", label: "Complete", percent: 100, title: "Results ready", detail: "Opening the ranked results." }
 ];
+const TEXT_SEARCH_PROGRESS_STEPS = [
+  { id: "parse", label: "Parse", percent: 35, percentLabel: "0–35%", title: "Understanding your query...", detail: "Interpreting the search request and inferring the closest category." },
+  { id: "embed", label: "Embed", percent: 55, percentLabel: "35–55%", title: "Finding semantically similar items...", detail: "Generating the semantic fingerprint for your query." },
+  { id: "search", label: "Search", percent: 78, percentLabel: "55–78%", title: "Scanning the catalog...", detail: "Retrieving the strongest vector matches from Postgres." },
+  { id: "rank", label: "Rank", percent: 95, percentLabel: "78–95%", title: "Ranking the best matches...", detail: "Scoring trait fit and grouping the top candidates by product." },
+  { id: "complete", label: "Complete", percent: 100, percentLabel: "100%", title: "Results ready", detail: "Opening the ranked results." }
+];
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
 const QUERY_IMAGE_UPLOAD_MAX_DIMENSION = 1600;
 const QUERY_IMAGE_UPLOAD_JPEG_QUALITY = 0.82;
@@ -335,6 +342,9 @@ const elements = {
   extractionSummaryContent: document.querySelector("#extractionSummaryContent"),
   resultsLoadingPanel: document.querySelector("#resultsLoadingPanel"),
   resultsLoadingTitle: document.querySelector("#resultsLoadingTitle"),
+  resultsLoadingPercent: document.querySelector("#resultsLoadingPercent"),
+  resultsLoadingBar: document.querySelector("#resultsLoadingBar"),
+  resultsLoadingSteps: document.querySelector("#resultsLoadingSteps"),
   resultsLoadingCopy: document.querySelector(".results-loading-copy"),
   resultsHeader: document.querySelector(".results-header"),
   resultsGrid: document.querySelector("#resultsGrid"),
@@ -632,6 +642,56 @@ function renderImageAnalyzeProgress() {
       item.classList.toggle("is-active", index === activeIndex && progress.percent < 100);
       item.classList.toggle("is-complete", isComplete);
     });
+  });
+}
+
+function getTextSearchStepConfig(stepId = "parse") {
+  return TEXT_SEARCH_PROGRESS_STEPS.find((step) => step.id === stepId) || TEXT_SEARCH_PROGRESS_STEPS[0];
+}
+
+function setResultsLoadingProgressState(nextProgress = {}) {
+  const step = getTextSearchStepConfig(nextProgress.step);
+  const percent = clamp(Number(nextProgress.percent ?? step.percent) || 0, 0, 100);
+  state.resultsLoadingProgress = {
+    step: step.id,
+    percent,
+    percentLabel: String(nextProgress.percentLabel || step.percentLabel || `${Math.round(percent)}%`).trim(),
+    indeterminate: Boolean(nextProgress.indeterminate),
+    title: String(nextProgress.title || step.title || "").trim(),
+    detail: String(nextProgress.detail || step.detail || "").trim()
+  };
+}
+
+function renderResultsLoadingProgress() {
+  const progress = state.resultsLoadingProgress || {
+    step: "parse",
+    percent: 0,
+    percentLabel: "0%",
+    indeterminate: false,
+    title: "Understanding your query...",
+    detail: "Preparing the best matches before the result grid appears."
+  };
+  if (elements.resultsLoadingTitle) {
+    elements.resultsLoadingTitle.textContent = progress.title;
+  }
+  if (elements.resultsLoadingCopy) {
+    elements.resultsLoadingCopy.textContent = progress.detail;
+  }
+  if (elements.resultsLoadingPercent) {
+    elements.resultsLoadingPercent.textContent = progress.percentLabel || `${progress.percent}%`;
+  }
+  if (elements.resultsLoadingBar) {
+    elements.resultsLoadingBar.style.width = `${clamp(Number(progress.percent || 0), 0, 100)}%`;
+    elements.resultsLoadingBar.classList.toggle("is-indeterminate", Boolean(progress.indeterminate));
+  }
+  const steps = elements.resultsLoadingSteps
+    ? [...elements.resultsLoadingSteps.querySelectorAll(".image-analyze-segment")]
+    : [];
+  const activeIndex = TEXT_SEARCH_PROGRESS_STEPS.findIndex((step) => step.id === progress.step);
+  steps.forEach((item, index) => {
+    const isComplete = progress.percent >= 100 || index < activeIndex;
+    item.classList.toggle("is-active", index === activeIndex && progress.percent < 100);
+    item.classList.toggle("is-complete", isComplete);
   });
 }
 
@@ -5087,13 +5147,19 @@ function setResultsLoading(message = "") {
   const loadingState = typeof message === "string"
     ? {
         title: message,
-        copy: message
+        detail: message
           ? "Preparing the best matches before the result grid appears."
-          : ""
+          : "",
+        generic: true
       }
     : {
+        step: String(message?.step || "").trim(),
+        percent: Number(message?.percent),
+        percentLabel: String(message?.percentLabel || "").trim(),
+        indeterminate: Boolean(message?.indeterminate),
         title: String(message?.title || "").trim(),
-        copy: String(message?.copy || "").trim()
+        detail: String(message?.copy || message?.detail || "").trim(),
+        generic: Boolean(message?.generic)
       };
   const isLoading = Boolean(loadingState.title);
   document.body.classList.toggle("results-loading-active", isLoading);
@@ -5118,12 +5184,28 @@ function setResultsLoading(message = "") {
       elements.refineDrawerBackdrop.hidden = true;
     }
     state.refineDrawerOpen = false;
-    if (elements.resultsLoadingTitle) {
-      elements.resultsLoadingTitle.textContent = loadingState.title;
+    const genericStep = getTextSearchStepConfig("parse");
+    if (loadingState.generic) {
+      setResultsLoadingProgressState({
+        step: "parse",
+        percent: 10,
+        percentLabel: genericStep.percentLabel,
+        indeterminate: true,
+        title: loadingState.title,
+        detail: loadingState.detail
+      });
+    } else {
+      const stepMeta = getTextSearchStepConfig(loadingState.step || "parse");
+      setResultsLoadingProgressState({
+        step: stepMeta.id,
+        percent: Number.isFinite(loadingState.percent) ? loadingState.percent : stepMeta.percent,
+        percentLabel: loadingState.percentLabel || stepMeta.percentLabel,
+        indeterminate: loadingState.indeterminate,
+        title: loadingState.title,
+        detail: loadingState.detail
+      });
     }
-    if (elements.resultsLoadingCopy) {
-      elements.resultsLoadingCopy.textContent = loadingState.copy;
-    }
+    renderResultsLoadingProgress();
     if (elements.resultsGrid) {
       elements.resultsGrid.innerHTML = "";
     }
@@ -8035,6 +8117,10 @@ async function runSearch(query, options = {}) {
     normalizedQuery
       ? (useStreamedTextProgress
           ? {
+              step: "parse",
+              percent: 10,
+              percentLabel: getTextSearchStepConfig("parse").percentLabel,
+              indeterminate: true,
               title: "Understanding your query...",
               copy: "Interpreting the search request and inferring the closest category."
             }
@@ -8071,7 +8157,20 @@ async function runSearch(query, options = {}) {
           }
         : undefined, {
             onProgress: (event) => {
+              const phaseToStep = {
+                parsing: "parse",
+                parsed: "parse",
+                embedding: "embed",
+                database: "search",
+                reranking: "rank"
+              };
+              const stepId = phaseToStep[String(event?.phase || "").trim()] || "parse";
+              const stepMeta = getTextSearchStepConfig(stepId);
               setResultsLoading({
+                step: stepId,
+                percent: stepMeta.percent,
+                percentLabel: stepMeta.percentLabel,
+                indeterminate: true,
                 title: String(event?.title || "Searching...").trim(),
                 copy: String(event?.detail || "").trim()
               });

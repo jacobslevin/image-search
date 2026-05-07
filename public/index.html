@@ -205,11 +205,24 @@
         </aside>
         <div class="results-main">
           <section id="resultsLoadingPanel" class="results-loading-panel" hidden aria-live="polite">
-            <div class="results-loading-card">
-              <div class="results-loading-spinner" aria-hidden="true"></div>
-              <p class="results-loading-eyebrow">Searching</p>
-              <h2 id="resultsLoadingTitle" class="results-loading-title">Embedding the visual query and ranking image captions...</h2>
-              <p class="results-loading-copy">Preparing the best matches before the result grid appears.</p>
+            <div class="results-loading-card image-analyze-loading-card text-search-loading-card">
+              <div class="image-analyze-loading-header">
+                <div>
+                  <p class="image-analyze-loading-eyebrow">Text Search Progress</p>
+                  <p id="resultsLoadingTitle" class="image-analyze-loading-title">Understanding your query...</p>
+                </div>
+                <span id="resultsLoadingPercent" class="image-analyze-loading-percent">0%</span>
+              </div>
+              <div class="image-analyze-progressbar" aria-hidden="true">
+                <div id="resultsLoadingBar" class="image-analyze-progressbar-fill"></div>
+              </div>
+              <div id="resultsLoadingSteps" class="image-analyze-segmented-track" aria-label="Text search progress">
+                <span class="image-analyze-segment" data-step="parse">Parse</span>
+                <span class="image-analyze-segment" data-step="embed">Embed</span>
+                <span class="image-analyze-segment" data-step="search">Search</span>
+                <span class="image-analyze-segment" data-step="rank">Rank</span>
+              </div>
+              <p class="image-analyze-loading-detail results-loading-copy">Preparing the best matches before the result grid appears.</p>
             </div>
           </section>
           <section id="resultsGrid" class="results-grid" aria-live="polite"></section>

@@ -2424,61 +2424,15 @@ body.landing-home .seed-query.is-active {
 }
 
 .results-loading-card {
-  display: grid;
-  justify-items: center;
-  gap: 10px;
-  width: min(100%, 520px);
-  padding: 30px 28px;
-  border: 1px solid rgba(216, 210, 201, 0.82);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 18px 42px rgba(54, 40, 22, 0.06);
-  text-align: center;
+  width: min(100%, 420px);
 }
 
-.results-loading-spinner {
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 3px solid rgba(124, 109, 240, 0.18);
-  border-top-color: #7c6df0;
-  animation: image-analyze-spin 0.8s linear infinite;
-}
-
-@keyframes image-analyze-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.results-loading-eyebrow {
-  margin: 2px 0 0;
-  color: #959bb1;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.results-loading-title {
-  margin: 0;
-  max-width: 28ch;
-  color: #4f5568;
-  font-size: clamp(1rem, 1.7vw, 1.25rem);
-  font-weight: 600;
-  line-height: 1.32;
+.text-search-loading-card {
+  margin-inline: auto;
 }
 
 .results-loading-copy {
-  margin: 0;
   max-width: 34ch;
-  color: #959bb1;
-  font-size: 0.84rem;
-  line-height: 1.5;
 }
 
 .results-header {
