@@ -4342,17 +4342,50 @@ function textQueryCategoryInferenceSchema() {
 }
 
 function buildTextQueryCategoryInferencePrompt() {
-  const categoryLines = inferableTextQueryCategoryEntries.map((entry) => (
-    `- ${entry.visual_type}: ${entry.label}. Family: ${entry.family_label}.`
-  ));
-
   return `Determine which product category a user query most likely refers to.
 
-Available categories:
-${categoryLines.join("\n")}
+Choose the single best category_key when the query is mainly describing one kind of product, even if the wording is informal or uses synonyms. Use category_required only when the query is genuinely ambiguous across product families, could reasonably map to multiple different category groups, or primarily describes a room, environment, or space rather than a product.
 
-Return a single high-confidence category_key only when the query clearly points to one product category.
-Return category_required when the query is ambiguous, could refer to multiple product families, or primarily describes a room, environment, or space rather than a product category.
+Available categories:
+- task_collab_chair: Task & Collaborative Chair. Covers office task chairs, desk chairs, work chairs, ergonomic chairs, conference/workplace swivel chairs, and other performance-oriented single-seat work seating.
+- lounge_chair: Lounge Seating. Covers lounge chairs, sofas, sectionals, loveseats, settees, daybeds, chaise-style lounge pieces, modular lounge seating, privacy lounge seating, ottomans used within lounge collections, and other relaxed lounge-style seating.
+- stool: Stool. Covers stools, bar stools, counter stools, backless stools, perch stools, and fixed-height or casual seating stools.
+- guest_chair: Side & Guest Chair. Covers guest chairs, side chairs, waiting-room chairs, reception chairs, visitor chairs, multi-use guest seating, and other upright occasional seating that is not task seating or lounge seating.
+- bench: Bench. Covers benches, bench seating, banquettes without table emphasis, and linear multi-person bench-style seating.
+- conference: Conference Tables. Covers conference tables, boardroom tables, meeting tables, and large collaboration tables primarily used for conference or meeting settings.
+- occasional: Occasional Tables. Covers side tables, end tables, coffee tables, lounge tables, and other small occasional-use tables.
+- cafe_dining: Cafe/Dining Tables. Covers dining tables, cafe tables, bistro tables, restaurant tables, and similar eating-height hospitality tables.
+- training: Training Tables. Covers training tables, flip-top tables, folding tables, classroom tables, seminar tables, and other reconfigurable learning/training tables.
+- huddle_collaborative: Huddle/Collaborative Tables. Covers huddle tables, collaboration tables, team tables, touchdown tables, and smaller shared-work tables.
+- kitchen_faucet: Kitchen Faucet. Covers kitchen faucets, pull-down faucets, pull-out faucets, and other kitchen sink faucet types.
+- bathroom_lavatory_faucet: Bathroom Lavatory Faucet. Covers bathroom sink faucets, lavatory faucets, vanity faucets, and other bathroom basin faucet types.
+
+Use category_required when:
+- the query mainly describes a room, environment, or space rather than a product
+- the query is truly cross-family and could reasonably refer to multiple families (for example seating vs tables vs faucets)
+- there is not enough signal to choose one category
+
+Do not use category_required just because the query is short, uses a synonym, or describes a familiar product type in plain language.
+If the query clearly names a type of product (e.g., "sofa," "stool," "dining table"), choose that product's category even if the query is brief.
+
+Examples:
+- Query: "sofas with concealed bases"
+  Output: {"category_key":"lounge_chair"}
+
+- Query: "backless sofas with wood legs"
+  Output: {"category_key":"lounge_chair"}
+
+- Query: "counter stools with wood seats"
+  Output: {"category_key":"stool"}
+
+- Query: "round conference table"
+  Output: {"category_key":"conference"}
+
+- Query: "workspace furniture"
+  Output: {"category_key":"category_required"}
+
+- Query: "lounge area with tables and chairs"
+  Output: {"category_key":"category_required"}
 
 Return JSON only.`;
 }
