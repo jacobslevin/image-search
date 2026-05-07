@@ -1041,6 +1041,8 @@ export async function searchIndex({
       score: image.score,
       score_breakdown: image.score_breakdown || [],
       confidence_tier: image.confidence_tier,
+      has_stored_embedding: Array.isArray(image.visual_summary_embedding || image.search_text_embedding) &&
+        (image.visual_summary_embedding || image.search_text_embedding).length > 0,
       matched_traits: image.matched_traits.slice(0, 4),
       trait_contributions: image.trait_contributions || {},
       field_confidence: image.field_confidence || {},

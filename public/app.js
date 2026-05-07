@@ -111,7 +111,8 @@ const state = {
   resultCutoffKey: "",
   weakerMatchesExpanded: false,
   weakerResultInteractionKeys: new Set(),
-  landingOnlyMode: false
+  landingOnlyMode: false,
+  storedImageContextCache: new Map()
 };
 
 function getBootstrapRoutingTypes(bootstrap = state.bootstrap) {
@@ -4454,8 +4455,78 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   };
 }
 
+function buildStoredImageContextCacheKey(result = {}, matchingImage = null) {
+  return String(
+    matchingImage?.image_id ||
+    `${result.product_id || ""}::${matchingImage?.image_url || result.best_image_url || ""}`
+  ).trim();
+}
+
+async function fetchStoredImageContext(result = {}, matchingImage = null) {
+  const params = new URLSearchParams();
+  const productId = String(result.product_id || "").trim();
+  const imageId = String(matchingImage?.image_id || "").trim();
+  if (productId) {
+    params.set("product_id", productId);
+  }
+  if (imageId) {
+    params.set("image_id", imageId);
+  }
+  if (!params.toString()) {
+    return null;
+  }
+  return fetchJson(`/api/stored-image-context?${params.toString()}`);
+}
+
+async function ensureStoredImageContext(result = {}, matchingImage = null) {
+  const cacheKey = buildStoredImageContextCacheKey(result, matchingImage);
+  if (cacheKey && state.storedImageContextCache.has(cacheKey)) {
+    return state.storedImageContextCache.get(cacheKey);
+  }
+
+  const fetched = await fetchStoredImageContext(result, matchingImage);
+  const baseContext = buildStoredImageSearchContext(result, matchingImage);
+  const merged = fetched
+    ? {
+        ...baseContext,
+        query: String(
+          fetched.visual_summary ||
+          fetched.structured_caption ||
+          baseContext.query ||
+          result.name ||
+          "image search"
+        ).trim(),
+        embedding: normalizeClientEmbedding(fetched.visual_summary_embedding || []),
+        visualType: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+        imageAnalysis: {
+          ...baseContext.imageAnalysis,
+          image_preview_url: fetched.image_url || baseContext.imageAnalysis.image_preview_url || "",
+          visual_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+          seating_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+          stage1: {
+            visual_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+            seating_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim()
+          },
+          image_traits: fetched.enum_fields || baseContext.imageAnalysis.image_traits || {},
+          stage2: {
+            visual_summary: String(
+              fetched.visual_summary ||
+              baseContext.imageAnalysis.stage2?.visual_summary ||
+              ""
+            ).trim()
+          }
+        }
+      }
+    : baseContext;
+
+  if (cacheKey && merged) {
+    state.storedImageContextCache.set(cacheKey, merged);
+  }
+  return merged;
+}
+
 async function searchFromStoredImage(result = {}, matchingImage = null) {
-  const context = buildStoredImageSearchContext(result, matchingImage);
+  const context = await ensureStoredImageContext(result, matchingImage);
   if (!context.embedding.length) {
     setStatus("This image does not have a stored embedding yet.", "error");
     return;
@@ -6905,8 +6976,8 @@ function syncSearchFromImageButton(button, result, matchingImage = null) {
     return;
   }
 
-  const hasStoredEmbedding = Array.isArray(matchingImage?.visual_summary_embedding) &&
-    matchingImage.visual_summary_embedding.length > 0;
+  const hasStoredEmbedding = matchingImage?.has_stored_embedding === true ||
+    (Array.isArray(matchingImage?.visual_summary_embedding) && matchingImage.visual_summary_embedding.length > 0);
   button.hidden = !hasStoredEmbedding;
   button.disabled = !hasStoredEmbedding || state.refinementLoading;
   button.title = hasStoredEmbedding ? "Search from this image" : "No stored embedding for this image";
@@ -7547,9 +7618,14 @@ function renderResults(payload, query) {
       scoreBreakdownLabel.hidden = true;
     }
 
-    moreLikeThisButton.addEventListener("click", () => {
+    moreLikeThisButton.addEventListener("click", async () => {
       if (!hasMoreTraits) {
         return;
+      }
+      try {
+        await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+      } catch (error) {
+        console.warn("[inline-refinement] stored image context fetch failed:", error?.message || error);
       }
       toggleInlineRefinementPanel({
         productId: result.product_id,
@@ -7557,9 +7633,14 @@ function renderResults(payload, query) {
         imageUrl: state.activeCardImageUrls[result.product_id] || result.best_image_url
       });
     });
-    lessLikeThisButton.addEventListener("click", () => {
+    lessLikeThisButton.addEventListener("click", async () => {
       if (!hasLessTraits) {
         return;
+      }
+      try {
+        await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+      } catch (error) {
+        console.warn("[inline-refinement] stored image context fetch failed:", error?.message || error);
       }
       toggleInlineRefinementPanel({
         productId: result.product_id,

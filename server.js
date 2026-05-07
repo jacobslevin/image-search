@@ -40,6 +40,7 @@ import { loadVisualTypesRegistry } from "./src/visual-types-registry.js";
 import { buildBootstrapSchemaPayload, getAllVisualTypeOptions } from "./src/bootstrap-visual-types.js";
 import { getPostgresPoolStats, runPostgresConnectionTest, queryPostgres } from "./src/postgres.js";
 import {
+  fetchCanonicalStoredImageContext,
   findCanonicalProductTargetEmbedding,
   loadCanonicalBootstrapData,
   loadCanonicalBrowseResults,
@@ -864,18 +865,19 @@ function trimResultImageForClient(image = {}, { debug = false } = {}) {
     visual_type: image.visual_type,
     score: image.score,
     confidence_tier: image.confidence_tier,
+    has_stored_embedding: image.has_stored_embedding === true || (Array.isArray(image.visual_summary_embedding) && image.visual_summary_embedding.length > 0),
     matched_traits: Array.isArray(image.matched_traits) ? image.matched_traits : [],
     trait_contributions: image.trait_contributions || {},
-    enum_fields: image.enum_fields || {},
-    structured_caption: String(image.structured_caption || "").trim(),
-    visual_summary: String(image.visual_summary || "").trim(),
-    visual_summary_embedding: Array.isArray(image.visual_summary_embedding) ? image.visual_summary_embedding : []
+    enum_fields: image.enum_fields || {}
   };
 
   if (debug) {
     payload.field_confidence = image.field_confidence || {};
     payload.free_text = image.free_text || {};
     payload.score_breakdown = Array.isArray(image.score_breakdown) ? image.score_breakdown : [];
+    payload.structured_caption = String(image.structured_caption || "").trim();
+    payload.visual_summary = String(image.visual_summary || "").trim();
+    payload.visual_summary_embedding = Array.isArray(image.visual_summary_embedding) ? image.visual_summary_embedding : [];
   }
 
   return payload;
@@ -899,7 +901,9 @@ function trimSearchResultForClient(result = {}, { debug = false } = {}) {
     score: result.score,
     matched_traits: Array.isArray(result.matched_traits) ? result.matched_traits : [],
     match_count: Number(result.match_count || 0),
-    matching_images: (Array.isArray(result.matching_images) ? result.matching_images : []).map((image) => trimResultImageForClient(image, { debug })),
+    matching_images: (Array.isArray(result.matching_images) ? result.matching_images : [])
+      .slice(0, debug ? undefined : 3)
+      .map((image) => trimResultImageForClient(image, { debug })),
     hero_image: result.hero_image ? trimResultImageForClient(result.hero_image, { debug }) : null,
     contributing_images: Number(result.contributing_images || 0),
     is_exact_source_image: Boolean(result.is_exact_source_image),
@@ -925,6 +929,15 @@ function trimSearchResultsForClient(results = [], options = {}) {
 function shouldServeFullSearchResponse(request) {
   const homePathHeader = String(request?.headers?.["x-pixelseek-home-path"] || "").trim();
   return Boolean(homePathHeader && homePathHeader === privateBrowsePath);
+}
+
+async function loadStoredImageContextForRequest(requestUrl) {
+  const productId = String(requestUrl.searchParams.get("product_id") || "").trim();
+  const imageId = String(requestUrl.searchParams.get("image_id") || "").trim();
+  return fetchCanonicalStoredImageContext({
+    canonicalProductKey: productId,
+    canonicalImageKey: imageId
+  });
 }
 
 function normalizeRequestedVisualType(input = null) {
@@ -2978,6 +2991,18 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/version") {
     return json(response, 200, { version: APP_VERSION });
+  }
+
+  if (url.pathname === "/api/stored-image-context" && request.method === "GET") {
+    try {
+      const context = await loadStoredImageContextForRequest(url);
+      if (!context?.visual_summary_embedding?.length) {
+        return json(response, 404, { error: "Stored image embedding not found." });
+      }
+      return json(response, 200, context);
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Stored image context unavailable." });
+    }
   }
 
   if (url.pathname === "/api/bootstrap") {

@@ -675,3 +675,90 @@ export async function findCanonicalProductTargetEmbedding(canonicalProductKey = 
   }
   return parseVectorLiteral(result.rows[0].visual_summary_embedding);
 }
+
+export async function fetchCanonicalStoredImageContext({
+  canonicalProductKey = "",
+  canonicalImageKey = ""
+} = {}) {
+  const productKey = normalizeText(canonicalProductKey).trim();
+  const imageKey = normalizeText(canonicalImageKey).trim();
+  if (!productKey && !imageKey) {
+    return null;
+  }
+  const result = imageKey
+    ? await queryPostgres(
+      `SELECT
+         cp.canonical_key,
+         ci.canonical_image_key,
+         ci.image_url,
+         ci.visual_type,
+         ci.seating_type,
+         ci.enum_fields,
+         ci.visual_summary,
+         ci.structured_caption,
+         ci.visual_summary_embedding
+       FROM canonical_images ci
+       JOIN canonical_products cp ON cp.id = ci.canonical_product_id
+       WHERE ci.canonical_image_key = $1
+         AND ($2 = '' OR cp.canonical_key = $2)
+         AND ci.effective_classification = 'product'
+         AND ci.visual_summary_embedding IS NOT NULL
+       ORDER BY
+         CASE lower(ci.confidence_tier)
+           WHEN 'high' THEN 3
+           WHEN 'medium' THEN 2
+           WHEN 'low' THEN 1
+           ELSE 0
+         END DESC,
+         ci.ai_refreshed_at DESC NULLS LAST,
+         ci.id ASC
+       LIMIT 1`,
+      [imageKey, productKey]
+    )
+    : await queryPostgres(
+      `SELECT
+         cp.canonical_key,
+         ci.canonical_image_key,
+         ci.image_url,
+         ci.visual_type,
+         ci.seating_type,
+         ci.enum_fields,
+         ci.visual_summary,
+         ci.structured_caption,
+         ci.visual_summary_embedding
+       FROM canonical_images ci
+       JOIN canonical_products cp ON cp.id = ci.canonical_product_id
+       WHERE cp.canonical_key = $1
+         AND ci.effective_classification = 'product'
+         AND ci.visual_summary_embedding IS NOT NULL
+       ORDER BY
+         CASE lower(ci.confidence_tier)
+           WHEN 'high' THEN 3
+           WHEN 'medium' THEN 2
+           WHEN 'low' THEN 1
+           ELSE 0
+         END DESC,
+         ci.ai_refreshed_at DESC NULLS LAST,
+         ci.id ASC
+       LIMIT 1`,
+      [productKey]
+    );
+
+  const row = result.rows[0];
+  if (!row) {
+    return null;
+  }
+
+  const visualType = normalizeVisualTypeKey(row.visual_type || row.seating_type || "");
+  return {
+    product_id: normalizeText(row.canonical_key),
+    image_id: normalizeText(row.canonical_image_key),
+    image_url: normalizeText(row.image_url),
+    visual_type: visualType,
+    seating_type: visualType,
+    enum_fields: row.enum_fields && typeof row.enum_fields === "object" ? row.enum_fields : {},
+    visual_summary: normalizeText(row.visual_summary),
+    structured_caption: normalizeText(row.structured_caption),
+    visual_summary_embedding: parseVectorLiteral(row.visual_summary_embedding)
+  };
+}
