@@ -2433,7 +2433,7 @@ body.landing-home .seed-query.is-active {
   width: 100%;
   max-width: none;
   margin-inline: auto;
-  padding: 32px 28px;
+  padding: 40px 32px;
   border-radius: var(--border-radius-lg, 28px);
   gap: 0;
 }
@@ -2444,25 +2444,26 @@ body.landing-home .seed-query.is-active {
 
 .text-search-loading-card .image-analyze-loading-eyebrow {
   font-size: 12px;
+  margin: 0 0 12px;
 }
 
 .text-search-loading-card .image-analyze-loading-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1.2;
 }
 
 .text-search-loading-card .results-loading-copy,
 .text-search-loading-card .image-analyze-loading-detail {
-  margin-top: 18px;
+  margin-top: 24px;
   font-size: 14px;
   line-height: 1.45;
   max-width: none;
 }
 
 .text-search-loading-card .image-analyze-progressbar {
-  margin-top: 20px;
-  height: 8px;
+  margin-top: 28px;
+  height: 10px;
 }
 
 .text-search-loading-card .image-analyze-loading-percent {
@@ -2472,13 +2473,13 @@ body.landing-home .seed-query.is-active {
 }
 
 .text-search-loading-card .image-analyze-segmented-track {
-  margin-top: 22px;
+  margin-top: 28px;
   gap: 8px;
 }
 
 .text-search-loading-card .image-analyze-segment {
   min-height: 42px;
-  padding: 8px 18px;
+  padding: 10px 20px;
   font-size: 14px;
 }
 
