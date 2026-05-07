@@ -525,7 +525,9 @@ function redirectToBrowseResults(query = "", extraParams = {}) {
 function persistImageSearchHandoff(context = {}) {
   try {
     window.sessionStorage.setItem(IMAGE_SEARCH_HANDOFF_KEY, JSON.stringify(context));
-  } catch {}
+  } catch (error) {
+    console.error("[imageSearchHandoff] failed to persist handoff", error);
+  }
 }
 
 function consumeImageSearchHandoff() {
@@ -537,7 +539,8 @@ function consumeImageSearchHandoff() {
     window.sessionStorage.removeItem(IMAGE_SEARCH_HANDOFF_KEY);
     const parsed = JSON.parse(raw);
     return parsed && typeof parsed === "object" ? parsed : null;
-  } catch {
+  } catch (error) {
+    console.error("[imageSearchHandoff] failed to consume handoff", error);
     return null;
   }
 }
@@ -9089,25 +9092,6 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
       detail: "Results ready."
     });
     await wait(900);
-    if (state.landingOnlyMode) {
-      persistImageSearchHandoff({
-        source: "homepage-image-search",
-        query: resolvedQuery,
-        payload,
-        selectedBullets,
-        bulletControls,
-        baseQueryEmbedding: payload?.query_embedding || queryEmbedding,
-        visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
-        visualType: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || "",
-        imageAnalysis: analysis,
-        categoryFilter: payload?.category_filter ?? state.categoryFilter,
-        refreshAgeFilter: payload?.refresh_age_filter ?? state.refreshAgeFilter
-      });
-      redirectToBrowseResults(resolvedQuery, {
-        visual_type: getPayloadVisualType(analysis) || getPayloadVisualType(analysis?.stage1) || ""
-      });
-      return;
-    }
     closeImageModal();
     renderResults(payload, resolvedQuery);
   } catch (error) {
