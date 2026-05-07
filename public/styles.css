@@ -2430,7 +2430,8 @@ body.landing-home .seed-query.is-active {
 }
 
 .text-search-loading-card {
-  width: min(100%, 600px);
+  width: 100%;
+  max-width: none;
   margin-inline: auto;
   padding: 24px 28px;
   border-radius: var(--border-radius-lg, 28px);
