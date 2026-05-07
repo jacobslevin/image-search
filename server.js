@@ -1085,7 +1085,26 @@ function formatSearchTraitList(traits = [], visualType = "") {
   return naturalJoin(items);
 }
 
-function buildSearchInterpretationMessage(visualType = "", selectedBullets = null, parsed = {}) {
+function renderCategoryDisplayString(displayString = "", visualType = "") {
+  const normalized = String(displayString || "").trim();
+  if (!normalized.includes("[CATEGORY]")) {
+    return "";
+  }
+  const visualLabel = visualType
+    ? (
+        seatingTypes[visualType]?.label ||
+        visualTypesRegistry?.categories?.[visualType]?.label ||
+        getCategoryDisplayLabel(visualType) ||
+        visualType
+      )
+    : "";
+  if (!visualLabel) {
+    return "";
+  }
+  return normalized.replace("[CATEGORY]", visualLabel).replace(/\s+/g, " ").trim();
+}
+
+function buildSearchInterpretationMessage(visualType = "", selectedBullets = null, parsed = {}, textQueryTraits = null) {
   const bulletState = selectedBullets && typeof selectedBullets === "object" ? selectedBullets : {};
   const traits = [
     ...(Array.isArray(bulletState.essential) ? bulletState.essential : []),
@@ -1102,6 +1121,11 @@ function buildSearchInterpretationMessage(visualType = "", selectedBullets = nul
       )
     : "";
   const visualQuery = String(parsed?.visual_query || "").trim();
+  const displayString = renderCategoryDisplayString(textQueryTraits?.display_string, visualType);
+
+  if (displayString) {
+    return `Searching for ${displayString}...`;
+  }
 
   if (visualLabel && traitPhrase) {
     return `Searching for ${visualLabel} with ${traitPhrase}...`;
@@ -1245,7 +1269,7 @@ async function executeSearchQuery({
   if (typeof onProgress === "function") {
     await onProgress({
       phase: "parsed",
-      title: buildSearchInterpretationMessage(resolvedVisualType, effectiveSelectedBullets, parsed),
+      title: buildSearchInterpretationMessage(resolvedVisualType, effectiveSelectedBullets, parsed, textQueryTraits),
       detail: "Figuring out what to look for next."
     });
     await onProgress({

@@ -86,6 +86,7 @@ const state = {
   refinementLoading: false,
   categoryScopeLoading: false,
   categoryScopeMode: "all",
+  lastDisplayQuery: "",
   searchComposerPrefix: "",
   searchComposerMatch: "",
   refineDrawerOpen: false,
@@ -1833,6 +1834,43 @@ function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
   return `${categoryPhrase} with ${residual}`.trim();
 }
 
+function getCategoryDisplayStringLabel(categoryKey = "") {
+  const normalized = normalizeVisualTypeKey(categoryKey);
+  return formatVisualTypeLabel(normalized, state.bootstrap) || getCategoryPhraseForQuery(normalized);
+}
+
+function resolveValidatedDisplayString(payload = null) {
+  const raw = String(payload?.text_query_traits?.display_string || "").trim();
+  if (!raw || raw.length > 120) {
+    return "";
+  }
+  if ((raw.match(/\[CATEGORY\]/g) || []).length !== 1) {
+    return "";
+  }
+  return raw;
+}
+
+function buildDisplayQueryFromPayload(payload = null, categoryKey = "", fallbackQuery = "") {
+  const normalizedCategory = normalizeVisualTypeKey(categoryKey);
+  const validatedDisplayString = resolveValidatedDisplayString(payload);
+  if (validatedDisplayString && normalizedCategory) {
+    const categoryLabel = getCategoryDisplayStringLabel(normalizedCategory);
+    if (categoryLabel) {
+      return validatedDisplayString.replace("[CATEGORY]", categoryLabel).replace(/\s+/g, " ").trim();
+    }
+  }
+  if (payload?.seating_type_source === "inferred" && normalizedCategory) {
+    return buildSearchQueryFromComposer(
+      normalizedCategory,
+      stripCategoryScopeFromQuery(
+        String(payload?.parsed?.visual_query || fallbackQuery).trim(),
+        normalizedCategory
+      )
+    );
+  }
+  return String(fallbackQuery || "").trim();
+}
+
 function getResultStage1Category(result = {}) {
   const normalized = normalizeVisualTypeKey(
     getPayloadVisualType(result.hero_image) ||
@@ -1878,6 +1916,9 @@ function stripVagueVisualTypeReferenceFromQuery(query = "", selectedCategory = "
 }
 
 function getSearchComposerRequestQuery(fallbackQuery = "") {
+  if (!state.searchInputEditedSinceLastSearch && String(state.lastQuery || "").trim()) {
+    return String(state.lastQuery || "").trim();
+  }
   const selectedCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
   const composerParts = getSearchComposerTextParts();
   const rawInput = composerParts.plain;
@@ -1892,7 +1933,7 @@ function getSearchComposerRequestQuery(fallbackQuery = "") {
   return rawInput || String(fallbackQuery || "").trim();
 }
 
-function renderSearchComposer(fullQuery = state.lastQuery) {
+function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQuery) {
   if (
     !elements.searchCategorySelect ||
     !elements.searchCategoryChipWrap ||
@@ -3026,6 +3067,7 @@ function clearSearchComposer() {
   state.categorySelectionTouchedSinceLastSearch = false;
   state.resultCategoryScope = ["all"];
   state.categoryScopeMode = "all";
+  state.lastDisplayQuery = "";
   setSearchInputValue("");
   renderSearchComposer("");
   updateCategoryRequirement(null);
@@ -4488,6 +4530,7 @@ function applyActiveSearchContext({
   state.debugPayload = null;
   state.inlineRefinementPanel = null;
   state.activeCardImageUrls = {};
+  state.lastDisplayQuery = buildDisplayQueryFromPayload(payload, state.currentVisualType, state.lastQuery);
   if (!isBrowsePayload(payload, state.lastQuery)) {
     clearBrowseTraitFilters();
   }
@@ -7906,9 +7949,10 @@ function renderResults(payload, query) {
   setResultsLoading("");
   state.lastPayload = payload;
   state.lastQuery = query;
+  state.lastDisplayQuery = buildDisplayQueryFromPayload(payload, state.currentVisualType, query);
   const visibleResults = getVisibleResults(payload, query);
   renderBrowseTraitFilters(payload, query);
-  renderSearchComposer(query);
+  renderSearchComposer(state.lastDisplayQuery || query);
   const isBrowseMode = isBrowsePayload(payload, query);
   const cutoffMeta = computeResultCutoffMeta(payload, query, isBrowseMode);
   const showWeakerMatchesToggle = shouldShowWeakerMatchesToggle(cutoffMeta, isBrowseMode);
@@ -8598,15 +8642,7 @@ async function runSearch(query, options = {}) {
       payload?.text_query_traits?.enum_fields?.seating_type ||
       ""
     ).trim();
-    const normalizedStoredQuery = payload?.seating_type_source === "inferred" && effectiveVisualType
-      ? buildSearchQueryFromComposer(
-          effectiveVisualType,
-          stripCategoryScopeFromQuery(
-            String(payload?.parsed?.visual_query || normalizedQuery).trim(),
-            effectiveVisualType
-          )
-        )
-      : normalizedQuery;
+    const normalizedStoredQuery = normalizedQuery;
     applyActiveSearchContext({
       payload,
       query: normalizedStoredQuery,

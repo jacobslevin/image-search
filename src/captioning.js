@@ -4210,19 +4210,97 @@ function buildTextQueryTraitPrompt(seatingType = "") {
       ];
 
   return [
-    `You are a furniture attribute extractor. Given a text description or search query for a ${family === "tables" ? "table" : "seating"} product, extract any structured traits that are clearly stated or strongly implied. Return JSON only with the fields listed below. Only populate traits valid for the specified visual_type. Return unknown for anything not mentioned or strongly implied. Never guess.`,
+    `You are a furniture attribute extractor. Given a text description or search query for a ${family === "tables" ? "table" : "seating"} product, extract any structured traits that are clearly stated or strongly implied. Return JSON only with the fields listed below plus display_string. Only populate traits valid for the specified visual_type. Return unknown for anything not mentioned or strongly implied. Never guess.`,
     "",
     "The routing context is fixed for this request:",
     `- visual_type: ${resolvedType} (${typeLabel})`,
     `- family: ${family}`,
+    `- category_display_label: ${typeLabel}`,
     "",
     `Fields to extract for ${resolvedType} only:`,
+    "- display_string: short UI display text that must include the literal token [CATEGORY]",
     ...fieldLines,
     "",
     "Mapping guidance:",
     ...mappingGuidance,
-    ...familySpecificExamples
+    ...familySpecificExamples,
+    "",
+    "display_string rules:",
+    "- Use the literal token [CATEGORY] where the category pill should render.",
+    "- display_string is additional output, not a replacement for trait extraction.",
+    "- Still populate every applicable structured trait field alongside display_string whenever the query states or strongly implies it.",
+    "- Preserve subtype nouns like sofas, sectionals, loveseats, and barstools when they materially narrow the query.",
+    "- Avoid awkward repetition such as '[CATEGORY] with sofas with concealed bases'.",
+    "- Keep display_string under 120 characters.",
+    "- Return JSON only.",
+    "",
+    "Display examples:",
+    `- Query: "lounge seating with wood arms" -> {"display_string":"[CATEGORY] with wood arms"}`,
+    `- Query: "sofas with concealed bases" -> {"display_string":"[CATEGORY], specifically sofas with concealed bases"}`,
+    `- Query: "counter height barstools" -> {"display_string":"[CATEGORY], specifically barstools, at counter height"}`,
+    `- Query: "barstools" -> {"display_string":"[CATEGORY] barstools"}`,
+    `- Query: "armless lounge chairs" -> {"display_string":"[CATEGORY] without arms"}`,
+    `- Query: "modern sectional with leather" -> {"display_string":"[CATEGORY], specifically sectionals, in modern style with leather"}`,
+    "",
+    "Full extraction examples:",
+    `- Query: "backless sofas with wood legs" -> {"display_string":"[CATEGORY], specifically sofas without backs with wood legs","back_height":"Low","back_finish":"Unupholstered shell","base_finish":"Natural wood"}`,
+    `- Query: "counter stools with wood seats" -> {"display_string":"[CATEGORY], specifically counter stools with wood seats","back":"Backless","seat_finish":"Natural wood"}`
   ].join("\n");
+}
+
+function looksJsonLikeDisplayString(value = "") {
+  const normalized = normalizeWhitespace(value);
+  if (!normalized) {
+    return false;
+  }
+  return (
+    /^\{/.test(normalized) ||
+    /^\[(?!CATEGORY\])/.test(normalized) ||
+    /^```/.test(normalized) ||
+    /"[^"]+"\s*:/.test(normalized) ||
+    /\b(display_string|category_key|visual_type|enum_fields)\b\s*:/.test(normalized)
+  );
+}
+
+export function validateTextQueryDisplayString(value = "") {
+  const normalized = normalizeWhitespace(value);
+  if (!normalized) {
+    return "";
+  }
+  if (normalized.length > 120) {
+    return "";
+  }
+  if (looksJsonLikeDisplayString(normalized)) {
+    return "";
+  }
+  const categoryMatches = normalized.match(/\[CATEGORY\]/g) || [];
+  if (categoryMatches.length !== 1) {
+    return "";
+  }
+  const remainder = normalizeWhitespace(normalized.replace(/\[CATEGORY\]/g, " "));
+  if (!remainder) {
+    return "";
+  }
+  return normalized;
+}
+
+function normalizeDisplayStringForQuery(displayString = "", query = "") {
+  const validated = validateTextQueryDisplayString(displayString);
+  if (!validated) {
+    return "";
+  }
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  if (!normalizedQuery) {
+    return validated;
+  }
+  const specificallyMatch = /^\[CATEGORY\], specifically (.+)$/i.exec(validated);
+  if (specificallyMatch) {
+    const specificallyPhrase = normalizeWhitespace(specificallyMatch[1]).toLowerCase();
+    if (specificallyPhrase === normalizedQuery) {
+      return `[CATEGORY] ${specificallyMatch[1].trim()}`;
+    }
+  }
+  return validated;
 }
 
 export const TEXT_QUERY_CATEGORY_KEYS = textQueryCategoryKeys;
@@ -4613,7 +4691,8 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       family,
       seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
-      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
+      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType),
+      display_string: ""
     };
   }
 
@@ -4652,6 +4731,7 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       throw new Error("OpenAI text-query trait extraction returned empty output.");
     }
     const parsed = JSON.parse(raw);
+    const displayString = normalizeDisplayStringForQuery(parsed?.display_string, normalizedQuery);
     const enumFields = {};
     const allowedFields = new Set(getTextQueryTraitFields(resolvedType));
 
@@ -4679,7 +4759,8 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       family,
       seating_type: resolvedType,
       enum_fields: mergedEnumFields,
-      search_bullets: buildSearchTimeBullets(mergedEnumFields, resolvedType)
+      search_bullets: buildSearchTimeBullets(mergedEnumFields, resolvedType),
+      display_string: displayString
     };
   } catch (error) {
     console.error("Text-query trait extraction failed; continuing without generated bullets:", error);
@@ -4688,7 +4769,8 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       family,
       seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
-      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType)
+      search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType),
+      display_string: ""
     };
   }
 }

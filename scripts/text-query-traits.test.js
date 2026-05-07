@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractTextQueryTraits, inferTextQueryCategory } from "../src/captioning.js";
+import { extractTextQueryTraits, inferTextQueryCategory, validateTextQueryDisplayString } from "../src/captioning.js";
 
 test("conference tables query produces table-shaped enum fields", async () => {
   const traits = await extractTextQueryTraits("conference tables with wood legs", {
@@ -64,6 +64,27 @@ test("seating query regression remains functionally equivalent", async () => {
     [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("arm option: Armless")
   );
+  assert.equal(traits.display_string, "");
+});
+
+test("validateTextQueryDisplayString accepts concise category-tagged strings", () => {
+  assert.equal(
+    validateTextQueryDisplayString("[CATEGORY], specifically sofas with concealed bases"),
+    "[CATEGORY], specifically sofas with concealed bases"
+  );
+  assert.equal(
+    validateTextQueryDisplayString(" [CATEGORY]   barstools "),
+    "[CATEGORY] barstools"
+  );
+});
+
+test("validateTextQueryDisplayString rejects malformed or JSON-looking output", () => {
+  assert.equal(validateTextQueryDisplayString(""), "");
+  assert.equal(validateTextQueryDisplayString("[CATEGORY]"), "");
+  assert.equal(validateTextQueryDisplayString("lounge seating with wood arms"), "");
+  assert.equal(validateTextQueryDisplayString("{\"display_string\":\"[CATEGORY] with wood arms\"}"), "");
+  assert.equal(validateTextQueryDisplayString("```json {\"display_string\":\"[CATEGORY] with wood arms\"}```"), "");
+  assert.equal(validateTextQueryDisplayString("[CATEGORY] [CATEGORY] with wood arms"), "");
 });
 
 test("inferTextQueryCategory resolves direct seating and tables phrases", async () => {
