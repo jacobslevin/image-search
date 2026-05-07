@@ -1045,6 +1045,8 @@ export async function searchIndex({
       trait_contributions: image.trait_contributions || {},
       field_confidence: image.field_confidence || {},
       free_text: image.free_text || {},
+      structured_caption: image.structured_caption || image.free_text?.structured_caption || "",
+      visual_summary: image.visual_summary || image.free_text?.visual_summary || image.stage2?.visual_summary || "",
       enum_fields: image.enum_fields || image.image_traits || {},
       visual_summary_embedding: image.visual_summary_embedding || image.search_text_embedding || []
     };

@@ -7,7 +7,13 @@ import {
 } from "./utils.js";
 import { parseVectorLiteral, queryPostgres, vectorToSqlLiteral } from "./postgres.js";
 
-const SEARCH_CANDIDATE_LIMIT = 3000;
+const SEARCH_CANDIDATE_LIMIT = 1000;
+const BOOTSTRAP_CACHE_TTL_MS = 60 * 1000;
+
+let canonicalBootstrapCache = {
+  expiresAt: 0,
+  value: null
+};
 
 const CANONICAL_PRODUCT_SELECT = `
   cp.id AS canonical_product_id,
@@ -515,6 +521,11 @@ function buildSearchClauses({
 }
 
 export async function loadCanonicalBootstrapData() {
+  const now = Date.now();
+  if (canonicalBootstrapCache.value && canonicalBootstrapCache.expiresAt > now) {
+    return canonicalBootstrapCache.value;
+  }
+
   const [countsResult, productResult] = await Promise.all([
     queryPostgres(
       `SELECT
@@ -530,7 +541,7 @@ export async function loadCanonicalBootstrapData() {
   const categories = [...new Set(products.flatMap((product) => getLeafCategories(product)).filter(Boolean))].sort((left, right) => left.localeCompare(right));
   const counts = countsResult.rows[0] || { products: 0, images: 0, indexed_images: 0 };
 
-  return {
+  const payload = {
     has_index: Number(counts.indexed_images || 0) > 0,
     brands,
     categories,
@@ -539,6 +550,13 @@ export async function loadCanonicalBootstrapData() {
       images: Number(counts.images || 0)
     }
   };
+
+  canonicalBootstrapCache = {
+    expiresAt: now + BOOTSTRAP_CACHE_TTL_MS,
+    value: payload
+  };
+
+  return payload;
 }
 
 export async function loadCanonicalSearchIndex({

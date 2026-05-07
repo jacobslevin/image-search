@@ -850,6 +850,83 @@ function json(response, statusCode, payload) {
   response.end(JSON.stringify(payload));
 }
 
+function trimResultImageForClient(image = {}, { debug = false } = {}) {
+  if (!image || typeof image !== "object") {
+    return image;
+  }
+
+  const payload = {
+    image_id: image.image_id,
+    image_url: image.image_url,
+    stage_0_result: image.stage_0_result,
+    effective_classification: image.effective_classification,
+    seating_type: image.seating_type,
+    visual_type: image.visual_type,
+    score: image.score,
+    confidence_tier: image.confidence_tier,
+    matched_traits: Array.isArray(image.matched_traits) ? image.matched_traits : [],
+    trait_contributions: image.trait_contributions || {},
+    enum_fields: image.enum_fields || {},
+    structured_caption: String(image.structured_caption || "").trim(),
+    visual_summary: String(image.visual_summary || "").trim(),
+    visual_summary_embedding: Array.isArray(image.visual_summary_embedding) ? image.visual_summary_embedding : []
+  };
+
+  if (debug) {
+    payload.field_confidence = image.field_confidence || {};
+    payload.free_text = image.free_text || {};
+    payload.score_breakdown = Array.isArray(image.score_breakdown) ? image.score_breakdown : [];
+  }
+
+  return payload;
+}
+
+function trimSearchResultForClient(result = {}, { debug = false } = {}) {
+  if (!result || typeof result !== "object") {
+    return result;
+  }
+
+  const payload = {
+    product_id: result.product_id,
+    name: result.name,
+    brand: result.brand,
+    category: result.category,
+    category_tags: Array.isArray(result.category_tags) ? result.category_tags : [],
+    filter_categories: Array.isArray(result.filter_categories) ? result.filter_categories : [],
+    ai_refreshed_at: result.ai_refreshed_at,
+    best_image_url: result.best_image_url,
+    image_urls: Array.isArray(result.image_urls) ? result.image_urls : [],
+    score: result.score,
+    matched_traits: Array.isArray(result.matched_traits) ? result.matched_traits : [],
+    match_count: Number(result.match_count || 0),
+    matching_images: (Array.isArray(result.matching_images) ? result.matching_images : []).map((image) => trimResultImageForClient(image, { debug })),
+    hero_image: result.hero_image ? trimResultImageForClient(result.hero_image, { debug }) : null,
+    contributing_images: Number(result.contributing_images || 0),
+    is_exact_source_image: Boolean(result.is_exact_source_image),
+    is_room_scene: Boolean(result.is_room_scene),
+    scene_filter: result.scene_filter || null,
+    scene_filter_results: Array.isArray(result.scene_filter_results) ? result.scene_filter_results : [],
+    confidence_tier: result.confidence_tier || "",
+    confidence_rank: Number(result.confidence_rank || 0)
+  };
+
+  if (debug) {
+    payload.debug = result.debug || {};
+    payload.visual_summary_embedding = Array.isArray(result.visual_summary_embedding) ? result.visual_summary_embedding : [];
+  }
+
+  return payload;
+}
+
+function trimSearchResultsForClient(results = [], options = {}) {
+  return (Array.isArray(results) ? results : []).map((result) => trimSearchResultForClient(result, options));
+}
+
+function shouldServeFullSearchResponse(request) {
+  const homePathHeader = String(request?.headers?.["x-pixelseek-home-path"] || "").trim();
+  return Boolean(homePathHeader && homePathHeader === privateBrowsePath);
+}
+
 function normalizeRequestedVisualType(input = null) {
   if (typeof input === "string") {
     return resolveVisualType({ visual_type: input })?.visual_type || "";
@@ -3023,6 +3100,7 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/search") {
     const body = request.method === "POST" ? await readRequestJson(request) : {};
+    const serveFullSearchResponse = shouldServeFullSearchResponse(request);
     const query = String((request.method === "POST" ? body.q : url.searchParams.get("q")) || "").trim();
     const category = request.method === "POST"
       ? (Array.isArray(body.category) ? body.category : body.category ? [body.category] : [])
@@ -3052,6 +3130,7 @@ const server = http.createServer(async (request, response) => {
       }
       results.sort((left, right) => compareProductsBySort(left, right, sort, true));
       results = filterResultsByRefreshAge(results, refreshAge);
+      const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
       return json(response, 200, {
         query,
         category_filter: category,
@@ -3065,9 +3144,9 @@ const server = http.createServer(async (request, response) => {
         },
         seating_type_source: "all",
         visual_type: "",
-        total_results: results.length,
+        total_results: clientResults.length,
         browse_mode: true,
-        results
+        results: clientResults
       });
     }
 
@@ -3177,6 +3256,7 @@ const server = http.createServer(async (request, response) => {
         : searchResponse.results,
       refreshAge
     );
+    const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
 
     return json(response, 200, {
       query,
@@ -3198,14 +3278,15 @@ const server = http.createServer(async (request, response) => {
       text_query_traits: textQueryTraits,
       query_embedding: queryEmbedding,
       reranker_used: searchResponse.reranker_used,
-      total_results: results.length,
-      results
+      total_results: clientResults.length,
+      results: clientResults
     });
   }
 
   if (url.pathname === "/api/refine-search" && request.method === "POST") {
     try {
       const body = await readRequestJson(request);
+      const serveFullSearchResponse = shouldServeFullSearchResponse(request);
       const queryEmbedding = Array.isArray(body.query_embedding) ? body.query_embedding.map((value) => Number(value)) : [];
       const category = Array.isArray(body.category) ? body.category : body.category ? [body.category] : [];
       const normalizedSearchCategories = normalizeSearchCategoryFilters(category);
@@ -3288,6 +3369,7 @@ const server = http.createServer(async (request, response) => {
           : searchResponse.results,
         refreshAge
       );
+      const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
 
       return json(response, 200, {
         action,
@@ -3299,8 +3381,8 @@ const server = http.createServer(async (request, response) => {
         parsed,
         visual_type: visualType || "",
         reranker_used: searchResponse.reranker_used,
-        total_results: results.length,
-        results
+        total_results: clientResults.length,
+        results: clientResults
       });
     } catch (error) {
       return json(response, 500, { error: error.message || "Search refinement failed." });

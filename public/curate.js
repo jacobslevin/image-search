@@ -58,13 +58,15 @@ function apiUrl(pathname) {
 
 async function fetchJson(url, options) {
   let response;
+  const requestHomePath = window.location.pathname || "/";
   try {
     response = await fetch(apiUrl(url), {
       cache: "no-store",
       ...options,
       headers: {
         ...(options?.headers || {}),
-        "Cache-Control": "no-store"
+        "Cache-Control": "no-store",
+        "X-PixelSeek-Home-Path": requestHomePath
       }
     });
   } catch {

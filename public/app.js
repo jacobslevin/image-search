@@ -2648,11 +2648,9 @@ function updateSearchComposerClearButton() {
   if (!elements.clearSearchInputButton || !elements.searchInput) {
     return;
   }
-  const hasActiveSubmittedSearch = Boolean(
-    String(state.lastQuery || "").trim() ||
-    (Array.isArray(state.lastPayload?.results) && state.lastPayload.results.length)
-  );
-  const shouldShow = hasActiveSubmittedSearch;
+  const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
+  const hasActiveSubmittedSearch = Boolean(String(state.lastQuery || "").trim());
+  const shouldShow = hasActiveSubmittedSearch && hasComposableContent;
   elements.clearSearchInputButton.hidden = !shouldShow;
   if (!shouldShow) {
     if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
@@ -2897,12 +2895,14 @@ function syncRefineDrawer() {
 
 async function fetchJson(url, options) {
   const requestUrl = apiUrl(url);
+  const requestHomePath = typeof HOME_PATH === "string" && HOME_PATH ? HOME_PATH : window.location.pathname || "/";
   const mergedOptions = {
     cache: "no-store",
     ...options,
     headers: {
       ...(options?.headers || {}),
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      "X-PixelSeek-Home-Path": requestHomePath
     }
   };
   let response;
@@ -4416,8 +4416,8 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
     ]
   );
   const query = String(
-    source.free_text?.visual_summary ||
-    heroSource.free_text?.visual_summary ||
+    source.visual_summary ||
+    heroSource.visual_summary ||
     source.structured_caption ||
     heroSource.structured_caption ||
     result.debug?.visual_description ||
@@ -4440,7 +4440,7 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
     stage1: { visual_type: visualType || "", seating_type: visualType || "" },
     image_traits: enumFields,
     stage2: {
-      visual_summary: source.free_text?.visual_summary || heroSource.free_text?.visual_summary || result.debug?.visual_description || ""
+      visual_summary: source.visual_summary || heroSource.visual_summary || result.debug?.visual_description || ""
     }
   };
 
@@ -7444,7 +7444,7 @@ function renderResults(payload, query) {
     brandName.textContent = result.brand;
     categoryTags.innerHTML = "";
     getResultCategoryTags(result).forEach((category) => categoryTags.appendChild(createChip(category, true)));
-    caption.textContent = result.debug.structured_caption;
+    caption.textContent = result.hero_image?.structured_caption || result.debug?.structured_caption || "";
     const planShapeReasoningText = String(result.debug?.plan_shape_reasoning || "").trim();
     planShapeReasoning.textContent = planShapeReasoningText ? `Plan shape reasoning: ${planShapeReasoningText}` : "";
     renderThumbnails(thumbnails, result, image, cardImageWrap, sceneBadge, scoreBadge, searchFromImageButton);
@@ -7494,10 +7494,10 @@ function renderResults(payload, query) {
       planShapeReasoning.hidden = !state.debug || !planShapeReasoningText;
     }
 
-    (result.debug.detected_traits || []).slice(0, 6).forEach((trait) => traits.appendChild(createChip(trait, true)));
-    formatQueryTraitEntries(result.debug.query_traits || {}).slice(0, 6).forEach((trait) => queryTraits.appendChild(createChip(trait, true)));
-    (result.debug.mismatch_traits || []).slice(0, 4).forEach((trait) => mismatches.appendChild(createChip(trait, true)));
-    (result.debug.score_breakdown || []).forEach((item) => {
+    (result.debug?.detected_traits || []).slice(0, 6).forEach((trait) => traits.appendChild(createChip(trait, true)));
+    formatQueryTraitEntries(result.debug?.query_traits || {}).slice(0, 6).forEach((trait) => queryTraits.appendChild(createChip(trait, true)));
+    (result.debug?.mismatch_traits || []).slice(0, 4).forEach((trait) => mismatches.appendChild(createChip(trait, true)));
+    (result.debug?.score_breakdown || []).forEach((item) => {
       const row = document.createElement("div");
       row.className = "score-breakdown-row";
 
