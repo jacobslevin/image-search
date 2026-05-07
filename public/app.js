@@ -8676,11 +8676,7 @@ elements.searchInput?.addEventListener("keydown", (event) => {
 elements.clearSearchInputButton?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
-  const shouldReturnHome = shouldReturnHomeAfterClearingQuery();
   clearSearchComposer();
-  if (shouldReturnHome) {
-    returnToHomepageState();
-  }
 });
 
 elements.siteNavBrandLink?.addEventListener("click", (event) => {
