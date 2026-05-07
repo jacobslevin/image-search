@@ -331,6 +331,7 @@ const elements = {
   structuredTraitsModalCloseTargets: document.querySelectorAll('[data-role="structuredTraitsModalClose"]'),
   promptLibraryModalCloseTargets: document.querySelectorAll('[data-role="promptLibraryModalClose"]'),
   openImageSearch: document.querySelector("#openImageSearch"),
+  openImageSearchInline: document.querySelector("#openImageSearchInline"),
   openPromptLibrary: document.querySelector("#openPromptLibrary"),
   openExtractionSummary: document.querySelector("#openExtractionSummary"),
   copyStructuredTraits: document.querySelector("#copyStructuredTraits"),
@@ -436,6 +437,7 @@ const elements = {
   browseTraitFilterCount: document.querySelector("#browseTraitFilterCount"),
   browseTraitFilterFields: document.querySelector("#browseTraitFilterFields"),
   resetBrowseTraitFilters: document.querySelector("#resetBrowseTraitFilters"),
+  seedImageExamples: document.querySelector("#seedImageExamples"),
   seedQueries: document.querySelector("#seedQueries"),
   selectedFileName: document.querySelector("#selectedFileName"),
   statusPanel: document.querySelector("#statusPanel"),
@@ -5568,10 +5570,11 @@ function renderClarificationBar() {
 }
 
 function renderSeedQueries(seedQueries) {
-  if (!elements.seedQueries) {
+  if (!elements.seedQueries || !elements.seedImageExamples) {
     return;
   }
   elements.seedQueries.innerHTML = "";
+  elements.seedImageExamples.innerHTML = "";
   if (state.landingOnlyMode) {
     HOMEPAGE_IMAGE_EXAMPLES.forEach((example) => {
       const button = document.createElement("button");
@@ -5602,7 +5605,7 @@ function renderSeedQueries(seedQueries) {
           setStatus(error.message || "Image example search failed.", "error");
         });
       });
-      elements.seedQueries.appendChild(button);
+      elements.seedImageExamples.appendChild(button);
     });
   }
   (seedQueries || []).forEach((query) => {
@@ -9007,6 +9010,17 @@ async function bootstrap() {
       String(pendingImageSearchHandoff.query || "").trim() === initialQuery
     ) {
       setInitialSearchPending(false);
+      if (!pendingImageSearchHandoff.payload && Array.isArray(pendingImageSearchHandoff.baseQueryEmbedding) && pendingImageSearchHandoff.baseQueryEmbedding.length) {
+        const payload = await refineSearchResults({
+          queryEmbedding: pendingImageSearchHandoff.baseQueryEmbedding,
+          selectedBullets: pendingImageSearchHandoff.selectedBullets,
+          visualType: resolveStoredVisualType(pendingImageSearchHandoff),
+          categoryFilter: pendingImageSearchHandoff.categoryFilter,
+          refreshAgeFilter: pendingImageSearchHandoff.refreshAgeFilter,
+          sourceImageUrl: pendingImageSearchHandoff.imageAnalysis?.image_preview_url || ""
+        });
+        pendingImageSearchHandoff.payload = payload;
+      }
       applyActiveSearchContext({
         payload: pendingImageSearchHandoff.payload,
         query: pendingImageSearchHandoff.query,
@@ -9397,6 +9411,9 @@ elements.debugToggle.addEventListener("click", async () => {
 });
 
 elements.openImageSearch.addEventListener("click", () => {
+  openImageModal();
+});
+elements.openImageSearchInline?.addEventListener("click", () => {
   openImageModal();
 });
 elements.imageSearchDropZone?.addEventListener("dragenter", (event) => {

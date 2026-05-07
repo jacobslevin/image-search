@@ -645,6 +645,14 @@ h1 {
   gap: 8px;
 }
 
+.seed-image-examples {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
 .seed-queries {
   justify-content: center;
 }
@@ -2473,7 +2481,7 @@ body.landing-home .page-shell {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding-top: 24px;
+  padding-top: 149px;
   padding-bottom: 96px;
 }
 
@@ -2509,6 +2517,10 @@ body.landing-home .context-label {
 body.landing-home .context-pills,
 body.landing-home .seed-queries {
   flex: 1 1 auto;
+}
+
+body.landing-home .seed-image-examples {
+  flex: 0 0 auto;
 }
 
 body.landing-home .context-pill,
@@ -2568,6 +2580,11 @@ html:not(.landing-home) body .search-entry-card-text .search-entry-copy {
   display: none;
 }
 
+body:not(.landing-home) .search-entry-upload-button,
+html:not(.landing-home) body .search-entry-upload-button {
+  display: none;
+}
+
 body:not(.landing-home) .search-field,
 html:not(.landing-home) body .search-field {
   min-height: 82px;
@@ -2586,6 +2603,29 @@ html:not(.landing-home) body .search-query-flow {
 body:not(.landing-home) .search-input,
 html:not(.landing-home) body .search-input {
   font-size: 1.1rem;
+}
+
+body:not(.landing-home) .search-image-trigger,
+html:not(.landing-home) body .search-image-trigger {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  border: none !important;
+  border-radius: 999px;
+  background: #7c6df0 !important;
+  color: #fff !important;
+  font-size: 0.88rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+body:not(.landing-home) .search-image-trigger:hover,
+html:not(.landing-home) body .search-image-trigger:hover {
+  background: #6355d4 !important;
 }
 
 body:not(.landing-home) .context-row-centered,
