@@ -284,8 +284,8 @@ const HOMEPAGE_IMAGE_EXAMPLES = [
   },
   {
     productId: "dp:13945982",
-    imageId: "dp:13945982:img:6f7651ab4dc18bc5",
-    imageUrl: "https://content.designerpages.com/assets/81878948/BelmontImageGallery201.jpg",
+    imageId: "dp:13945982:img:560b8870c5dabfd8",
+    imageUrl: "https://content.designerpages.com/assets/81879028/BelmontImageGallery181.jpg",
     title: "Belmont",
     brand: "Bernhardt Design"
   }
