@@ -4823,26 +4823,21 @@ async function applyStoredImageSearchContext(context = {}) {
 
   setSearchInputValue(context.query);
   if (state.landingOnlyMode) {
-    persistImageSearchHandoff({
-      source: "homepage-image-example",
-      query: context.query,
-      payload: null,
-      selectedBullets: context.selectedBullets,
-      bulletControls: context.bulletControls,
-      baseQueryEmbedding: context.embedding,
-      visualType: context.visualType,
-      imageAnalysis: context.imageAnalysis,
-      categoryFilter: state.categoryFilter,
-      refreshAgeFilter: state.refreshAgeFilter
-    });
-    redirectToBrowseResults(context.query, {
+    enterBrowseMode(context.query, {
       visual_type: context.visualType || ""
     });
-    return;
   }
 
   state.focusArea = null;
   state.refinementLoading = true;
+  setResultsLoading({
+    mode: "quick",
+    step: "search",
+    percent: 42,
+    indeterminate: true,
+    title: "Opening image results...",
+    detail: "Loading matches inspired by the selected reference image."
+  });
   renderRefineSidebar();
   renderResults(state.lastPayload, state.lastQuery);
   setStatus("Searching from stored image...");
