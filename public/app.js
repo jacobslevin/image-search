@@ -4839,6 +4839,7 @@ async function applyStoredImageSearchContext(context = {}) {
 
   state.focusArea = null;
   state.refinementLoading = true;
+  setStatus("");
   setResultsLoading({
     mode: "quick",
     step: "search",
