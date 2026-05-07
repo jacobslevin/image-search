@@ -850,9 +850,24 @@ function json(response, statusCode, payload) {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Headers": "Content-Type, X-PixelSeek-Home-Path, X-PixelSeek-Stream"
   });
   response.end(JSON.stringify(payload));
+}
+
+function beginJsonLineStream(response, statusCode = 200) {
+  response.writeHead(statusCode, {
+    "Content-Type": "application/x-ndjson; charset=utf-8",
+    "Cache-Control": "no-store, no-transform",
+    "X-Accel-Buffering": "no",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, X-PixelSeek-Home-Path, X-PixelSeek-Stream"
+  });
+}
+
+function writeJsonLine(response, payload) {
+  response.write(`${JSON.stringify(payload)}\n`);
 }
 
 function trimResultImageForClient(image = {}, { debug = false } = {}) {
@@ -935,6 +950,60 @@ function shouldServeFullSearchResponse(request) {
   return Boolean(homePathHeader && homePathHeader === privateBrowsePath);
 }
 
+function shouldStreamSearchProgress(request) {
+  return String(request?.headers?.["x-pixelseek-stream"] || "").trim() === "1";
+}
+
+function formatSearchTraitList(traits = []) {
+  const items = (Array.isArray(traits) ? traits : [])
+    .map((entry) => String(entry || "").trim())
+    .filter(Boolean)
+    .slice(0, 3);
+  if (!items.length) {
+    return "";
+  }
+  if (items.length === 1) {
+    return `"${items[0]}"`;
+  }
+  if (items.length === 2) {
+    return `"${items[0]}" and "${items[1]}"`;
+  }
+  return `"${items[0]}", "${items[1]}", and "${items[2]}"`;
+}
+
+function buildSearchInterpretationMessage(visualType = "", selectedBullets = null, parsed = {}) {
+  const bulletState = selectedBullets && typeof selectedBullets === "object" ? selectedBullets : {};
+  const traits = [
+    ...(Array.isArray(bulletState.essential) ? bulletState.essential : []),
+    ...(Array.isArray(bulletState.normal) ? bulletState.normal : []),
+    ...(Array.isArray(bulletState.low) ? bulletState.low : [])
+  ];
+  const traitPhrase = formatSearchTraitList(traits);
+  const visualLabel = visualType
+    ? (
+        seatingTypes[visualType]?.label ||
+        visualTypesRegistry?.categories?.[visualType]?.label ||
+        getCategoryDisplayLabel(visualType) ||
+        visualType
+      )
+    : "";
+  const visualQuery = String(parsed?.visual_query || "").trim();
+
+  if (visualLabel && traitPhrase) {
+    return `Searching for ${visualLabel} with traits ${traitPhrase}...`;
+  }
+  if (visualLabel) {
+    return `Searching for ${visualLabel}...`;
+  }
+  if (traitPhrase) {
+    return `Searching broadly with traits ${traitPhrase}...`;
+  }
+  if (visualQuery) {
+    return `Searching for matches to "${visualQuery}"...`;
+  }
+  return "Searching across the catalog...";
+}
+
 function cloneJsonPayload(payload) {
   return payload == null ? payload : JSON.parse(JSON.stringify(payload));
 }
@@ -1002,8 +1071,16 @@ async function executeSearchQuery({
   explicitVisualType = "",
   imageAnalysis = null,
   rawSelectedBullets = null,
-  serveFullSearchResponse = false
+  serveFullSearchResponse = false,
+  onProgress = null
 } = {}) {
+  if (typeof onProgress === "function") {
+    await onProgress({
+      phase: "parsing",
+      title: "Understanding your query...",
+      detail: "Interpreting the search request and inferring the closest category."
+    });
+  }
   let inferredCategory = null;
   let resolvedVisualType = explicitVisualType;
   let seatingTypeSource = explicitVisualType ? "explicit" : "all";
@@ -1051,12 +1128,31 @@ async function executeSearchQuery({
     textQueryTraits?.search_bullets,
     selectedBullets
   );
+  if (typeof onProgress === "function") {
+    await onProgress({
+      phase: "parsed",
+      title: buildSearchInterpretationMessage(resolvedVisualType, effectiveSelectedBullets, parsed),
+      detail: "Query understood. Preparing semantic matching."
+    });
+    await onProgress({
+      phase: "embedding",
+      title: "Finding semantically similar items...",
+      detail: "Generating the semantic fingerprint for your query."
+    });
+  }
   const queryEmbedding = await resolveQueryEmbedding({
     query,
     imageAnalysis,
     selectedBullets: effectiveSelectedBullets,
     apiKey: process.env.OPENAI_API_KEY
   });
+  if (typeof onProgress === "function") {
+    await onProgress({
+      phase: "database",
+      title: "Scanning the catalog...",
+      detail: "Retrieving the strongest vector matches from Postgres."
+    });
+  }
   const canonicalIndex = await loadCanonicalReadModelForSearch({
     queryEmbedding,
     parsed,
@@ -1088,6 +1184,13 @@ async function executeSearchQuery({
       total_results: 0,
       results: []
     };
+  }
+  if (typeof onProgress === "function") {
+    await onProgress({
+      phase: "reranking",
+      title: "Ranking the best matches...",
+      detail: "Scoring trait fit and grouping the top candidates by product."
+    });
   }
   const searchResponse = await searchIndex({
     query,
@@ -3379,6 +3482,7 @@ const server = http.createServer(async (request, response) => {
   if (url.pathname === "/api/search") {
     const body = request.method === "POST" ? await readRequestJson(request) : {};
     const serveFullSearchResponse = shouldServeFullSearchResponse(request);
+    const streamSearchProgress = shouldStreamSearchProgress(request);
     const query = String((request.method === "POST" ? body.q : url.searchParams.get("q")) || "").trim();
     const category = request.method === "POST"
       ? (Array.isArray(body.category) ? body.category : body.category ? [body.category] : [])
@@ -3448,6 +3552,38 @@ const server = http.createServer(async (request, response) => {
         console.log("[seed-cache] hit", { query });
         return json(response, 200, cloneJsonPayload(cached.payload));
       }
+    }
+
+    if (streamSearchProgress && query && !imageAnalysis) {
+      beginJsonLineStream(response, 200);
+      try {
+        const payload = await executeSearchQuery({
+          query,
+          category,
+          normalizedSearchCategories,
+          refreshAge,
+          matchMode,
+          sourceImageUrl,
+          debug,
+          sort,
+          disableVisualTypeInference,
+          explicitVisualType,
+          imageAnalysis,
+          rawSelectedBullets,
+          serveFullSearchResponse,
+          onProgress: async (event) => {
+            writeJsonLine(response, { type: "progress", ...event });
+          }
+        });
+        writeJsonLine(response, { type: "result", payload });
+      } catch (error) {
+        writeJsonLine(response, {
+          type: "error",
+          error: error?.message || "Search failed."
+        });
+      }
+      response.end();
+      return;
     }
 
     const payload = await executeSearchQuery({

@@ -335,6 +335,7 @@ const elements = {
   extractionSummaryContent: document.querySelector("#extractionSummaryContent"),
   resultsLoadingPanel: document.querySelector("#resultsLoadingPanel"),
   resultsLoadingTitle: document.querySelector("#resultsLoadingTitle"),
+  resultsLoadingCopy: document.querySelector(".results-loading-copy"),
   resultsHeader: document.querySelector(".results-header"),
   resultsGrid: document.querySelector("#resultsGrid"),
   batchManageBar: document.querySelector("#batchManageBar"),
@@ -2958,6 +2959,91 @@ async function fetchJson(url, options) {
   return payload;
 }
 
+async function fetchJsonStream(url, options, handlers = {}) {
+  const requestUrl = apiUrl(url);
+  const requestHomePath = typeof HOME_PATH === "string" && HOME_PATH ? HOME_PATH : window.location.pathname || "/";
+  const mergedOptions = {
+    cache: "no-store",
+    ...options,
+    headers: {
+      ...(options?.headers || {}),
+      "Cache-Control": "no-store",
+      "X-PixelSeek-Home-Path": requestHomePath,
+      "X-PixelSeek-Stream": "1"
+    }
+  };
+  let response;
+  try {
+    response = await fetch(requestUrl, mergedOptions);
+  } catch (error) {
+    throw new Error("Failed to reach the server. Refresh the page and try again.");
+  }
+
+  if (!response.ok) {
+    const responseText = await response.text();
+    let payload = null;
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch {
+      payload = null;
+    }
+    throw new Error(payload?.error || `Request failed (${response.status}): ${responseText || response.statusText}`);
+  }
+
+  if (!response.body) {
+    throw new Error("Server returned an empty streamed response.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let finalPayload = null;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+    let newlineIndex = buffer.indexOf("\n");
+    while (newlineIndex >= 0) {
+      const rawLine = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      if (rawLine) {
+        const event = JSON.parse(rawLine);
+        if (event?.type === "progress" && typeof handlers.onProgress === "function") {
+          handlers.onProgress(event);
+        } else if (event?.type === "result") {
+          finalPayload = event.payload;
+        } else if (event?.type === "error") {
+          throw new Error(event.error || "Request failed");
+        }
+      }
+      newlineIndex = buffer.indexOf("\n");
+    }
+
+    if (done) {
+      break;
+    }
+  }
+
+  const trailing = buffer.trim();
+  if (trailing) {
+    const event = JSON.parse(trailing);
+    if (event?.type === "progress" && typeof handlers.onProgress === "function") {
+      handlers.onProgress(event);
+    } else if (event?.type === "result") {
+      finalPayload = event.payload;
+    } else if (event?.type === "error") {
+      throw new Error(event.error || "Request failed");
+    }
+  }
+
+  if (finalPayload == null) {
+    throw new Error("Server returned an incomplete streamed response.");
+  }
+
+  return finalPayload;
+}
+
 async function refreshProductAi(productId) {
   if (!productId) {
     throw new Error("Missing product id for refresh.");
@@ -4982,7 +5068,18 @@ function setStatus(message, kind = "info") {
 }
 
 function setResultsLoading(message = "") {
-  const isLoading = Boolean(message);
+  const loadingState = typeof message === "string"
+    ? {
+        title: message,
+        copy: message
+          ? "Preparing the best matches before the result grid appears."
+          : ""
+      }
+    : {
+        title: String(message?.title || "").trim(),
+        copy: String(message?.copy || "").trim()
+      };
+  const isLoading = Boolean(loadingState.title);
   document.body.classList.toggle("results-loading-active", isLoading);
   if (elements.resultsLoadingPanel) {
     elements.resultsLoadingPanel.hidden = !isLoading;
@@ -5006,7 +5103,10 @@ function setResultsLoading(message = "") {
     }
     state.refineDrawerOpen = false;
     if (elements.resultsLoadingTitle) {
-      elements.resultsLoadingTitle.textContent = message;
+      elements.resultsLoadingTitle.textContent = loadingState.title;
+    }
+    if (elements.resultsLoadingCopy) {
+      elements.resultsLoadingCopy.textContent = loadingState.copy;
     }
     if (elements.resultsGrid) {
       elements.resultsGrid.innerHTML = "";
@@ -5330,6 +5430,16 @@ function renderSeedQueries(seedQueries) {
     });
     elements.seedQueries.appendChild(button);
   });
+}
+
+function isSeedQuery(query = "") {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    return false;
+  }
+  return (Array.isArray(state.bootstrap?.seed_queries) ? state.bootstrap.seed_queries : []).some(
+    (candidate) => String(candidate || "").trim().toLowerCase() === normalizedQuery
+  );
 }
 
 function renderCategoryFilterOptions(categories = [], options = {}) {
@@ -7898,7 +8008,17 @@ async function runSearch(query, options = {}) {
   renderContextPills();
   state.refineDrawerOpen = false;
   elements.resultCount.textContent = normalizedQuery ? "Searching..." : "Loading catalog...";
-  setResultsLoading(normalizedQuery ? "Embedding the visual query and ranking image captions..." : "Loading catalog products...");
+  const useStreamedTextProgress = Boolean(normalizedQuery && !imageAnalysis && !isSeedQuery(normalizedQuery));
+  setResultsLoading(
+    normalizedQuery
+      ? (useStreamedTextProgress
+          ? {
+              title: "Understanding your query...",
+              copy: "Interpreting the search request and inferring the closest category."
+            }
+          : "Embedding the visual query and ranking image captions...")
+      : "Loading catalog products..."
+  );
 
   try {
     const shouldUsePostSearch = Boolean(imageAnalysis || apiRequestedVisualType);
@@ -7920,13 +8040,28 @@ async function runSearch(query, options = {}) {
       ...effectiveCategoryFilter.map((category) => ["category", category]),
       ["refresh_age", refreshAgeFilter]
     ]).toString()}`;
-    const payload = shouldUsePostSearch
-      ? await fetchJson("/api/search", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postRequestBody)
-        })
-      : await fetchJson(getRequestUrl);
+    const payload = useStreamedTextProgress
+      ? await fetchJsonStream(shouldUsePostSearch ? "/api/search" : getRequestUrl, shouldUsePostSearch
+        ? {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(postRequestBody)
+          }
+        : undefined, {
+            onProgress: (event) => {
+              setResultsLoading({
+                title: String(event?.title || "Searching...").trim(),
+                copy: String(event?.detail || "").trim()
+              });
+            }
+          })
+      : shouldUsePostSearch
+        ? await fetchJson("/api/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(postRequestBody)
+          })
+        : await fetchJson(getRequestUrl);
     if (payload?.category_required && effectiveCategoryScopeMode === "all" && !apiRequestedVisualType) {
       setInitialSearchPending(false);
       state.lastQuery = normalizedQuery;
