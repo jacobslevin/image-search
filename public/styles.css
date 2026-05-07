@@ -2419,8 +2419,10 @@ body.landing-home .seed-query.is-active {
 
 .results-loading-panel {
   display: grid;
-  place-items: center;
-  min-height: 420px;
+  justify-items: center;
+  align-content: start;
+  min-height: 520px;
+  padding-top: 56px;
 }
 
 .results-loading-card {
@@ -2428,7 +2430,42 @@ body.landing-home .seed-query.is-active {
 }
 
 .text-search-loading-card {
+  width: min(100%, 600px);
   margin-inline: auto;
+  padding: 24px 28px;
+  border-radius: var(--border-radius-lg, 28px);
+  gap: 14px;
+}
+
+.text-search-loading-card .image-analyze-loading-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.text-search-loading-card .results-loading-copy,
+.text-search-loading-card .image-analyze-loading-detail {
+  font-size: 13px;
+  max-width: 46ch;
+}
+
+.text-search-loading-card .image-analyze-progressbar {
+  height: 6px;
+}
+
+.text-search-loading-card .image-analyze-loading-percent {
+  padding: 4px 12px;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.text-search-loading-card .image-analyze-segmented-track {
+  gap: 8px;
+}
+
+.text-search-loading-card .image-analyze-segment {
+  min-height: 0;
+  padding: 6px 16px;
+  font-size: 13px;
 }
 
 .results-loading-copy {
