@@ -583,6 +583,10 @@ const seedQueries = [
   "guest chairs with circular shaped backs",
   "sofas with concealed bases"
 ];
+const SUGGESTED_SEARCH_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+let suggestedSearchCache = new Map();
+let suggestedSearchCacheWarmPromise = null;
+let suggestedSearchCacheRefreshTimer = null;
 
 const mimeTypes = {
   ".css": "text/css; charset=utf-8",
@@ -929,6 +933,255 @@ function trimSearchResultsForClient(results = [], options = {}) {
 function shouldServeFullSearchResponse(request) {
   const homePathHeader = String(request?.headers?.["x-pixelseek-home-path"] || "").trim();
   return Boolean(homePathHeader && homePathHeader === privateBrowsePath);
+}
+
+function cloneJsonPayload(payload) {
+  return payload == null ? payload : JSON.parse(JSON.stringify(payload));
+}
+
+function getSuggestedSearchCacheEntry(query = "") {
+  const key = String(query || "").trim().toLowerCase();
+  if (!key) {
+    return null;
+  }
+  const entry = suggestedSearchCache.get(key);
+  if (!entry) {
+    return null;
+  }
+  if (Number(entry.expiresAt || 0) <= Date.now()) {
+    suggestedSearchCache.delete(key);
+    return null;
+  }
+  return entry;
+}
+
+function isSuggestedSeedQuery(query = "") {
+  const normalized = String(query || "").trim().toLowerCase();
+  return Boolean(normalized && seedQueries.some((candidate) => candidate.toLowerCase() === normalized));
+}
+
+function canServeSuggestedSearchFromCache(request, options = {}) {
+  if (shouldServeFullSearchResponse(request)) {
+    return false;
+  }
+  if (String(request?.method || "GET").toUpperCase() !== "GET") {
+    return false;
+  }
+  const query = String(options.query || "").trim();
+  if (!isSuggestedSeedQuery(query)) {
+    return false;
+  }
+  if (String(options.sort || "auto").trim() !== "auto") {
+    return false;
+  }
+  if (String(options.refreshAge || "").trim()) {
+    return false;
+  }
+  if (String(options.sourceImageUrl || "").trim()) {
+    return false;
+  }
+  if (String(options.explicitVisualType || "").trim()) {
+    return false;
+  }
+  if (Array.isArray(options.category) && options.category.length) {
+    return false;
+  }
+  return true;
+}
+
+async function executeSearchQuery({
+  query = "",
+  category = [],
+  normalizedSearchCategories = normalizeSearchCategoryFilters(category),
+  refreshAge = "",
+  matchMode = "balanced",
+  sourceImageUrl = "",
+  debug = false,
+  sort = "auto",
+  disableVisualTypeInference = false,
+  explicitVisualType = "",
+  imageAnalysis = null,
+  rawSelectedBullets = null,
+  serveFullSearchResponse = false
+} = {}) {
+  let inferredCategory = null;
+  let resolvedVisualType = explicitVisualType;
+  let seatingTypeSource = explicitVisualType ? "explicit" : "all";
+  const inferCategoryPromise = (!imageAnalysis && !disableVisualTypeInference)
+    ? inferTextQueryCategory(query, {
+        apiKey: process.env.OPENAI_API_KEY,
+        model: "gpt-4o-mini"
+      })
+    : Promise.resolve(null);
+  const bootstrapPromise = loadCanonicalBootstrapData();
+  const bootstrapData = await bootstrapPromise;
+  const parsePromise = parseSearchQuery(query, bootstrapData.brands || [], {
+    apiKey: process.env.OPENAI_API_KEY,
+    model: process.env.QUERY_MODEL
+  });
+  const [parsedCategory, parsed] = await Promise.all([inferCategoryPromise, parsePromise]);
+  inferredCategory = parsedCategory;
+  if (!imageAnalysis && !disableVisualTypeInference) {
+    if (!resolvedVisualType && inferredCategory?.status === "resolved") {
+      resolvedVisualType = String(inferredCategory.category_key || "").trim();
+      seatingTypeSource = "inferred";
+    }
+  }
+  if (disableVisualTypeInference) {
+    seatingTypeSource = "all";
+  }
+
+  const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
+  parsed.seating_type = resolvedVisualType || "";
+  parsed.visual_type = resolvedVisualType || "";
+  let textQueryTraits = null;
+  if (!imageAnalysis) {
+    if (!resolvedVisualType) {
+      console.warn("[text-query-traits] skipping extraction because visualType is unresolved");
+    } else {
+      textQueryTraits = await extractTextQueryTraits(query, {
+        apiKey: process.env.OPENAI_API_KEY,
+        model: "gpt-4.1-mini",
+        seatingType: resolvedVisualType
+      });
+    }
+  }
+  const effectiveSelectedBullets = mergeStructuredBullets(
+    resolvedVisualType,
+    textQueryTraits?.search_bullets,
+    selectedBullets
+  );
+  const queryEmbedding = await resolveQueryEmbedding({
+    query,
+    imageAnalysis,
+    selectedBullets: effectiveSelectedBullets,
+    apiKey: process.env.OPENAI_API_KEY
+  });
+  const canonicalIndex = await loadCanonicalReadModelForSearch({
+    queryEmbedding,
+    parsed,
+    imageAnalysis,
+    sourceImageUrl,
+    includeSourceImage: debug
+  });
+  if (!canonicalIndex?.images?.length) {
+    return {
+      query,
+      category_filter: category,
+      refresh_age_filter: refreshAge,
+      sort,
+      match_mode: matchMode,
+      source_image_url: sourceImageUrl,
+      debug,
+      parsed,
+      seating_type: resolvedVisualType || "",
+      visual_type: resolvedVisualType || "",
+      seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
+      seating_type_source: seatingTypeSource,
+      category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
+      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+      selected_bullets: effectiveSelectedBullets,
+      text_query_traits: textQueryTraits,
+      query_embedding: queryEmbedding,
+      reranker_used: false,
+      total_results: 0,
+      results: []
+    };
+  }
+  const searchResponse = await searchIndex({
+    query,
+    parsed,
+    index: canonicalIndex,
+    sourceImageUrl,
+    sort,
+    imageAnalysis,
+    selectedBullets: effectiveSelectedBullets,
+    queryEmbedding,
+    apiKey: process.env.OPENAI_API_KEY,
+    includeSourceImage: debug
+  });
+  const results = filterResultsByRefreshAge(
+    normalizedSearchCategories.normalized.length
+      ? filterSearchResultsByCategory(searchResponse.results, normalizedSearchCategories.normalized)
+      : searchResponse.results,
+    refreshAge
+  );
+  const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
+
+  return {
+    query,
+    category_filter: category,
+    refresh_age_filter: refreshAge,
+    sort,
+    match_mode: matchMode,
+    source_image_url: sourceImageUrl,
+    debug,
+    parsed,
+    seating_type: resolvedVisualType || "",
+    visual_type: resolvedVisualType || "",
+    seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
+    seating_type_source: seatingTypeSource,
+    category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
+    seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+    visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+    selected_bullets: effectiveSelectedBullets,
+    text_query_traits: textQueryTraits,
+    query_embedding: queryEmbedding,
+    reranker_used: searchResponse.reranker_used,
+    total_results: clientResults.length,
+    results: clientResults
+  };
+}
+
+async function warmSuggestedSearchCache() {
+  if (!process.env.OPENAI_API_KEY) {
+    return false;
+  }
+  if (suggestedSearchCacheWarmPromise) {
+    return suggestedSearchCacheWarmPromise;
+  }
+  suggestedSearchCacheWarmPromise = (async () => {
+    const nextCache = new Map();
+    const expiresAt = Date.now() + SUGGESTED_SEARCH_CACHE_TTL_MS;
+    for (const query of seedQueries) {
+      const payload = await executeSearchQuery({
+        query,
+        category: [],
+        normalizedSearchCategories: normalizeSearchCategoryFilters([]),
+        refreshAge: "",
+        matchMode: "balanced",
+        sourceImageUrl: "",
+        debug: false,
+        sort: "auto",
+        disableVisualTypeInference: false,
+        explicitVisualType: "",
+        imageAnalysis: null,
+        rawSelectedBullets: null,
+        serveFullSearchResponse: false
+      });
+      nextCache.set(String(query).trim().toLowerCase(), {
+        query,
+        payload: cloneJsonPayload(payload),
+        cachedAt: Date.now(),
+        expiresAt
+      });
+    }
+    suggestedSearchCache = nextCache;
+    console.log("[seed-cache] warmed", {
+      queryCount: suggestedSearchCache.size,
+      expiresAt: new Date(expiresAt).toISOString()
+    });
+    return true;
+  })()
+    .catch((error) => {
+      console.error("[seed-cache] warm failed", error);
+      return false;
+    })
+    .finally(() => {
+      suggestedSearchCacheWarmPromise = null;
+    });
+  return suggestedSearchCacheWarmPromise;
 }
 
 async function loadStoredImageContextForRequest(requestUrl) {
@@ -3181,135 +3434,38 @@ const server = http.createServer(async (request, response) => {
         invalid_category_filters: normalizedSearchCategories.invalid
       });
     }
-
-    let inferredCategory = null;
-    let resolvedVisualType = explicitVisualType;
-    let seatingTypeSource = explicitVisualType ? "explicit" : "all";
-    const inferCategoryPromise = (!imageAnalysis && !disableVisualTypeInference)
-      ? inferTextQueryCategory(query, {
-          apiKey: process.env.OPENAI_API_KEY,
-          model: "gpt-4o-mini"
-        })
-      : Promise.resolve(null);
-    const bootstrapPromise = loadCanonicalBootstrapData();
-    const bootstrapData = await bootstrapPromise;
-    const parsePromise = parseSearchQuery(query, bootstrapData.brands || [], {
-      apiKey: process.env.OPENAI_API_KEY,
-      model: process.env.QUERY_MODEL
-    });
-    const [parsedCategory, parsed] = await Promise.all([inferCategoryPromise, parsePromise]);
-    inferredCategory = parsedCategory;
-    if (!imageAnalysis && !disableVisualTypeInference) {
-      if (!resolvedVisualType && inferredCategory?.status === "resolved") {
-        resolvedVisualType = String(inferredCategory.category_key || "").trim();
-        seatingTypeSource = "inferred";
+    if (canServeSuggestedSearchFromCache(request, {
+      query,
+      category,
+      refreshAge,
+      sort,
+      sourceImageUrl,
+      explicitVisualType,
+      imageAnalysis
+    })) {
+      const cached = getSuggestedSearchCacheEntry(query);
+      if (cached?.payload) {
+        console.log("[seed-cache] hit", { query });
+        return json(response, 200, cloneJsonPayload(cached.payload));
       }
     }
-    if (disableVisualTypeInference) {
-      seatingTypeSource = "all";
-    }
 
-    const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
-    parsed.seating_type = resolvedVisualType || "";
-    parsed.visual_type = resolvedVisualType || "";
-    let textQueryTraits = null;
-    if (!imageAnalysis) {
-      if (!resolvedVisualType) {
-        console.warn("[text-query-traits] skipping extraction because visualType is unresolved");
-      } else {
-        textQueryTraits = await extractTextQueryTraits(query, {
-          apiKey: process.env.OPENAI_API_KEY,
-          model: "gpt-4.1-mini",
-          seatingType: resolvedVisualType
-        });
-      }
-    }
-    const effectiveSelectedBullets = mergeStructuredBullets(
-      resolvedVisualType,
-      textQueryTraits?.search_bullets,
-      selectedBullets
-    );
-    const queryEmbedding = await resolveQueryEmbedding({
+    const payload = await executeSearchQuery({
       query,
-      imageAnalysis,
-      selectedBullets: effectiveSelectedBullets,
-      apiKey: process.env.OPENAI_API_KEY
-    });
-    const canonicalIndex = await loadCanonicalReadModelForSearch({
-      queryEmbedding,
-      parsed,
-      imageAnalysis,
+      category,
+      normalizedSearchCategories,
+      refreshAge,
+      matchMode,
       sourceImageUrl,
-      includeSourceImage: debug
-    });
-    if (!canonicalIndex?.images?.length) {
-      return json(response, 200, {
-        query,
-        category_filter: category,
-        refresh_age_filter: refreshAge,
-        sort,
-        match_mode: matchMode,
-        source_image_url: sourceImageUrl,
-        debug,
-        parsed,
-        seating_type: resolvedVisualType || "",
-        visual_type: resolvedVisualType || "",
-        seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
-        seating_type_source: seatingTypeSource,
-        category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
-        seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
-        visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
-        selected_bullets: effectiveSelectedBullets,
-        text_query_traits: textQueryTraits,
-        query_embedding: queryEmbedding,
-        reranker_used: false,
-        total_results: 0,
-        results: []
-      });
-    }
-    const searchResponse = await searchIndex({
-      query,
-      parsed,
-      index: canonicalIndex,
-      sourceImageUrl,
-      sort,
-      imageAnalysis,
-      selectedBullets: effectiveSelectedBullets,
-      queryEmbedding,
-      apiKey: process.env.OPENAI_API_KEY,
-      includeSourceImage: debug
-    });
-    const results = filterResultsByRefreshAge(
-      normalizedSearchCategories.normalized.length
-        ? filterSearchResultsByCategory(searchResponse.results, normalizedSearchCategories.normalized)
-        : searchResponse.results,
-      refreshAge
-    );
-    const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
-
-    return json(response, 200, {
-      query,
-      category_filter: category,
-      refresh_age_filter: refreshAge,
-      sort,
-      match_mode: matchMode,
-      source_image_url: sourceImageUrl,
       debug,
-      parsed,
-      seating_type: resolvedVisualType || "",
-      visual_type: resolvedVisualType || "",
-      seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
-      seating_type_source: seatingTypeSource,
-      category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
-      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
-      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
-      selected_bullets: effectiveSelectedBullets,
-      text_query_traits: textQueryTraits,
-      query_embedding: queryEmbedding,
-      reranker_used: searchResponse.reranker_used,
-      total_results: clientResults.length,
-      results: clientResults
+      sort,
+      disableVisualTypeInference,
+      explicitVisualType,
+      imageAnalysis,
+      rawSelectedBullets,
+      serveFullSearchResponse
     });
+    return json(response, 200, payload);
   }
 
   if (url.pathname === "/api/refine-search" && request.method === "POST") {
@@ -3922,4 +4078,11 @@ server.on("error", (error) => {
 
 server.listen(port, host, () => {
   console.log(`Image Search prototype running at http://${host}:${port}`);
+  void warmSuggestedSearchCache();
+  if (suggestedSearchCacheRefreshTimer) {
+    clearInterval(suggestedSearchCacheRefreshTimer);
+  }
+  suggestedSearchCacheRefreshTimer = setInterval(() => {
+    void warmSuggestedSearchCache();
+  }, SUGGESTED_SEARCH_CACHE_TTL_MS);
 });
