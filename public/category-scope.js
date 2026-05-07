@@ -13,6 +13,11 @@ export function normalizeSeatingCategoryKey(value = "") {
   return normalizeVisualTypeKey(value);
 }
 
+// NOTE: Keep this canonical frontend category-scope list aligned with the
+// backend deterministic resolver in `src/captioning.js` for phrases that
+// should drive detection and stripping. This list intentionally stays narrower
+// than the display-only list below so residual synonym words like "sofas"
+// remain visible to the user after category resolution.
 const CATEGORY_SCOPE_PHRASES = {
   task_collab_chair: ["task chair", "task chairs", "work chair", "work chairs", "collaborative chair", "collaborative chairs"],
   guest_chair: ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chair", "multi-use guest chairs"],
@@ -24,6 +29,49 @@ const CATEGORY_SCOPE_PHRASES = {
   cafe_dining: ["cafe table", "cafe tables", "dining table", "dining tables", "bistro table", "bistro tables", "kitchen table", "kitchen tables", "restaurant table", "restaurant tables"],
   training: ["training table", "training tables", "flip table", "flip tables", "flip-top table", "flip-top tables", "folding table", "folding tables", "seminar table", "seminar tables", "classroom table", "classroom tables"],
   huddle_collaborative: ["huddle table", "huddle tables", "collaboration table", "collaboration tables", "team table", "team tables"]
+};
+
+// NOTE: This display-only list is broader on purpose. It includes:
+// 1. deterministic backend synonyms from `src/captioning.js`
+// 2. additional common AI-resolved category-leading nouns that users may type
+//    even when they are not deterministic router phrases yet
+// We use it only to decide whether the residual already reads as
+// "category-leading text", so the composer should skip inserting "with".
+const CATEGORY_SCOPE_DISPLAY_LEAD_PHRASES = {
+  task_collab_chair: [...CATEGORY_SCOPE_PHRASES.task_collab_chair],
+  guest_chair: [...CATEGORY_SCOPE_PHRASES.guest_chair],
+  lounge_chair: [
+    ...CATEGORY_SCOPE_PHRASES.lounge_chair,
+    "sofa",
+    "sofas",
+    "sectional",
+    "sectionals",
+    "loveseat",
+    "loveseats",
+    "couch",
+    "couches",
+    "settee",
+    "settees",
+    "daybed",
+    "daybeds",
+    "chaise",
+    "chaises",
+    "chaise lounge",
+    "chaise lounges"
+  ],
+  bench: [...CATEGORY_SCOPE_PHRASES.bench],
+  stool: [
+    ...CATEGORY_SCOPE_PHRASES.stool,
+    "barstool",
+    "barstools",
+    "counterstool",
+    "counterstools"
+  ],
+  conference: [...CATEGORY_SCOPE_PHRASES.conference],
+  occasional: [...CATEGORY_SCOPE_PHRASES.occasional],
+  cafe_dining: [...CATEGORY_SCOPE_PHRASES.cafe_dining],
+  training: [...CATEGORY_SCOPE_PHRASES.training],
+  huddle_collaborative: [...CATEGORY_SCOPE_PHRASES.huddle_collaborative]
 };
 
 const GENERIC_VISUAL_TYPE_REFERENCE_PHRASES = [
@@ -72,6 +120,20 @@ export function getPrimaryCategoryScopeSelection(values = []) {
 
 export function getCategoryScopePhrases(categoryScope = "") {
   return CATEGORY_SCOPE_PHRASES[normalizeVisualTypeKey(categoryScope)] || [];
+}
+
+export function getCategoryScopeDisplayLeadPhrases(categoryScope = "") {
+  return CATEGORY_SCOPE_DISPLAY_LEAD_PHRASES[normalizeVisualTypeKey(categoryScope)] || [];
+}
+
+export function residualStartsWithCategoryLeadPhrase(query = "", categoryScope = "") {
+  const normalizedQuery = normalizeWhitespace(query).toLowerCase();
+  if (!normalizedQuery) {
+    return false;
+  }
+  return getCategoryScopeDisplayLeadPhrases(categoryScope).some((phrase) => (
+    normalizedQuery === phrase || normalizedQuery.startsWith(`${phrase} `)
+  ));
 }
 
 export function detectCategoryScopeFromQuery(query = "") {

@@ -3,6 +3,7 @@ import {
   buildResultsPageSearch,
   detectCategoryScopeFromQuery,
   getPrimaryCategoryScopeSelection,
+  residualStartsWithCategoryLeadPhrase,
   normalizeCategoryScopeSelection,
   normalizeVisualTypeKey,
   splitQueryAroundCategoryScope,
@@ -482,6 +483,21 @@ function enterBrowseMode(query = "", extraParams = {}) {
   window.history.pushState({}, "", nextUrl);
 }
 
+function shouldDeferBrowseTransitionForCachedSearch(query = "", options = {}) {
+  if (!state.landingOnlyMode) {
+    return false;
+  }
+  const normalizedQuery = String(query || "").trim();
+  if (!normalizedQuery) {
+    return false;
+  }
+  const hasImageAnalysis = Boolean(options.imageAnalysis && typeof options.imageAnalysis === "object");
+  if (hasImageAnalysis) {
+    return false;
+  }
+  return isSeedQuery(normalizedQuery);
+}
+
 function returnToHomepageState() {
   window.location.href = HOME_PATH;
 }
@@ -814,6 +830,30 @@ function startCachedSearchProgressStrip() {
   clearCachedSearchProgressTimers();
   state.cachedSearchProgressActive = true;
   state.cachedSearchProgressPercent = 0;
+  document.body.classList.add("results-loading-active");
+  if (elements.resultsLoadingPanel) {
+    elements.resultsLoadingPanel.hidden = true;
+  }
+  if (elements.resultsGrid) {
+    elements.resultsGrid.hidden = true;
+  }
+  if (elements.resultsHeader) {
+    elements.resultsHeader.hidden = true;
+  }
+  if (elements.resultsLayout) {
+    elements.resultsLayout.classList.remove("has-sidebar");
+  }
+  if (elements.resultsSidebar) {
+    elements.resultsSidebar.hidden = true;
+    elements.resultsSidebar.classList.remove("is-open");
+  }
+  if (elements.refineToggleButton) {
+    elements.refineToggleButton.hidden = true;
+  }
+  if (elements.refineDrawerBackdrop) {
+    elements.refineDrawerBackdrop.hidden = true;
+  }
+  state.refineDrawerOpen = false;
   elements.cachedSearchProgressStrip.hidden = false;
   elements.cachedSearchProgressStrip.style.transition =
     "width 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease";
@@ -847,6 +887,13 @@ function finishCachedSearchProgressStrip() {
   clearCachedSearchProgressTimers();
   state.cachedSearchProgressActive = false;
   state.cachedSearchProgressPercent = 100;
+  document.body.classList.remove("results-loading-active");
+  if (elements.resultsGrid) {
+    elements.resultsGrid.hidden = false;
+  }
+  if (elements.resultsHeader) {
+    elements.resultsHeader.hidden = false;
+  }
   elements.cachedSearchProgressStrip.hidden = false;
   elements.cachedSearchProgressStrip.style.transition =
     "width 150ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease";
@@ -1761,6 +1808,13 @@ function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
   const normalizedCategory = normalizeVisualTypeKey(categoryKey);
   const categoryPhrase = getCategoryPhraseForQuery(normalizedCategory);
   const residual = String(residualQuery || "").trim();
+
+  // Connector insertion precedence:
+  // 1. No category phrase -> show only the residual
+  // 2. Empty residual -> show only the category phrase
+  // 3. Residual already starts with a connector -> preserve it
+  // 4. Residual already starts with a category-leading synonym/noun -> do not inject "with"
+  // 5. Otherwise insert the natural connector: "<category> with <residual>"
   if (!categoryPhrase) {
     return residual;
   }
@@ -1768,6 +1822,9 @@ function buildSearchQueryFromComposer(categoryKey = "", residualQuery = "") {
     return categoryPhrase;
   }
   if (/^(with|featuring|for|in)\b/i.test(residual)) {
+    return `${categoryPhrase} ${residual}`.trim();
+  }
+  if (residualStartsWithCategoryLeadPhrase(residual, normalizedCategory)) {
     return `${categoryPhrase} ${residual}`.trim();
   }
   return `${categoryPhrase} with ${residual}`.trim();
@@ -4377,6 +4434,20 @@ function applyActiveSearchContext({
   preserveOriginal = false,
   refinementActive = false
 }) {
+  if (state.landingOnlyMode) {
+    const browseParams = {};
+    const pendingVisualType = String(
+      visualType ||
+      seatingType ||
+      getPayloadVisualType(payload) ||
+      getPayloadVisualType(payload?.parsed) ||
+      ""
+    ).trim();
+    if (pendingVisualType) {
+      browseParams.visual_type = pendingVisualType;
+    }
+    enterBrowseMode(query, browseParams);
+  }
   state.lastQuery = String(query || "").trim();
   state.currentBaseQueryEmbedding = Array.isArray(baseQueryEmbedding) ? [...baseQueryEmbedding] : Array.isArray(payload?.query_embedding) ? payload.query_embedding : [];
   state.currentQueryEmbedding = Array.isArray(payload?.query_embedding) ? payload.query_embedding : [];
@@ -4924,24 +4995,15 @@ async function applyStoredImageSearchContext(context = {}) {
     return;
   }
 
-  setSearchInputValue(context.query);
-  if (state.landingOnlyMode) {
-    enterBrowseMode(context.query, {
-      visual_type: context.visualType || ""
-    });
+  if (!state.landingOnlyMode) {
+    setSearchInputValue(context.query);
   }
 
   state.focusArea = null;
   state.refinementLoading = true;
   setStatus("");
-  setResultsLoading({
-    mode: "quick",
-    step: "search",
-    percent: 42,
-    indeterminate: true,
-    title: "Opening image results...",
-    detail: "Loading matches inspired by the selected reference image."
-  });
+  setResultsLoading("");
+  startCachedSearchProgressStrip();
   renderRefineSidebar();
   if (state.lastPayload) {
     renderResults(state.lastPayload, state.lastQuery);
@@ -4976,6 +5038,8 @@ async function applyStoredImageSearchContext(context = {}) {
     state.refinementLoading = false;
     renderResults(state.lastPayload, state.lastQuery);
     setStatus(error.message || "Stored image search failed.", "error");
+  } finally {
+    finishCachedSearchProgressStrip();
   }
 }
 
@@ -5803,14 +5867,16 @@ function renderSeedQueries(seedQueries) {
     button.type = "button";
     button.textContent = query;
     button.addEventListener("click", () => {
-      setSearchInputValue(query);
-      if (state.landingOnlyMode) {
+      if (!state.landingOnlyMode) {
+        setSearchInputValue(query);
+      }
+      if (state.landingOnlyMode && !shouldDeferBrowseTransitionForCachedSearch(query)) {
         enterBrowseMode(query);
       }
       runSearch(query, { sort: state.sortMode, categoryFilter: state.categoryFilter });
     });
-    elements.seedQueries.appendChild(button);
-  });
+      elements.seedQueries.appendChild(button);
+    });
 }
 
 function isSeedQuery(query = "") {
@@ -9159,28 +9225,12 @@ async function bootstrap() {
     if (shouldHoldInitialShell) {
       const isHomepageImageExample = pendingImageSearchHandoff?.source === "homepage-image-example";
       const isHomepageSeedQuery = !pendingImageSearchHandoff && isSeedQuery(initialQuery);
-      const initialLoadingMode = isHomepageImageExample || isHomepageSeedQuery ? "quick" : "text";
-      setResultsLoading(
-        isHomepageImageExample
-          ? {
-              mode: "quick",
-              step: "search",
-              percent: 42,
-              indeterminate: true,
-              title: "Opening image results...",
-              detail: "Loading matches inspired by the selected reference image."
-            }
-          : isHomepageSeedQuery
-            ? {
-                mode: "quick",
-                step: "search",
-                percent: 38,
-                indeterminate: true,
-                title: "Opening suggested search...",
-                detail: "Loading curated results for this suggestion."
-              }
-            : "Embedding the visual query and ranking image captions..."
-      );
+      if (isHomepageImageExample || isHomepageSeedQuery) {
+        setResultsLoading("");
+        startCachedSearchProgressStrip();
+      } else {
+        setResultsLoading("Embedding the visual query and ranking image captions...");
+      }
     }
     renderSearchComposer();
     const shouldOpenImageModal = launchParams.get("open_image") === "1";
@@ -9360,7 +9410,7 @@ elements.searchForm.addEventListener("submit", (event) => {
     state.categoryScopeMode = "all";
     renderSearchComposer(requestQuery);
   }
-  if (state.landingOnlyMode) {
+  if (state.landingOnlyMode && !shouldDeferBrowseTransitionForCachedSearch(requestQuery)) {
     enterBrowseMode(requestQuery, {
       visual_type: effectiveCategory
     });
