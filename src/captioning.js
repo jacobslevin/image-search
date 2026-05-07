@@ -4230,7 +4230,20 @@ export const TEXT_QUERY_CATEGORY_KEYS = textQueryCategoryKeys;
 const TEXT_QUERY_CATEGORY_PHRASES = Object.freeze({
   task_collab_chair: ["task chair", "task chairs", "work chair", "work chairs", "collaborative chair", "collaborative chairs"],
   guest_chair: ["guest seating", "guest chair", "guest chairs", "multi-use guest seating", "multi-use guest chair", "multi-use guest chairs"],
-  lounge_chair: ["lounge seating", "lounge chair", "lounge chairs", "lounge"],
+  lounge_chair: [
+    "lounge seating",
+    "lounge chair",
+    "lounge chairs",
+    "lounge",
+    "sofa",
+    "sofas",
+    "sectional",
+    "sectionals",
+    "loveseat",
+    "loveseats",
+    "couch",
+    "couches"
+  ],
   bench: ["bench seating", "bench", "benches"],
   stool: ["stool", "stools", "bar stool", "bar stools", "counter stool", "counter stools"],
   conference: ["conference table", "conference tables", "boardroom table", "boardroom tables"],
