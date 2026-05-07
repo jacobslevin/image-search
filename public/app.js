@@ -839,8 +839,11 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
   const expectedPasses = Math.max(1, Number(event.expected_passes || 2));
   const currentPass = Math.max(0, Number(event.current_pass || 0));
   const previous = state.imageAnalyzeProgress || {};
+  const isStage1Tiebreaker = currentPass >= 3 || type === "stage1_tiebreaker_started" || type === "stage1_tiebreaker_done";
+  const isStage23Tiebreaker = currentPass >= 3 || type === "run_3_started" || type === "run_3_done";
   switch (type) {
     case "stage1_started":
+    case "stage1_tiebreaker_started":
       if (state.imageAnalyzePrepareTransitionTimer) {
         window.clearTimeout(state.imageAnalyzePrepareTransitionTimer);
         state.imageAnalyzePrepareTransitionTimer = null;
@@ -850,6 +853,18 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         const remaining = Math.max(0, IMAGE_ANALYZE_MIN_PHASE_MS - elapsed);
         const beginClassify = () => {
           startImageAnalyzeClassifyPhaseNow();
+          if (isStage1Tiebreaker) {
+            setImageAnalyzeProgressState({
+              ...(state.imageAnalyzeProgress || {}),
+              step: "classify",
+              percent: Math.max(Number(state.imageAnalyzeProgress?.percent || 15), 15),
+              percentLabel: "15–30%",
+              indeterminate: true,
+              title: "Resolving classification ambiguity...",
+              detail: "Resolving classification ambiguity..."
+            });
+            renderImageAnalyzeProgress();
+          }
         };
         if (remaining > 0) {
           state.imageAnalyzePrepareTransitionTimer = window.setTimeout(() => {
@@ -863,6 +878,7 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
       break;
 
     case "stage1_done":
+    case "stage1_tiebreaker_done":
       if (state.imageAnalyzeClassifyTransitionTimer) {
         window.clearTimeout(state.imageAnalyzeClassifyTransitionTimer);
         state.imageAnalyzeClassifyTransitionTimer = null;
@@ -884,8 +900,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
             percent: 30,
             indeterminate: false,
             percentLabel: "30%",
-            title: "Analyzing image...",
-            detail: "Analyzing image..."
+            title: isStage1Tiebreaker ? "Resolving classification ambiguity..." : "Analyzing image...",
+            detail: isStage1Tiebreaker ? "Resolving classification ambiguity..." : "Analyzing image..."
           });
           renderImageAnalyzeProgress();
         };
@@ -911,8 +927,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         percentLabel: "30–85%",
         indeterminate: true,
         extractTarget: target,
-        title: "Extracting traits...",
-        detail: "Extracting traits..."
+        title: isStage23Tiebreaker ? "Resolving ambiguity..." : "Extracting traits...",
+        detail: isStage23Tiebreaker ? "Re-running extraction to resolve ambiguity..." : "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       startImageAnalyzeExtractProgressAnimation();
@@ -928,8 +944,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         percentLabel: "30–85%",
         indeterminate: true,
         extractTarget: target,
-        title: "Extracting traits...",
-        detail: "Extracting traits..."
+        title: isStage23Tiebreaker ? "Resolving ambiguity..." : "Extracting traits...",
+        detail: isStage23Tiebreaker ? "Re-running extraction to resolve ambiguity..." : "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       break;
@@ -944,8 +960,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         percentLabel: "30–85%",
         indeterminate: true,
         extractTarget: currentPass >= 3 ? 85 : resolveImageAnalyzeExtractTarget(2, expectedPasses),
-        title: "Extracting traits...",
-        detail: "Extracting traits..."
+        title: isStage23Tiebreaker ? "Resolving ambiguity..." : "Extracting traits...",
+        detail: isStage23Tiebreaker ? "Re-running extraction to resolve ambiguity..." : "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       startImageAnalyzeExtractProgressAnimation();
@@ -963,8 +979,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         percentLabel: "30–85%",
         indeterminate: true,
         extractTarget: target,
-        title: "Extracting traits...",
-        detail: "Extracting traits..."
+        title: isStage23Tiebreaker ? "Resolving ambiguity..." : "Extracting traits...",
+        detail: isStage23Tiebreaker ? "Re-running extraction to resolve ambiguity..." : "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       break;

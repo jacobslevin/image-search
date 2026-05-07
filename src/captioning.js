@@ -5407,8 +5407,22 @@ async function voteStage1Classifications(imageInput, options = {}) {
   ];
 
   if (!allStage1VotesAgree(runs[0], runs[1])) {
+    if (typeof options.progressCallback === "function") {
+      options.progressCallback({
+        type: "stage1_tiebreaker_started",
+        current_pass: 3,
+        expected_passes: 3
+      });
+    }
     const run3 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
     runs.push({ run_label: "run_3", stage1: run3.data, usage: run3.usage });
+    if (typeof options.progressCallback === "function") {
+      options.progressCallback({
+        type: "stage1_tiebreaker_done",
+        current_pass: 3,
+        expected_passes: 3
+      });
+    }
   }
 
   const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
