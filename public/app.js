@@ -671,6 +671,14 @@ function getTextSearchStepConfig(stepId = "parse") {
 }
 
 function getResultsLoadingConfig(mode = "text", stepId = "") {
+  if (String(mode || "").trim() === "quick") {
+    return {
+      eyebrow: "Loading Results",
+      ariaLabel: "Quick results loading",
+      defaultStep: "search",
+      steps: []
+    };
+  }
   if (String(mode || "").trim() === "image") {
     return {
       eyebrow: "Image Search Progress",
@@ -721,6 +729,9 @@ function renderResultsLoadingProgress() {
   const mode = String(progress.mode || state.resultsLoadingMode || "text").trim() || "text";
   const modeConfig = getResultsLoadingConfig(mode, progress.step);
   const eyebrow = elements.resultsLoadingPanel?.querySelector(".image-analyze-loading-eyebrow");
+  if (elements.resultsLoadingPanel) {
+    elements.resultsLoadingPanel.classList.toggle("is-quick", mode === "quick");
+  }
   if (eyebrow) {
     eyebrow.textContent = modeConfig.eyebrow;
   }
@@ -731,18 +742,20 @@ function renderResultsLoadingProgress() {
     elements.resultsLoadingCopy.textContent = progress.detail;
   }
   if (elements.resultsLoadingPercent) {
+    elements.resultsLoadingPercent.hidden = mode === "quick";
     elements.resultsLoadingPercent.textContent = progress.percentLabel || `${progress.percent}%`;
   }
   if (elements.resultsLoadingBar) {
     elements.resultsLoadingBar.style.width = `${clamp(Number(progress.percent || 0), 0, 100)}%`;
     elements.resultsLoadingBar.classList.toggle("is-indeterminate", Boolean(progress.indeterminate));
   }
+  if (elements.resultsLoadingSteps) {
+    elements.resultsLoadingSteps.hidden = modeConfig.steps.length === 0;
+    elements.resultsLoadingSteps.setAttribute("aria-label", modeConfig.ariaLabel);
+  }
   const steps = elements.resultsLoadingSteps
     ? [...elements.resultsLoadingSteps.querySelectorAll(".image-analyze-segment")]
     : [];
-  if (elements.resultsLoadingSteps) {
-    elements.resultsLoadingSteps.setAttribute("aria-label", modeConfig.ariaLabel);
-  }
   steps.forEach((item, index) => {
     item.textContent = modeConfig.steps[index]?.label || "";
     item.dataset.step = modeConfig.steps[index]?.id || "";
@@ -5315,13 +5328,13 @@ function setResultsLoading(message = "") {
     state.refineDrawerOpen = false;
     const genericStep = getResultsLoadingStepConfig(
       loadingState.mode,
-      loadingState.mode === "image" ? "match" : "parse"
+      loadingState.mode === "image" ? "match" : loadingState.mode === "quick" ? "search" : "parse"
     );
     if (loadingState.generic) {
       setResultsLoadingProgressState({
         mode: loadingState.mode,
         step: genericStep.id,
-        percent: loadingState.mode === "image" ? genericStep.percent : 10,
+        percent: loadingState.mode === "image" ? genericStep.percent : loadingState.mode === "quick" ? 38 : 10,
         percentLabel: genericStep.percentLabel,
         indeterminate: true,
         title: loadingState.title,
@@ -5330,7 +5343,7 @@ function setResultsLoading(message = "") {
     } else {
       const stepMeta = getResultsLoadingStepConfig(
         loadingState.mode,
-        loadingState.step || (loadingState.mode === "image" ? "match" : "parse")
+        loadingState.step || (loadingState.mode === "image" ? "match" : loadingState.mode === "quick" ? "search" : "parse")
       );
       setResultsLoadingProgressState({
         mode: loadingState.mode,
@@ -9035,19 +9048,29 @@ async function bootstrap() {
     const shouldHoldInitialShell = Boolean(initialQuery);
     setInitialSearchPending(shouldHoldInitialShell);
     if (shouldHoldInitialShell) {
-      const initialLoadingMode = pendingImageSearchHandoff?.source === "homepage-image-example" ? "image" : "text";
+      const isHomepageImageExample = pendingImageSearchHandoff?.source === "homepage-image-example";
+      const isHomepageSeedQuery = !pendingImageSearchHandoff && isSeedQuery(initialQuery);
+      const initialLoadingMode = isHomepageImageExample || isHomepageSeedQuery ? "quick" : "text";
       setResultsLoading(
-        initialLoadingMode === "image"
+        isHomepageImageExample
           ? {
-              mode: "image",
-              step: "match",
-              percent: 90,
-              percentLabel: "90%",
+              mode: "quick",
+              step: "search",
+              percent: 42,
               indeterminate: true,
-              title: "Matching catalog products...",
-              detail: "Using the selected reference image to find the closest matches."
+              title: "Opening image results...",
+              detail: "Loading matches inspired by the selected reference image."
             }
-          : "Embedding the visual query and ranking image captions..."
+          : isHomepageSeedQuery
+            ? {
+                mode: "quick",
+                step: "search",
+                percent: 38,
+                indeterminate: true,
+                title: "Opening suggested search...",
+                detail: "Loading curated results for this suggestion."
+              }
+            : "Embedding the visual query and ranking image captions..."
       );
     }
     renderSearchComposer();

@@ -2690,6 +2690,51 @@ body.landing-home .seed-query.is-active {
   width: min(100%, 420px);
 }
 
+.results-loading-panel.is-quick {
+  min-height: 260px;
+  padding-top: 36px;
+}
+
+.results-loading-panel.is-quick .results-loading-card {
+  width: min(100%, 560px);
+}
+
+.results-loading-panel.is-quick .text-search-loading-card {
+  padding: 28px 28px 24px;
+  gap: 0;
+}
+
+.results-loading-panel.is-quick .image-analyze-loading-header {
+  align-items: start;
+}
+
+.results-loading-panel.is-quick .image-analyze-loading-eyebrow {
+  margin-bottom: 10px;
+}
+
+.results-loading-panel.is-quick .image-analyze-loading-title {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.results-loading-panel.is-quick .image-analyze-progressbar {
+  margin-top: 18px;
+  height: 8px;
+}
+
+.results-loading-panel.is-quick .image-analyze-segmented-track,
+.results-loading-panel.is-quick .image-analyze-loading-percent {
+  display: none !important;
+}
+
+.results-loading-panel.is-quick .results-loading-copy,
+.results-loading-panel.is-quick .image-analyze-loading-detail {
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  max-width: 42ch;
+}
+
 .text-search-loading-card {
   width: 100%;
   max-width: none;
