@@ -2756,7 +2756,7 @@ function updateSearchComposerClearButton() {
   }
   const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
   const hasActiveSubmittedSearch = Boolean(String(state.lastQuery || "").trim());
-  const shouldShow = hasActiveSubmittedSearch && hasComposableContent;
+  const shouldShow = hasActiveSubmittedSearch && !state.searchInputEditedSinceLastSearch && hasComposableContent;
   elements.clearSearchInputButton.hidden = !shouldShow;
   if (!shouldShow) {
     if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
