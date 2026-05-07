@@ -415,6 +415,10 @@ h1 {
   line-height: 1.45;
 }
 
+.search-entry-copy-mobile {
+  display: none;
+}
+
 .search-entry-upload-button {
   margin-top: 18px;
   align-self: center;
@@ -4506,6 +4510,31 @@ body.results-loading-active .results-layout {
 
   .search-secondary {
     margin-top: 14px;
+  }
+
+  .search-entry-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .search-entry-card {
+    min-height: 0;
+    padding: 24px 22px;
+    border-radius: 22px;
+  }
+
+  .search-entry-card-image {
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgba(124, 109, 240, 0.3);
+  }
+
+  .search-entry-copy-desktop {
+    display: none;
+  }
+
+  .search-entry-copy-mobile {
+    display: inline;
   }
 
   .search-field {

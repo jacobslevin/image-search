@@ -56,7 +56,10 @@
             <span class="search-entry-badge">Recommended</span>
             <div class="search-entry-icon search-entry-icon-image" aria-hidden="true"></div>
             <h2 class="search-entry-title">Search by image</h2>
-            <p class="search-entry-copy">Drop a photo or screenshot</p>
+            <p class="search-entry-copy">
+              <span class="search-entry-copy-desktop">Drop a photo or screenshot</span>
+              <span class="search-entry-copy-mobile">Tap to upload a photo</span>
+            </p>
             <button id="openImageSearch" class="search-entry-upload-button" type="button" aria-label="Search from an inspiration image">
               Upload image
             </button>
@@ -275,7 +278,7 @@
                   <p class="image-search-upload-title">Upload image</p>
                   <p class="image-search-upload-subtitle">JPG or PNG</p>
                 </div>
-                <input id="imageUploadInput" type="file" accept="image/*" hidden />
+                <input id="imageUploadInput" type="file" accept="image/*" capture="environment" hidden />
                 <button id="imageUploadButton" class="upload-button image-search-choose-button" type="button">Choose Image</button>
               </div>
               <p id="selectedFileName" class="modal-helper image-search-file-name" hidden></p>
