@@ -4696,6 +4696,31 @@ async function ensureStoredImageContext(result = {}, matchingImage = null) {
 
   const fetched = await fetchStoredImageContext(result, matchingImage);
   const baseContext = buildStoredImageSearchContext(result, matchingImage);
+  const fetchedVisualType = String(
+    fetched?.visual_type ||
+    fetched?.seating_type ||
+    baseContext.visualType ||
+    ""
+  ).trim();
+  const fetchedEnumFields = fetched?.enum_fields || baseContext.imageAnalysis?.image_traits || {};
+  const fetchedBulletTexts = buildStoredImageSearchBullets(fetchedEnumFields, fetchedVisualType);
+  const fetchedSelectedBullets = normalizeSelectedBullets(
+    fetchedBulletTexts.length
+      ? fetchedBulletTexts
+      : [
+          ...baseContext.selectedBullets.essential,
+          ...baseContext.selectedBullets.normal,
+          ...baseContext.selectedBullets.low
+        ],
+    fetchedVisualType
+  );
+  const fetchedBulletControls = normalizeBulletControls(
+    [
+      ...fetchedSelectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...fetchedSelectedBullets.normal.map((text) => ({ text, priority: "normal" })),
+      ...fetchedSelectedBullets.low.map((text) => ({ text, priority: "low" }))
+    ]
+  );
   const merged = fetched
     ? {
         ...baseContext,
@@ -4707,17 +4732,19 @@ async function ensureStoredImageContext(result = {}, matchingImage = null) {
           "image search"
         ).trim(),
         embedding: normalizeClientEmbedding(fetched.visual_summary_embedding || []),
-        visualType: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+        selectedBullets: fetchedSelectedBullets,
+        bulletControls: fetchedBulletControls,
+        visualType: fetchedVisualType,
         imageAnalysis: {
           ...baseContext.imageAnalysis,
           image_preview_url: fetched.image_url || baseContext.imageAnalysis.image_preview_url || "",
-          visual_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
-          seating_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
+          visual_type: fetchedVisualType,
+          seating_type: fetchedVisualType,
           stage1: {
-            visual_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim(),
-            seating_type: String(fetched.visual_type || fetched.seating_type || baseContext.visualType || "").trim()
+            visual_type: fetchedVisualType,
+            seating_type: fetchedVisualType
           },
-          image_traits: fetched.enum_fields || baseContext.imageAnalysis.image_traits || {},
+          image_traits: fetchedEnumFields,
           stage2: {
             visual_summary: String(
               fetched.visual_summary ||
