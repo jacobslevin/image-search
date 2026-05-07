@@ -103,6 +103,7 @@ const state = {
   imageAnalyzeProgressPollTimer: null,
   imageAnalyzeProgressRequestId: "",
   imageAnalyzeProgressSequence: 0,
+  resultsLoadingMode: "text",
   imageAnalyzePrepareStartedAt: 0,
   imageAnalyzeClassifyStartedAt: 0,
   imageAnalyzePrepareTransitionTimer: null,
@@ -669,10 +670,35 @@ function getTextSearchStepConfig(stepId = "parse") {
   return TEXT_SEARCH_PROGRESS_STEPS.find((step) => step.id === stepId) || TEXT_SEARCH_PROGRESS_STEPS[0];
 }
 
+function getResultsLoadingConfig(mode = "text", stepId = "") {
+  if (String(mode || "").trim() === "image") {
+    return {
+      eyebrow: "Image Search Progress",
+      ariaLabel: "Image search progress",
+      defaultStep: "match",
+      steps: IMAGE_ANALYZE_PROGRESS_STEPS.slice(0, 4)
+    };
+  }
+  return {
+    eyebrow: "Text Search Progress",
+    ariaLabel: "Text search progress",
+    defaultStep: "parse",
+    steps: TEXT_SEARCH_PROGRESS_STEPS.slice(0, 4)
+  };
+}
+
+function getResultsLoadingStepConfig(mode = "text", stepId = "") {
+  const config = getResultsLoadingConfig(mode, stepId);
+  return config.steps.find((step) => step.id === stepId) || config.steps[0];
+}
+
 function setResultsLoadingProgressState(nextProgress = {}) {
-  const step = getTextSearchStepConfig(nextProgress.step);
+  const mode = String(nextProgress.mode || state.resultsLoadingMode || "text").trim() || "text";
+  const step = getResultsLoadingStepConfig(mode, nextProgress.step);
   const percent = clamp(Number(nextProgress.percent ?? step.percent) || 0, 0, 100);
+  state.resultsLoadingMode = mode;
   state.resultsLoadingProgress = {
+    mode,
     step: step.id,
     percent,
     percentLabel: String(nextProgress.percentLabel || step.percentLabel || `${Math.round(percent)}%`).trim(),
@@ -684,6 +710,7 @@ function setResultsLoadingProgressState(nextProgress = {}) {
 
 function renderResultsLoadingProgress() {
   const progress = state.resultsLoadingProgress || {
+    mode: state.resultsLoadingMode || "text",
     step: "parse",
     percent: 0,
     percentLabel: "0%",
@@ -691,6 +718,12 @@ function renderResultsLoadingProgress() {
     title: "Understanding your query...",
     detail: "Preparing the best matches before the result grid appears."
   };
+  const mode = String(progress.mode || state.resultsLoadingMode || "text").trim() || "text";
+  const modeConfig = getResultsLoadingConfig(mode, progress.step);
+  const eyebrow = elements.resultsLoadingPanel?.querySelector(".image-analyze-loading-eyebrow");
+  if (eyebrow) {
+    eyebrow.textContent = modeConfig.eyebrow;
+  }
   if (elements.resultsLoadingTitle) {
     elements.resultsLoadingTitle.textContent = progress.title;
   }
@@ -707,7 +740,14 @@ function renderResultsLoadingProgress() {
   const steps = elements.resultsLoadingSteps
     ? [...elements.resultsLoadingSteps.querySelectorAll(".image-analyze-segment")]
     : [];
-  const activeIndex = TEXT_SEARCH_PROGRESS_STEPS.findIndex((step) => step.id === progress.step);
+  if (elements.resultsLoadingSteps) {
+    elements.resultsLoadingSteps.setAttribute("aria-label", modeConfig.ariaLabel);
+  }
+  steps.forEach((item, index) => {
+    item.textContent = modeConfig.steps[index]?.label || "";
+    item.dataset.step = modeConfig.steps[index]?.id || "";
+  });
+  const activeIndex = modeConfig.steps.findIndex((step) => step.id === progress.step);
   steps.forEach((item, index) => {
     const isComplete = progress.percent >= 100 || index < activeIndex;
     item.classList.toggle("is-active", index === activeIndex && progress.percent < 100);
@@ -5233,6 +5273,7 @@ function setStatus(message, kind = "info") {
 function setResultsLoading(message = "") {
   const loadingState = typeof message === "string"
     ? {
+        mode: state.resultsLoadingMode || "text",
         title: message,
         detail: message
           ? "Preparing the best matches before the result grid appears."
@@ -5240,6 +5281,7 @@ function setResultsLoading(message = "") {
         generic: true
       }
     : {
+        mode: String(message?.mode || state.resultsLoadingMode || "text").trim() || "text",
         step: String(message?.step || "").trim(),
         percent: Number(message?.percent),
         percentLabel: String(message?.percentLabel || "").trim(),
@@ -5271,19 +5313,27 @@ function setResultsLoading(message = "") {
       elements.refineDrawerBackdrop.hidden = true;
     }
     state.refineDrawerOpen = false;
-    const genericStep = getTextSearchStepConfig("parse");
+    const genericStep = getResultsLoadingStepConfig(
+      loadingState.mode,
+      loadingState.mode === "image" ? "match" : "parse"
+    );
     if (loadingState.generic) {
       setResultsLoadingProgressState({
-        step: "parse",
-        percent: 10,
+        mode: loadingState.mode,
+        step: genericStep.id,
+        percent: loadingState.mode === "image" ? genericStep.percent : 10,
         percentLabel: genericStep.percentLabel,
         indeterminate: true,
         title: loadingState.title,
         detail: loadingState.detail
       });
     } else {
-      const stepMeta = getTextSearchStepConfig(loadingState.step || "parse");
+      const stepMeta = getResultsLoadingStepConfig(
+        loadingState.mode,
+        loadingState.step || (loadingState.mode === "image" ? "match" : "parse")
+      );
       setResultsLoadingProgressState({
+        mode: loadingState.mode,
         step: stepMeta.id,
         percent: Number.isFinite(loadingState.percent) ? loadingState.percent : stepMeta.percent,
         percentLabel: loadingState.percentLabel || stepMeta.percentLabel,
@@ -8985,7 +9035,20 @@ async function bootstrap() {
     const shouldHoldInitialShell = Boolean(initialQuery);
     setInitialSearchPending(shouldHoldInitialShell);
     if (shouldHoldInitialShell) {
-      setResultsLoading("Embedding the visual query and ranking image captions...");
+      const initialLoadingMode = pendingImageSearchHandoff?.source === "homepage-image-example" ? "image" : "text";
+      setResultsLoading(
+        initialLoadingMode === "image"
+          ? {
+              mode: "image",
+              step: "match",
+              percent: 90,
+              percentLabel: "90%",
+              indeterminate: true,
+              title: "Matching catalog products...",
+              detail: "Using the selected reference image to find the closest matches."
+            }
+          : "Embedding the visual query and ranking image captions..."
+      );
     }
     renderSearchComposer();
     const shouldOpenImageModal = launchParams.get("open_image") === "1";
