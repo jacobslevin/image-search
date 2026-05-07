@@ -273,6 +273,23 @@ const STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER = [
   "frame_material"
 ];
 
+const HOMEPAGE_IMAGE_EXAMPLES = [
+  {
+    productId: "dp:14051265",
+    imageId: "dp:14051265:img:c20916f4c0601a84",
+    imageUrl: "https://content.designerpages.com/assets/39808892/3663515756_e1729d2e45_o.jpg",
+    title: "Bob Lounge Seating",
+    brand: "Coalesse"
+  },
+  {
+    productId: "dp:13890761",
+    imageId: "dp:13890761:img:9ccd46e4a138a8b9",
+    imageUrl: "https://content.designerpages.com/assets/77818013/4d78fa9d-cbcc-47f0-b0a7-06c25f1ba951.jpg",
+    title: "Coy",
+    brand: "Keilhauer"
+  }
+];
+
 const focusDrag = {
   active: false,
   mode: "move",
@@ -4716,14 +4733,32 @@ async function ensureStoredImageContext(result = {}, matchingImage = null) {
   return merged;
 }
 
-async function searchFromStoredImage(result = {}, matchingImage = null) {
-  const context = await ensureStoredImageContext(result, matchingImage);
-  if (!context.embedding.length) {
+async function applyStoredImageSearchContext(context = {}) {
+  if (!Array.isArray(context.embedding) || !context.embedding.length) {
     setStatus("This image does not have a stored embedding yet.", "error");
     return;
   }
 
   setSearchInputValue(context.query);
+  if (state.landingOnlyMode) {
+    persistImageSearchHandoff({
+      source: "homepage-image-example",
+      query: context.query,
+      payload: null,
+      selectedBullets: context.selectedBullets,
+      bulletControls: context.bulletControls,
+      baseQueryEmbedding: context.embedding,
+      visualType: context.visualType,
+      imageAnalysis: context.imageAnalysis,
+      categoryFilter: state.categoryFilter,
+      refreshAgeFilter: state.refreshAgeFilter
+    });
+    redirectToBrowseResults(context.query, {
+      visual_type: context.visualType || ""
+    });
+    return;
+  }
+
   state.focusArea = null;
   state.refinementLoading = true;
   renderRefineSidebar();
@@ -4737,7 +4772,7 @@ async function searchFromStoredImage(result = {}, matchingImage = null) {
       visualType: context.visualType,
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter,
-      sourceImageUrl: context.imageAnalysis.image_preview_url
+      sourceImageUrl: context.imageAnalysis?.image_preview_url || ""
     });
     applyActiveSearchContext({
       payload,
@@ -4761,6 +4796,28 @@ async function searchFromStoredImage(result = {}, matchingImage = null) {
     renderResults(state.lastPayload, state.lastQuery);
     setStatus(error.message || "Stored image search failed.", "error");
   }
+}
+
+async function searchFromStoredImage(result = {}, matchingImage = null) {
+  const context = await ensureStoredImageContext(result, matchingImage);
+  await applyStoredImageSearchContext(context);
+}
+
+async function runHomepageImageExampleSearch(example = null) {
+  if (!example) {
+    return;
+  }
+  const resultStub = {
+    product_id: example.productId,
+    best_image_url: example.imageUrl,
+    name: example.title
+  };
+  const matchingImage = {
+    image_id: example.imageId,
+    image_url: example.imageUrl
+  };
+  const context = await ensureStoredImageContext(resultStub, matchingImage);
+  await applyStoredImageSearchContext(context);
 }
 
 function applyRefreshedProductToResults(refreshPayload) {
@@ -5515,6 +5572,39 @@ function renderSeedQueries(seedQueries) {
     return;
   }
   elements.seedQueries.innerHTML = "";
+  if (state.landingOnlyMode) {
+    HOMEPAGE_IMAGE_EXAMPLES.forEach((example) => {
+      const button = document.createElement("button");
+      button.className = "seed-query seed-query-image-card";
+      button.type = "button";
+      button.setAttribute("aria-label", `Search from image example: ${example.title} by ${example.brand}`);
+
+      const preview = document.createElement("span");
+      preview.className = "seed-query-image-preview";
+      preview.style.backgroundImage = `url("${example.imageUrl}")`;
+      preview.setAttribute("aria-hidden", "true");
+
+      const copy = document.createElement("span");
+      copy.className = "seed-query-image-copy";
+
+      const title = document.createElement("span");
+      title.className = "seed-query-image-title";
+      title.textContent = example.title;
+
+      const brand = document.createElement("span");
+      brand.className = "seed-query-image-brand";
+      brand.textContent = example.brand;
+
+      copy.append(title, brand);
+      button.append(preview, copy);
+      button.addEventListener("click", () => {
+        runHomepageImageExampleSearch(example).catch((error) => {
+          setStatus(error.message || "Image example search failed.", "error");
+        });
+      });
+      elements.seedQueries.appendChild(button);
+    });
+  }
   (seedQueries || []).forEach((query) => {
     const button = document.createElement("button");
     button.className = "seed-query";
