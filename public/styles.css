@@ -485,17 +485,18 @@ h1 {
   align-items: center;
   justify-content: center;
   margin-left: 10px;
-  min-height: 30px;
-  padding: 0 12px;
-  border: 1px solid rgba(201, 194, 184, 0.9);
+  min-height: 28px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: #ebe8e1;
-  color: #6f6a64;
+  background: #e4e4eb;
+  color: #959bb1;
   font: inherit;
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: 0.82rem;
+  font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
+  vertical-align: middle;
   cursor: pointer;
   transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
 }
@@ -505,16 +506,15 @@ h1 {
 }
 
 .search-clear-button:hover {
-  background: #e1ddd5;
-  border-color: rgba(186, 177, 165, 0.95);
-  color: #4c4842;
+  background: #dbdbe5;
+  color: #7f86a0;
 }
 
 .search-clear-button:focus-visible {
   outline: 2px solid rgba(124, 109, 240, 0.45);
   outline-offset: 2px;
-  background: #e6e1da;
-  color: #4c4842;
+  background: #dbdbe5;
+  color: #7f86a0;
 }
 
 .search-image-trigger:hover,

@@ -2637,7 +2637,12 @@ function updateSearchComposerClearButton() {
   if (!elements.clearSearchInputButton) {
     return;
   }
-  elements.clearSearchInputButton.hidden = !hasSearchComposerClearableContent(getSearchComposerTextParts());
+  const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
+  const hasActiveQueryResults = Boolean(
+    String(state.lastQuery || "").trim() ||
+    (Array.isArray(state.lastPayload?.results) && state.lastPayload.results.length)
+  );
+  elements.clearSearchInputButton.hidden = !(hasComposableContent || hasActiveQueryResults);
 }
 
 function focusSearchComposerAtEnd() {
@@ -4896,6 +4901,14 @@ function setResultCountMarkup(value, label) {
     return;
   }
   elements.resultCount.innerHTML = `<strong>${value}</strong> ${label}`;
+  if (elements.clearSearchInputButton) {
+    const showInlineClearQuery = Boolean(String(state.lastQuery || "").trim());
+    elements.clearSearchInputButton.hidden = !showInlineClearQuery;
+    if (showInlineClearQuery) {
+      elements.resultCount.append(" ");
+      elements.resultCount.appendChild(elements.clearSearchInputButton);
+    }
+  }
 }
 
 function reportClientError(error, context = "Client error") {
