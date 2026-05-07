@@ -4851,7 +4851,6 @@ async function applyStoredImageSearchContext(context = {}) {
   if (state.lastPayload) {
     renderResults(state.lastPayload, state.lastQuery);
   }
-  setStatus("Searching from stored image...");
 
   try {
     const payload = await refineSearchResults({
@@ -4878,7 +4877,6 @@ async function applyStoredImageSearchContext(context = {}) {
     });
     state.refinementLoading = false;
     renderResults(payload, state.lastQuery);
-    setStatus("Searching from stored image.");
   } catch (error) {
     state.refinementLoading = false;
     renderResults(state.lastPayload, state.lastQuery);
