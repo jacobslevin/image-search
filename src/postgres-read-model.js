@@ -595,37 +595,6 @@ export async function loadCanonicalSearchIndex({
     limit: effectiveLimit
   });
 
-  if (rows.length < effectiveLimit) {
-    const fallbackSearch = buildSearchClauses({
-      brand,
-      compatibleVisualTypes,
-      sourceImageUrl,
-      includeSourceImage,
-      embeddingColumn: "visual_summary_embedding"
-    });
-    fallbackSearch.params.unshift(vectorLiteral);
-    const fallbackDistanceSql = `ci.visual_summary_embedding <=> $1::vector`;
-    const fallbackRows = await fetchCanonicalRankedSearchRows({
-      whereSql: `WHERE ${
-        [
-          ...fallbackSearch.clauses.map((clause, index) => clause.replace(/\$(\d+)/g, (_, n) => `$${Number(n) + 1}`)),
-          `ci.search_text_embedding IS NULL`
-        ].join(" AND ")
-      }`,
-      params: fallbackSearch.params,
-      distanceSql: fallbackDistanceSql,
-      limit: effectiveLimit - rows.length
-    });
-    const seen = new Set(rows.map((row) => `${row.canonical_key}::${row.canonical_image_key}`));
-    for (const row of fallbackRows) {
-      const key = `${row.canonical_key}::${row.canonical_image_key}`;
-      if (!seen.has(key)) {
-        rows.push(row);
-        seen.add(key);
-      }
-    }
-  }
-
   const includeExactSourceImage = primarySearch.canonicalSourceImageUrl && includeSourceImage;
   if (includeExactSourceImage) {
     const exactRows = await fetchCanonicalJoinedRows(
