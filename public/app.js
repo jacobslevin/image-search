@@ -209,10 +209,10 @@ const IMAGE_ANALYZE_PROGRESS_STEPS = [
   { id: "complete", label: "Complete", percent: 100, title: "Results ready", detail: "Opening the ranked results." }
 ];
 const TEXT_SEARCH_PROGRESS_STEPS = [
-  { id: "parse", label: "Parse", percent: 35, percentLabel: "0–35%", title: "Understanding your query...", detail: "Interpreting the search request and inferring the closest category." },
-  { id: "embed", label: "Embed", percent: 55, percentLabel: "35–55%", title: "Finding semantically similar items...", detail: "Generating the semantic fingerprint for your query." },
-  { id: "search", label: "Search", percent: 78, percentLabel: "55–78%", title: "Scanning the catalog...", detail: "Retrieving the strongest vector matches from Postgres." },
-  { id: "rank", label: "Rank", percent: 95, percentLabel: "78–95%", title: "Ranking the best matches...", detail: "Scoring trait fit and grouping the top candidates by product." },
+  { id: "parse", label: "Parse", percent: 50, percentLabel: "0–50%", title: "Understanding your query...", detail: "Interpreting the search request and inferring the closest category." },
+  { id: "embed", label: "Embed", percent: 58, percentLabel: "50–58%", title: "Finding semantically similar items...", detail: "Generating the semantic fingerprint for your query." },
+  { id: "search", label: "Search", percent: 66, percentLabel: "58–66%", title: "Scanning the catalog...", detail: "Retrieving the strongest vector matches from Postgres." },
+  { id: "rank", label: "Rank", percent: 95, percentLabel: "66–100%", title: "Ranking the best matches...", detail: "Scoring trait fit and grouping the top candidates by product." },
   { id: "complete", label: "Complete", percent: 100, percentLabel: "100%", title: "Results ready", detail: "Opening the ranked results." }
 ];
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
