@@ -127,6 +127,12 @@ function renderAppVersion(version = "") {
   elements.appVersionIndicator.hidden = !normalizedVersion;
 }
 
+function syncHomePathUi() {
+  if (elements.siteNavBrandLink) {
+    elements.siteNavBrandLink.setAttribute("href", HOME_PATH);
+  }
+}
+
 function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
   return getVisualTypeOptions(bootstrap);
 }
@@ -270,6 +276,7 @@ const focusDrag = {
 
 const elements = {
   appVersionIndicator: document.querySelector("#appVersionIndicator"),
+  siteNavBrandLink: document.querySelector("#siteNavBrandLink"),
   cardTemplate: document.querySelector("#cardTemplate"),
   closeImageModal: document.querySelector("#closeImageModal"),
   closeStructuredTraitsModal: document.querySelector("#closeStructuredTraitsModal"),
@@ -2662,6 +2669,13 @@ function clearSearchComposer() {
   closeInlineRefinementPanel();
   syncSearchPageUrl();
   focusSearchComposerAtEnd();
+}
+
+function shouldReturnHomeAfterClearingQuery() {
+  return Boolean(
+    String(state.lastQuery || "").trim() ||
+    (Array.isArray(state.lastPayload?.results) && state.lastPayload.results.length)
+  );
 }
 
 function isQueryComposableBullet(bullet = "") {
@@ -8393,6 +8407,7 @@ async function bootstrap() {
     state.originalRefreshAgeFilter = "";
     state.categoryScopeLoading = false;
     syncManageToolbar();
+    syncHomePathUi();
     state.bootstrap = await fetchJson("/api/bootstrap");
     renderAppVersion(state.bootstrap?.version || "");
     renderCategoryFilterOptions(state.bootstrap.categories || []);
@@ -8635,7 +8650,16 @@ elements.searchInput?.addEventListener("keydown", (event) => {
 elements.clearSearchInputButton?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
+  const shouldReturnHome = shouldReturnHomeAfterClearingQuery();
   clearSearchComposer();
+  if (shouldReturnHome) {
+    returnToHomepageState();
+  }
+});
+
+elements.siteNavBrandLink?.addEventListener("click", (event) => {
+  event.preventDefault();
+  window.location.href = HOME_PATH;
 });
 
 elements.sortSelect?.addEventListener("change", () => {

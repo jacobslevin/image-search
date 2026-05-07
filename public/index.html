@@ -19,7 +19,7 @@
         root.classList.toggle("private-browse", !landingHome);
         root.classList.toggle("public-route", !isPrivateBrowseRoute);
         root.classList.toggle("initial-search-pending", Boolean(String(url.searchParams.get("q") || "").trim()));
-        window.__PIXELSEEK_HOME_PATH__ = isPrivateBrowseRoute ? privateBrowsePath : "/";
+        window.__PIXELSEEK_HOME_PATH__ = url.pathname || (isPrivateBrowseRoute ? privateBrowsePath : "/");
       })();
     </script>
     <link rel="stylesheet" href="/styles.css?v=20260428-image-progress" />
@@ -28,7 +28,7 @@
     <nav class="site-nav" aria-label="Browse controls">
       <div class="site-nav-spacer" aria-hidden="true"></div>
       <div class="site-nav-brand">
-        <a class="site-nav-brand-link" href="/velvet-lobster-orbit-773-nebula" aria-label="Go to homepage">
+        <a id="siteNavBrandLink" class="site-nav-brand-link" href="/" aria-label="Go to homepage">
           <img class="site-nav-logo-image" src="/pixelseek-logo.svg" alt="PixelSeek" />
         </a>
         <span id="appVersionIndicator" class="app-version-indicator" hidden></span>
@@ -70,8 +70,8 @@
                 </span>
                 <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
               </div>
-              <button id="clearSearchInputButton" class="search-clear-button" type="button" aria-label="Clear search query" title="Clear search" hidden>
-                Clear
+              <button id="clearSearchInputButton" class="search-clear-button" type="button" aria-label="Clear query" title="Clear query" hidden>
+                Clear Query
               </button>
             </div>
             <button id="openImageSearch" class="search-image-trigger" type="button" aria-label="Search from an inspiration image">
