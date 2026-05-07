@@ -4848,7 +4848,9 @@ async function applyStoredImageSearchContext(context = {}) {
     detail: "Loading matches inspired by the selected reference image."
   });
   renderRefineSidebar();
-  renderResults(state.lastPayload, state.lastQuery);
+  if (state.lastPayload) {
+    renderResults(state.lastPayload, state.lastQuery);
+  }
   setStatus("Searching from stored image...");
 
   try {
