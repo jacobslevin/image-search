@@ -283,11 +283,11 @@ const HOMEPAGE_IMAGE_EXAMPLES = [
     brand: "Coalesse"
   },
   {
-    productId: "dp:13890761",
-    imageId: "dp:13890761:img:01e30cd48fc7f372",
-    imageUrl: "https://content.designerpages.com/assets/81519507/Coy.jpg",
-    title: "Coy",
-    brand: "Keilhauer"
+    productId: "dp:13945982",
+    imageId: "dp:13945982:img:9f73f9d399d37a38",
+    imageUrl: "https://content.designerpages.com/assets/81879132/BelmontImageGallery191.jpg",
+    title: "Belmont",
+    brand: "Bernhardt Design"
   }
 ];
 
