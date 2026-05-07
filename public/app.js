@@ -276,15 +276,15 @@ const STRUCTURED_TRAITS_PRIORITY_FIELD_ORDER = [
 const HOMEPAGE_IMAGE_EXAMPLES = [
   {
     productId: "dp:14051265",
-    imageId: "dp:14051265:img:c20916f4c0601a84",
-    imageUrl: "https://content.designerpages.com/assets/39808892/3663515756_e1729d2e45_o.jpg",
+    imageId: "dp:14051265:img:8fc1b70ea5b765f6",
+    imageUrl: "https://content.designerpages.com/assets/82384758/BobLounge140000338thumbnailS.jpg",
     title: "Bob Lounge Seating",
     brand: "Coalesse"
   },
   {
     productId: "dp:13890761",
-    imageId: "dp:13890761:img:9ccd46e4a138a8b9",
-    imageUrl: "https://content.designerpages.com/assets/77818013/4d78fa9d-cbcc-47f0-b0a7-06c25f1ba951.jpg",
+    imageId: "dp:13890761:img:01e30cd48fc7f372",
+    imageUrl: "https://content.designerpages.com/assets/81519507/Coy.jpg",
     title: "Coy",
     brand: "Keilhauer"
   }

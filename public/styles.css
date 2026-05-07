@@ -2523,6 +2523,11 @@ body.landing-home .seed-image-examples {
   flex: 0 0 auto;
 }
 
+body.landing-home .search-image-trigger,
+html.landing-home body .search-image-trigger {
+  display: none !important;
+}
+
 body.landing-home .context-pill,
 body.landing-home .seed-query {
   padding: 9px 13px;
