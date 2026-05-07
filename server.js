@@ -4,6 +4,7 @@ import http from "node:http";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import zlib from "node:zlib";
 
 import { analyzeInspirationImage, buildStage1ClassificationPrompt, combinedStage23Prompt, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
 import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
@@ -602,6 +603,8 @@ let sceneFilterRunner = {
   command: []
 };
 
+const JSON_COMPRESSION_MIN_BYTES = 1024;
+
 const MODEL_PRICING_USD_PER_MILLION = {
   "gpt-4.1-nano": {
     input: 0.10,
@@ -845,14 +848,53 @@ function upsertUnmappedGroupingEntry(grouping = "", product = {}) {
   });
 }
 
+function selectResponseCompression(acceptEncoding = "") {
+  const normalized = String(acceptEncoding || "").toLowerCase();
+  if (/\bbr\b/.test(normalized)) {
+    return "br";
+  }
+  if (/\bgzip\b/.test(normalized)) {
+    return "gzip";
+  }
+  return "";
+}
+
+function maybeCompressJsonBody(response, body) {
+  const bodyBuffer = Buffer.from(body);
+  if (bodyBuffer.length < JSON_COMPRESSION_MIN_BYTES) {
+    return { body: bodyBuffer, encoding: "" };
+  }
+  const encoding = selectResponseCompression(response.__pixelseekAcceptEncoding || "");
+  if (encoding === "br") {
+    return {
+      body: zlib.brotliCompressSync(bodyBuffer),
+      encoding
+    };
+  }
+  if (encoding === "gzip") {
+    return {
+      body: zlib.gzipSync(bodyBuffer),
+      encoding
+    };
+  }
+  return { body: bodyBuffer, encoding: "" };
+}
+
 function json(response, statusCode, payload) {
-  response.writeHead(statusCode, {
+  const rawBody = JSON.stringify(payload);
+  const { body, encoding } = maybeCompressJsonBody(response, rawBody);
+  const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, X-PixelSeek-Home-Path, X-PixelSeek-Stream"
-  });
-  response.end(JSON.stringify(payload));
+    "Access-Control-Allow-Headers": "Content-Type, X-PixelSeek-Home-Path, X-PixelSeek-Stream",
+    Vary: "Accept-Encoding"
+  };
+  if (encoding) {
+    headers["Content-Encoding"] = encoding;
+  }
+  response.writeHead(statusCode, headers);
+  response.end(body);
 }
 
 function beginJsonLineStream(response, statusCode = 200) {
@@ -3353,6 +3395,7 @@ async function serveStatic(requestPath, response) {
 }
 
 const server = http.createServer(async (request, response) => {
+  response.__pixelseekAcceptEncoding = String(request.headers["accept-encoding"] || "");
   if (request.method === "OPTIONS") {
     response.writeHead(204, {
       "Access-Control-Allow-Origin": "*",
