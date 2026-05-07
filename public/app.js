@@ -405,6 +405,7 @@ const elements = {
   resultsLayout: document.querySelector(".results-layout"),
   resultsSidebar: document.querySelector("#resultsSidebar"),
   resultCount: document.querySelector("#resultCount"),
+  imageSearchDropZone: document.querySelector("#imageSearchDropZone"),
   searchForm: document.querySelector("#searchForm"),
   clearSearchInputButton: document.querySelector("#clearSearchInputButton"),
   searchCategoryPrefix: document.querySelector("#searchCategoryPrefix"),
@@ -8284,6 +8285,29 @@ function openImageModal() {
   showUploadStage();
 }
 
+function setSelectedUploadFile(file = null) {
+  state.selectedUploadFile = file || null;
+  if (elements.selectedFileName) {
+    elements.selectedFileName.textContent = file ? file.name : "";
+    elements.selectedFileName.hidden = !file;
+  }
+  if (elements.imageUrlInput && file) {
+    elements.imageUrlInput.value = "";
+  }
+}
+
+function openImageModalWithFile(file = null) {
+  openImageModal();
+  if (file) {
+    setSelectedUploadFile(file);
+  }
+}
+
+function extractDroppedImageFile(dataTransfer = null) {
+  const files = Array.from(dataTransfer?.files || []);
+  return files.find((file) => String(file?.type || "").startsWith("image/")) || null;
+}
+
 function closeImageModal() {
   elements.imageModal.hidden = true;
   document.body.classList.remove("modal-open");
@@ -9285,6 +9309,21 @@ elements.debugToggle.addEventListener("click", async () => {
 elements.openImageSearch.addEventListener("click", () => {
   openImageModal();
 });
+elements.imageSearchDropZone?.addEventListener("dragenter", (event) => {
+  event.preventDefault();
+});
+elements.imageSearchDropZone?.addEventListener("dragover", (event) => {
+  event.preventDefault();
+});
+elements.imageSearchDropZone?.addEventListener("drop", (event) => {
+  event.preventDefault();
+  const file = extractDroppedImageFile(event.dataTransfer);
+  if (!file) {
+    setStatus("Drop a JPG or PNG image to start an image search.", "error");
+    return;
+  }
+  openImageModalWithFile(file);
+});
 elements.closeImageModal.addEventListener("click", closeImageModal);
 elements.openPromptLibrary?.addEventListener("click", async () => {
   try {
@@ -9355,20 +9394,13 @@ elements.imageUploadButton.addEventListener("click", () => {
 
 elements.imageUploadInput.addEventListener("change", (event) => {
   const [file] = event.target.files || [];
-  state.selectedUploadFile = file || null;
-  elements.selectedFileName.textContent = file ? file.name : "";
-  elements.selectedFileName.hidden = !file;
-  if (file) {
-    elements.imageUrlInput.value = "";
-  }
+  setSelectedUploadFile(file || null);
 });
 
 elements.imageUrlInput.addEventListener("input", () => {
   if (elements.imageUrlInput.value.trim()) {
-    state.selectedUploadFile = null;
+    setSelectedUploadFile(null);
     elements.imageUploadInput.value = "";
-    elements.selectedFileName.textContent = "";
-    elements.selectedFileName.hidden = true;
   }
 });
 

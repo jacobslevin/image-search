@@ -46,52 +46,66 @@
       <header class="hero">
         <p class="eyebrow">AI Enabled</p>
         <h1>Visual Search <span class="hero-sparkle" aria-hidden="true">✦</span></h1>
+        <p class="hero-subhead">Find products by uploading an image or describing what you need</p>
       </header>
 
       <section class="search-panel">
-        <form id="searchForm" class="search-form">
-          <label class="search-field" for="searchInput">
-            <div class="search-query-flow">
-              <span class="search-icon">⌕</span>
-              <div
-                id="searchInput"
-                class="search-input"
-                role="textbox"
-                aria-multiline="true"
-                contenteditable="plaintext-only"
-                data-placeholder="Search by visual traits (e.g., chrome sled base, wood arms...)"
-              >
-                <span id="searchCategoryPrefix" class="search-category-prefix" hidden></span>
-                <span id="searchCategoryChipWrap" class="search-category-chip-wrap" hidden contenteditable="false">
-                  <select id="searchCategorySelect" class="search-category-select" aria-label="Search category">
-                    <option value="all">All categories</option>
-                  </select>
-                </span>
-                <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
-              </div>
-              <button
-                id="clearSearchInputButton"
-                class="search-clear-button"
-                type="button"
-                aria-label="Clear query"
-                title="Clear query"
-                contenteditable="false"
-                hidden
-              >
-                Clear Query
-              </button>
-            </div>
-            <button id="openImageSearch" class="search-image-trigger" type="button" aria-label="Search from an inspiration image">
-              <img class="button-icon" src="/pixelseek-icons/start-from-image.svg" alt="" aria-hidden="true" />
-              Start from image
+        <div class="search-entry-grid">
+          <section id="imageSearchDropZone" class="search-entry-card search-entry-card-image" aria-label="Search by image">
+            <span class="search-entry-badge">Recommended</span>
+            <div class="search-entry-icon search-entry-icon-image" aria-hidden="true"></div>
+            <h2 class="search-entry-title">Search by image</h2>
+            <p class="search-entry-copy">Drop a photo or screenshot</p>
+            <button id="openImageSearch" class="search-entry-upload-button" type="button" aria-label="Search from an inspiration image">
+              Upload image
             </button>
-          </label>
-        </form>
+          </section>
+
+          <section class="search-entry-card search-entry-card-text" aria-label="Describe what you need">
+            <div class="search-entry-icon search-entry-icon-text" aria-hidden="true"></div>
+            <h2 class="search-entry-title">Describe what you need</h2>
+            <p class="search-entry-copy">Search by visual traits</p>
+            <form id="searchForm" class="search-form">
+              <label class="search-field" for="searchInput">
+                <div class="search-query-flow">
+                  <span class="search-icon">⌕</span>
+                  <div
+                    id="searchInput"
+                    class="search-input"
+                    role="textbox"
+                    aria-multiline="true"
+                    contenteditable="plaintext-only"
+                    data-placeholder="e.g., chrome sled base..."
+                  >
+                    <span id="searchCategoryPrefix" class="search-category-prefix" hidden></span>
+                    <span id="searchCategoryChipWrap" class="search-category-chip-wrap" hidden contenteditable="false">
+                      <select id="searchCategorySelect" class="search-category-select" aria-label="Search category">
+                        <option value="all">All categories</option>
+                      </select>
+                    </span>
+                    <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
+                  </div>
+                  <button
+                    id="clearSearchInputButton"
+                    class="search-clear-button"
+                    type="button"
+                    aria-label="Clear query"
+                    title="Clear query"
+                    contenteditable="false"
+                    hidden
+                  >
+                    Clear Query
+                  </button>
+                </div>
+              </label>
+            </form>
+          </section>
+        </div>
       </section>
 
       <section class="search-secondary">
-        <div class="context-row">
-          <span class="context-label">Suggested searches:</span>
+        <div class="context-row context-row-centered">
+          <span class="context-label">Or try one of these:</span>
           <div id="seedQueries" class="seed-queries"></div>
         </div>
       </section>
