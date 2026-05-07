@@ -7952,6 +7952,12 @@ async function runSearch(query, options = {}) {
   const effectiveCategoryFilter = normalizedQuery ? [] : categoryFilter;
   const refreshAgeFilter = String(options.refreshAgeFilter ?? state.refreshAgeFilter ?? "").trim();
   const imageAnalysis = options.imageAnalysis && typeof options.imageAnalysis === "object" ? options.imageAnalysis : null;
+  const isPublicSeedQuery = Boolean(
+    !imageAnalysis &&
+    typeof HOME_PATH === "string" &&
+    HOME_PATH === "/" &&
+    isSeedQuery(normalizedQuery)
+  );
   const requestedCategoryScopeMode = String(
     options.categoryScopeMode ||
     state.categoryScopeMode ||
@@ -7965,7 +7971,7 @@ async function runSearch(query, options = {}) {
   const normalizedScopeVisualType = getPrimaryCategoryScopeSelection(state.resultCategoryScope) === "all"
     ? ""
     : getPrimaryCategoryScopeSelection(state.resultCategoryScope);
-  const inferredVisualTypeFromQuery = !normalizedOptionVisualType && !imageAnalysis
+  const inferredVisualTypeFromQuery = !normalizedOptionVisualType && !imageAnalysis && !isPublicSeedQuery
     ? detectCategoryScopeFromQuery(normalizedQuery)
     : "";
   const requestedVisualType = String(
