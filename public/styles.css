@@ -41,7 +41,6 @@ body {
   align-items: center;
   justify-content: center;
   min-width: 0;
-  gap: 10px;
 }
 
 .site-nav-logo-image {
@@ -51,11 +50,19 @@ body {
 }
 
 .app-version-indicator {
-  color: var(--muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  color: #999999;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 18px 16px 24px;
 }
 
 .site-nav-end {
