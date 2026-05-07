@@ -4393,44 +4393,92 @@ export async function inferTextQueryCategory(query = "", options = {}) {
   const normalizedQuery = normalizeWhitespace(query).toLowerCase();
   const defaultOptions = getPlausibleClarificationOptions(normalizedQuery);
   const fallbackOptions = defaultOptions.length ? defaultOptions : [...TEXT_QUERY_CATEGORY_KEYS];
+  const logPrefix = "[inferTextQueryCategory]";
+  let openAiAttempted = false;
+  let catchPathFired = false;
+
+  console.log(logPrefix, "start", {
+    query: String(query || ""),
+    normalized_query: normalizedQuery
+  });
   if (!normalizedQuery) {
-    return {
+    const result = {
       status: "category_required",
       confidence: "low",
       options: fallbackOptions
     };
+    console.log(logPrefix, "empty-query", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      final_status: result.status,
+      options: result.options
+    });
+    return result;
   }
 
   const phraseMatch = inferCategoryFromPhrases(normalizedQuery);
   const hasSpatialAmbiguity = AMBIGUOUS_SPATIAL_QUERY_PATTERNS.some((pattern) => pattern.test(normalizedQuery));
+  console.log(logPrefix, "preflight", {
+    phrase_match_category: phraseMatch.categoryKey || "",
+    phrase_match_phrase: phraseMatch.matchedPhrase || "",
+    has_spatial_ambiguity: hasSpatialAmbiguity,
+    fallback_options: fallbackOptions
+  });
 
   if (phraseMatch.categoryKey && !hasSpatialAmbiguity) {
-    return {
+    const result = {
       status: "resolved",
       confidence: "high",
       category_key: phraseMatch.categoryKey,
       options: fallbackOptions,
       matched_terms: [phraseMatch.matchedPhrase]
     };
+    console.log(logPrefix, "resolved-via-phrase-match", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      final_status: result.status,
+      category_key: result.category_key,
+      matched_terms: result.matched_terms
+    });
+    return result;
   }
 
   if (hasSpatialAmbiguity) {
-    return {
+    const result = {
       status: "category_required",
       confidence: "low",
       options: fallbackOptions
     };
+    console.log(logPrefix, "category-required-via-spatial-ambiguity", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      final_status: result.status,
+      options: result.options
+    });
+    return result;
   }
 
   if (!options.apiKey) {
-    return {
+    const result = {
       status: "category_required",
       confidence: "low",
       options: fallbackOptions
     };
+    console.log(logPrefix, "category-required-no-api-key", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      final_status: result.status,
+      options: result.options
+    });
+    return result;
   }
 
   try {
+    openAiAttempted = true;
+    console.log(logPrefix, "openai-request-attempted", {
+      model: options.model || "gpt-4o-mini",
+      query: normalizedQuery
+    });
     const result = await callOpenAiJsonWithMeta({
       apiKey: options.apiKey,
       model: options.model || "gpt-4o-mini",
@@ -4441,29 +4489,63 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       schemaName: "text_query_category_inference",
       schema: textQueryCategoryInferenceSchema()
     });
+    console.log(logPrefix, "openai-request-succeeded", {
+      raw_result: result
+    });
 
     const categoryKey = String(result.data?.category_key || "").trim().toLowerCase();
     if (!categoryKey || categoryKey === "category_required" || !TEXT_QUERY_CATEGORY_KEYS.includes(categoryKey)) {
-      return {
+      const response = {
         status: "category_required",
         confidence: "low",
         options: fallbackOptions
       };
+      console.log(logPrefix, "openai-returned-category-required", {
+        openai_attempted: openAiAttempted,
+        catch_path_fired: catchPathFired,
+        parsed_category_key: categoryKey,
+        final_status: response.status,
+        options: response.options
+      });
+      return response;
     }
 
-    return {
+    const response = {
       status: "resolved",
       confidence: "high",
       category_key: categoryKey,
       options: fallbackOptions,
       matched_terms: []
     };
-  } catch {
-    return {
+    console.log(logPrefix, "openai-returned-resolved-category", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      parsed_category_key: categoryKey,
+      final_status: response.status,
+      options: response.options
+    });
+    return response;
+  } catch (error) {
+    catchPathFired = true;
+    console.error(logPrefix, "openai-request-failed", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      error_name: error?.name || "",
+      error_message: error?.message || String(error || ""),
+      error_stack: error?.stack || ""
+    });
+    const response = {
       status: "category_required",
       confidence: "low",
       options: fallbackOptions
     };
+    console.log(logPrefix, "returning-category-required-from-catch", {
+      openai_attempted: openAiAttempted,
+      catch_path_fired: catchPathFired,
+      final_status: response.status,
+      options: response.options
+    });
+    return response;
   }
 }
 
