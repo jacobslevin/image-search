@@ -2433,40 +2433,53 @@ body.landing-home .seed-query.is-active {
   width: 100%;
   max-width: none;
   margin-inline: auto;
-  padding: 24px 28px;
+  padding: 32px 28px;
   border-radius: var(--border-radius-lg, 28px);
-  gap: 14px;
+  gap: 0;
+}
+
+.text-search-loading-card .image-analyze-loading-header {
+  gap: 16px;
+}
+
+.text-search-loading-card .image-analyze-loading-eyebrow {
+  font-size: 12px;
 }
 
 .text-search-loading-card .image-analyze-loading-title {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 500;
+  line-height: 1.2;
 }
 
 .text-search-loading-card .results-loading-copy,
 .text-search-loading-card .image-analyze-loading-detail {
-  font-size: 13px;
+  margin-top: 18px;
+  font-size: 14px;
+  line-height: 1.45;
   max-width: none;
 }
 
 .text-search-loading-card .image-analyze-progressbar {
-  height: 6px;
+  margin-top: 20px;
+  height: 8px;
 }
 
 .text-search-loading-card .image-analyze-loading-percent {
   padding: 4px 12px;
-  font-size: 12px;
+  font-size: 13px;
   min-width: 0;
 }
 
 .text-search-loading-card .image-analyze-segmented-track {
+  margin-top: 22px;
   gap: 8px;
 }
 
 .text-search-loading-card .image-analyze-segment {
-  min-height: 0;
-  padding: 6px 16px;
-  font-size: 13px;
+  min-height: 42px;
+  padding: 8px 18px;
+  font-size: 14px;
 }
 
 .results-loading-copy {
