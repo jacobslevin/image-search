@@ -2674,6 +2674,11 @@ body.landing-home .seed-query.is-active {
   grid-template-columns: 300px minmax(0, 1fr);
 }
 
+.results-loading-active .results-layout,
+body.results-loading-active .results-layout {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
 .results-main {
   min-width: 0;
 }
