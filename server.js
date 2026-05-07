@@ -3185,11 +3185,21 @@ const server = http.createServer(async (request, response) => {
     let inferredCategory = null;
     let resolvedVisualType = explicitVisualType;
     let seatingTypeSource = explicitVisualType ? "explicit" : "all";
+    const inferCategoryPromise = (!imageAnalysis && !disableVisualTypeInference)
+      ? inferTextQueryCategory(query, {
+          apiKey: process.env.OPENAI_API_KEY,
+          model: "gpt-4o-mini"
+        })
+      : Promise.resolve(null);
+    const bootstrapPromise = loadCanonicalBootstrapData();
+    const bootstrapData = await bootstrapPromise;
+    const parsePromise = parseSearchQuery(query, bootstrapData.brands || [], {
+      apiKey: process.env.OPENAI_API_KEY,
+      model: process.env.QUERY_MODEL
+    });
+    const [parsedCategory, parsed] = await Promise.all([inferCategoryPromise, parsePromise]);
+    inferredCategory = parsedCategory;
     if (!imageAnalysis && !disableVisualTypeInference) {
-      inferredCategory = await inferTextQueryCategory(query, {
-        apiKey: process.env.OPENAI_API_KEY,
-        model: "gpt-4o-mini"
-      });
       if (!resolvedVisualType && inferredCategory?.status === "resolved") {
         resolvedVisualType = String(inferredCategory.category_key || "").trim();
         seatingTypeSource = "inferred";
@@ -3200,12 +3210,6 @@ const server = http.createServer(async (request, response) => {
     }
 
     const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
-
-    const bootstrapData = await loadCanonicalBootstrapData();
-    const parsed = await parseSearchQuery(query, bootstrapData.brands || [], {
-      apiKey: process.env.OPENAI_API_KEY,
-      model: process.env.QUERY_MODEL
-    });
     parsed.seating_type = resolvedVisualType || "";
     parsed.visual_type = resolvedVisualType || "";
     let textQueryTraits = null;

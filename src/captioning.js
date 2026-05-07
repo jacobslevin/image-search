@@ -5197,7 +5197,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
 async function runStage123Extraction(imageInput, options = {}, imageRecord = {}, runLabel = "run_1") {
   const currentPass = Number(String(runLabel).match(/run_(\d+)/)?.[1] || 0);
   const expectedPasses = currentPass >= 3 ? 3 : 2;
-  if (typeof options.progressCallback === "function") {
+  if (!options.suppressPerRunProgress && typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_started`,
       run_label: runLabel,
@@ -5257,7 +5257,7 @@ async function runStage123Extraction(imageInput, options = {}, imageRecord = {},
     ...(stage4.image_traits || {})
   });
   const usageTotal = sumUsage(stage1Usage, stage23Usage, stage4.usage);
-  if (typeof options.progressCallback === "function") {
+  if (!options.suppressPerRunProgress && typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_done`,
       run_label: runLabel,
@@ -5308,7 +5308,7 @@ export function resolveCatalogVisualTypeKey(pixelSeekType = "") {
 async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, imageRecord = {}, runLabel = "run_1") {
   const currentPass = Number(String(runLabel).match(/run_(\d+)/)?.[1] || 0);
   const expectedPasses = currentPass >= 3 ? 3 : 2;
-  if (typeof options.progressCallback === "function") {
+  if (!options.suppressPerRunProgress && typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_started`,
       run_label: runLabel,
@@ -5346,7 +5346,7 @@ async function runStage23ExtractionWithType(imageInput, typeKey, options = {}, i
   });
   const usageTotal = sumUsage(stage23Usage, stage4.usage);
 
-  if (typeof options.progressCallback === "function") {
+  if (!options.suppressPerRunProgress && typeof options.progressCallback === "function") {
     options.progressCallback({
       type: `${runLabel}_done`,
       run_label: runLabel,
@@ -5397,8 +5397,10 @@ function allStage1VotesAgree(runA, runB) {
 }
 
 async function voteStage1Classifications(imageInput, options = {}) {
-  const run1 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
-  const run2 = await classifySeatingTypeOpenAiWithMeta(imageInput, options);
+  const [run1, run2] = await Promise.all([
+    classifySeatingTypeOpenAiWithMeta(imageInput, options),
+    classifySeatingTypeOpenAiWithMeta(imageInput, options)
+  ]);
   const runs = [
     { run_label: "run_1", stage1: run1.data, usage: run1.usage },
     { run_label: "run_2", stage1: run2.data, usage: run2.usage }
@@ -5768,20 +5770,52 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     ? String(options.seatingTypeOverride || "").trim()
     : "";
   if (forcedSeatingType) {
-    const run1 = await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
-      ...runOptions,
-      visionModel: runOptions.visionModel || "gpt-4.1"
-    }, { name: "Inspiration image" }, "run_1");
-    const run2 = await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
-      ...runOptions,
-      visionModel: runOptions.visionModel || "gpt-4.1"
-    }, { name: "Inspiration image" }, "run_2");
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage23_started",
+        expected_passes: 2
+      });
+    }
+    const [run1, run2] = await Promise.all([
+      runStage23ExtractionWithType(imageInput, forcedSeatingType, {
+        ...runOptions,
+        suppressPerRunProgress: true,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_1"),
+      runStage23ExtractionWithType(imageInput, forcedSeatingType, {
+        ...runOptions,
+        suppressPerRunProgress: true,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_2")
+    ]);
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage23_done",
+        current_pass: 2,
+        expected_passes: 2
+      });
+    }
     const runs = [run1, run2];
     if (!allFieldsAgree(run1, run2)) {
+      if (typeof runOptions.progressCallback === "function") {
+        runOptions.progressCallback({
+          type: "stage23_started",
+          current_pass: 3,
+          expected_passes: 3
+        });
+      }
       runs.push(await runStage23ExtractionWithType(imageInput, forcedSeatingType, {
         ...runOptions,
+        suppressPerRunProgress: true,
         visionModel: runOptions.visionModel || "gpt-4.1"
       }, { name: "Inspiration image" }, "run_3"));
+      if (typeof runOptions.progressCallback === "function") {
+        runOptions.progressCallback({
+          type: "stage23_done",
+          current_pass: 3,
+          expected_passes: 3
+        });
+      }
     }
 
     const voted = voteStage123Runs(runs);
@@ -5865,22 +5899,17 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     };
   }
 
-  let run1;
-  let run2;
+  let stage1Vote;
   try {
     if (typeof runOptions.progressCallback === "function") {
       runOptions.progressCallback({
         type: "stage1_started"
       });
     }
-    run1 = await runStage123Extraction(imageInput, {
+    stage1Vote = await voteStage1Classifications(imageInput, {
       ...runOptions,
       visionModel: runOptions.visionModel || "gpt-4.1"
-    }, { name: "Inspiration image" }, "run_1");
-    run2 = await runStage123Extraction(imageInput, {
-      ...runOptions,
-      visionModel: runOptions.visionModel || "gpt-4.1"
-    }, { name: "Inspiration image" }, "run_2");
+    });
     if (typeof runOptions.progressCallback === "function") {
       runOptions.progressCallback({
         type: "stage1_done"
@@ -5890,20 +5919,7 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     throw new QueryImageAnalysisStageError("stage1", "Stage 1 query-time image analysis failed.", { cause: error });
   }
 
-  const runs = [run1, run2];
-  if (!allFieldsAgree(run1, run2)) {
-    try {
-      runs.push(await runStage123Extraction(imageInput, {
-        ...runOptions,
-        visionModel: runOptions.visionModel || "gpt-4.1"
-      }, { name: "Inspiration image" }, "run_3"));
-    } catch (error) {
-      throw new QueryImageAnalysisStageError("stage23", "Stage 2+3 query-time image analysis failed.", { cause: error });
-    }
-  }
-
-  const voted = voteStage123Runs(runs);
-  const stage1 = voted?.stage1 || null;
+  const stage1 = stage1Vote?.stage1 || null;
   if (!stage1 || isStage1OverrideResult(stage1)) {
     throw new QueryImageAnalysisStageError(
       "stage1",
@@ -5919,6 +5935,64 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     );
   }
 
+  let runs;
+  try {
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage23_started",
+        expected_passes: 2
+      });
+    }
+    runs = await Promise.all([
+      runStage23ExtractionWithType(imageInput, seatingType, {
+        ...runOptions,
+        suppressPerRunProgress: true,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_1"),
+      runStage23ExtractionWithType(imageInput, seatingType, {
+        ...runOptions,
+        suppressPerRunProgress: true,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_2")
+    ]);
+    if (typeof runOptions.progressCallback === "function") {
+      runOptions.progressCallback({
+        type: "stage23_done",
+        current_pass: 2,
+        expected_passes: 2
+      });
+    }
+  } catch (error) {
+    throw new QueryImageAnalysisStageError("stage23", "Stage 2+3 query-time image analysis failed.", { cause: error });
+  }
+
+  if (!allFieldsAgree(runs[0], runs[1])) {
+    try {
+      if (typeof runOptions.progressCallback === "function") {
+        runOptions.progressCallback({
+          type: "stage23_started",
+          current_pass: 3,
+          expected_passes: 3
+        });
+      }
+      runs.push(await runStage23ExtractionWithType(imageInput, seatingType, {
+        ...runOptions,
+        suppressPerRunProgress: true,
+        visionModel: runOptions.visionModel || "gpt-4.1"
+      }, { name: "Inspiration image" }, "run_3"));
+      if (typeof runOptions.progressCallback === "function") {
+        runOptions.progressCallback({
+          type: "stage23_done",
+          current_pass: 3,
+          expected_passes: 3
+        });
+      }
+    } catch (error) {
+      throw new QueryImageAnalysisStageError("stage23", "Stage 2+3 query-time image analysis failed.", { cause: error });
+    }
+  }
+
+  const voted = voteStage123Runs(runs);
   if (!voted?.stage2 || !voted?.stage3) {
     throw new QueryImageAnalysisStageError(
       "stage23",
@@ -5993,8 +6067,8 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     raw_visual_highlights: Array.isArray(voted.stage3.raw_visual_highlights) ? voted.stage3.raw_visual_highlights : [],
     structured_caption: voted.stage3.structured_caption || "",
     extraction_runs: runs.length,
-    analysis_api_call_count: (runs.length * 2) + stage4TriggeredRuns,
-    api_call_count: (runs.length * 2) + stage4TriggeredRuns + 1,
+    analysis_api_call_count: Number(stage1Vote?.api_call_count || 0) + runs.length + stage4TriggeredRuns,
+    api_call_count: Number(stage1Vote?.api_call_count || 0) + runs.length + stage4TriggeredRuns + 1,
     post_stage23_lounge_sofa_traits: {
       eligible: stage4Applicability.eligible,
       extracted: hasExtractedLoungeSofaTraits(imageTraits),

@@ -659,8 +659,8 @@ function startImageAnalyzeClassifyPhaseNow() {
     percent: 15,
     percentLabel: "15–30%",
     indeterminate: true,
-    title: "Classifying the selected item",
-    detail: "Classifying the selected item"
+    title: "Analyzing image...",
+    detail: "Analyzing image..."
   });
   renderImageAnalyzeProgress();
   startImageAnalyzeClassifyProgressAnimation();
@@ -883,8 +883,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
             percent: 30,
             indeterminate: false,
             percentLabel: "30%",
-            title: "Classifying the selected item",
-            detail: "Classifying the selected item"
+            title: "Analyzing image...",
+            detail: "Analyzing image..."
           });
           renderImageAnalyzeProgress();
         };
@@ -902,24 +902,49 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
       }
       break;
 
-    case "run_1_started":
-    case "run_2_started":
-    case "run_3_started": {
-      const isTiebreaker = currentPass >= 3;
-      const target = resolveImageAnalyzeExtractTarget(currentPass, expectedPasses);
-      const floor = resolveImageAnalyzeExtractFloor(currentPass, expectedPasses);
-      const detail = isTiebreaker
-        ? "Resolving ambiguity (extra pass)"
-        : `Extracting visual traits (pass ${currentPass} of ${expectedPasses})`;
-
+    case "stage23_started": {
+      const target = currentPass >= 3 ? 85 : resolveImageAnalyzeExtractTarget(2, expectedPasses);
       setImageAnalyzeProgressState({
         step: "extract",
-        percent: Math.max(Number(previous.percent || 30), floor),
+        percent: Math.max(Number(previous.percent || 30), 30),
         percentLabel: "30–85%",
         indeterminate: true,
         extractTarget: target,
-        title: "Extracting visual traits...",
-        detail
+        title: "Extracting traits...",
+        detail: "Extracting traits..."
+      });
+      renderImageAnalyzeProgress();
+      startImageAnalyzeExtractProgressAnimation();
+      break;
+    }
+
+    case "stage23_done": {
+      const target = currentPass >= 3 ? 85 : resolveImageAnalyzeExtractTarget(2, expectedPasses);
+      setImageAnalyzeProgressState({
+        ...previous,
+        step: "extract",
+        percent: target,
+        percentLabel: "30–85%",
+        indeterminate: true,
+        extractTarget: target,
+        title: "Extracting traits...",
+        detail: "Extracting traits..."
+      });
+      renderImageAnalyzeProgress();
+      break;
+    }
+
+    case "run_1_started":
+    case "run_2_started":
+    case "run_3_started": {
+      setImageAnalyzeProgressState({
+        step: "extract",
+        percent: Math.max(Number(previous.percent || 30), 30),
+        percentLabel: "30–85%",
+        indeterminate: true,
+        extractTarget: currentPass >= 3 ? 85 : resolveImageAnalyzeExtractTarget(2, expectedPasses),
+        title: "Extracting traits...",
+        detail: "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       startImageAnalyzeExtractProgressAnimation();
@@ -929,14 +954,16 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
     case "run_1_done":
     case "run_2_done":
     case "run_3_done": {
-      const target = resolveImageAnalyzeExtractTarget(currentPass, expectedPasses);
+      const target = currentPass >= 3 ? 85 : resolveImageAnalyzeExtractTarget(2, expectedPasses);
       setImageAnalyzeProgressState({
         ...previous,
         step: "extract",
         percent: target,
         percentLabel: "30–85%",
         indeterminate: true,
-        extractTarget: target
+        extractTarget: target,
+        title: "Extracting traits...",
+        detail: "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       break;
@@ -948,7 +975,8 @@ function applyImageAnalyzeBackendProgressEvent(event = {}) {
         step: "extract",
         extractTarget: 85,
         indeterminate: true,
-        detail: previous.detail || "Extracting visual traits…"
+        title: "Extracting traits...",
+        detail: "Extracting traits..."
       });
       renderImageAnalyzeProgress();
       startImageAnalyzeExtractProgressAnimation();
