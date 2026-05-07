@@ -2561,7 +2561,15 @@ function getSearchInputValue() {
     return "";
   }
 
-  return String(elements.searchInput.textContent || "")
+  let text = "";
+  for (const node of elements.searchInput.childNodes) {
+    if (node === elements.clearSearchInputButton) {
+      continue;
+    }
+    text += String(node.textContent || "");
+  }
+
+  return String(text)
     .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -2603,6 +2611,9 @@ function getSearchComposerTextParts() {
   let prefix = "";
   let suffix = "";
   for (const node of elements.searchInput.childNodes) {
+    if (node === elements.clearSearchInputButton) {
+      continue;
+    }
     if (node === elements.searchCategoryChipWrap) {
       seenChip = true;
       continue;
@@ -2634,7 +2645,7 @@ function getSearchComposerTextParts() {
 }
 
 function updateSearchComposerClearButton() {
-  if (!elements.clearSearchInputButton) {
+  if (!elements.clearSearchInputButton || !elements.searchInput) {
     return;
   }
   const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
@@ -2642,7 +2653,17 @@ function updateSearchComposerClearButton() {
     String(state.lastQuery || "").trim() ||
     (Array.isArray(state.lastPayload?.results) && state.lastPayload.results.length)
   );
-  elements.clearSearchInputButton.hidden = !(hasComposableContent || hasActiveQueryResults);
+  const shouldShow = hasComposableContent || hasActiveQueryResults;
+  elements.clearSearchInputButton.hidden = !shouldShow;
+  if (!shouldShow) {
+    if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
+      elements.clearSearchInputButton.remove();
+    }
+    return;
+  }
+  if (elements.clearSearchInputButton.parentNode !== elements.searchInput) {
+    elements.searchInput.appendChild(elements.clearSearchInputButton);
+  }
 }
 
 function focusSearchComposerAtEnd() {
@@ -4901,14 +4922,6 @@ function setResultCountMarkup(value, label) {
     return;
   }
   elements.resultCount.innerHTML = `<strong>${value}</strong> ${label}`;
-  if (elements.clearSearchInputButton) {
-    const showInlineClearQuery = Boolean(String(state.lastQuery || "").trim());
-    elements.clearSearchInputButton.hidden = !showInlineClearQuery;
-    if (showInlineClearQuery) {
-      elements.resultCount.append(" ");
-      elements.resultCount.appendChild(elements.clearSearchInputButton);
-    }
-  }
 }
 
 function reportClientError(error, context = "Client error") {
