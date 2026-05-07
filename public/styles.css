@@ -2446,7 +2446,7 @@ body.landing-home .seed-query.is-active {
 .text-search-loading-card .results-loading-copy,
 .text-search-loading-card .image-analyze-loading-detail {
   font-size: 13px;
-  max-width: 46ch;
+  max-width: none;
 }
 
 .text-search-loading-card .image-analyze-progressbar {
