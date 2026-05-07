@@ -676,7 +676,16 @@ function getResultsLoadingConfig(mode = "text", stepId = "") {
       eyebrow: "Loading Results",
       ariaLabel: "Quick results loading",
       defaultStep: "search",
-      steps: []
+      steps: [
+        {
+          id: "search",
+          label: "Loading",
+          percent: 42,
+          percentLabel: "",
+          title: "Loading results...",
+          detail: "Opening the best matches."
+        }
+      ]
     };
   }
   if (String(mode || "").trim() === "image") {
@@ -8303,7 +8312,16 @@ async function runSearch(query, options = {}) {
               title: "Understanding your query...",
               copy: "Figuring out what you're looking for."
             }
-          : "Embedding the visual query and ranking image captions...")
+          : isPublicSeedQuery
+            ? {
+                mode: "quick",
+                step: "search",
+                percent: 38,
+                indeterminate: true,
+                title: "Opening suggested search...",
+                copy: "Loading curated results for this suggestion."
+              }
+            : "Embedding the visual query and ranking image captions...")
       : "Loading catalog products..."
   );
 
