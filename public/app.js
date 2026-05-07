@@ -104,6 +104,11 @@ const state = {
   imageAnalyzeProgressRequestId: "",
   imageAnalyzeProgressSequence: 0,
   resultsLoadingMode: "text",
+  cachedSearchProgressActive: false,
+  cachedSearchProgressPercent: 0,
+  cachedSearchProgressInterval: null,
+  cachedSearchProgressFadeTimer: null,
+  cachedSearchProgressAnimationFrame: null,
   imageAnalyzePrepareStartedAt: 0,
   imageAnalyzeClassifyStartedAt: 0,
   imageAnalyzePrepareTransitionTimer: null,
@@ -359,6 +364,7 @@ const elements = {
   closeExtractionSummaryModal: document.querySelector("#closeExtractionSummaryModal"),
   extractionSummaryModalCloseTargets: document.querySelectorAll('[data-role="extractionSummaryModalClose"]'),
   extractionSummaryContent: document.querySelector("#extractionSummaryContent"),
+  cachedSearchProgressStrip: document.querySelector("#cachedSearchProgressStrip"),
   resultsLoadingPanel: document.querySelector("#resultsLoadingPanel"),
   resultsLoadingTitle: document.querySelector("#resultsLoadingTitle"),
   resultsLoadingPercent: document.querySelector("#resultsLoadingPercent"),
@@ -775,6 +781,94 @@ function renderResultsLoadingProgress() {
     item.classList.toggle("is-active", index === activeIndex && progress.percent < 100);
     item.classList.toggle("is-complete", isComplete);
   });
+}
+
+function clearCachedSearchProgressTimers() {
+  if (state.cachedSearchProgressInterval) {
+    clearInterval(state.cachedSearchProgressInterval);
+    state.cachedSearchProgressInterval = null;
+  }
+  if (state.cachedSearchProgressFadeTimer) {
+    clearTimeout(state.cachedSearchProgressFadeTimer);
+    state.cachedSearchProgressFadeTimer = null;
+  }
+  if (state.cachedSearchProgressAnimationFrame) {
+    cancelAnimationFrame(state.cachedSearchProgressAnimationFrame);
+    state.cachedSearchProgressAnimationFrame = null;
+  }
+}
+
+function setCachedSearchProgressStrip(percent = 0, opacity = 1) {
+  if (!elements.cachedSearchProgressStrip) {
+    return;
+  }
+  elements.cachedSearchProgressStrip.hidden = false;
+  elements.cachedSearchProgressStrip.style.width = `${clamp(Number(percent) || 0, 0, 100)}%`;
+  elements.cachedSearchProgressStrip.style.opacity = `${clamp(Number(opacity) || 0, 0, 1)}`;
+}
+
+function startCachedSearchProgressStrip() {
+  if (!elements.cachedSearchProgressStrip) {
+    return;
+  }
+  clearCachedSearchProgressTimers();
+  state.cachedSearchProgressActive = true;
+  state.cachedSearchProgressPercent = 0;
+  elements.cachedSearchProgressStrip.hidden = false;
+  elements.cachedSearchProgressStrip.style.transition =
+    "width 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease";
+  elements.cachedSearchProgressStrip.style.width = "0%";
+  elements.cachedSearchProgressStrip.style.opacity = "0";
+  state.cachedSearchProgressAnimationFrame = requestAnimationFrame(() => {
+    state.cachedSearchProgressAnimationFrame = requestAnimationFrame(() => {
+      state.cachedSearchProgressPercent = 80;
+      setCachedSearchProgressStrip(80, 1);
+    });
+  });
+  state.cachedSearchProgressInterval = window.setInterval(() => {
+    if (!state.cachedSearchProgressActive) {
+      return;
+    }
+    const nextPercent = Math.min(
+      96,
+      state.cachedSearchProgressPercent + Math.max(1, (100 - state.cachedSearchProgressPercent) * 0.12)
+    );
+    if (nextPercent > state.cachedSearchProgressPercent) {
+      state.cachedSearchProgressPercent = nextPercent;
+      setCachedSearchProgressStrip(nextPercent, 1);
+    }
+  }, 180);
+}
+
+function finishCachedSearchProgressStrip() {
+  if (!elements.cachedSearchProgressStrip) {
+    return;
+  }
+  clearCachedSearchProgressTimers();
+  state.cachedSearchProgressActive = false;
+  state.cachedSearchProgressPercent = 100;
+  elements.cachedSearchProgressStrip.hidden = false;
+  elements.cachedSearchProgressStrip.style.transition =
+    "width 150ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease";
+  setCachedSearchProgressStrip(100, 1);
+  state.cachedSearchProgressFadeTimer = window.setTimeout(() => {
+    if (!elements.cachedSearchProgressStrip) {
+      return;
+    }
+    elements.cachedSearchProgressStrip.style.transition = "opacity 300ms ease";
+    elements.cachedSearchProgressStrip.style.opacity = "0";
+    state.cachedSearchProgressFadeTimer = window.setTimeout(() => {
+      if (!elements.cachedSearchProgressStrip) {
+        return;
+      }
+      elements.cachedSearchProgressStrip.hidden = true;
+      elements.cachedSearchProgressStrip.style.width = "0%";
+      elements.cachedSearchProgressStrip.style.opacity = "0";
+      elements.cachedSearchProgressStrip.style.transition =
+        "width 320ms cubic-bezier(0.16, 1, 0.3, 1), opacity 300ms ease";
+      state.cachedSearchProgressFadeTimer = null;
+    }, 320);
+  }, 170);
 }
 
 function stopImageAnalyzeProgressAnimation() {
@@ -8302,29 +8396,26 @@ async function runSearch(query, options = {}) {
   state.refineDrawerOpen = false;
   elements.resultCount.textContent = normalizedQuery ? "Searching..." : "Loading catalog...";
   const useStreamedTextProgress = Boolean(normalizedQuery && !imageAnalysis && !isSeedQuery(normalizedQuery));
-  setResultsLoading(
-    normalizedQuery
-      ? (useStreamedTextProgress
-          ? {
-              step: "parse",
-              percent: 10,
-              percentLabel: getTextSearchStepConfig("parse").percentLabel,
-              indeterminate: true,
-              title: "Understanding your query...",
-              copy: "Figuring out what you're looking for."
-            }
-          : isPublicSeedQuery
+  const useCachedSearchStrip = isPublicSeedQuery;
+  if (useCachedSearchStrip) {
+    setResultsLoading("");
+    startCachedSearchProgressStrip();
+  } else {
+    setResultsLoading(
+      normalizedQuery
+        ? (useStreamedTextProgress
             ? {
-                mode: "quick",
-                step: "search",
-                percent: 38,
+                step: "parse",
+                percent: 10,
+                percentLabel: getTextSearchStepConfig("parse").percentLabel,
                 indeterminate: true,
-                title: "Opening suggested search...",
-                copy: "Loading curated results for this suggestion."
+                title: "Understanding your query...",
+                copy: "Figuring out what you're looking for."
               }
             : "Embedding the visual query and ranking image captions...")
-      : "Loading catalog products..."
-  );
+        : "Loading catalog products..."
+    );
+  }
 
   try {
     const shouldUsePostSearch = Boolean(imageAnalysis || apiRequestedVisualType);
@@ -8468,6 +8559,10 @@ async function runSearch(query, options = {}) {
     setResultsLoading("");
     setStatus(error.message, "error");
     return null;
+  } finally {
+    if (useCachedSearchStrip) {
+      finishCachedSearchProgressStrip();
+    }
   }
 }
 

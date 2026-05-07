@@ -2674,6 +2674,22 @@ body.landing-home .seed-query.is-active {
   grid-template-columns: 300px minmax(0, 1fr);
 }
 
+.cached-search-progress-strip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  opacity: 0;
+  z-index: 2000;
+  pointer-events: none;
+  background: linear-gradient(90deg, #7c3aed 0%, #8b5cf6 100%);
+  transition:
+    width 320ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 300ms ease;
+  will-change: width, opacity;
+}
+
 .results-loading-active .results-layout,
 body.results-loading-active .results-layout {
   grid-template-columns: minmax(0, 1fr) !important;
