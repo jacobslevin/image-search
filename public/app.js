@@ -2648,12 +2648,11 @@ function updateSearchComposerClearButton() {
   if (!elements.clearSearchInputButton || !elements.searchInput) {
     return;
   }
-  const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
-  const hasActiveQueryResults = Boolean(
+  const hasActiveSubmittedSearch = Boolean(
     String(state.lastQuery || "").trim() ||
     (Array.isArray(state.lastPayload?.results) && state.lastPayload.results.length)
   );
-  const shouldShow = hasComposableContent || hasActiveQueryResults;
+  const shouldShow = hasActiveSubmittedSearch;
   elements.clearSearchInputButton.hidden = !shouldShow;
   if (!shouldShow) {
     if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
