@@ -954,21 +954,93 @@ function shouldStreamSearchProgress(request) {
   return String(request?.headers?.["x-pixelseek-stream"] || "").trim() === "1";
 }
 
-function formatSearchTraitList(traits = []) {
+function naturalJoin(items = []) {
+  const parts = (Array.isArray(items) ? items : []).filter(Boolean);
+  if (!parts.length) {
+    return "";
+  }
+  if (parts.length === 1) {
+    return parts[0];
+  }
+  if (parts.length === 2) {
+    return `${parts[0]} and ${parts[1]}`;
+  }
+  return `${parts[0]}, ${parts[1]}, and ${parts[2]}`;
+}
+
+function toDescriptiveMaterial(value = "", fallbackNoun = "") {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (!normalized) {
+    return "";
+  }
+  if (normalized.includes("wood")) {
+    return fallbackNoun ? `wooden ${fallbackNoun}` : "wooden";
+  }
+  if (normalized.includes("metal")) {
+    return fallbackNoun ? `metal ${fallbackNoun}` : "metal";
+  }
+  return fallbackNoun ? `${normalized} ${fallbackNoun}` : normalized;
+}
+
+function humanizeStructuredTraitBullet(bullet = "", visualType = "") {
+  const raw = String(bullet || "").trim();
+  if (!raw) {
+    return "";
+  }
+  const separatorIndex = raw.indexOf(":");
+  if (separatorIndex === -1) {
+    return raw.toLowerCase();
+  }
+
+  const fieldLabel = raw.slice(0, separatorIndex).trim();
+  const valueLabel = raw.slice(separatorIndex + 1).trim();
+  const field = resolveStructuredBulletField(visualType, fieldLabel);
+  const lowerValue = valueLabel.toLowerCase();
+
+  switch (field) {
+    case "configuration":
+      if (lowerValue === "single seat") return "single seats";
+      if (lowerValue === "double seat") return "double seats";
+      if (lowerValue === "triple seat (or larger)") return "larger seating groups";
+      if (lowerValue === "modular component") return "modular pieces";
+      if (lowerValue === "corner unit") return "corner units";
+      return lowerValue;
+    case "back_height":
+    case "height_category":
+      if (lowerValue === "high") return "high back";
+      if (lowerValue === "mid") return "mid back";
+      if (lowerValue === "low") return "low back";
+      if (lowerValue === "full enclosure") return "full enclosure";
+      return `${lowerValue} back`;
+    case "body_construction":
+    case "seat_construction":
+    case "shell_material":
+    case "seat_material":
+      return toDescriptiveMaterial(valueLabel, "body");
+    case "base_type":
+    case "base_finish":
+    case "base_frame_finish":
+      return toDescriptiveMaterial(valueLabel, "base");
+    case "top_shape":
+      return `${lowerValue} top`;
+    case "shape_character":
+      return lowerValue.replace(/\bsoft[-\s]?boxy\b/g, "soft boxy");
+    case "arm_option":
+      return lowerValue;
+    default:
+      return lowerValue;
+  }
+}
+
+function formatSearchTraitList(traits = [], visualType = "") {
   const items = (Array.isArray(traits) ? traits : [])
-    .map((entry) => String(entry || "").trim())
+    .map((entry) => humanizeStructuredTraitBullet(entry, visualType))
     .filter(Boolean)
     .slice(0, 3);
   if (!items.length) {
     return "";
   }
-  if (items.length === 1) {
-    return `"${items[0]}"`;
-  }
-  if (items.length === 2) {
-    return `"${items[0]}" and "${items[1]}"`;
-  }
-  return `"${items[0]}", "${items[1]}", and "${items[2]}"`;
+  return naturalJoin(items);
 }
 
 function buildSearchInterpretationMessage(visualType = "", selectedBullets = null, parsed = {}) {
@@ -978,7 +1050,7 @@ function buildSearchInterpretationMessage(visualType = "", selectedBullets = nul
     ...(Array.isArray(bulletState.normal) ? bulletState.normal : []),
     ...(Array.isArray(bulletState.low) ? bulletState.low : [])
   ];
-  const traitPhrase = formatSearchTraitList(traits);
+  const traitPhrase = formatSearchTraitList(traits, visualType);
   const visualLabel = visualType
     ? (
         seatingTypes[visualType]?.label ||
@@ -990,13 +1062,13 @@ function buildSearchInterpretationMessage(visualType = "", selectedBullets = nul
   const visualQuery = String(parsed?.visual_query || "").trim();
 
   if (visualLabel && traitPhrase) {
-    return `Searching for ${visualLabel} with traits ${traitPhrase}...`;
+    return `Searching for ${visualLabel} with ${traitPhrase}...`;
   }
   if (visualLabel) {
     return `Searching for ${visualLabel}...`;
   }
   if (traitPhrase) {
-    return `Searching broadly with traits ${traitPhrase}...`;
+    return `Searching broadly with ${traitPhrase}...`;
   }
   if (visualQuery) {
     return `Searching for matches to "${visualQuery}"...`;
@@ -1078,7 +1150,7 @@ async function executeSearchQuery({
     await onProgress({
       phase: "parsing",
       title: "Understanding your query...",
-      detail: "Interpreting the search request and inferring the closest category."
+      detail: "Figuring out what you're looking for."
     });
   }
   let inferredCategory = null;
@@ -1132,12 +1204,12 @@ async function executeSearchQuery({
     await onProgress({
       phase: "parsed",
       title: buildSearchInterpretationMessage(resolvedVisualType, effectiveSelectedBullets, parsed),
-      detail: "Query understood. Preparing semantic matching."
+      detail: "Figuring out what to look for next."
     });
     await onProgress({
       phase: "embedding",
-      title: "Finding semantically similar items...",
-      detail: "Generating the semantic fingerprint for your query."
+      title: "Finding similar items...",
+      detail: "Mapping your query to our catalog."
     });
   }
   const queryEmbedding = await resolveQueryEmbedding({
@@ -1150,7 +1222,7 @@ async function executeSearchQuery({
     await onProgress({
       phase: "database",
       title: "Scanning the catalog...",
-      detail: "Retrieving the strongest vector matches from Postgres."
+      detail: "Pulling the closest matches."
     });
   }
   const canonicalIndex = await loadCanonicalReadModelForSearch({
@@ -1189,7 +1261,7 @@ async function executeSearchQuery({
     await onProgress({
       phase: "reranking",
       title: "Ranking the best matches...",
-      detail: "Scoring trait fit and grouping the top candidates by product."
+      detail: "Sorting by what fits your query best."
     });
   }
   const searchResponse = await searchIndex({

@@ -209,10 +209,10 @@ const IMAGE_ANALYZE_PROGRESS_STEPS = [
   { id: "complete", label: "Complete", percent: 100, title: "Results ready", detail: "Opening the ranked results." }
 ];
 const TEXT_SEARCH_PROGRESS_STEPS = [
-  { id: "parse", label: "Parse", percent: 50, percentLabel: "0–50%", title: "Understanding your query...", detail: "Interpreting the search request and inferring the closest category." },
-  { id: "embed", label: "Embed", percent: 58, percentLabel: "50–58%", title: "Finding semantically similar items...", detail: "Generating the semantic fingerprint for your query." },
-  { id: "search", label: "Search", percent: 66, percentLabel: "58–66%", title: "Scanning the catalog...", detail: "Retrieving the strongest vector matches from Postgres." },
-  { id: "rank", label: "Rank", percent: 95, percentLabel: "66–100%", title: "Ranking the best matches...", detail: "Scoring trait fit and grouping the top candidates by product." },
+  { id: "parse", label: "Parse", percent: 50, percentLabel: "0–50%", title: "Understanding your query...", detail: "Figuring out what you're looking for." },
+  { id: "embed", label: "Embed", percent: 58, percentLabel: "50–58%", title: "Finding similar items...", detail: "Mapping your query to our catalog." },
+  { id: "search", label: "Search", percent: 66, percentLabel: "58–66%", title: "Scanning the catalog...", detail: "Pulling the closest matches." },
+  { id: "rank", label: "Rank", percent: 95, percentLabel: "66–100%", title: "Ranking the best matches...", detail: "Sorting by what fits your query best." },
   { id: "complete", label: "Complete", percent: 100, percentLabel: "100%", title: "Results ready", detail: "Opening the ranked results." }
 ];
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
@@ -8122,7 +8122,7 @@ async function runSearch(query, options = {}) {
               percentLabel: getTextSearchStepConfig("parse").percentLabel,
               indeterminate: true,
               title: "Understanding your query...",
-              copy: "Interpreting the search request and inferring the closest category."
+              copy: "Figuring out what you're looking for."
             }
           : "Embedding the visual query and ranking image captions...")
       : "Loading catalog products..."
