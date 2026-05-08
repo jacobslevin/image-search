@@ -416,6 +416,47 @@ function buildExcludedImageExtractionResult({
   };
 }
 
+function buildSyntheticUnmappedProductSkipRecord(productImage = {}, options = {}) {
+  const extractionTimestamp = String(options.extractionTimestamp || new Date().toISOString()).trim();
+  const categories = normalizeCategories(productImage);
+  return {
+    ...buildExcludedImageExtractionResult({
+      baseRecord: {
+        image_id: `${String(productImage.product_id || "").trim()}__synthetic_unmapped`,
+        image_url: "",
+        product_id: productImage.product_id,
+        product_name: productImage.name || productImage.product_name || "",
+        name: productImage.name || productImage.product_name || "",
+        brand: productImage.brand || ""
+      },
+      categories,
+      stage0Result: "",
+      stage1: {
+        result: "",
+        seating_type: "",
+        visual_type: "",
+        family: "",
+        type_routing_source: "mapping_v1",
+        override_reason: null
+      },
+      tokens: {
+        stage_0: normalizeOpenAiUsage(),
+        total: normalizeOpenAiUsage()
+      },
+      cost: {
+        stage_0_usd: 0,
+        total_usd: 0
+      },
+      extractionTimestamp,
+      imageDimensions: null
+    }),
+    excluded_reason: "unmapped_category_grouping",
+    pixelseek_type: null,
+    type_routing_source: "mapping_v1",
+    is_synthetic_skip: true
+  };
+}
+
 function sleepMs(ms = 0) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -5092,6 +5133,27 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
     };
   }
 
+  const productType = getPixelSeekType(productImages[0]) || "";
+  const visualType = resolveCatalogVisualTypeKey(productType) || "";
+  if (productType === "SKIP") {
+    return {
+      records: [buildSyntheticUnmappedProductSkipRecord(productImages[0])],
+      failed_images: [],
+      progress: {
+        seating_type: "",
+        stage0_passing_count: 0,
+        selected_product_image_count: 0,
+        successful_extraction_count: 0,
+        failed_image_count: 0,
+        failed_stage0_count: 0,
+        failed_stage23_count: 0,
+        effective_cap_applied: 0,
+        images_skipped_by_cap: 0,
+        hard_upper_cap_binding: false
+      }
+    };
+  }
+
   const classificationEntries = [];
   const failedImages = [];
   for (const image of productImages) {
@@ -5120,8 +5182,6 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
   }
 
   const stage0PassingEntries = classificationEntries.filter((entry) => String(entry.stage0Payload?.stage0?.result || "").trim().toLowerCase() === "product");
-  const productType = getPixelSeekType(productImages[0]) || "";
-  const visualType = resolveCatalogVisualTypeKey(productType) || "";
   const effectiveCap = getEffectiveExtractionImageCap(visualType || productType);
   const softCap = visualType || productType;
   const selectedImageIds = new Set(

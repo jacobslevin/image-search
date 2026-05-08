@@ -19,13 +19,17 @@ import { getRankingRulesSummary, normalizeEmbedding, resolveQueryEmbedding, sear
 import { detectTraitTextConflicts } from "./src/trait-conflicts.js";
 import { buildPipelineDiagnostics, readPipelineDiagnosticsBaseline } from "./src/pipeline-diagnostics.js";
 import {
+  createEmptyIndex,
+  replaceProductImages,
+  summarizeRefreshOutcome
+} from "./src/refresh-index.js";
+import {
   ACTIVE_VISUAL_TYPE_KEYS,
   createId,
   ensureDir,
   getAllCategoryTerms,
   getCategoryDisplayLabel,
   getCategoryGroupingKey,
-  getCategoryLevels,
   getEffectiveClassification,
   getImageIndexPath,
   getUnmappedCategoryDecisionsPath,
@@ -2626,173 +2630,6 @@ function buildIndexedImageRecord(image, generated, refreshedAt = new Date().toIS
   };
 }
 
-function cloneRefreshDiagnostics(value = null) {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
-  return {
-    last_attempted_at: String(value.last_attempted_at || "").trim(),
-    ai_refreshed_at: String(value.ai_refreshed_at || "").trim(),
-    seating_type: String(value.seating_type || "").trim(),
-    visual_type: normalizeVisualTypeKey(value.visual_type || value.seating_type || ""),
-    stage0_passing_count: Math.max(0, Number(value.stage0_passing_count) || 0),
-    selected_product_image_count: Math.max(0, Number(value.selected_product_image_count) || 0),
-    successful_extraction_count: Math.max(0, Number(value.successful_extraction_count) || 0),
-    failed_image_count: Math.max(0, Number(value.failed_image_count) || 0),
-    failed_stage0_count: Math.max(0, Number(value.failed_stage0_count) || 0),
-    failed_stage23_count: Math.max(0, Number(value.failed_stage23_count) || 0),
-    images_skipped_by_cap: Math.max(0, Number(value.images_skipped_by_cap) || 0),
-    hard_upper_cap_binding: Boolean(value.hard_upper_cap_binding),
-    partial_image_failure: Boolean(value.partial_image_failure),
-    failed_images: Array.isArray(value.failed_images)
-      ? value.failed_images.map((entry) => ({
-          image_id: String(entry?.image_id || "").trim(),
-          image_url: String(entry?.image_url || "").trim(),
-          stage: String(entry?.stage || "").trim(),
-          error: String(entry?.error || "").trim()
-        }))
-      : []
-  };
-}
-
-function buildLightweightProductRecords(catalog, imageRecords = [], previousProducts = [], refreshDiagnosticsByProductId = new Map()) {
-  const byProductId = new Map();
-  const previousByProductId = new Map(
-    (Array.isArray(previousProducts) ? previousProducts : [])
-      .map((product) => [String(product?.product_id || "").trim(), product])
-  );
-
-  for (const product of catalog?.products || []) {
-    const { a_level, b_level, c_level } = getCategoryLevels(product);
-    const previous = previousByProductId.get(String(product.product_id || "").trim()) || {};
-    byProductId.set(product.product_id, {
-      product_id: product.product_id,
-      product_name: product.name,
-      name: product.name,
-      brand: product.brand,
-      a_level,
-      b_level,
-      c_level,
-      image_urls: [...new Set(product.image_urls || [])],
-      passing_image_count: 0,
-      refresh_diagnostics: cloneRefreshDiagnostics(previous.refresh_diagnostics)
-    });
-  }
-
-  for (const image of imageRecords) {
-    if (!byProductId.has(image.product_id)) {
-      byProductId.set(image.product_id, {
-        product_id: image.product_id,
-        product_name: image.product_name || image.name || "",
-        name: image.product_name || image.name || "",
-        brand: image.brand || "",
-        a_level: image.a_level || [],
-        b_level: image.b_level || [],
-        c_level: image.c_level || [],
-        image_urls: [],
-        passing_image_count: 0,
-        refresh_diagnostics: cloneRefreshDiagnostics(previousByProductId.get(String(image.product_id || "").trim())?.refresh_diagnostics)
-      });
-    }
-
-    const product = byProductId.get(image.product_id);
-    product.image_urls = [...new Set([...product.image_urls, image.image_url].filter(Boolean))];
-    if (getEffectiveClassification(image) === "product") {
-      product.passing_image_count += 1;
-    }
-  }
-
-  if (refreshDiagnosticsByProductId instanceof Map) {
-    for (const [productId, diagnostics] of refreshDiagnosticsByProductId.entries()) {
-      if (!byProductId.has(productId)) {
-        continue;
-      }
-      byProductId.get(productId).refresh_diagnostics = cloneRefreshDiagnostics(diagnostics);
-    }
-  }
-
-  return [...byProductId.values()];
-}
-
-function buildIndexOutput(index, catalog, mergedImages, options = {}) {
-  const searchableImages = mergedImages.filter((image) => getEffectiveClassification(image) === "product");
-  const refreshDiagnosticsByProductId = options.refreshDiagnosticsByProductId instanceof Map
-    ? options.refreshDiagnosticsByProductId
-    : new Map();
-  const products = buildLightweightProductRecords(catalog, mergedImages, index?.products || [], refreshDiagnosticsByProductId);
-  const indexedBrands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  const indexedCategories = [...new Set(products.flatMap((product) => getAllCategoryTerms(product)).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-
-  return {
-    ...index,
-    generated_at: new Date().toISOString(),
-    provider: "openai",
-    totals: {
-      products: products.length,
-      images: searchableImages.length
-    },
-    brands: indexedBrands.length ? indexedBrands : catalog.brands,
-    categories: indexedCategories.length ? indexedCategories : catalog.categories,
-    products,
-    images: mergedImages
-  };
-}
-
-function createEmptyIndex(catalog) {
-  return {
-    generated_at: "",
-    provider: "openai",
-    totals: {
-      products: 0,
-      images: 0
-    },
-    brands: catalog?.brands || [],
-    categories: catalog?.categories || [],
-    products: buildLightweightProductRecords(catalog, []),
-    images: []
-  };
-}
-
-function mergeRefreshedImages(index, catalog, refreshedImages = [], options = {}) {
-  if (!refreshedImages.length) {
-    return index;
-  }
-
-  const refreshedMap = new Map(refreshedImages.map((image) => [image.image_id || image.image_url, image]));
-  const mergedImageMap = new Map();
-
-  for (const image of index.images || []) {
-    const key = image.image_id || image.image_url;
-    mergedImageMap.set(key, refreshedMap.get(key) || image);
-  }
-
-  for (const image of refreshedImages) {
-    const key = image.image_id || image.image_url;
-    mergedImageMap.set(key, image);
-  }
-
-  const mergedImages = [...mergedImageMap.values()];
-
-  return buildIndexOutput(index, catalog, mergedImages, options);
-}
-
-function replaceProductImages(index, catalog, productIds = [], refreshedImages = [], options = {}) {
-  const normalizedProductIds = [...new Set(
-    (productIds || [])
-      .map((value) => String(value || "").trim())
-      .filter(Boolean)
-  )];
-
-  if (!normalizedProductIds.length) {
-    return refreshedImages.length ? mergeRefreshedImages(index, catalog, refreshedImages, options) : index;
-  }
-
-  const targetProductIds = new Set(normalizedProductIds);
-  const retainedImages = (index?.images || []).filter((image) => !targetProductIds.has(String(image?.product_id || "").trim()));
-  const nextImages = [...retainedImages, ...refreshedImages];
-  return buildIndexOutput(index, catalog, nextImages, options);
-}
-
 async function generateProductRefreshPayload(productId, matchingImages = []) {
   const refreshedAt = new Date().toISOString();
   const refreshedImages = [];
@@ -2847,9 +2684,11 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
       const sourceImage = matchingImages.find((image) => image.image_id === recordLike.image_id || image.image_url === recordLike.image_url) || recordLike;
       const record = buildIndexedImageRecord(sourceImage, recordLike, refreshedAt);
       refreshedImages.push(record);
-      reindexState.processed_images = Number(reindexState.processed_images || 0) + 1;
-      const normalizedStage0Result = incrementReindexStage0Counts(record.stage_0_result);
-      if (!normalizedStage0Result) {
+      if (!record.is_synthetic_skip) {
+        reindexState.processed_images = Number(reindexState.processed_images || 0) + 1;
+      }
+      const normalizedStage0Result = record.is_synthetic_skip ? "" : incrementReindexStage0Counts(record.stage_0_result);
+      if (!normalizedStage0Result && record.stage_0_result) {
         console.warn(
           `[reindex-progress] Unrecognized stage_0_result for product ${productId}: ${JSON.stringify(record.stage_0_result || "")}`
         );
@@ -2870,20 +2709,13 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     console.warn(`Skipping product during refresh for ${productId}: ${error?.message || "Product extraction failed."}`);
   }
 
-  const unmappedImages = refreshedImages.filter((record) => record.excluded_reason === "unmapped_category_grouping");
-  if (unmappedImages.length === refreshedImages.length) {
-    const grouping = getCategoryGroupingKey(matchingImages[0] || {});
-    const error = new Error(`Unmapped DP category combination: ${grouping || "(none)"}`);
-    error.code = "UNMAPPED_CATEGORY_GROUPING";
-    error.grouping = grouping || "(none)";
-    error.product_id = productId;
-    error.product_name = String(matchingImages[0]?.name || productId).trim();
-    throw error;
-  }
-
-  if (successfulExtractionCount <= 0) {
-    throw new Error(lastError?.message || "All images failed extraction for this product.");
-  }
+  const refreshOutcome = summarizeRefreshOutcome({
+    productId,
+    matchingImages,
+    refreshedImages,
+    successfulExtractionCount,
+    lastError
+  });
 
   const representativeProductImage = refreshedImages.find((record) => getEffectiveClassification(record) === "product");
   const representativeSeatingType = String(representativeProductImage?.seating_type || "").trim();
@@ -2901,6 +2733,8 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     images_skipped_by_cap: Number(reindexState.current_product_images_skipped_by_cap || 0),
     hard_upper_cap_binding: Boolean(reindexState.current_product_hard_cap_binding),
     partial_image_failure: failedImages.length > 0,
+    skipped_unmapped: refreshOutcome.skipped_unmapped,
+    unmapped_grouping: refreshOutcome.unmapped_grouping,
     failed_images: failedImages
   };
 
@@ -2911,6 +2745,8 @@ async function generateProductRefreshPayload(productId, matchingImages = []) {
     ai_refreshed_at: refreshedAt,
     seating_type: representativeSeatingType,
     visual_type: normalizeVisualTypeKey(representativeProductImage?.visual_type || representativeSeatingType || ""),
+    skipped_unmapped: refreshOutcome.skipped_unmapped,
+    unmapped_grouping: refreshOutcome.unmapped_grouping,
     images: refreshedImages,
     progress: {
       product_cost_usd: productCostUsd,
@@ -2941,6 +2777,7 @@ function resetReindexState(productIds = []) {
     failed: 0,
     failed_unmapped: 0,
     failed_other: 0,
+    skipped_unmapped: 0,
     failed_products: [],
     unmapped_groupings: [],
     current_product: "",
@@ -3024,10 +2861,19 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         }
         const typeForLog = String(productPayload.seating_type || "").trim() ||
           String(productPayload.images.find((image) => getEffectiveClassification(image) === "product")?.seating_type || "").trim();
+        if (productPayload.skipped_unmapped) {
+          reindexState.skipped_unmapped += 1;
+          upsertUnmappedGroupingEntry(productPayload.unmapped_grouping, {
+            product_id: productId,
+            name: productName
+          });
+        }
         reindexState.log.unshift({
           name: productName,
-          status: "success",
+          status: productPayload.skipped_unmapped ? "skipped" : "success",
           type: typeForLog,
+          skipped_unmapped: Boolean(productPayload.skipped_unmapped),
+          unmapped_grouping: String(productPayload.unmapped_grouping || "").trim(),
           stage0_passing_count: Number(productPayload.progress?.stage0_passing_count || 0),
           successful_extraction_count: Number(productPayload.progress?.successful_extraction_count || 0),
           failed_image_count: Number(productPayload.progress?.failed_image_count || 0),
@@ -3038,15 +2884,7 @@ async function runBulkRefresh(productIds, catalog, initialIndex) {
         reindexState.completed += 1;
       } catch (error) {
         reindexState.failed += 1;
-        if (error?.code === "UNMAPPED_CATEGORY_GROUPING") {
-          reindexState.failed_unmapped += 1;
-          upsertUnmappedGroupingEntry(error.grouping, {
-            product_id: productId,
-            name: productName
-          });
-        } else {
-          reindexState.failed_other += 1;
-        }
+        reindexState.failed_other += 1;
         reindexState.failed_products.push({
           name: productName,
           product_id: productId,
@@ -3126,7 +2964,10 @@ async function refreshProductIndex(productId) {
     refreshDiagnosticsByProductId: new Map([[productId, productPayload.refresh_diagnostics]])
   });
   await writeJson(indexPath, output);
-  return (output.images || []).filter((image) => image.product_id === productId);
+  return {
+    ...productPayload,
+    images: (output.images || []).filter((image) => image.product_id === productId)
+  };
 }
 
 async function refreshProductsIndex(productIds = []) {
@@ -4236,14 +4077,16 @@ const server = http.createServer(async (request, response) => {
         return json(response, 400, { error: "product_id is required." });
       }
 
-      const refreshedImages = await refreshProductIndex(productId);
+      const refreshedProduct = await refreshProductIndex(productId);
       return json(response, 200, {
         ok: true,
         product_id: productId,
-        refreshed_images: refreshedImages.length,
-        caption_model_version: refreshedImages[0]?.caption_model_version || "",
-        ai_refreshed_at: refreshedImages[0]?.ai_refreshed_at || "",
-        images: refreshedImages.map((image) => addVisualTypeToRecordPayload(image))
+        skipped_unmapped: Boolean(refreshedProduct.skipped_unmapped),
+        unmapped_grouping: String(refreshedProduct.unmapped_grouping || "").trim(),
+        refreshed_images: refreshedProduct.images.length,
+        caption_model_version: refreshedProduct.images[0]?.caption_model_version || "",
+        ai_refreshed_at: refreshedProduct.images[0]?.ai_refreshed_at || "",
+        images: refreshedProduct.images.map((image) => addVisualTypeToRecordPayload(image))
       });
     } catch (error) {
       return json(response, 500, { error: error.message || "Product refresh failed." });
