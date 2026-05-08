@@ -53,19 +53,67 @@
       <section class="search-panel">
         <div class="search-entry-grid">
           <section id="imageSearchDropZone" class="search-entry-card search-entry-card-image" aria-label="Search by image">
-            <span class="search-entry-badge">Recommended</span>
+            <span id="imageSearchDropZoneBadge" class="search-entry-badge">
+              <span class="search-entry-badge-default">Recommended</span>
+              <span class="search-entry-badge-drop" hidden>Drop to search</span>
+            </span>
             <div class="search-entry-icon search-entry-icon-image" aria-hidden="true"></div>
-            <h2 class="search-entry-title">Search by image</h2>
-            <p class="search-entry-copy">
-              <span class="search-entry-copy-desktop">Drop a photo or screenshot</span>
-              <span class="search-entry-copy-mobile">Tap to upload a photo</span>
-            </p>
-            <button id="openImageSearch" class="search-entry-upload-button" type="button" aria-label="Search from an inspiration image">
+            <div class="search-entry-copy-block">
+              <h2 id="imageSearchDropZoneTitle" class="search-entry-title">
+                <span class="search-entry-title-default">Search by image</span>
+                <span class="search-entry-title-drop" hidden>Drop your image here</span>
+              </h2>
+              <p id="imageSearchDropZoneCopy" class="search-entry-copy">
+                <span class="search-entry-copy-default">
+                  <span class="search-entry-copy-desktop">Drag and drop, paste a URL, or upload</span>
+                  <span class="search-entry-copy-mobile">Tap to take a photo or upload</span>
+                </span>
+                <span class="search-entry-copy-drag" hidden>Release to start visual search</span>
+              </p>
+            </div>
+            <form id="homepageImageUrlForm" class="search-entry-url-form" novalidate>
+              <label class="sr-only" for="homepageImageUrlInput">Paste image URL</label>
+              <input
+                id="homepageImageUrlInput"
+                class="search-entry-url-input"
+                type="url"
+                inputmode="url"
+                placeholder="Paste image URL..."
+                autocomplete="off"
+              />
+              <button
+                id="homepageImageAnalyzeButton"
+                class="search-entry-url-button"
+                type="submit"
+                disabled
+              >
+                Analyze
+              </button>
+            </form>
+            <div class="search-entry-divider" aria-hidden="true">
+              <span class="search-entry-divider-line"></span>
+              <span class="search-entry-divider-label">Or</span>
+              <span class="search-entry-divider-line"></span>
+            </div>
+            <p id="homepageImageCardError" class="search-entry-inline-error" hidden></p>
+            <input id="homepageImageUploadInput" type="file" accept="image/*" capture="environment" hidden />
+            <button id="openImageSearch" class="search-entry-upload-button search-entry-upload-button-secondary" type="button" aria-label="Upload an image from your computer">
               Upload image
             </button>
+            <button
+              id="homepageImageUrlToggle"
+              class="search-entry-url-toggle"
+              type="button"
+              hidden
+            >
+              Or paste an image URL
+            </button>
+            <p class="sr-only" aria-live="polite">
+              <span id="imageSearchDropZoneStatus"></span>
+            </p>
           </section>
 
-          <section class="search-entry-card search-entry-card-text" aria-label="Describe what you need">
+          <section id="textSearchEntryCard" class="search-entry-card search-entry-card-text" aria-label="Describe what you need">
             <div class="search-entry-icon search-entry-icon-text" aria-hidden="true"></div>
             <h2 class="search-entry-title">Describe what you need</h2>
             <p class="search-entry-copy">Search by visual traits</p>

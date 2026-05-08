@@ -101,6 +101,18 @@ body.public-route .site-nav-end {
   display: none !important;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   margin: 0;
   color: var(--text);
@@ -349,17 +361,24 @@ h1 {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  min-height: 188px;
+  justify-content: flex-start;
+  min-height: 312px;
   padding: 28px 28px 26px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.96);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    border-width 150ms ease,
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    opacity 150ms ease;
 }
 
 .search-entry-card-image {
-  align-items: center;
-  text-align: center;
-  border: 1px dashed rgba(124, 109, 240, 0.55);
+  align-items: stretch;
+  text-align: left;
+  border: 1.5px dashed rgba(124, 109, 240, 0.55);
   cursor: default;
 }
 
@@ -377,27 +396,44 @@ h1 {
   min-height: 24px;
   padding: 0 10px;
   border-radius: 999px;
-  background: rgba(124, 109, 240, 0.1);
-  color: #7469d8;
+  background: #eeedfe;
+  color: #3c3489;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
 }
 
 .search-entry-icon {
   width: 34px;
   height: 34px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
   background: center / contain no-repeat;
+  transition:
+    transform 150ms ease,
+    opacity 150ms ease,
+    background-image 150ms ease;
 }
 
 .search-entry-icon-image {
   background-image: url("/pixelseek-icons/upload-image.svg");
 }
 
+.search-entry-grid.is-image-drag-active .search-entry-icon-image {
+  background-image: url("/pixelseek-icons/arrow-down_active.svg");
+}
+
 .search-entry-icon-text {
   background-image: url("/pixelseek-icons/search-ia-circle.svg");
+}
+
+.search-entry-copy-block {
+  display: grid;
+  gap: 8px;
 }
 
 .search-entry-title {
@@ -406,13 +442,15 @@ h1 {
   font-size: 1.35rem;
   font-weight: 650;
   line-height: 1.2;
+  transition: color 150ms ease;
 }
 
 .search-entry-copy {
-  margin: 8px 0 0;
+  margin: 0;
   color: #696f80;
   font-size: 0.96rem;
   line-height: 1.45;
+  transition: color 150ms ease, opacity 150ms ease;
 }
 
 .search-entry-copy-mobile {
@@ -420,8 +458,7 @@ h1 {
 }
 
 .search-entry-upload-button {
-  margin-top: 18px;
-  align-self: center;
+  margin-top: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -435,10 +472,158 @@ h1 {
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease;
 }
 
 .search-entry-upload-button:hover {
   background: #6355d4;
+}
+
+.search-entry-upload-button-secondary {
+  width: 100%;
+  border: 1px solid #cfd5de;
+  background: rgba(255, 255, 255, 0.88);
+  color: #515868;
+}
+
+.search-entry-upload-button-secondary:hover {
+  background: rgba(248, 249, 252, 0.98);
+  border-color: #b9c1cd;
+  color: #2f3643;
+}
+
+.search-entry-url-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  width: 100%;
+  margin-top: 22px;
+}
+
+.search-entry-url-toggle {
+  display: none;
+  align-self: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #58505f;
+  font: inherit;
+  font-size: 0.92rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.search-entry-url-input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid rgba(217, 221, 231, 0.98);
+  border-radius: 14px;
+  background: #fff;
+  color: #1f2330;
+  font: inherit;
+}
+
+.search-entry-url-input::placeholder {
+  color: #8a90a0;
+}
+
+.search-entry-url-input:focus {
+  outline: 2px solid rgba(124, 109, 240, 0.18);
+  outline-offset: 1px;
+  border-color: rgba(124, 109, 240, 0.7);
+}
+
+.search-entry-url-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  background: #7c6df0;
+  color: #fff;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.search-entry-url-button:hover:not(:disabled) {
+  background: #6355d4;
+}
+
+.search-entry-url-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.search-entry-divider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 18px 0 12px;
+}
+
+.search-entry-divider-line {
+  display: block;
+  height: 1px;
+  background: rgba(209, 213, 222, 0.95);
+}
+
+.search-entry-divider-label {
+  color: #8a90a0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.search-entry-inline-error {
+  width: 100%;
+  margin: 0 0 12px;
+  color: #b83a34;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.search-entry-card-image.is-drag-active {
+  background: #eeedfe;
+  border-width: 2.5px;
+  border-color: #534ab7;
+  transform: scale(1.01);
+}
+
+.search-entry-card-image.is-drag-active .search-entry-badge {
+  background: #534ab7;
+  color: #fff;
+}
+
+.search-entry-card-image.is-drag-active .search-entry-title,
+.search-entry-card-image.is-drag-active .search-entry-copy {
+  color: #2e2f57;
+}
+
+.search-entry-card-image.is-drag-active .search-entry-url-form,
+.search-entry-card-image.is-drag-active .search-entry-divider,
+.search-entry-card-image.is-drag-active .search-entry-upload-button-secondary,
+.search-entry-card-image.is-drag-active .search-entry-inline-error {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.search-entry-grid.is-image-drag-active .search-entry-card-text {
+  opacity: 0.5;
 }
 
 .search-field {

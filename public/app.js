@@ -340,6 +340,33 @@ const elements = {
   promptLibraryModalCloseTargets: document.querySelectorAll('[data-role="promptLibraryModalClose"]'),
   openImageSearch: document.querySelector("#openImageSearch"),
   openImageSearchInline: document.querySelector("#openImageSearchInline"),
+  homepageImageUploadInput: document.querySelector("#homepageImageUploadInput"),
+  homepageImageUrlToggle: document.querySelector("#homepageImageUrlToggle"),
+  homepageImageUrlForm: document.querySelector("#homepageImageUrlForm"),
+  homepageImageUrlInput: document.querySelector("#homepageImageUrlInput"),
+  homepageImageAnalyzeButton: document.querySelector("#homepageImageAnalyzeButton"),
+  homepageImageCardError: document.querySelector("#homepageImageCardError"),
+  imageModalUrlToggle: document.querySelector("#imageModalUrlToggle"),
+  imageModalUrlBlock: document.querySelector("#imageModalUrlBlock"),
+  searchEntryDivider: document.querySelector(".search-entry-divider"),
+  imageSearchDropZoneBadge: document.querySelector("#imageSearchDropZoneBadge"),
+  imageSearchDropZoneTitle: document.querySelector("#imageSearchDropZoneTitle"),
+  imageSearchDropZoneCopy: document.querySelector("#imageSearchDropZoneCopy"),
+  textSearchEntryCard: document.querySelector("#textSearchEntryCard"),
+  imageSearchDropZoneStatus: document.querySelector("#imageSearchDropZoneStatus"),
+  mobileCategoryDropdown: document.querySelector("#mobileCategoryDropdown"),
+  mobileCategoryDropdownBackdrop: document.querySelector("#mobileCategoryDropdownBackdrop"),
+  mobileResultCardMenu: document.querySelector("#mobileResultCardMenu"),
+  mobileResultCardMenuBackdrop: document.querySelector("#mobileResultCardMenuBackdrop"),
+  mobileResultCardMenuThumb: document.querySelector("#mobileResultCardMenuThumb"),
+  mobileResultCardMenuName: document.querySelector("#mobileResultCardMenuName"),
+  mobileResultCardMenuBrand: document.querySelector("#mobileResultCardMenuBrand"),
+  mobileResultCardMenuMore: document.querySelector("#mobileResultCardMenuMore"),
+  mobileResultCardMenuLess: document.querySelector("#mobileResultCardMenuLess"),
+  mobileResultCardMenuView: document.querySelector("#mobileResultCardMenuView"),
+  touchCropHint: document.querySelector("#touchCropHint"),
+  touchCropZoomPill: document.querySelector("#touchCropZoomPill"),
+  touchCropResetButton: document.querySelector("#touchCropResetButton"),
   openPromptLibrary: document.querySelector("#openPromptLibrary"),
   openExtractionSummary: document.querySelector("#openExtractionSummary"),
   copyStructuredTraits: document.querySelector("#copyStructuredTraits"),
@@ -8691,6 +8718,189 @@ function setSelectedUploadFile(file = null) {
   if (elements.imageUrlInput && file) {
     elements.imageUrlInput.value = "";
   }
+  if (elements.imageModalUrlBlock && file) {
+    elements.imageModalUrlBlock.dataset.mobileExpanded = "false";
+  }
+  syncImageModalUploadUi();
+}
+
+function setHomepageImageCardError(message = "") {
+  if (!elements.homepageImageCardError) {
+    return;
+  }
+  const normalized = String(message || "").trim();
+  elements.homepageImageCardError.textContent = normalized;
+  elements.homepageImageCardError.hidden = !normalized;
+}
+
+function clearHomepageImageCardError() {
+  setHomepageImageCardError("");
+}
+
+function syncHomepageImageAnalyzeButton() {
+  if (!elements.homepageImageAnalyzeButton || !elements.homepageImageUrlInput) {
+    return;
+  }
+  elements.homepageImageAnalyzeButton.disabled = !String(elements.homepageImageUrlInput.value || "").trim();
+}
+
+function syncHomepageImageUrlToggle() {
+  const shouldCollapseToLink = isMobileViewport();
+  const hasValue = Boolean(String(elements.homepageImageUrlInput?.value || "").trim());
+  const isExpanded = elements.homepageImageUrlForm?.dataset.mobileExpanded === "true" || hasValue;
+  if (elements.homepageImageUrlToggle) {
+    elements.homepageImageUrlToggle.hidden = !shouldCollapseToLink;
+    elements.homepageImageUrlToggle.setAttribute("aria-expanded", String(isExpanded));
+  }
+  if (elements.homepageImageUrlForm) {
+    elements.homepageImageUrlForm.classList.toggle("is-mobile-collapsed", shouldCollapseToLink && !isExpanded);
+  }
+  if (elements.searchEntryDivider) {
+    elements.searchEntryDivider.hidden = shouldCollapseToLink && !isExpanded;
+  }
+}
+
+function syncImageModalUploadUi() {
+  const hasValue = Boolean(String(elements.imageUrlInput?.value || "").trim());
+  const hasFile = Boolean(state.selectedUploadFile);
+  const hasSelection = hasFile || hasValue;
+  const shouldCollapseToLink = isMobileViewport();
+  const isExpanded = elements.imageModalUrlBlock?.dataset.mobileExpanded === "true" || hasValue;
+
+  if (elements.imageModalUrlToggle) {
+    elements.imageModalUrlToggle.hidden = !shouldCollapseToLink;
+    elements.imageModalUrlToggle.setAttribute("aria-expanded", String(isExpanded));
+  }
+  if (elements.imageModalUrlBlock) {
+    elements.imageModalUrlBlock.hidden = shouldCollapseToLink ? !isExpanded : false;
+  }
+  if (elements.analyzeImageButton && shouldCollapseToLink && !state.imageAnalyzeLoading) {
+    elements.analyzeImageButton.hidden = !hasSelection;
+  }
+}
+
+function openMobileSearchExpandedEditor() {
+  if (!isMobileResultsUi() || !elements.mobileSearchExpandedPanel || !elements.searchInput) {
+    return;
+  }
+  state.mobileSearchExpanded = true;
+  syncMobileSearchExpandedUi();
+  window.requestAnimationFrame(() => {
+    elements.searchInput?.focus();
+    if (elements.searchInput) {
+      elements.searchInput.scrollTop = 0;
+    }
+    const selection = window.getSelection?.();
+    if (selection) {
+      const range = document.createRange();
+      const targetNode = elements.searchCategoryPrefix && !elements.searchCategoryPrefix.hidden
+        ? (elements.searchCategoryPrefix.firstChild || elements.searchCategoryPrefix)
+        : elements.searchCategorySuffix && !elements.searchCategorySuffix.hidden
+          ? (elements.searchCategorySuffix.firstChild || elements.searchCategorySuffix)
+          : (elements.searchInput.firstChild || elements.searchInput);
+      range.setStart(targetNode, 0);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    window.requestAnimationFrame(() => {
+      if (elements.searchInput) {
+        elements.searchInput.scrollTop = 0;
+      }
+      const selection = window.getSelection?.();
+      if (selection) {
+        const range = document.createRange();
+        const targetNode = elements.searchCategoryPrefix && !elements.searchCategoryPrefix.hidden
+          ? (elements.searchCategoryPrefix.firstChild || elements.searchCategoryPrefix)
+          : elements.searchCategorySuffix && !elements.searchCategorySuffix.hidden
+            ? (elements.searchCategorySuffix.firstChild || elements.searchCategorySuffix)
+            : (elements.searchInput.firstChild || elements.searchInput);
+        range.setStart(targetNode, 0);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    });
+  });
+}
+
+function closeMobileSearchExpandedEditor({ restore = true } = {}) {
+  if (!elements.mobileSearchExpandedPanel) {
+    return;
+  }
+  state.mobileSearchExpanded = false;
+  syncMobileSearchExpandedUi();
+  if (restore) {
+    renderSearchComposer(state.lastDisplayQuery || state.lastQuery || "");
+  }
+}
+
+function syncMobileSearchExpandedUi() {
+  if (!elements.mobileSearchExpandedPanel) {
+    return;
+  }
+  if (!isMobileResultsUi()) {
+    state.mobileSearchExpanded = false;
+    document.body.classList.remove("mobile-search-expanded-active");
+    elements.mobileSearchExpandedPanel.hidden = true;
+    const searchField = elements.searchForm?.querySelector(".search-field");
+    searchField?.classList.remove("is-mobile-expanded");
+    return;
+  }
+  document.body.classList.toggle("mobile-search-expanded-active", Boolean(state.mobileSearchExpanded));
+  const searchField = elements.searchForm?.querySelector(".search-field");
+  searchField?.classList.toggle("is-mobile-expanded", state.mobileSearchExpanded);
+  elements.mobileSearchExpandedPanel.hidden = !state.mobileSearchExpanded;
+}
+
+function scrollViewportToResultsTop() {
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  });
+}
+
+function setHomepageImageDragState(active = false) {
+  const isActive = Boolean(active);
+  elements.imageSearchDropZone?.classList.toggle("is-drag-active", isActive);
+  elements.imageSearchDropZone?.closest(".search-entry-grid")?.classList.toggle("is-image-drag-active", isActive);
+  if (elements.imageSearchDropZoneBadge) {
+    const defaultBadge = elements.imageSearchDropZoneBadge.querySelector(".search-entry-badge-default");
+    const dropBadge = elements.imageSearchDropZoneBadge.querySelector(".search-entry-badge-drop");
+    if (defaultBadge) {
+      defaultBadge.hidden = isActive;
+    }
+    if (dropBadge) {
+      dropBadge.hidden = !isActive;
+    }
+  }
+  if (elements.imageSearchDropZoneTitle) {
+    const defaultTitle = elements.imageSearchDropZoneTitle.querySelector(".search-entry-title-default");
+    const dropTitle = elements.imageSearchDropZoneTitle.querySelector(".search-entry-title-drop");
+    if (defaultTitle) {
+      defaultTitle.hidden = isActive;
+    }
+    if (dropTitle) {
+      dropTitle.hidden = !isActive;
+    }
+  }
+  if (elements.imageSearchDropZoneCopy) {
+    const defaultCopy = elements.imageSearchDropZoneCopy.querySelector(".search-entry-copy-default");
+    const dragCopy = elements.imageSearchDropZoneCopy.querySelector(".search-entry-copy-drag");
+    if (defaultCopy) {
+      defaultCopy.hidden = isActive;
+    }
+    if (dragCopy) {
+      dragCopy.hidden = !isActive;
+    }
+  }
+  if (elements.imageSearchDropZoneStatus) {
+    elements.imageSearchDropZoneStatus.textContent = isActive ? "Drop your image here" : "";
+  }
+}
+
+function resetHomepageImageDragState() {
+  state.homepageImageDragDepth = 0;
+  setHomepageImageDragState(false);
 }
 
 function openImageModalWithFile(file = null) {
@@ -8703,6 +8913,94 @@ function openImageModalWithFile(file = null) {
 function extractDroppedImageFile(dataTransfer = null) {
   const files = Array.from(dataTransfer?.files || []);
   return files.find((file) => String(file?.type || "").startsWith("image/")) || null;
+}
+
+function normalizeImageUrlInput(value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+  try {
+    const parsed = new URL(raw);
+    if (!/^https?:$/i.test(parsed.protocol)) {
+      return "";
+    }
+    return parsed.toString();
+  } catch {
+    return "";
+  }
+}
+
+async function prepareImageSearchSelection({ file = null, imageUrl = "" } = {}) {
+  if (file) {
+    const dataUrl = await prepareUploadImageDataUrl(file);
+    return {
+      body: {
+        file_name: file.name,
+        image_data_url: dataUrl
+      },
+      previewUrl: dataUrl
+    };
+  }
+
+  const normalizedUrl = normalizeImageUrlInput(imageUrl);
+  if (!normalizedUrl) {
+    throw new Error("Paste a valid image URL to continue.");
+  }
+  await loadImageElement(normalizedUrl);
+  return {
+    body: {
+      image_url: normalizedUrl
+    },
+    previewUrl: normalizedUrl
+  };
+}
+
+function beginImageSearchCropFlow(body = null, previewUrl = "") {
+  if (!body || !previewUrl) {
+    throw new Error("Choose an image file or paste an image URL first.");
+  }
+  const nextSelectionKey = buildImageAnalysisSelectionKey(body);
+  if (state.imageAnalysisCategorySelection?.key && state.imageAnalysisCategorySelection.key !== nextSelectionKey) {
+    state.imageAnalysisCategorySelection = null;
+  }
+  openImageModal();
+  state.lastAnalyzeInput = body;
+  showCropStage(previewUrl);
+  setStatus("Adjust the focus area, then analyze the image.");
+}
+
+async function startHomepageImageSearchFromFile(file = null, options = {}) {
+  if (!file) {
+    setHomepageImageCardError("Choose an image file to continue.");
+    return;
+  }
+  if (!String(file.type || "").startsWith("image/")) {
+    setHomepageImageCardError("Drop a JPG, PNG, or other image file to start visual search.");
+    return;
+  }
+  clearHomepageImageCardError();
+  if (options.noticeMultipleFiles) {
+    setStatus("Using the first valid image from the drop.", "info");
+  }
+  const { body, previewUrl } = await prepareImageSearchSelection({ file });
+  beginImageSearchCropFlow(body, previewUrl);
+}
+
+async function startHomepageImageSearchFromUrl() {
+  const rawUrl = String(elements.homepageImageUrlInput?.value || "").trim();
+  if (!rawUrl) {
+    setHomepageImageCardError("Paste an image URL to continue.");
+    syncHomepageImageAnalyzeButton();
+    return;
+  }
+  try {
+    clearHomepageImageCardError();
+    const { body, previewUrl } = await prepareImageSearchSelection({ imageUrl: rawUrl });
+    beginImageSearchCropFlow(body, previewUrl);
+  } catch (error) {
+    setHomepageImageCardError(error?.message || "That URL could not be loaded as an image.");
+  }
 }
 
 function closeImageModal() {
@@ -9130,6 +9428,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     await wait(900);
     closeImageModal();
     renderResults(payload, resolvedQuery);
+    scrollViewportToResultsTop();
   } catch (error) {
     if (!analysis && String(error?.message || "").trim() === QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE) {
       restoreImageAnalysisPreSubmitScreen(
@@ -9146,28 +9445,15 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
 }
 
 async function analyzeSelectedImage() {
-  const imageUrl = elements.imageUrlInput.value.trim();
   const file = state.selectedUploadFile;
+  const imageUrl = elements.imageUrlInput.value.trim();
 
   if (!file && !imageUrl) {
     setStatus("Choose an image file or paste an image URL first.", "error");
     return;
   }
 
-  let body;
-  let previewUrl;
-  if (file) {
-    const dataUrl = await prepareUploadImageDataUrl(file);
-    body = {
-      file_name: file.name,
-      image_data_url: dataUrl
-    };
-    previewUrl = dataUrl;
-  } else {
-    body = { image_url: imageUrl };
-    previewUrl = imageUrl;
-  }
-
+  const { body, previewUrl } = await prepareImageSearchSelection({ file, imageUrl });
   const nextSelectionKey = buildImageAnalysisSelectionKey(body);
   if (state.imageAnalysisCategorySelection?.key && state.imageAnalysisCategorySelection.key !== nextSelectionKey) {
     state.imageAnalysisCategorySelection = null;
@@ -9212,6 +9498,8 @@ async function bootstrap() {
     }
     renderSeedQueries(state.bootstrap.seed_queries);
     resetImageFlow();
+    syncHomepageImageAnalyzeButton();
+    syncHomepageImageUrlToggle();
     if (elements.uploadSupportNote) {
       elements.uploadSupportNote.textContent = state.bootstrap.image_analysis_available
         ? "Upload a photo or paste URL to find similar furniture."
@@ -9703,25 +9991,42 @@ elements.debugToggle.addEventListener("click", async () => {
 });
 
 elements.openImageSearch.addEventListener("click", () => {
-  openImageModal();
+  clearHomepageImageCardError();
+  elements.homepageImageUploadInput?.click();
 });
 elements.openImageSearchInline?.addEventListener("click", () => {
+  closeMobileSearchExpandedEditor({ restore: false });
   openImageModal();
 });
 elements.imageSearchDropZone?.addEventListener("dragenter", (event) => {
   event.preventDefault();
+  state.homepageImageDragDepth += 1;
+  setHomepageImageDragState(true);
 });
 elements.imageSearchDropZone?.addEventListener("dragover", (event) => {
   event.preventDefault();
 });
+elements.imageSearchDropZone?.addEventListener("dragleave", (event) => {
+  event.preventDefault();
+  state.homepageImageDragDepth = Math.max(0, state.homepageImageDragDepth - 1);
+  if (state.homepageImageDragDepth === 0) {
+    setHomepageImageDragState(false);
+  }
+});
 elements.imageSearchDropZone?.addEventListener("drop", (event) => {
   event.preventDefault();
+  resetHomepageImageDragState();
+  const files = Array.from(event.dataTransfer?.files || []);
   const file = extractDroppedImageFile(event.dataTransfer);
   if (!file) {
-    setStatus("Drop a JPG or PNG image to start an image search.", "error");
+    setHomepageImageCardError("Drop a JPG, PNG, or other image file to start visual search.");
     return;
   }
-  openImageModalWithFile(file);
+  startHomepageImageSearchFromFile(file, {
+    noticeMultipleFiles: files.filter((candidate) => String(candidate?.type || "").startsWith("image/")).length > 1
+  }).catch((error) => {
+    setHomepageImageCardError(error?.message || "Unable to load the dropped image.");
+  });
 });
 elements.closeImageModal.addEventListener("click", closeImageModal);
 elements.openPromptLibrary?.addEventListener("click", async () => {
@@ -9791,9 +10096,30 @@ elements.imageUploadButton.addEventListener("click", () => {
   elements.imageUploadInput.click();
 });
 
+elements.homepageImageUploadInput?.addEventListener("change", (event) => {
+  const [file] = event.target.files || [];
+  if (!file) {
+    return;
+  }
+  startHomepageImageSearchFromFile(file).catch((error) => {
+    setHomepageImageCardError(error?.message || "Unable to load the selected image.");
+  }).finally(() => {
+    event.target.value = "";
+  });
+});
+
 elements.imageUploadInput.addEventListener("change", (event) => {
   const [file] = event.target.files || [];
   setSelectedUploadFile(file || null);
+});
+
+elements.imageModalUrlToggle?.addEventListener("click", () => {
+  if (!elements.imageModalUrlBlock) {
+    return;
+  }
+  elements.imageModalUrlBlock.dataset.mobileExpanded = "true";
+  syncImageModalUploadUi();
+  elements.imageUrlInput?.focus();
 });
 
 elements.imageUrlInput.addEventListener("input", () => {
@@ -9801,10 +10127,43 @@ elements.imageUrlInput.addEventListener("input", () => {
     setSelectedUploadFile(null);
     elements.imageUploadInput.value = "";
   }
+  if (elements.imageModalUrlBlock && elements.imageUrlInput.value.trim()) {
+    elements.imageModalUrlBlock.dataset.mobileExpanded = "true";
+  }
+  syncImageModalUploadUi();
+});
+
+elements.homepageImageUrlInput?.addEventListener("input", () => {
+  clearHomepageImageCardError();
+  syncHomepageImageAnalyzeButton();
+  syncHomepageImageUrlToggle();
+});
+
+elements.homepageImageUrlToggle?.addEventListener("click", () => {
+  if (!elements.homepageImageUrlForm) {
+    return;
+  }
+  elements.homepageImageUrlForm.dataset.mobileExpanded = "true";
+  syncHomepageImageUrlToggle();
+  elements.homepageImageUrlInput?.focus();
+});
+
+elements.homepageImageUrlForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await startHomepageImageSearchFromUrl();
+});
+
+window.addEventListener("resize", () => {
+  syncHomepageImageUrlToggle();
+  syncImageModalUploadUi();
+  syncMobileSearchExpandedUi();
+  updateTouchCropUi();
 });
 
 elements.inspirationPreview.addEventListener("load", () => {
-  if (state.cropModeActive && state.focusArea) {
+  if (isTouchCropStageActive()) {
+    updateTouchCropUi();
+  } else if (state.cropModeActive && state.focusArea) {
     renderFocusArea();
   } else {
     elements.focusBox.hidden = true;
