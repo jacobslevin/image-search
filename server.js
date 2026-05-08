@@ -2,7 +2,7 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
 
@@ -119,10 +119,35 @@ const PROMPT_LIBRARY_SECTION_RANGES = {
 const QUERY_IMAGE_PROGRESS_TTL_MS = 10 * 60 * 1000;
 const queryImageProgressStore = new Map();
 const APP_VERSION = (() => {
+  const normalizeVersion = (value = "") => String(value || "").trim().replace(/^v/i, "");
   try {
-    return String(JSON.parse(fsSync.readFileSync(packageJsonPath, "utf8"))?.version || "").trim();
+    const exactTag = normalizeVersion(
+      execFileSync("git", ["describe", "--tags", "--exact-match"], {
+        cwd: __dirname,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"]
+      })
+    );
+    if (exactTag) {
+      return exactTag;
+    }
+  } catch {}
+  try {
+    const describedTag = normalizeVersion(
+      execFileSync("git", ["describe", "--tags", "--dirty"], {
+        cwd: __dirname,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"]
+      })
+    );
+    if (describedTag) {
+      return describedTag;
+    }
+  } catch {}
+  try {
+    return normalizeVersion(JSON.parse(fsSync.readFileSync(packageJsonPath, "utf8"))?.version || "");
   } catch (error) {
-    console.error("[version] failed to read package.json version", error);
+    console.error("[version] failed to derive app version", error);
     return "";
   }
 })();
