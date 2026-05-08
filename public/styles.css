@@ -5111,9 +5111,12 @@ body.results-loading-active .results-layout {
     grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
+    margin-left: auto;
     margin-top: 2px;
     min-width: 0;
     padding-left: 8px;
+    width: fit-content;
+    max-width: 100%;
   }
 
   .mobile-search-expanded-panel .sr-only,
@@ -5126,8 +5129,11 @@ body.results-loading-active .results-layout {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+    margin-left: auto;
     padding-top: 10px;
     border-top: 0.5px solid rgba(221, 215, 206, 0.92);
+    width: fit-content;
+    max-width: 100%;
   }
 
   .mobile-search-cancel-button {
