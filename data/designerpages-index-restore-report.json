@@ -1,0 +1,863 @@
+{
+  "generated_at": "2026-05-08T20:26:48.856Z",
+  "source": "/Users/jacobslevin/Downloads/Adding Back Tables.xlsx",
+  "index": "/Users/jacobslevin/Documents/Documents - Jacob’s Mac Studio/Jake 2.0/Codex/PixelSeek/image-index.json",
+  "submitted_total": 359,
+  "restored_total": 81,
+  "restored_products": [
+    {
+      "source_product_id": "14116189",
+      "product_id": "product_dp_14116189",
+      "name": "Pirouette® Tables",
+      "brand": "KI Furniture",
+      "image_count": 17
+    },
+    {
+      "source_product_id": "13931181",
+      "product_id": "product_dp_13931181",
+      "name": "Nineteen20",
+      "brand": "OFS Furniture",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "13946207",
+      "product_id": "product_dp_13946207",
+      "name": "Quiet - Occasional",
+      "brand": "Bernhardt Design",
+      "image_count": 33
+    },
+    {
+      "source_product_id": "13931152",
+      "product_id": "product_dp_13931152",
+      "name": "Intermix Conference",
+      "brand": "OFS Furniture",
+      "image_count": 18
+    },
+    {
+      "source_product_id": "13884377",
+      "product_id": "product_dp_13884377",
+      "name": "Extra Table - Conference Tables",
+      "brand": "Andreu World America Furniture",
+      "image_count": 27
+    },
+    {
+      "source_product_id": "11837790",
+      "product_id": "product_dp_11837790",
+      "name": "Vox® Conference - Access Base",
+      "brand": "Nienkamper",
+      "image_count": 19
+    },
+    {
+      "source_product_id": "13882353",
+      "product_id": "product_dp_13882353",
+      "name": "Bali",
+      "brand": "Stance Healthcare",
+      "image_count": 13
+    },
+    {
+      "source_product_id": "14107735",
+      "product_id": "product_dp_14107735",
+      "name": "Dock Meeting",
+      "brand": "Kimball",
+      "image_count": 26
+    },
+    {
+      "source_product_id": "14115918",
+      "product_id": "product_dp_14115918",
+      "name": "C-Table™ Personal Worksurfaces",
+      "brand": "KI Furniture",
+      "image_count": 19
+    },
+    {
+      "source_product_id": "14050089",
+      "product_id": "product_dp_14050089",
+      "name": "Tosca",
+      "brand": "Davis Furniture",
+      "image_count": 9
+    },
+    {
+      "source_product_id": "14049600",
+      "product_id": "product_dp_14049600",
+      "name": "Inform - Cafe Tables",
+      "brand": "Davis Furniture",
+      "image_count": 27
+    },
+    {
+      "source_product_id": "14051177",
+      "product_id": "product_dp_14051177",
+      "name": "Potrero415 Table",
+      "brand": "Coalesse",
+      "image_count": 7
+    },
+    {
+      "source_product_id": "9527991",
+      "product_id": "product_dp_9527991",
+      "name": "MESA",
+      "brand": "HALCON",
+      "image_count": 22
+    },
+    {
+      "source_product_id": "13946162",
+      "product_id": "product_dp_13946162",
+      "name": "Trace",
+      "brand": "Bernhardt Design",
+      "image_count": 14
+    },
+    {
+      "source_product_id": "14050085",
+      "product_id": "product_dp_14050085",
+      "name": "Techniq",
+      "brand": "Davis Furniture",
+      "image_count": 24
+    },
+    {
+      "source_product_id": "14107168",
+      "product_id": "product_dp_14107168",
+      "name": "Connolly",
+      "brand": "National by Kimball International",
+      "image_count": 27
+    },
+    {
+      "source_product_id": "13945962",
+      "product_id": "product_dp_13945962",
+      "name": "Anza - Meeting",
+      "brand": "Bernhardt Design",
+      "image_count": 15
+    },
+    {
+      "source_product_id": "14117955",
+      "product_id": "product_dp_14117955",
+      "name": "Nosh",
+      "brand": "JSI",
+      "image_count": 11
+    },
+    {
+      "source_product_id": "14050053",
+      "product_id": "product_dp_14050053",
+      "name": "Q6 Table - Bar Tables",
+      "brand": "Davis Furniture",
+      "image_count": 38
+    },
+    {
+      "source_product_id": "13753243",
+      "product_id": "product_dp_13753243",
+      "name": "Verlay",
+      "brand": "Steelcase",
+      "image_count": 33
+    },
+    {
+      "source_product_id": "1888882",
+      "product_id": "product_dp_1888882",
+      "name": "Burin",
+      "brand": "Viccarbe Furniture",
+      "image_count": 4
+    },
+    {
+      "source_product_id": "13720798",
+      "product_id": "product_dp_13720798",
+      "name": "Tier Cafe Table",
+      "brand": "NaughtOne",
+      "image_count": 9
+    },
+    {
+      "source_product_id": "13884543",
+      "product_id": "product_dp_13884543",
+      "name": "Bolete Occasional Table",
+      "brand": "Andreu World America Furniture",
+      "image_count": 3
+    },
+    {
+      "source_product_id": "13931106",
+      "product_id": "product_dp_13931106",
+      "name": "Applause",
+      "brand": "OFS Furniture",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "13934343",
+      "product_id": "product_dp_13934343",
+      "name": "Kintra - Occasional",
+      "brand": "Carolina, an OFS Company",
+      "image_count": 8
+    },
+    {
+      "source_product_id": "11819701",
+      "product_id": "product_dp_11819701",
+      "name": "Pixel™ C-Leg Tables",
+      "brand": "Knoll",
+      "image_count": 6
+    },
+    {
+      "source_product_id": "13946019",
+      "product_id": "product_dp_13946019",
+      "name": "Colmere",
+      "brand": "Bernhardt Design",
+      "image_count": 24
+    },
+    {
+      "source_product_id": "14107736",
+      "product_id": "product_dp_14107736",
+      "name": "Dock Training",
+      "brand": "Kimball",
+      "image_count": 29
+    },
+    {
+      "source_product_id": "13972549",
+      "product_id": "product_dp_13972549",
+      "name": "Pixel™ T-Leg Tables",
+      "brand": "Knoll Office",
+      "image_count": 16
+    },
+    {
+      "source_product_id": "14107625",
+      "product_id": "product_dp_14107625",
+      "name": "Tessera Tables",
+      "brand": "National by Kimball International",
+      "image_count": 23
+    },
+    {
+      "source_product_id": "14051169",
+      "product_id": "product_dp_14051169",
+      "name": "Montara650 Table - Cafe Tables",
+      "brand": "Coalesse",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "14051131",
+      "product_id": "product_dp_14051131",
+      "name": "E-Table 2",
+      "brand": "Coalesse",
+      "image_count": 2
+    },
+    {
+      "source_product_id": "13961503",
+      "product_id": "product_dp_13961503",
+      "name": "Two-Thirds",
+      "brand": "Allsteel",
+      "image_count": 3
+    },
+    {
+      "source_product_id": "14107757",
+      "product_id": "product_dp_14107757",
+      "name": "Daymora",
+      "brand": "Kimball",
+      "image_count": 25
+    },
+    {
+      "source_product_id": "14105961",
+      "product_id": "product_dp_14105961",
+      "name": "Kithara",
+      "brand": "David Edward",
+      "image_count": 23
+    },
+    {
+      "source_product_id": "13461480",
+      "product_id": "product_dp_13461480",
+      "name": "Susu Tables",
+      "brand": "DARRAN",
+      "image_count": 8
+    },
+    {
+      "source_product_id": "14006886",
+      "product_id": "product_dp_14006886",
+      "name": "Sculpt",
+      "brand": "HON",
+      "image_count": 19
+    },
+    {
+      "source_product_id": "13987875",
+      "product_id": "product_dp_13987875",
+      "name": "9",
+      "brand": "Haworth",
+      "image_count": 17
+    },
+    {
+      "source_product_id": "13884236",
+      "product_id": "product_dp_13884236",
+      "name": "Connect Table - Conference Tables",
+      "brand": "Andreu World America Furniture",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "11602907",
+      "product_id": "product_dp_11602907",
+      "name": "Guéridon",
+      "brand": "Vitra",
+      "image_count": 4
+    },
+    {
+      "source_product_id": "13824062",
+      "product_id": "product_dp_13824062",
+      "name": "Bevy Occasional",
+      "brand": "Studio TK",
+      "image_count": 16
+    },
+    {
+      "source_product_id": "13946103",
+      "product_id": "product_dp_13946103",
+      "name": "Marlowe",
+      "brand": "Bernhardt Design",
+      "image_count": 16
+    },
+    {
+      "source_product_id": "14011028",
+      "product_id": "product_dp_14011028",
+      "name": "Hot Mesh 30\" Cafe Table",
+      "brand": "Blu Dot",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "14010326",
+      "product_id": "product_dp_14010326",
+      "name": "Chit Chat Side Table",
+      "brand": "Blu Dot",
+      "image_count": 6
+    },
+    {
+      "source_product_id": "13937563",
+      "product_id": "product_dp_13937563",
+      "name": "Cala",
+      "brand": "Stylex Seating",
+      "image_count": 17
+    },
+    {
+      "source_product_id": "13720750",
+      "product_id": "product_dp_13720750",
+      "name": "Tier Bar Height Table",
+      "brand": "NaughtOne",
+      "image_count": 7
+    },
+    {
+      "source_product_id": "14116751",
+      "product_id": "product_dp_14116751",
+      "name": "Anthology",
+      "brand": "JSI",
+      "image_count": 25
+    },
+    {
+      "source_product_id": "14116320",
+      "product_id": "product_dp_14116320",
+      "name": "Tributaire™ Conference Tables",
+      "brand": "KI Furniture",
+      "image_count": 8
+    },
+    {
+      "source_product_id": "13937567",
+      "product_id": "product_dp_13937567",
+      "name": "Cove Tables",
+      "brand": "Stylex Seating",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "13937619",
+      "product_id": "product_dp_13937619",
+      "name": "Obair",
+      "brand": "Stylex Seating",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "13958803",
+      "product_id": "product_dp_13958803",
+      "name": "Kona Table, Laptop Height - Round",
+      "brand": "Hightower",
+      "image_count": 8
+    },
+    {
+      "source_product_id": "14107719",
+      "product_id": "product_dp_14107719",
+      "name": "Bloom",
+      "brand": "Kimball",
+      "image_count": 25
+    },
+    {
+      "source_product_id": "14116168",
+      "product_id": "product_dp_14116168",
+      "name": "MyWay® Occasional Tables",
+      "brand": "KI Furniture",
+      "image_count": 19
+    },
+    {
+      "source_product_id": "11549177",
+      "product_id": "product_dp_11549177",
+      "name": "Pon - 1285",
+      "brand": "FREDERICIA Furniture",
+      "image_count": 5
+    },
+    {
+      "source_product_id": "13463506",
+      "product_id": "product_dp_13463506",
+      "name": "PL Post Legs",
+      "brand": "Spec Furniture",
+      "image_count": 10
+    },
+    {
+      "source_product_id": "11819336",
+      "product_id": "product_dp_11819336",
+      "name": "Saarinen Coffee Tables",
+      "brand": "Knoll",
+      "image_count": 24
+    },
+    {
+      "source_product_id": "11819666",
+      "product_id": "product_dp_11819666",
+      "name": "Rockwell Unscripted® Occasional Tables",
+      "brand": "Knoll",
+      "image_count": 34
+    },
+    {
+      "source_product_id": "13489097",
+      "product_id": "product_dp_13489097",
+      "name": "Bistro - Cafe/dining",
+      "brand": "OFS Furniture",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "14116438",
+      "product_id": "product_dp_14116438",
+      "name": "Lyra® Occasional Tables",
+      "brand": "KI Furniture",
+      "image_count": 9
+    },
+    {
+      "source_product_id": "11741287",
+      "product_id": "product_dp_11741287",
+      "name": "CROSSFIRE",
+      "brand": "ERG International",
+      "image_count": 2
+    },
+    {
+      "source_product_id": "13922783",
+      "product_id": "product_dp_13922783",
+      "name": "Brianza Drum Round Coffee Table",
+      "brand": "Kwalu Furniture & Wall Protection",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "13992258",
+      "product_id": "product_dp_13992258",
+      "name": "Rally Tables",
+      "brand": "Haworth",
+      "image_count": 8
+    },
+    {
+      "source_product_id": "13884582",
+      "product_id": "product_dp_13884582",
+      "name": "Dual Cafe Table",
+      "brand": "Andreu World America Furniture",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "13931114",
+      "product_id": "product_dp_13931114",
+      "name": "Bistro - Occasional",
+      "brand": "OFS Furniture",
+      "image_count": 1
+    },
+    {
+      "source_product_id": "14115855",
+      "product_id": "product_dp_14115855",
+      "name": "Tattoo® Tables",
+      "brand": "KI Furniture",
+      "image_count": 6
+    },
+    {
+      "source_product_id": "13958801",
+      "product_id": "product_dp_13958801",
+      "name": "Kona Table, Counter 36\" Height, Square - 30\" x 30\"",
+      "brand": "Hightower",
+      "image_count": 2
+    },
+    {
+      "source_product_id": "14105026",
+      "product_id": "product_dp_14105026",
+      "name": "Parallon Café",
+      "brand": "SitOnIt Seating",
+      "image_count": 12
+    },
+    {
+      "source_product_id": "14023843",
+      "product_id": "product_dp_14023843",
+      "name": "Trade Street",
+      "brand": "DARRAN",
+      "image_count": 3
+    },
+    {
+      "source_product_id": "11895243",
+      "product_id": "product_dp_11895243",
+      "name": "Makayla",
+      "brand": "Martin Brattrud",
+      "image_count": 5
+    },
+    {
+      "source_product_id": "14116759",
+      "product_id": "product_dp_14116759",
+      "name": "Native",
+      "brand": "JSI",
+      "image_count": 32
+    },
+    {
+      "source_product_id": "11588120",
+      "product_id": "product_dp_11588120",
+      "name": "Two4Six Meeting™",
+      "brand": "Nucraft",
+      "image_count": 10
+    },
+    {
+      "source_product_id": "13747859",
+      "product_id": "product_dp_13747859",
+      "name": "Islands Collection by Knoll®",
+      "brand": "Knoll Office",
+      "image_count": 26
+    },
+    {
+      "source_product_id": "13729784",
+      "product_id": "product_dp_13729784",
+      "name": "Briefing Conference Table",
+      "brand": "Allsteel",
+      "image_count": 30
+    },
+    {
+      "source_product_id": "13884383",
+      "product_id": "product_dp_13884383",
+      "name": "Radial Conference",
+      "brand": "Andreu World America Furniture",
+      "image_count": 9
+    },
+    {
+      "source_product_id": "11580759",
+      "product_id": "product_dp_11580759",
+      "name": "Supreme",
+      "brand": "Hi5 Furniture",
+      "image_count": 51
+    },
+    {
+      "source_product_id": "13720745",
+      "product_id": "product_dp_13720745",
+      "name": "Fold Conference Table",
+      "brand": "NaughtOne",
+      "image_count": 10
+    },
+    {
+      "source_product_id": "13729563",
+      "product_id": "product_dp_13729563",
+      "name": "Aware Training Table",
+      "brand": "Allsteel",
+      "image_count": 7
+    },
+    {
+      "source_product_id": "11819325",
+      "product_id": "product_dp_11819325",
+      "name": "Pixel™ Y-Fold Tables",
+      "brand": "Knoll",
+      "image_count": 4
+    },
+    {
+      "source_product_id": "13834076",
+      "product_id": "product_dp_13834076",
+      "name": "THESIS",
+      "brand": "Teknion",
+      "image_count": 18
+    },
+    {
+      "source_product_id": "13729564",
+      "product_id": "product_dp_13729564",
+      "name": "Briefing Training Table",
+      "brand": "Allsteel",
+      "image_count": 21
+    },
+    {
+      "source_product_id": "14056727",
+      "product_id": "product_dp_14056727",
+      "name": "Flirt® Multi-Purpose Tables",
+      "brand": "Arcadia",
+      "image_count": 20
+    }
+  ],
+  "skipped_already_present_total": 0,
+  "skipped_already_present": [],
+  "skipped_missing_from_index_total": 278,
+  "skipped_missing_from_index": [
+    "13886097",
+    "14049553",
+    "14006956",
+    "14116679",
+    "9527971",
+    "13961519",
+    "13946075",
+    "13463466",
+    "14051254",
+    "14116194",
+    "9527961",
+    "13931172",
+    "13933559",
+    "14116326",
+    "14051268",
+    "14007396",
+    "14050055",
+    "14051097",
+    "13833880",
+    "13753244",
+    "13753247",
+    "13988354",
+    "13945988",
+    "13931096",
+    "14116233",
+    "14006882",
+    "13945987",
+    "14107691",
+    "14116187",
+    "13884419",
+    "14006888",
+    "14010329",
+    "14006884",
+    "13946100",
+    "13886106",
+    "14050021",
+    "11588112",
+    "13729783",
+    "13946073",
+    "13958811",
+    "14050100",
+    "13884537",
+    "13884384",
+    "13989493",
+    "4438821",
+    "14006887",
+    "14006725",
+    "13930662",
+    "3347532",
+    "9528031",
+    "14049603",
+    "13931165",
+    "14050056",
+    "14050061",
+    "13958813",
+    "14116659",
+    "14049602",
+    "13886376",
+    "13720746",
+    "14050014",
+    "13729546",
+    "13946047",
+    "13753242",
+    "11741285",
+    "13931163",
+    "14051130",
+    "14107255",
+    "13946131",
+    "14050094",
+    "14116228",
+    "3626792",
+    "14116272",
+    "14116443",
+    "13802234",
+    "14116295",
+    "13958806",
+    "14050043",
+    "13802226",
+    "13865996",
+    "13882354",
+    "14006518",
+    "13988434",
+    "14116340",
+    "14050054",
+    "13946143",
+    "14023795",
+    "11819651",
+    "14023842",
+    "14050708",
+    "13890757",
+    "13753250",
+    "13972535",
+    "9528001",
+    "2576852",
+    "14116209",
+    "13989374",
+    "13946041",
+    "13937242",
+    "13833857",
+    "14010341",
+    "10871911",
+    "14050048",
+    "14115268",
+    "14056706",
+    "14116552",
+    "6600881",
+    "13884553",
+    "13946157",
+    "14107904",
+    "14006885",
+    "14049593",
+    "14107777",
+    "13753252",
+    "14010299",
+    "14107912",
+    "14006373",
+    "13886129",
+    "14116754",
+    "14068725",
+    "13946130",
+    "13463443",
+    "14057736",
+    "14050084",
+    "13946091",
+    "14116231",
+    "921712",
+    "13972578",
+    "14116195",
+    "11613311",
+    "13931085",
+    "13931169",
+    "13866000",
+    "14117940",
+    "14116293",
+    "6601151",
+    "14107673",
+    "14116299",
+    "13933458",
+    "13542541",
+    "13988433",
+    "8309411",
+    "14050022",
+    "13946015",
+    "13946000",
+    "13958794",
+    "11596864",
+    "13958042",
+    "14010296",
+    "13931227",
+    "13933478",
+    "14050016",
+    "13931643",
+    "14023839",
+    "14056728",
+    "13886126",
+    "13886381",
+    "14116752",
+    "13945715",
+    "13958685",
+    "2534952",
+    "14010328",
+    "14010339",
+    "13934249",
+    "13961452",
+    "13945989",
+    "13886455",
+    "14116664",
+    "14023786",
+    "11588104",
+    "11741270",
+    "13931084",
+    "13886457",
+    "14049541",
+    "14105056",
+    "13930653",
+    "13729566",
+    "14006719",
+    "14051144",
+    "13931164",
+    "13867274",
+    "13882407",
+    "14116216",
+    "13884557",
+    "10872441",
+    "14107520",
+    "5422621",
+    "11549178",
+    "13886820",
+    "14116378",
+    "11819335",
+    "11819370",
+    "6587201",
+    "11750389",
+    "11741291",
+    "14010289",
+    "13945966",
+    "13937628",
+    "10870341",
+    "11750396",
+    "13989280",
+    "13866009",
+    "13946061",
+    "13958044",
+    "11708769",
+    "13958804",
+    "13982378",
+    "11632331",
+    "13946032",
+    "13665581",
+    "13982215",
+    "13930664",
+    "11819363",
+    "11750391",
+    "14050079",
+    "10872031",
+    "11819653",
+    "13729008",
+    "13930663",
+    "13576348",
+    "13922782",
+    "13717553",
+    "13933434",
+    "13884551",
+    "13946153",
+    "13720760",
+    "11819341",
+    "14011029",
+    "11596470",
+    "13753254",
+    "8856401",
+    "13988426",
+    "14050045",
+    "14105060",
+    "14050097",
+    "13802193",
+    "11819345",
+    "13985800",
+    "13933489",
+    "3478322",
+    "14057761",
+    "11549179",
+    "14038399",
+    "14023768",
+    "14107929",
+    "14056777",
+    "13884905",
+    "13934263",
+    "14050063",
+    "13753253",
+    "13985762",
+    "14120772",
+    "14120767",
+    "14120766",
+    "14050040",
+    "13890777",
+    "13833869",
+    "13729547",
+    "14107550",
+    "13937917",
+    "11576216",
+    "14117936",
+    "14116348",
+    "14107753",
+    "11819650",
+    "13886108",
+    "13753249",
+    "13931138",
+    "13946152",
+    "11837786",
+    "11837791",
+    "13982225",
+    "14051269",
+    "4494311",
+    "13931166",
+    "13946078",
+    "3808391",
+    "13563046",
+    "13985863"
+  ],
+  "resulting_catalog_totals": {
+    "products": 827,
+    "images": 4616
+  }
+}

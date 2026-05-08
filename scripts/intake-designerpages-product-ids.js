@@ -31,9 +31,10 @@ const DEFAULT_CATALOG_PATH = path.join(DATA_DIR, "normalized-catalog.json");
 const DEFAULT_FLAGGED_PATH = path.join(DATA_DIR, "designerpages-intake-flagged.json");
 const DEFAULT_REPORT_PATH = path.join(DATA_DIR, "designerpages-intake-report.json");
 const MIN_SHORT_SIDE = 591;
+const WORKBOOK_EXTENSIONS = new Set([".xlsx", ".xlsm", ".xltx", ".xltm"]);
 
 function usage() {
-  console.error("Usage: node scripts/intake-designerpages-product-ids.js --source path/to/product-ids.csv [--catalog data/normalized-catalog.json] [--flagged data/designerpages-intake-flagged.json] [--report data/designerpages-intake-report.json]");
+  console.error("Usage: node scripts/intake-designerpages-product-ids.js --source path/to/product-ids.csv|xlsx [--catalog data/normalized-catalog.json] [--flagged data/designerpages-intake-flagged.json] [--report data/designerpages-intake-report.json]");
   process.exit(1);
 }
 
@@ -131,6 +132,38 @@ function extractProductIds(rows = []) {
       .map((row) => parseDesignerPagesProductId(row?.[0] || "") || normalizeWhitespace(row?.[0] || "").replace(/\D+/g, ""))
       .filter(Boolean)
   );
+}
+
+async function extractProductIdsFromWorkbook(sourcePath = "") {
+  const pythonSnippet = [
+    "import json, openpyxl, sys",
+    "wb = openpyxl.load_workbook(sys.argv[1], data_only=True)",
+    "ws = wb[wb.sheetnames[0]]",
+    "values = []",
+    "for row in ws.iter_rows(min_row=1, values_only=True):",
+    "    cell = row[0] if row else None",
+    "    if cell is None:",
+    "        values.append('')",
+    "    else:",
+    "        values.append(str(cell))",
+    "print(json.dumps(values))"
+  ].join("\n");
+  const { stdout } = await execFileAsync("python3", ["-c", pythonSnippet, sourcePath], {
+    maxBuffer: 1024 * 1024 * 10
+  });
+  const firstColumnValues = JSON.parse(stdout);
+  const rows = Array.isArray(firstColumnValues) ? firstColumnValues.map((value) => [value]) : [];
+  return extractProductIds(rows);
+}
+
+async function loadProductIds(sourcePath = "") {
+  const extension = path.extname(sourcePath).toLowerCase();
+  if (WORKBOOK_EXTENSIONS.has(extension)) {
+    return extractProductIdsFromWorkbook(sourcePath);
+  }
+
+  const csvContent = await fs.readFile(sourcePath, "utf8");
+  return extractProductIds(parseCsvLines(csvContent));
 }
 
 async function measureImageDimensionsFromUrl(imageUrl = "") {
@@ -274,10 +307,9 @@ if (!args.source) {
   usage();
 }
 
-const csvContent = await fs.readFile(args.source, "utf8");
-const productIds = extractProductIds(parseCsvLines(csvContent));
+const productIds = await loadProductIds(args.source);
 if (!productIds.length) {
-  throw new Error("No product IDs were found in the source CSV.");
+  throw new Error("No product IDs were found in the source file.");
 }
 
 const existingCatalog = await readJson(args.catalog, { generated_at: "", totals: { products: 0, images: 0 }, brands: [], categories: [], products: [], images: [] });

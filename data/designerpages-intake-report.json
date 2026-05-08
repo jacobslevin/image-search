@@ -1,0 +1,5226 @@
+{
+  "generated_at": "2026-05-08T21:04:37.277Z",
+  "started_at": "2026-05-08T20:27:40.676Z",
+  "submitted_product_ids": [
+    "14116189",
+    "13886097",
+    "14049553",
+    "14006956",
+    "14116679",
+    "9527971",
+    "13961519",
+    "13931181",
+    "13946075",
+    "13463466",
+    "14051254",
+    "13946207",
+    "14116194",
+    "13931152",
+    "9527961",
+    "13931172",
+    "13933559",
+    "14116326",
+    "14051268",
+    "14007396",
+    "14050055",
+    "13884377",
+    "11837790",
+    "14051097",
+    "13833880",
+    "13753244",
+    "13753247",
+    "13988354",
+    "13945988",
+    "13931096",
+    "13882353",
+    "14107735",
+    "14116233",
+    "14006882",
+    "13945987",
+    "14107691",
+    "14116187",
+    "14115918",
+    "13884419",
+    "14006888",
+    "14010329",
+    "14050089",
+    "14049600",
+    "14051177",
+    "14006884",
+    "13946100",
+    "13886106",
+    "14050021",
+    "11588112",
+    "13729783",
+    "9527991",
+    "13946073",
+    "13946162",
+    "14050085",
+    "14107168",
+    "13958811",
+    "14050100",
+    "13884537",
+    "13884384",
+    "13945962",
+    "13989493",
+    "4438821",
+    "14117955",
+    "14006887",
+    "14006725",
+    "13930662",
+    "14050053",
+    "13753243",
+    "3347532",
+    "9528031",
+    "14049603",
+    "13931165",
+    "14050056",
+    "14050061",
+    "1888882",
+    "13958813",
+    "14116659",
+    "13720798",
+    "13884543",
+    "14049602",
+    "13931106",
+    "13886376",
+    "13720746",
+    "13934343",
+    "14050014",
+    "13729546",
+    "13946047",
+    "11819701",
+    "13753242",
+    "11741285",
+    "13931163",
+    "14051130",
+    "13946019",
+    "14107255",
+    "13946131",
+    "14050094",
+    "14116228",
+    "3626792",
+    "14107736",
+    "13972549",
+    "14116272",
+    "14116443",
+    "13802234",
+    "14116295",
+    "13958806",
+    "14107625",
+    "14050043",
+    "13802226",
+    "13865996",
+    "13882354",
+    "14006518",
+    "13988434",
+    "14116340",
+    "14050054",
+    "13946143",
+    "14023795",
+    "11819651",
+    "14051169",
+    "14023842",
+    "14050708",
+    "13890757",
+    "13753250",
+    "13972535",
+    "9528001",
+    "2576852",
+    "14051131",
+    "14116209",
+    "13989374",
+    "13946041",
+    "13961503",
+    "13937242",
+    "13833857",
+    "14010341",
+    "14107757",
+    "14105961",
+    "10871911",
+    "14050048",
+    "14115268",
+    "14056706",
+    "14116552",
+    "6600881",
+    "13884553",
+    "13946157",
+    "14107904",
+    "13461480",
+    "14006885",
+    "14006886",
+    "14049593",
+    "13987875",
+    "14107777",
+    "13753252",
+    "14010299",
+    "14107912",
+    "14006373",
+    "13886129",
+    "14116754",
+    "14068725",
+    "13946130",
+    "13463443",
+    "14057736",
+    "14050084",
+    "13946091",
+    "14116231",
+    "921712",
+    "13972578",
+    "14116195",
+    "13884236",
+    "11613311",
+    "13931085",
+    "13931169",
+    "13866000",
+    "14117940",
+    "14116293",
+    "6601151",
+    "14107673",
+    "14116299",
+    "13933458",
+    "13542541",
+    "11602907",
+    "13824062",
+    "13988433",
+    "8309411",
+    "14050022",
+    "13946015",
+    "13946000",
+    "13946103",
+    "13958794",
+    "11596864",
+    "13958042",
+    "14010296",
+    "14011028",
+    "13931227",
+    "13933478",
+    "14050016",
+    "13931643",
+    "14023839",
+    "14056728",
+    "13886126",
+    "13886381",
+    "14116752",
+    "13945715",
+    "13958685",
+    "2534952",
+    "14010328",
+    "14010326",
+    "14010339",
+    "13937563",
+    "13720750",
+    "13934249",
+    "13961452",
+    "13945989",
+    "13886455",
+    "14116664",
+    "14023786",
+    "14116751",
+    "11588104",
+    "11741270",
+    "13931084",
+    "13886457",
+    "14116320",
+    "14049541",
+    "14105056",
+    "13930653",
+    "13937567",
+    "13937619",
+    "13729566",
+    "13958803",
+    "14006719",
+    "14051144",
+    "13931164",
+    "13867274",
+    "13882407",
+    "14116216",
+    "13884557",
+    "10872441",
+    "14107719",
+    "14107520",
+    "5422621",
+    "14116168",
+    "11549178",
+    "11549177",
+    "13886820",
+    "13463506",
+    "14116378",
+    "11819336",
+    "11819335",
+    "11819370",
+    "11819666",
+    "6587201",
+    "11750389",
+    "11741291",
+    "14010289",
+    "13489097",
+    "13945966",
+    "13937628",
+    "10870341",
+    "11750396",
+    "14116438",
+    "13989280",
+    "13866009",
+    "13946061",
+    "11741287",
+    "13958044",
+    "11708769",
+    "13958804",
+    "13982378",
+    "11632331",
+    "13946032",
+    "13665581",
+    "13982215",
+    "13930664",
+    "11819363",
+    "11750391",
+    "14050079",
+    "10872031",
+    "11819653",
+    "13729008",
+    "13930663",
+    "13576348",
+    "13922782",
+    "13922783",
+    "13717553",
+    "13933434",
+    "13884551",
+    "13946153",
+    "13720760",
+    "11819341",
+    "14011029",
+    "13992258",
+    "11596470",
+    "13753254",
+    "8856401",
+    "13988426",
+    "14050045",
+    "14105060",
+    "14050097",
+    "13802193",
+    "11819345",
+    "13985800",
+    "13884582",
+    "13931114",
+    "13933489",
+    "14115855",
+    "3478322",
+    "13958801",
+    "14057761",
+    "11549179",
+    "14038399",
+    "14023768",
+    "14107929",
+    "14056777",
+    "13884905",
+    "13934263",
+    "14105026",
+    "14023843",
+    "14050063",
+    "13753253",
+    "11895243",
+    "13985762",
+    "14120772",
+    "14120767",
+    "14120766",
+    "14050040",
+    "13890777",
+    "13833869",
+    "13729547",
+    "14107550",
+    "13937917",
+    "11576216",
+    "14117936",
+    "14116348",
+    "14107753",
+    "11819650",
+    "13886108",
+    "13753249",
+    "13931138",
+    "14116759",
+    "13946152",
+    "11588120",
+    "13747859",
+    "13729784",
+    "13884383",
+    "11837786",
+    "11837791",
+    "11580759",
+    "13720745",
+    "13982225",
+    "14051269",
+    "4494311",
+    "13729563",
+    "11819325",
+    "13931166",
+    "13834076",
+    "13729564",
+    "13946078",
+    "3808391",
+    "13563046",
+    "13985863",
+    "14056727"
+  ],
+  "submitted_total": 359,
+  "accepted_products": [
+    {
+      "source_product_id": "13886097",
+      "product_id": "product_dp_13886097",
+      "name": "Everywhere Tables",
+      "accepted_images": 29,
+      "category_grouping": "Occasional Tables | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14049553",
+      "product_id": "product_dp_14049553",
+      "name": "Capas",
+      "accepted_images": 37,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006956",
+      "product_id": "product_dp_14006956",
+      "name": "Between",
+      "accepted_images": 16,
+      "category_grouping": "Cafe Tables | Occasional Tables | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Cafe Tables :: Occasional Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116679",
+      "product_id": "product_dp_14116679",
+      "name": "Vision",
+      "accepted_images": 34,
+      "category_grouping": "Conference Tables | Private Office Groupings | Workplace",
+      "raw_category": "Conference Tables :: Private Office Groupings :: Workplace"
+    },
+    {
+      "source_product_id": "9527971",
+      "product_id": "product_dp_9527971",
+      "name": "HUGO",
+      "accepted_images": 17,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "13961519",
+      "product_id": "product_dp_13961519",
+      "name": "Structure",
+      "accepted_images": 4,
+      "category_grouping": "Conference Tables | Other Work Tables | Training Tables | Workplace",
+      "raw_category": "Conference Tables :: Other Work Tables :: Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946075",
+      "product_id": "product_dp_13946075",
+      "name": "Ice",
+      "accepted_images": 17,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13463466",
+      "product_id": "product_dp_13463466",
+      "name": "ENDEP 2\" End Panels",
+      "accepted_images": 10,
+      "category_grouping": "Cafe Tables | Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Cafe Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14051254",
+      "product_id": "product_dp_14051254",
+      "name": "Lagunitas Table - Conference & Collaboration Tables",
+      "accepted_images": 2,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116194",
+      "product_id": "product_dp_14116194",
+      "name": "Ruckus® Activity Tables",
+      "accepted_images": 11,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Education Specialized Tables / Desks :: Workplace :: Education"
+    },
+    {
+      "source_product_id": "9527961",
+      "product_id": "product_dp_9527961",
+      "name": "HALO",
+      "accepted_images": 29,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13931172",
+      "product_id": "product_dp_13931172",
+      "name": "Meeting Room",
+      "accepted_images": 9,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13933559",
+      "product_id": "product_dp_13933559",
+      "name": "X&O",
+      "accepted_images": 76,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116326",
+      "product_id": "product_dp_14116326",
+      "name": "Tributaire™ Training Tables",
+      "accepted_images": 4,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14051268",
+      "product_id": "product_dp_14051268",
+      "name": "Lagunitas Personal Table",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14007396",
+      "product_id": "product_dp_14007396",
+      "name": "Build",
+      "accepted_images": 55,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Other Work Tables | Workplace",
+      "raw_category": "Education Specialized Tables / Desks :: Other Work Tables :: Workplace :: Education"
+    },
+    {
+      "source_product_id": "14050055",
+      "product_id": "product_dp_14050055",
+      "name": "Q6 Table - Laptop Tables",
+      "accepted_images": 37,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14051097",
+      "product_id": "product_dp_14051097",
+      "name": "Bob Table - Occasional Tables",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13833880",
+      "product_id": "product_dp_13833880",
+      "name": "EXPANSION MEETING TABLES",
+      "accepted_images": 1,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13753244",
+      "product_id": "product_dp_13753244",
+      "name": "Universal Tables",
+      "accepted_images": 11,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13753247",
+      "product_id": "product_dp_13753247",
+      "name": "Simple Table",
+      "accepted_images": 32,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13988354",
+      "product_id": "product_dp_13988354",
+      "name": "Jive",
+      "accepted_images": 27,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13945988",
+      "product_id": "product_dp_13945988",
+      "name": "Blueprint Frame - Meeting",
+      "accepted_images": 29,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13931096",
+      "product_id": "product_dp_13931096",
+      "name": "Ramble",
+      "accepted_images": 11,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116233",
+      "product_id": "product_dp_14116233",
+      "name": "Serenade™ Gathering Tables",
+      "accepted_images": 13,
+      "category_grouping": "Cafe Tables | Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace :: Cafe Tables"
+    },
+    {
+      "source_product_id": "14006882",
+      "product_id": "product_dp_14006882",
+      "name": "Preside",
+      "accepted_images": 61,
+      "category_grouping": "Casegoods | Other Work Tables | Table Bases/Tops | Workplace",
+      "raw_category": "Other Work Tables :: Table Bases/Tops :: Workplace :: Casegoods"
+    },
+    {
+      "source_product_id": "13945987",
+      "product_id": "product_dp_13945987",
+      "name": "Blueprint Block",
+      "accepted_images": 29,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14107691",
+      "product_id": "product_dp_14107691",
+      "name": "WaveWorks Tables",
+      "accepted_images": 84,
+      "category_grouping": "Conference Tables | Training Tables | Workplace",
+      "raw_category": "Conference Tables :: Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116187",
+      "product_id": "product_dp_14116187",
+      "name": "Pillar™ Tables",
+      "accepted_images": 24,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Education Specialized Tables / Desks :: Workplace :: Education"
+    },
+    {
+      "source_product_id": "13884419",
+      "product_id": "product_dp_13884419",
+      "name": "Dual Occasional",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006888",
+      "product_id": "product_dp_14006888",
+      "name": "Arrange",
+      "accepted_images": 12,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Occasional Tables",
+      "raw_category": "Education Specialized Tables / Desks :: Occasional Tables :: Education"
+    },
+    {
+      "source_product_id": "14010329",
+      "product_id": "product_dp_14010329",
+      "name": "Note Large Side Table",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006884",
+      "product_id": "product_dp_14006884",
+      "name": "Huddle",
+      "accepted_images": 12,
+      "category_grouping": "Conference Tables | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946100",
+      "product_id": "product_dp_13946100",
+      "name": "Luca - Occasional",
+      "accepted_images": 21,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13886106",
+      "product_id": "product_dp_13886106",
+      "name": "Eames Tables",
+      "accepted_images": 28,
+      "category_grouping": "Conference Tables | Occasional Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14050021",
+      "product_id": "product_dp_14050021",
+      "name": "Mez",
+      "accepted_images": 26,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11588112",
+      "product_id": "product_dp_11588112",
+      "name": "Approach",
+      "accepted_images": 6,
+      "category_grouping": "Conference Tables | Other Work Tables",
+      "raw_category": "Conference Tables :: Other Work Tables"
+    },
+    {
+      "source_product_id": "13729783",
+      "product_id": "product_dp_13729783",
+      "name": "Structure Conference Table",
+      "accepted_images": 30,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946073",
+      "product_id": "product_dp_13946073",
+      "name": "Hudson",
+      "accepted_images": 27,
+      "category_grouping": "Conference Tables | Training Tables | Workplace",
+      "raw_category": "Conference Tables :: Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13958811",
+      "product_id": "product_dp_13958811",
+      "name": "Kona Table, Standard Height, Round - 48\" Diameter",
+      "accepted_images": 2,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050100",
+      "product_id": "product_dp_14050100",
+      "name": "Vida - Meeting Tables",
+      "accepted_images": 33,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13884537",
+      "product_id": "product_dp_13884537",
+      "name": "Solid Conference Table",
+      "accepted_images": 12,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13884384",
+      "product_id": "product_dp_13884384",
+      "name": "Reverse Conference",
+      "accepted_images": 44,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13989493",
+      "product_id": "product_dp_13989493",
+      "name": "Immerse",
+      "accepted_images": 19,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14006887",
+      "product_id": "product_dp_14006887",
+      "name": "Birk",
+      "accepted_images": 20,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Cafe Tables :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14006725",
+      "product_id": "product_dp_14006725",
+      "name": "Chipman Table",
+      "accepted_images": 28,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "13930662",
+      "product_id": "product_dp_13930662",
+      "name": "Rowen - Cafe/Dining",
+      "accepted_images": 4,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "3347532",
+      "product_id": "product_dp_3347532",
+      "name": "Flow",
+      "accepted_images": 5,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "9528031",
+      "product_id": "product_dp_9528031",
+      "name": "SKILL",
+      "accepted_images": 10,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "14049603",
+      "product_id": "product_dp_14049603",
+      "name": "Inform - Occasional Tables",
+      "accepted_images": 28,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931165",
+      "product_id": "product_dp_13931165",
+      "name": "Kosa",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050056",
+      "product_id": "product_dp_14050056",
+      "name": "Q6 Table - Occasional Tables",
+      "accepted_images": 37,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050061",
+      "product_id": "product_dp_14050061",
+      "name": "Riza",
+      "accepted_images": 29,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "13958813",
+      "product_id": "product_dp_13958813",
+      "name": "Kona Table, Standard Height, Round - 60\" Diameter",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116659",
+      "product_id": "product_dp_14116659",
+      "name": "Arwyn",
+      "accepted_images": 24,
+      "category_grouping": "Lounge Seating | Multi-use Guest Chairs | Occasional Tables",
+      "raw_category": "Lounge Seating :: Multi-use Guest Chairs :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14049602",
+      "product_id": "product_dp_14049602",
+      "name": "Inform - Meeting Tables",
+      "accepted_images": 28,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13886376",
+      "product_id": "product_dp_13886376",
+      "name": "Cube and Cylinder Tables",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13720746",
+      "product_id": "product_dp_13720746",
+      "name": "Tier Table",
+      "accepted_images": 7,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14050014",
+      "product_id": "product_dp_14050014",
+      "name": "Lift",
+      "accepted_images": 17,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13729546",
+      "product_id": "product_dp_13729546",
+      "name": "Admix Collaborative Table",
+      "accepted_images": 34,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946047",
+      "product_id": "product_dp_13946047",
+      "name": "Encore",
+      "accepted_images": 12,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13753242",
+      "product_id": "product_dp_13753242",
+      "name": "Groupwork",
+      "accepted_images": 29,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "11741285",
+      "product_id": "product_dp_11741285",
+      "name": "CORSA",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931163",
+      "product_id": "product_dp_13931163",
+      "name": "Kintra - Cafe/Dining",
+      "accepted_images": 5,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14051130",
+      "product_id": "product_dp_14051130",
+      "name": "Enea Lottus Table",
+      "accepted_images": 1,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14107255",
+      "product_id": "product_dp_14107255",
+      "name": "Footings",
+      "accepted_images": 32,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "13946131",
+      "product_id": "product_dp_13946131",
+      "name": "Playbook - Multipurpose",
+      "accepted_images": 37,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "14050094",
+      "product_id": "product_dp_14050094",
+      "name": "UpToo",
+      "accepted_images": 22,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116228",
+      "product_id": "product_dp_14116228",
+      "name": "Seminar Tables",
+      "accepted_images": 21,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "3626792",
+      "product_id": "product_dp_3626792",
+      "name": "Conference 1",
+      "accepted_images": 2,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "14116272",
+      "product_id": "product_dp_14116272",
+      "name": "Sonrisa™ Occasional Tables",
+      "accepted_images": 23,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116443",
+      "product_id": "product_dp_14116443",
+      "name": "MyPlace™ Occasional Tables",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13802234",
+      "product_id": "product_dp_13802234",
+      "name": "HOST",
+      "accepted_images": 27,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116295",
+      "product_id": "product_dp_14116295",
+      "name": "Tattoo® Slim Seating",
+      "accepted_images": 17,
+      "category_grouping": "Modular Seating | Occasional Tables",
+      "raw_category": "Modular Seating :: Occasional Tables"
+    },
+    {
+      "source_product_id": "13958806",
+      "product_id": "product_dp_13958806",
+      "name": "Kona Table, Standard Height, Rectangle - 60\" Width",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050043",
+      "product_id": "product_dp_14050043",
+      "name": "Prat",
+      "accepted_images": 28,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13802226",
+      "product_id": "product_dp_13802226",
+      "name": "FORTYSEVEN XL",
+      "accepted_images": 7,
+      "category_grouping": "Dining Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Dining Tables"
+    },
+    {
+      "source_product_id": "13865996",
+      "product_id": "product_dp_13865996",
+      "name": "UENO",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13882354",
+      "product_id": "product_dp_13882354",
+      "name": "Bora",
+      "accepted_images": 40,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006518",
+      "product_id": "product_dp_14006518",
+      "name": "Carousel Table",
+      "accepted_images": 66,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "13988434",
+      "product_id": "product_dp_13988434",
+      "name": "Pip Laptop Table",
+      "accepted_images": 11,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116340",
+      "product_id": "product_dp_14116340",
+      "name": "Uniframe® Cafeteria Tables",
+      "accepted_images": 19,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14050054",
+      "product_id": "product_dp_14050054",
+      "name": "Q6 Table - Cafe Tables",
+      "accepted_images": 38,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13946143",
+      "product_id": "product_dp_13946143",
+      "name": "Quiet - Multipurpose",
+      "accepted_images": 24,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "14023795",
+      "product_id": "product_dp_14023795",
+      "name": "Grove Tables",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819651",
+      "product_id": "product_dp_11819651",
+      "name": "Dividends Horizon® X-Base Tables",
+      "accepted_images": 27,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14023842",
+      "product_id": "product_dp_14023842",
+      "name": "Teo Tables",
+      "accepted_images": 2,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14050708",
+      "product_id": "product_dp_14050708",
+      "name": "Await Table",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13890757",
+      "product_id": "product_dp_13890757",
+      "name": "Cahoots LE",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13753250",
+      "product_id": "product_dp_13753250",
+      "name": "Campfire Standing Height Slim Table",
+      "accepted_images": 17,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13972535",
+      "product_id": "product_dp_13972535",
+      "name": "Antenna® Simple Tables",
+      "accepted_images": 1,
+      "category_grouping": "Conference Tables | Freestanding Table Desks | Workplace",
+      "raw_category": "Freestanding Table Desks :: Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "9528001",
+      "product_id": "product_dp_9528001",
+      "name": "MOTUS",
+      "accepted_images": 35,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "14116209",
+      "product_id": "product_dp_14116209",
+      "name": "Ruckus® Post-Leg Desks",
+      "accepted_images": 16,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Training Tables | Workplace",
+      "raw_category": "Education Specialized Tables / Desks :: Training Tables :: Education :: Workplace"
+    },
+    {
+      "source_product_id": "13989374",
+      "product_id": "product_dp_13989374",
+      "name": "Planes Collaborative",
+      "accepted_images": 20,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13946041",
+      "product_id": "product_dp_13946041",
+      "name": "Dymen",
+      "accepted_images": 15,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13937242",
+      "product_id": "product_dp_13937242",
+      "name": "Adorn",
+      "accepted_images": 17,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13833857",
+      "product_id": "product_dp_13833857",
+      "name": "BANQS",
+      "accepted_images": 32,
+      "category_grouping": "Lounge Seating | Occasional Tables",
+      "raw_category": "Lounge Seating :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14010341",
+      "product_id": "product_dp_14010341",
+      "name": "Strut Console Table",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "10871911",
+      "product_id": "product_dp_10871911",
+      "name": "Nest Satellite Table with Wood Base",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050048",
+      "product_id": "product_dp_14050048",
+      "name": "Q5 - Occasional Tables",
+      "accepted_images": 19,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14115268",
+      "product_id": "product_dp_14115268",
+      "name": "Athens® Tables",
+      "accepted_images": 23,
+      "category_grouping": "Cafe Tables | Height-Adjustable Tables / Systems",
+      "raw_category": "Cafe Tables :: Height-Adjustable Tables / Systems"
+    },
+    {
+      "source_product_id": "14056706",
+      "product_id": "product_dp_14056706",
+      "name": "Betwixt Occasional Tables",
+      "accepted_images": 10,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116552",
+      "product_id": "product_dp_14116552",
+      "name": "Copilot",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "6600881",
+      "product_id": "product_dp_6600881",
+      "name": "CH327",
+      "accepted_images": 11,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13884553",
+      "product_id": "product_dp_13884553",
+      "name": "Reverse TP",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13946157",
+      "product_id": "product_dp_13946157",
+      "name": "Story",
+      "accepted_images": 18,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "14006885",
+      "product_id": "product_dp_14006885",
+      "name": "Scramble",
+      "accepted_images": 16,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14049593",
+      "product_id": "product_dp_14049593",
+      "name": "Ginkgo Wire Table - Occasional Tables",
+      "accepted_images": 28,
+      "category_grouping": "Occasional Tables | Outdoor Tables",
+      "raw_category": "Occasional Tables :: Outdoor Tables"
+    },
+    {
+      "source_product_id": "13753252",
+      "product_id": "product_dp_13753252",
+      "name": "Bassline Occasional Tables",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14010299",
+      "product_id": "product_dp_14010299",
+      "name": "Swole Coffee Table",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006373",
+      "product_id": "product_dp_14006373",
+      "name": "Cora",
+      "accepted_images": 20,
+      "category_grouping": "Occasional Tables | Outdoor Tables",
+      "raw_category": "Occasional Tables :: Outdoor Tables"
+    },
+    {
+      "source_product_id": "13886129",
+      "product_id": "product_dp_13886129",
+      "name": "Cyclade Tables",
+      "accepted_images": 8,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116754",
+      "product_id": "product_dp_14116754",
+      "name": "Caav",
+      "accepted_images": 29,
+      "category_grouping": "Integrated Technologies | Lounge Seating | Other Work Tables | Privacy Booths / Meeting Pods | Workplace",
+      "raw_category": "Other Work Tables :: Privacy Booths / Meeting Pods :: Lounge Seating :: Workplace :: Integrated Technologies"
+    },
+    {
+      "source_product_id": "14068725",
+      "product_id": "product_dp_14068725",
+      "name": "COMMUNITY TABLE –29\"H",
+      "accepted_images": 9,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946130",
+      "product_id": "product_dp_13946130",
+      "name": "Playbook - Meeting",
+      "accepted_images": 38,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13463443",
+      "product_id": "product_dp_13463443",
+      "name": "ASK Askew",
+      "accepted_images": 11,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14057736",
+      "product_id": "product_dp_14057736",
+      "name": "Cromo Meeting Tables",
+      "accepted_images": 14,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14050084",
+      "product_id": "product_dp_14050084",
+      "name": "Tavo",
+      "accepted_images": 32,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946091",
+      "product_id": "product_dp_13946091",
+      "name": "Larkin - Meeting",
+      "accepted_images": 16,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116231",
+      "product_id": "product_dp_14116231",
+      "name": "Serenade™ Conference Tables",
+      "accepted_images": 9,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13972578",
+      "product_id": "product_dp_13972578",
+      "name": "Pixel™ C-Leg Tables",
+      "accepted_images": 26,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116195",
+      "product_id": "product_dp_14116195",
+      "name": "Ruckus® Cantilever Desks",
+      "accepted_images": 23,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Training Tables | Workplace",
+      "raw_category": "Education Specialized Tables / Desks :: Training Tables :: Education :: Workplace"
+    },
+    {
+      "source_product_id": "11613311",
+      "product_id": "product_dp_11613311",
+      "name": "The Viccarbe Tables Collection",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931085",
+      "product_id": "product_dp_13931085",
+      "name": "Heya - Occasional",
+      "accepted_images": 2,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931169",
+      "product_id": "product_dp_13931169",
+      "name": "Maive - Occasional",
+      "accepted_images": 2,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13866000",
+      "product_id": "product_dp_13866000",
+      "name": "YO",
+      "accepted_images": 23,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14117940",
+      "product_id": "product_dp_14117940",
+      "name": "Trail",
+      "accepted_images": 17,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116293",
+      "product_id": "product_dp_14116293",
+      "name": "Sway® Occasional Tables",
+      "accepted_images": 17,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "6601151",
+      "product_id": "product_dp_6601151",
+      "name": "CH008",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14107673",
+      "product_id": "product_dp_14107673",
+      "name": "Universal Tables",
+      "accepted_images": 79,
+      "category_grouping": "Occasional Tables | Table Bases/Tops",
+      "raw_category": "Table Bases/Tops :: Occasional Tables"
+    },
+    {
+      "source_product_id": "14116299",
+      "product_id": "product_dp_14116299",
+      "name": "Tributaire™ Cafe Tables",
+      "accepted_images": 5,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13933458",
+      "product_id": "product_dp_13933458",
+      "name": "Ice",
+      "accepted_images": 32,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13542541",
+      "product_id": "product_dp_13542541",
+      "name": "Cube and Cylinder Tables",
+      "accepted_images": 18,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13988433",
+      "product_id": "product_dp_13988433",
+      "name": "Pip Collaborative Table",
+      "accepted_images": 16,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050022",
+      "product_id": "product_dp_14050022",
+      "name": "Mez - Bar Tables",
+      "accepted_images": 27,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13946015",
+      "product_id": "product_dp_13946015",
+      "name": "Clue",
+      "accepted_images": 22,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13946000",
+      "product_id": "product_dp_13946000",
+      "name": "Chance",
+      "accepted_images": 18,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13958794",
+      "product_id": "product_dp_13958794",
+      "name": "Kona Table, Bar Height, Round - 36.5\" Diameter",
+      "accepted_images": 2,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "11596864",
+      "product_id": "product_dp_11596864",
+      "name": "Lagunitas Table",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13958042",
+      "product_id": "product_dp_13958042",
+      "name": "Breck Table - 19.5\" Diameter",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14010296",
+      "product_id": "product_dp_14010296",
+      "name": "Strut Coffee Table",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931227",
+      "product_id": "product_dp_13931227",
+      "name": "Roo",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13933478",
+      "product_id": "product_dp_13933478",
+      "name": "Modern Amenity - Occasional",
+      "accepted_images": 38,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050016",
+      "product_id": "product_dp_14050016",
+      "name": "Luca - Bar Tables",
+      "accepted_images": 20,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13931643",
+      "product_id": "product_dp_13931643",
+      "name": "Q6 Table",
+      "accepted_images": 31,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14023839",
+      "product_id": "product_dp_14023839",
+      "name": "Susu",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14056728",
+      "product_id": "product_dp_14056728",
+      "name": "Flirt® Occasional Tables",
+      "accepted_images": 8,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13886126",
+      "product_id": "product_dp_13886126",
+      "name": "Nelson Pedestal Table",
+      "accepted_images": 28,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13886381",
+      "product_id": "product_dp_13886381",
+      "name": "Nemschoff Steps End Table",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116752",
+      "product_id": "product_dp_14116752",
+      "name": "Bourne",
+      "accepted_images": 29,
+      "category_grouping": "Casegoods | Fixed-height Stools | Lounge Seating | Multi-use Guest Chairs | Occasional Tables",
+      "raw_category": "Multi-use Guest Chairs :: Lounge Seating :: Fixed-height Stools :: Occasional Tables :: Casegoods"
+    },
+    {
+      "source_product_id": "13945715",
+      "product_id": "product_dp_13945715",
+      "name": "Albany",
+      "accepted_images": 11,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13958685",
+      "product_id": "product_dp_13958685",
+      "name": "Four® Resting Table, Standard Height, Square - 31.5\" x 31.5\"",
+      "accepted_images": 2,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14010328",
+      "product_id": "product_dp_14010328",
+      "name": "Swole Tall Table",
+      "accepted_images": 8,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14010339",
+      "product_id": "product_dp_14010339",
+      "name": "Coco Tall Side Table",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13934249",
+      "product_id": "product_dp_13934249",
+      "name": "Ally - Occasional",
+      "accepted_images": 29,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13961452",
+      "product_id": "product_dp_13961452",
+      "name": "Briefing",
+      "accepted_images": 5,
+      "category_grouping": "Conference Tables | Credenzas | Height-Adjustable Tables / Systems | Occasional Tables | Workplace",
+      "raw_category": "Conference Tables :: Credenzas :: Height-Adjustable Tables / Systems :: Workplace :: Occasional Tables"
+    },
+    {
+      "source_product_id": "13945989",
+      "product_id": "product_dp_13945989",
+      "name": "Blueprint Frame - Multipurpose",
+      "accepted_images": 29,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13886455",
+      "product_id": "product_dp_13886455",
+      "name": "Exclave",
+      "accepted_images": 26,
+      "category_grouping": "Conference Tables | Other Work Tables | Workplace",
+      "raw_category": "Conference Tables :: Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116664",
+      "product_id": "product_dp_14116664",
+      "name": "Draft",
+      "accepted_images": 27,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14023786",
+      "product_id": "product_dp_14023786",
+      "name": "EdgeWorks",
+      "accepted_images": 7,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "11588104",
+      "product_id": "product_dp_11588104",
+      "name": "Flow™",
+      "accepted_images": 7,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "11741270",
+      "product_id": "product_dp_11741270",
+      "name": "CORSA",
+      "accepted_images": 4,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "13931084",
+      "product_id": "product_dp_13931084",
+      "name": "Heya - Conference",
+      "accepted_images": 3,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13886457",
+      "product_id": "product_dp_13886457",
+      "name": "Headway Conference Tables",
+      "accepted_images": 13,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14049541",
+      "product_id": "product_dp_14049541",
+      "name": "A-Table",
+      "accepted_images": 28,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14105056",
+      "product_id": "product_dp_14105056",
+      "name": "Tensor",
+      "accepted_images": 2,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13930653",
+      "product_id": "product_dp_13930653",
+      "name": "Ally - Occasional",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13729566",
+      "product_id": "product_dp_13729566",
+      "name": "Structure Table",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14006719",
+      "product_id": "product_dp_14006719",
+      "name": "Grasshopper Table",
+      "accepted_images": 8,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "14051144",
+      "product_id": "product_dp_14051144",
+      "name": "Lagunitas Focus Nook",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13931164",
+      "product_id": "product_dp_13931164",
+      "name": "Kintra - Occasional",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13867274",
+      "product_id": "product_dp_13867274",
+      "name": "BRIO",
+      "accepted_images": 33,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13882407",
+      "product_id": "product_dp_13882407",
+      "name": "Resilia",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14116216",
+      "product_id": "product_dp_14116216",
+      "name": "Sela® Occasional Tables",
+      "accepted_images": 10,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13884557",
+      "product_id": "product_dp_13884557",
+      "name": "Triada Occasional",
+      "accepted_images": 9,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "10872441",
+      "product_id": "product_dp_10872441",
+      "name": "Trestle Side Table",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14107520",
+      "product_id": "product_dp_14107520",
+      "name": "Mariben",
+      "accepted_images": 23,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "5422621",
+      "product_id": "product_dp_5422621",
+      "name": "YOP - H 72 - 73,5 - 74 CM",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11549178",
+      "product_id": "product_dp_11549178",
+      "name": "Pon - 1290",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13886820",
+      "product_id": "product_dp_13886820",
+      "name": "Fold Bar Height Table",
+      "accepted_images": 22,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14116378",
+      "product_id": "product_dp_14116378",
+      "name": "Zoetry® Occasional Tables",
+      "accepted_images": 13,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819335",
+      "product_id": "product_dp_11819335",
+      "name": "Saarinen Side Tables",
+      "accepted_images": 69,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819370",
+      "product_id": "product_dp_11819370",
+      "name": "Saarinen Outdoor Dining Tables",
+      "accepted_images": 3,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "6587201",
+      "product_id": "product_dp_6587201",
+      "name": "Eclipse",
+      "accepted_images": 2,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11741291",
+      "product_id": "product_dp_11741291",
+      "name": "DUNCAN",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14010289",
+      "product_id": "product_dp_14010289",
+      "name": "Circula Small Coffee Table",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables | Outdoor Tables",
+      "raw_category": "Outdoor Tables :: Occasional Tables"
+    },
+    {
+      "source_product_id": "13945966",
+      "product_id": "product_dp_13945966",
+      "name": "Area",
+      "accepted_images": 14,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13937628",
+      "product_id": "product_dp_13937628",
+      "name": "Trim",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "10870341",
+      "product_id": "product_dp_10870341",
+      "name": "Carousel Coffee Table",
+      "accepted_images": 8,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11750396",
+      "product_id": "product_dp_11750396",
+      "name": "Span Coffee Table",
+      "accepted_images": 1,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13989280",
+      "product_id": "product_dp_13989280",
+      "name": "BuzziMilk Table",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13866009",
+      "product_id": "product_dp_13866009",
+      "name": "AUKI | OUTDOOR",
+      "accepted_images": 14,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "13946061",
+      "product_id": "product_dp_13946061",
+      "name": "Gwyn",
+      "accepted_images": 14,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13958044",
+      "product_id": "product_dp_13958044",
+      "name": "Breck Table - 37.5\" Diameter",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13958804",
+      "product_id": "product_dp_13958804",
+      "name": "Kona Table, Laptop Height - Square",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13982378",
+      "product_id": "product_dp_13982378",
+      "name": "Saarinen Side Tables",
+      "accepted_images": 50,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11632331",
+      "product_id": "product_dp_11632331",
+      "name": "Boxcar - Table",
+      "accepted_images": 3,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13946032",
+      "product_id": "product_dp_13946032",
+      "name": "CP.3",
+      "accepted_images": 16,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13665581",
+      "product_id": "product_dp_13665581",
+      "name": "Enea Table",
+      "accepted_images": 1,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13982215",
+      "product_id": "product_dp_13982215",
+      "name": "Florence Knoll™ Coffee and End Tables",
+      "accepted_images": 26,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13930664",
+      "product_id": "product_dp_13930664",
+      "name": "Rowen - Occasional 1",
+      "accepted_images": 7,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819363",
+      "product_id": "product_dp_11819363",
+      "name": "1966 Coffee and End Tables",
+      "accepted_images": 19,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11750391",
+      "product_id": "product_dp_11750391",
+      "name": "Museum Coffee Table Round",
+      "accepted_images": 3,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "14050079",
+      "product_id": "product_dp_14050079",
+      "name": "Span",
+      "accepted_images": 17,
+      "category_grouping": "Cafe Tables | Dining Tables",
+      "raw_category": "Dining Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "10872031",
+      "product_id": "product_dp_10872031",
+      "name": "November Side Table with Wood Base",
+      "accepted_images": 26,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819653",
+      "product_id": "product_dp_11819653",
+      "name": "Reff Profiles™ Sliding Tables",
+      "accepted_images": 24,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13729008",
+      "product_id": "product_dp_13729008",
+      "name": "Palissade Bistro Table",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables | Outdoor Tables",
+      "raw_category": "Occasional Tables :: Outdoor Tables"
+    },
+    {
+      "source_product_id": "13930663",
+      "product_id": "product_dp_13930663",
+      "name": "Rowen - Occasional",
+      "accepted_images": 10,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13576348",
+      "product_id": "product_dp_13576348",
+      "name": "Leela Table",
+      "accepted_images": 36,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13922782",
+      "product_id": "product_dp_13922782",
+      "name": "Brianza Drum End Table",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13717553",
+      "product_id": "product_dp_13717553",
+      "name": "Reframe Tables",
+      "accepted_images": 10,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13933434",
+      "product_id": "product_dp_13933434",
+      "name": "Basket",
+      "accepted_images": 17,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13884551",
+      "product_id": "product_dp_13884551",
+      "name": "Reverse Occasional",
+      "accepted_images": 29,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13946153",
+      "product_id": "product_dp_13946153",
+      "name": "Solem - Multipurpose",
+      "accepted_images": 20,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "13720760",
+      "product_id": "product_dp_13720760",
+      "name": "Tun Side Table",
+      "accepted_images": 9,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11819341",
+      "product_id": "product_dp_11819341",
+      "name": "Barcelona® Table",
+      "accepted_images": 28,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14011029",
+      "product_id": "product_dp_14011029",
+      "name": "Skiff 30\" Small Outdoor Cafe Table",
+      "accepted_images": 2,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "11596470",
+      "product_id": "product_dp_11596470",
+      "name": "EMU Round Table",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13753254",
+      "product_id": "product_dp_13753254",
+      "name": "Campfire Personal Table",
+      "accepted_images": 16,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13988426",
+      "product_id": "product_dp_13988426",
+      "name": "Openest Sprig",
+      "accepted_images": 32,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050045",
+      "product_id": "product_dp_14050045",
+      "name": "Prat - Meeting Tables",
+      "accepted_images": 28,
+      "category_grouping": "Cafe Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Cafe Tables"
+    },
+    {
+      "source_product_id": "14105060",
+      "product_id": "product_dp_14105060",
+      "name": "Uni",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050097",
+      "product_id": "product_dp_14050097",
+      "name": "Veer",
+      "accepted_images": 14,
+      "category_grouping": "Occasional Tables | Outdoor Tables",
+      "raw_category": "Occasional Tables :: Outdoor Tables"
+    },
+    {
+      "source_product_id": "13802193",
+      "product_id": "product_dp_13802193",
+      "name": "AXYL Tables & Storage",
+      "accepted_images": 38,
+      "category_grouping": "Dining Tables | Occasional Tables",
+      "raw_category": "Occasional Tables :: Dining Tables"
+    },
+    {
+      "source_product_id": "11819345",
+      "product_id": "product_dp_11819345",
+      "name": "Florence Knoll Hairpin™ Stacking Table",
+      "accepted_images": 15,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13985800",
+      "product_id": "product_dp_13985800",
+      "name": "Laminate Occasional Tables",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13933489",
+      "product_id": "product_dp_13933489",
+      "name": "Offshore - Pull up table",
+      "accepted_images": 18,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14057761",
+      "product_id": "product_dp_14057761",
+      "name": "Loupe Occasional Tables",
+      "accepted_images": 15,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "11549179",
+      "product_id": "product_dp_11549179",
+      "name": "Pon - 1295",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14038399",
+      "product_id": "product_dp_14038399",
+      "name": "LT Table",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14023768",
+      "product_id": "product_dp_14023768",
+      "name": "Around Town",
+      "accepted_images": 4,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14056777",
+      "product_id": "product_dp_14056777",
+      "name": "Savina Occasional Tables",
+      "accepted_images": 6,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13884905",
+      "product_id": "product_dp_13884905",
+      "name": "Solid Table Outdoor",
+      "accepted_images": 2,
+      "category_grouping": "Outdoor Tables",
+      "raw_category": "Outdoor Tables"
+    },
+    {
+      "source_product_id": "13934263",
+      "product_id": "product_dp_13934263",
+      "name": "Bistro - Occasional",
+      "accepted_images": 5,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14050063",
+      "product_id": "product_dp_14050063",
+      "name": "RT25",
+      "accepted_images": 17,
+      "category_grouping": "Cafe Tables",
+      "raw_category": "Cafe Tables"
+    },
+    {
+      "source_product_id": "13753253",
+      "product_id": "product_dp_13753253",
+      "name": "Campfire Paper Table",
+      "accepted_images": 15,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13985762",
+      "product_id": "product_dp_13985762",
+      "name": "Drift™ Tables",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "14120772",
+      "product_id": "product_dp_14120772",
+      "name": "Flowform® Outdoor Triangle Table",
+      "accepted_images": 2,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Outdoor Tables",
+      "raw_category": "Education Specialized Tables / Desks :: Outdoor Tables :: Education"
+    },
+    {
+      "source_product_id": "14120767",
+      "product_id": "product_dp_14120767",
+      "name": "Flowform® Outdoor Round Table",
+      "accepted_images": 2,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Outdoor Tables",
+      "raw_category": "Education Specialized Tables / Desks :: Outdoor Tables :: Education"
+    },
+    {
+      "source_product_id": "14120766",
+      "product_id": "product_dp_14120766",
+      "name": "Flowform® Outdoor Rectangle Table",
+      "accepted_images": 2,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Outdoor Tables",
+      "raw_category": "Education Specialized Tables / Desks :: Outdoor Tables :: Education"
+    },
+    {
+      "source_product_id": "14050040",
+      "product_id": "product_dp_14050040",
+      "name": "PLC Table",
+      "accepted_images": 14,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13890777",
+      "product_id": "product_dp_13890777",
+      "name": "Fold",
+      "accepted_images": 1,
+      "category_grouping": "Occasional Tables",
+      "raw_category": "Occasional Tables"
+    },
+    {
+      "source_product_id": "13833869",
+      "product_id": "product_dp_13833869",
+      "name": "COSI",
+      "accepted_images": 25,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13729547",
+      "product_id": "product_dp_13729547",
+      "name": "Structure Media Table",
+      "accepted_images": 34,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14107550",
+      "product_id": "product_dp_14107550",
+      "name": "Strassa",
+      "accepted_images": 29,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13937917",
+      "product_id": "product_dp_13937917",
+      "name": "Free Address Tables",
+      "accepted_images": 11,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "11576216",
+      "product_id": "product_dp_11576216",
+      "name": "Tia Team",
+      "accepted_images": 1,
+      "category_grouping": "Education Specialized Tables / Desks | Other Work Tables",
+      "raw_category": "Education Specialized Tables / Desks :: Other Work Tables"
+    },
+    {
+      "source_product_id": "14117936",
+      "product_id": "product_dp_14117936",
+      "name": "Poet",
+      "accepted_images": 26,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14116348",
+      "product_id": "product_dp_14116348",
+      "name": "ValueLite Folding Tables",
+      "accepted_images": 1,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14107753",
+      "product_id": "product_dp_14107753",
+      "name": "Fixt",
+      "accepted_images": 39,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "11819650",
+      "product_id": "product_dp_11819650",
+      "name": "Dividends Horizon® EQ Tables",
+      "accepted_images": 9,
+      "category_grouping": "Other Work Tables",
+      "raw_category": "Other Work Tables"
+    },
+    {
+      "source_product_id": "13886108",
+      "product_id": "product_dp_13886108",
+      "name": "OE1 Huddle Table",
+      "accepted_images": 9,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13753249",
+      "product_id": "product_dp_13753249",
+      "name": "B-Free High Tables",
+      "accepted_images": 32,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13931138",
+      "product_id": "product_dp_13931138",
+      "name": "Eleven Wood",
+      "accepted_images": 6,
+      "category_grouping": "Other Work Tables | Workplace",
+      "raw_category": "Other Work Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946152",
+      "product_id": "product_dp_13946152",
+      "name": "Solem - Meeting",
+      "accepted_images": 20,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "11837786",
+      "product_id": "product_dp_11837786",
+      "name": "Gateway™ Plus",
+      "accepted_images": 15,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "11837791",
+      "product_id": "product_dp_11837791",
+      "name": "Vox® Conference - Duo Base",
+      "accepted_images": 26,
+      "category_grouping": "Conference Tables",
+      "raw_category": "Conference Tables"
+    },
+    {
+      "source_product_id": "13982225",
+      "product_id": "product_dp_13982225",
+      "name": "Florence Knoll™ Table Desk",
+      "accepted_images": 22,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "14051269",
+      "product_id": "product_dp_14051269",
+      "name": "SW_1 Conference Table",
+      "accepted_images": 7,
+      "category_grouping": "Conference Tables | Workplace",
+      "raw_category": "Conference Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13931166",
+      "product_id": "product_dp_13931166",
+      "name": "Layer",
+      "accepted_images": 4,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13946078",
+      "product_id": "product_dp_13946078",
+      "name": "Intersection - Training",
+      "accepted_images": 25,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13563046",
+      "product_id": "product_dp_13563046",
+      "name": "Barron Tables",
+      "accepted_images": 1,
+      "category_grouping": "Training Tables | Workplace",
+      "raw_category": "Training Tables :: Workplace"
+    },
+    {
+      "source_product_id": "13985863",
+      "product_id": "product_dp_13985863",
+      "name": "Terina™ Tables",
+      "accepted_images": 1,
+      "category_grouping": "Education | Education Specialized Tables / Desks | Training Tables | Workplace",
+      "raw_category": "Training Tables :: Education Specialized Tables / Desks :: Workplace :: Education"
+    }
+  ],
+  "accepted_total": 263,
+  "skipped_existing_products": [
+    {
+      "source_product_id": "14116189",
+      "product_id": "product_dp_14116189",
+      "name": "Pirouette® Tables",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13931181",
+      "product_id": "product_dp_13931181",
+      "name": "Nineteen20",
+      "brand": "OFS Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13946207",
+      "product_id": "product_dp_13946207",
+      "name": "Quiet - Occasional",
+      "brand": "Bernhardt Design",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13931152",
+      "product_id": "product_dp_13931152",
+      "name": "Intermix Conference",
+      "brand": "OFS Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13884377",
+      "product_id": "product_dp_13884377",
+      "name": "Extra Table - Conference Tables",
+      "brand": "Andreu World America Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11837790",
+      "product_id": "product_dp_11837790",
+      "name": "Vox® Conference - Access Base",
+      "brand": "Nienkamper",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13882353",
+      "product_id": "product_dp_13882353",
+      "name": "Bali",
+      "brand": "Stance Healthcare",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107735",
+      "product_id": "product_dp_14107735",
+      "name": "Dock Meeting",
+      "brand": "Kimball",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14115918",
+      "product_id": "product_dp_14115918",
+      "name": "C-Table™ Personal Worksurfaces",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14050089",
+      "product_id": "product_dp_14050089",
+      "name": "Tosca",
+      "brand": "Davis Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14049600",
+      "product_id": "product_dp_14049600",
+      "name": "Inform - Cafe Tables",
+      "brand": "Davis Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14051177",
+      "product_id": "product_dp_14051177",
+      "name": "Potrero415 Table",
+      "brand": "Coalesse",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "9527991",
+      "product_id": "product_dp_9527991",
+      "name": "MESA",
+      "brand": "HALCON",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13946162",
+      "product_id": "product_dp_13946162",
+      "name": "Trace",
+      "brand": "Bernhardt Design",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14050085",
+      "product_id": "product_dp_14050085",
+      "name": "Techniq",
+      "brand": "Davis Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107168",
+      "product_id": "product_dp_14107168",
+      "name": "Connolly",
+      "brand": "National by Kimball International",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13945962",
+      "product_id": "product_dp_13945962",
+      "name": "Anza - Meeting",
+      "brand": "Bernhardt Design",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14117955",
+      "product_id": "product_dp_14117955",
+      "name": "Nosh",
+      "brand": "JSI",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14050053",
+      "product_id": "product_dp_14050053",
+      "name": "Q6 Table - Bar Tables",
+      "brand": "Davis Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13753243",
+      "product_id": "product_dp_13753243",
+      "name": "Verlay",
+      "brand": "Steelcase",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "1888882",
+      "product_id": "product_dp_1888882",
+      "name": "Burin",
+      "brand": "Viccarbe Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13720798",
+      "product_id": "product_dp_13720798",
+      "name": "Tier Cafe Table",
+      "brand": "NaughtOne",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13884543",
+      "product_id": "product_dp_13884543",
+      "name": "Bolete Occasional Table",
+      "brand": "Andreu World America Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13931106",
+      "product_id": "product_dp_13931106",
+      "name": "Applause",
+      "brand": "OFS Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13934343",
+      "product_id": "product_dp_13934343",
+      "name": "Kintra - Occasional",
+      "brand": "Carolina, an OFS Company",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11819701",
+      "product_id": "product_dp_11819701",
+      "name": "Pixel™ C-Leg Tables",
+      "brand": "Knoll",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13946019",
+      "product_id": "product_dp_13946019",
+      "name": "Colmere",
+      "brand": "Bernhardt Design",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107736",
+      "product_id": "product_dp_14107736",
+      "name": "Dock Training",
+      "brand": "Kimball",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13972549",
+      "product_id": "product_dp_13972549",
+      "name": "Pixel™ T-Leg Tables",
+      "brand": "Knoll Office",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107625",
+      "product_id": "product_dp_14107625",
+      "name": "Tessera Tables",
+      "brand": "National by Kimball International",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14051169",
+      "product_id": "product_dp_14051169",
+      "name": "Montara650 Table - Cafe Tables",
+      "brand": "Coalesse",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14051131",
+      "product_id": "product_dp_14051131",
+      "name": "E-Table 2",
+      "brand": "Coalesse",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13961503",
+      "product_id": "product_dp_13961503",
+      "name": "Two-Thirds",
+      "brand": "Allsteel",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107757",
+      "product_id": "product_dp_14107757",
+      "name": "Daymora",
+      "brand": "Kimball",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14105961",
+      "product_id": "product_dp_14105961",
+      "name": "Kithara",
+      "brand": "David Edward",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13461480",
+      "product_id": "product_dp_13461480",
+      "name": "Susu Tables",
+      "brand": "DARRAN",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14006886",
+      "product_id": "product_dp_14006886",
+      "name": "Sculpt",
+      "brand": "HON",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13987875",
+      "product_id": "product_dp_13987875",
+      "name": "9",
+      "brand": "Haworth",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13884236",
+      "product_id": "product_dp_13884236",
+      "name": "Connect Table - Conference Tables",
+      "brand": "Andreu World America Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11602907",
+      "product_id": "product_dp_11602907",
+      "name": "Guéridon",
+      "brand": "Vitra",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13824062",
+      "product_id": "product_dp_13824062",
+      "name": "Bevy Occasional",
+      "brand": "Studio TK",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13946103",
+      "product_id": "product_dp_13946103",
+      "name": "Marlowe",
+      "brand": "Bernhardt Design",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14011028",
+      "product_id": "product_dp_14011028",
+      "name": "Hot Mesh 30\" Cafe Table",
+      "brand": "Blu Dot",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14010326",
+      "product_id": "product_dp_14010326",
+      "name": "Chit Chat Side Table",
+      "brand": "Blu Dot",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13937563",
+      "product_id": "product_dp_13937563",
+      "name": "Cala",
+      "brand": "Stylex Seating",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13720750",
+      "product_id": "product_dp_13720750",
+      "name": "Tier Bar Height Table",
+      "brand": "NaughtOne",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14116751",
+      "product_id": "product_dp_14116751",
+      "name": "Anthology",
+      "brand": "JSI",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14116320",
+      "product_id": "product_dp_14116320",
+      "name": "Tributaire™ Conference Tables",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13937567",
+      "product_id": "product_dp_13937567",
+      "name": "Cove Tables",
+      "brand": "Stylex Seating",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13937619",
+      "product_id": "product_dp_13937619",
+      "name": "Obair",
+      "brand": "Stylex Seating",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13958803",
+      "product_id": "product_dp_13958803",
+      "name": "Kona Table, Laptop Height - Round",
+      "brand": "Hightower",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14107719",
+      "product_id": "product_dp_14107719",
+      "name": "Bloom",
+      "brand": "Kimball",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14116168",
+      "product_id": "product_dp_14116168",
+      "name": "MyWay® Occasional Tables",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11549177",
+      "product_id": "product_dp_11549177",
+      "name": "Pon - 1285",
+      "brand": "FREDERICIA Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13463506",
+      "product_id": "product_dp_13463506",
+      "name": "PL Post Legs",
+      "brand": "Spec Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11819336",
+      "product_id": "product_dp_11819336",
+      "name": "Saarinen Coffee Tables",
+      "brand": "Knoll",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11819666",
+      "product_id": "product_dp_11819666",
+      "name": "Rockwell Unscripted® Occasional Tables",
+      "brand": "Knoll",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13489097",
+      "product_id": "product_dp_13489097",
+      "name": "Bistro - Cafe/dining",
+      "brand": "OFS Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14116438",
+      "product_id": "product_dp_14116438",
+      "name": "Lyra® Occasional Tables",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11741287",
+      "product_id": "product_dp_11741287",
+      "name": "CROSSFIRE",
+      "brand": "ERG International",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13922783",
+      "product_id": "product_dp_13922783",
+      "name": "Brianza Drum Round Coffee Table",
+      "brand": "Kwalu Furniture & Wall Protection",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13992258",
+      "product_id": "product_dp_13992258",
+      "name": "Rally Tables",
+      "brand": "Haworth",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13884582",
+      "product_id": "product_dp_13884582",
+      "name": "Dual Cafe Table",
+      "brand": "Andreu World America Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13931114",
+      "product_id": "product_dp_13931114",
+      "name": "Bistro - Occasional",
+      "brand": "OFS Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14115855",
+      "product_id": "product_dp_14115855",
+      "name": "Tattoo® Tables",
+      "brand": "KI Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13958801",
+      "product_id": "product_dp_13958801",
+      "name": "Kona Table, Counter 36\" Height, Square - 30\" x 30\"",
+      "brand": "Hightower",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14105026",
+      "product_id": "product_dp_14105026",
+      "name": "Parallon Café",
+      "brand": "SitOnIt Seating",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14023843",
+      "product_id": "product_dp_14023843",
+      "name": "Trade Street",
+      "brand": "DARRAN",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11895243",
+      "product_id": "product_dp_11895243",
+      "name": "Makayla",
+      "brand": "Martin Brattrud",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14116759",
+      "product_id": "product_dp_14116759",
+      "name": "Native",
+      "brand": "JSI",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11588120",
+      "product_id": "product_dp_11588120",
+      "name": "Two4Six Meeting™",
+      "brand": "Nucraft",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13747859",
+      "product_id": "product_dp_13747859",
+      "name": "Islands Collection by Knoll®",
+      "brand": "Knoll Office",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13729784",
+      "product_id": "product_dp_13729784",
+      "name": "Briefing Conference Table",
+      "brand": "Allsteel",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13884383",
+      "product_id": "product_dp_13884383",
+      "name": "Radial Conference",
+      "brand": "Andreu World America Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11580759",
+      "product_id": "product_dp_11580759",
+      "name": "Supreme",
+      "brand": "Hi5 Furniture",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13720745",
+      "product_id": "product_dp_13720745",
+      "name": "Fold Conference Table",
+      "brand": "NaughtOne",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13729563",
+      "product_id": "product_dp_13729563",
+      "name": "Aware Training Table",
+      "brand": "Allsteel",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "11819325",
+      "product_id": "product_dp_11819325",
+      "name": "Pixel™ Y-Fold Tables",
+      "brand": "Knoll",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13834076",
+      "product_id": "product_dp_13834076",
+      "name": "THESIS",
+      "brand": "Teknion",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "13729564",
+      "product_id": "product_dp_13729564",
+      "name": "Briefing Training Table",
+      "brand": "Allsteel",
+      "reason": "already exists in catalog"
+    },
+    {
+      "source_product_id": "14056727",
+      "product_id": "product_dp_14056727",
+      "name": "Flirt® Multi-Purpose Tables",
+      "brand": "Arcadia",
+      "reason": "already exists in catalog"
+    }
+  ],
+  "skipped_existing_total": 81,
+  "flagged_products": [
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4438821",
+      "website": "https://designerpages.com/products/4438821",
+      "name": "Platform - Multipurpose",
+      "brand": "WCI (West Coast Industries)",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:35:52.465Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/56961151/Platform___Multipurpose_0.jpg",
+          "width": 525,
+          "height": 350,
+          "short_side": 350,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "2576852",
+      "website": "https://designerpages.com/products/2576852",
+      "name": "Eliga",
+      "brand": "VERSTEEL",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:42:23.131Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/54732582/eliga-fixed-table-white-sweep.jpg",
+          "width": 576,
+          "height": 432,
+          "short_side": 432,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732592/Eliga-NeoCon-Media-Center.jpg",
+          "width": 640,
+          "height": 480,
+          "short_side": 480,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732602/eliga-three-person-workstation.jpg",
+          "width": 576,
+          "height": 432,
+          "short_side": 432,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732612/Eliga-Standard-Height-Media.jpg",
+          "width": 640,
+          "height": 480,
+          "short_side": 480,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732632/Eliga-Floor-Credenza.jpg",
+          "width": 640,
+          "height": 480,
+          "short_side": 480,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732642/Eliga-side-table.jpg",
+          "width": 640,
+          "height": 480,
+          "short_side": 480,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54732662/Credenza-open.jpg",
+          "width": 640,
+          "height": 480,
+          "short_side": 480,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107904",
+      "website": "https://designerpages.com/products/14107904",
+      "name": "Joelle",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:44:19.202Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82681408/JoelleLoungeAngled24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/70865071/b036a5da-8201-422c-88e5-127a5526eca3.jpg",
+          "width": 788,
+          "height": 526,
+          "short_side": 526,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681416/2017ChicagoProNarrateJoelleBloom.jpg",
+          "width": 749,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681422/2018ChicagoProDockHelioJoelle.jpg",
+          "width": 726,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681428/2018ChicagoProJoellePairingsDock.jpg",
+          "width": 730,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681437/2018ChicagoProNarrateJoyaWilder.jpg",
+          "width": 722,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681448/2P1A6979.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681454/AlternaBloomJoellePairings.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681463/AlternaJoellepdcs25413.jpg",
+          "width": 689,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681474/AlternaPairingsDockWorkTableJoelleFlip.jpg",
+          "width": 1059,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681483/AlternafiXtJoelle.jpg",
+          "width": 386,
+          "height": 500,
+          "short_side": 386,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681492/AtlantaColletteHockJoelleMarniaRiffel.jpg",
+          "width": 816,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681501/AtlantaEzzeriAlterna.jpg",
+          "width": 695,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681510/AtlantaEzzeriLochlynMeadowAlterna.jpg",
+          "width": 774,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681520/AtlantaHobsenEagerJoelleEverySpace.jpg",
+          "width": 746,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681529/AtlantaIdaraThatcherJoelleLehr.jpg",
+          "width": 713,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681536/AtlantaSwiftJoelleDockTrainingfiXt.jpg",
+          "width": 751,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681544/JoelleLoungeAngled24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681557/JoelleLoungeAngled30PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681566/JoelleLoungeAngled36PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681575/JoelleLounge48AngledBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681584/JoelleLoungeAngled51PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681593/JoelleLoungeRound24PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681602/JoelleLoungeRound30PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681611/JoelleLoungeRound36PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681624/JoelleLounge48RoundBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681633/JoelleLoungeRound51PDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681641/JoelleModularOttomanpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681651/JoelleTableTFLModularOttomanCandorPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681660/JoelleRound13h20CastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681668/JoelleRound13h20dglidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681679/JoelleRound13h20dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681692/JoelleRound13h40dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681701/JoelleRound13h40dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681711/JoelleRound13h40dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681724/JoelleROund18h20dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681733/JoelleRound18h20dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681741/JoelleRound18h20dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681750/JoelleRound18h40dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681763/JoelleRound18h40dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681772/JoelleRound18h40dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681780/JoelleTableButcherBlock20x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681789/JoelleTableButcherBlock40x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681797/JoelleSquare13h18dCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681807/JoelleSquare13h18dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681817/JoelleSquare13h18dWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681824/JoelleSquare13h36dCasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681833/JoelleSquare13h36dGlidespdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681844/JoelleSquare13h36dWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681856/JoelleSquare18h18dCasters.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681865/JoelleSquare18h18dGlides.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681874/JoelleSquare18h18dWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681883/JoelleSquare18h36dGlides.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681892/JoelleSquare18h36dCasters.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681909/JoelleSquare18h36dWoodLeg.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681917/JoelleTableButcherBlock18x18GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681926/JoelleTableButcherBlock3618GlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681935/JoelleTrapezoid13h18Dcasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681945/JoelleTrapezoid18h23dCasterspdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681954/JoelleTrapezoid18h18dGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681963/JoelleTrapezoid18h23dglidespdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107777",
+      "website": "https://designerpages.com/products/14107777",
+      "name": "Pairings",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:44:46.495Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82680884/PairingsLoungeArmlessWoodLegWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680895/2018ChicagoProJoellePairingsDock.jpg",
+          "width": 730,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680905/2018ChicagoProPairings.jpg",
+          "width": 315,
+          "height": 500,
+          "short_side": 315,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680916/2018ChicagoProPairings2.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680926/2023FultonShowroomZone29.jpg",
+          "width": 739,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680937/AltantaShowroomNoPplPairingsJoelleBloom.jpg",
+          "width": 758,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680947/AltantaShowroomPplPairingsJoelle.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680957/AlternaBloomJoellePairings.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680965/AlternaDockTrainingPepPairingsJoelle.jpg",
+          "width": 381,
+          "height": 500,
+          "short_side": 381,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680975/AlternaGreerPairingsJoelle.jpg",
+          "width": 761,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680985/AlternaPairingsDockWorkTableJoelleFlip.jpg",
+          "width": 1059,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82680998/AlternaEnvLounge.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681006/AvelarGallery003.jpg",
+          "width": 749,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681014/Avonplp.jpg",
+          "width": 375,
+          "height": 500,
+          "short_side": 375,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681024/AvonCaseStudy002.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681029/AvonCaseStudy003.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681039/PairingsLoungeArmlessWoodLegWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681054/PairingsLoungeArmless2SeatWoodMetalLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681067/PairingsLoungeArmless3SeatMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681074/PairingsLoungeArmless90CornerMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681082/PairingsLoungeArmless45CrescentWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681090/PairingsLoungeArms1Seat2inchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681097/PairingsLoungeArms2Seat2inchWoodLegs.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681105/PairingsLoungeArms3Seat2inchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681114/PairingsLoungeArms1Seat8inchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681126/PairingsLoungeArms2Seat8InchMetalLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681130/PairingsLoungeArms3Seat8InchWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681136/PairingsBench1SeatWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681140/PairingsBenchCornerPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681145/PairingsBench45CrescentPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681155/PairingsBench2SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681159/PairingsBench3SeatMetallegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681163/PairingsNookArmless1SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681167/PairingsNookArmless1SeatCubbyPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681176/PairingsNookArmless1SeatCubbyBacktoBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681179/PairingsNookArmless2SeatArmPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681182/PairingsNookTwoSeatArmsCubbiesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681185/PairingsNookArmless3SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681188/PairingsNookWorksurfaceExtensionworksurfaceHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681191/PairingsNookWorksurfaceExtensionBarHeightPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681194/PairingsPrivacy1SeatRightBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681197/PairingsPrivacy1SeatFullBackSidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681200/PairingsPrivacy2SeatRightBackWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681208/PairingsPrivacy3SeatLeftBackPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681210/PairingsPrivacy3SeatFullBackSidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681212/PairingsPerch1SeatLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681214/PairingsPerchOneSeatMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681217/PairingsPerchInsideCornerLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681219/PairingsPerchInsideCornerMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681221/PairingsPerchOutsideCornerLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681223/PairingsPerchOutsideCornerMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681225/PairingsPerch2SeatLowSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681227/PairingsPerch2SeatMidSeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681229/PairingsWall27InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681231/PairingsWall54InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681233/PairingsWall81InchPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681235/PairingsWallCornerDividerPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681237/PairingsWallPlusWallPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681239/PairingsWallZWallPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681241/PairingsTableInLineBulletPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681243/PairingsTableInline45WedgePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681245/PairingsTableInlinerectanglePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681246/PairingsTableMagazineWoodlegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681248/PairingsTablePullUpPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681250/PairingsTableRoundWoodLegsPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681252/PairingsTableSquarePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107912",
+      "website": "https://designerpages.com/products/14107912",
+      "name": "Theo",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:44:59.654Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82681725/TheoHighBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681737/2018ChicagoProTheo.jpg",
+          "width": 347,
+          "height": 500,
+          "short_side": 347,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681745/3Zone2DualDisplayWorkstationFinalR2.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681759/3Zone2DualDisplayWorkstationFinalR3.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681768/AltantaShowroomNoPplTheo.jpg",
+          "width": 320,
+          "height": 500,
+          "short_side": 320,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681777/AltantaShowroomPplTheo.jpg",
+          "width": 328,
+          "height": 500,
+          "short_side": 328,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681787/AltantaShowroomPplTheo2.jpg",
+          "width": 327,
+          "height": 500,
+          "short_side": 327,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681796/Avonplp.jpg",
+          "width": 375,
+          "height": 500,
+          "short_side": 375,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681804/AvonCaseStudy016416905plp.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681813/BESTceismithandwesson023.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681822/BESTceismithandwesson083.jpg",
+          "width": 334,
+          "height": 500,
+          "short_side": 334,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681831/Baptist20HealthPLP.jpg",
+          "width": 500,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681839/BaptistHealthGallery005.jpg",
+          "width": 427,
+          "height": 500,
+          "short_side": 427,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681853/Chicago2019Area10003.jpg",
+          "width": 333,
+          "height": 500,
+          "short_side": 333,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681862/TheoHighBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681871/TheoHighBackArmsGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681884/TheoHighBackArmlessCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681893/TheoHighBackArmsCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681910/TheoMidBackArmlessGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681919/TheoMidBackArmsGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681928/TheoMidBackArmlessCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681937/TheoMidBackArmsCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681947/TheoGuestGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681956/TheoGuestCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681971/TheoOttomanGlidesPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681985/TheoOttomanCastersPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82681993/TheoEndRound24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682002/TheoEndSoftSquare24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682015/TheoEndSquare24inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682029/TheoEndRound30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682038/TheoEndSoftSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682051/TheoEndSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682061/TheoChatRound30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682070/TheoChatSoftSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682079/TheoChatSquare30inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682087/TheoChatRound36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682097/TheoChatSoftSquare36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682106/TheoChatSquare36inch.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "921712",
+      "website": "https://designerpages.com/products/921712",
+      "name": "Alulite Tables®",
+      "brand": "Southern Aluminum",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:46:14.279Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/20389832/A305HL-silver_anodized.jpg",
+          "width": 480,
+          "height": 586,
+          "short_side": 480,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/20389702/Chicago_Cultural_Arts.jpg",
+          "width": 448,
+          "height": 324,
+          "short_side": 324,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/20389962/Motorcycle_on_Alulite.jpg",
+          "width": 360,
+          "height": 309,
+          "short_side": 309,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "8309411",
+      "website": "https://designerpages.com/products/8309411",
+      "name": "Collaborative/Café Tables Beveled Plate",
+      "brand": "PRISMATIQUE DESIGNS LTD",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:48:24.562Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/66898131/0ae5d443-0e64-4cba-8e26-3a155a7d4c9f.jpg",
+          "width": 806,
+          "height": 550,
+          "short_side": 550,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/81549597/04bevelledplate.jpg",
+          "width": 540,
+          "height": 357,
+          "short_side": 357,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "2534952",
+      "website": "https://designerpages.com/products/2534952",
+      "name": "Café Table - Round Top",
+      "brand": "Smith System",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:50:30.368Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/52914842/Caf__Table___Round_Top_0.jpg",
+          "width": 390,
+          "height": 390,
+          "short_side": 390,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914852/Amber_20Cherry.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914862/Blond_20Echo.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914872/Fusion_20Maple.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914882/Golden_20Oak.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914892/Grey_20Mesh.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914902/Grey_20Nebula.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914912/New_20Age_20Oak.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914922/Pewter_20Mesh.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914932/Tan_20Echo.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914942/Wild_20Cherry.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914952/Apple.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914962/Black.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914972/Blueberry.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914982/Burgundy.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52914992/Cerulean.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915002/Champagne.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915012/Charcoal.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915022/Chocolate.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915032/Clementine.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915042/Forest_20Green.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915052/Fuchsia.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915062/Mint.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915072/Mocha.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915082/Navy.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915092/Persian_20Blue.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915102/Platinum.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915112/Purple.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915122/Red.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915132/White.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/52915142/Yellow.jpg",
+          "width": 127,
+          "height": 83,
+          "short_side": 83,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11750389",
+      "website": "https://designerpages.com/products/11750389",
+      "name": "Museum Side Table",
+      "brand": "Decca Contract Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:54:55.540Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/78220538/museum-round-side-table-glass-top.jpg",
+          "width": 900,
+          "height": 573,
+          "short_side": 573,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/78220568/museum-round-side-table-wood-top.jpg",
+          "width": 900,
+          "height": 573,
+          "short_side": 573,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "11708769",
+      "website": "https://designerpages.com/products/11708769",
+      "name": "Slim Round Coffee Tables in Natural Steel",
+      "brand": "Room & Board",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:55:32.966Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/78072855/Slim_Round_Coffee_Tables_in_Natural_Steel0.jpg",
+          "width": 498,
+          "height": 375,
+          "short_side": 375,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "8856401",
+      "website": "https://designerpages.com/products/8856401",
+      "name": "Milo Base Table",
+      "brand": "UHURU",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:58:44.331Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/67703521/cfbaf6e4-81ef-420b-bde5-e9cc47d0dcb1.jpg",
+          "width": 960,
+          "height": 537,
+          "short_side": 537,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/67703531/93c431e0-5539-48a2-b2c5-6b0240522d3c.jpg",
+          "width": 960,
+          "height": 537,
+          "short_side": 537,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/67703541/f5e87fd7-214f-47a9-963d-f2512b6578bd.jpg",
+          "width": 960,
+          "height": 537,
+          "short_side": 537,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/67703551/7c3f9155-9a77-4915-baaa-d8bb310e7d7d.jpg",
+          "width": 960,
+          "height": 537,
+          "short_side": 537,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "3478322",
+      "website": "https://designerpages.com/products/3478322",
+      "name": "BOULONNAIS DRINK TABLE",
+      "brand": "HOLLY HUNT",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T20:59:42.826Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/54993182/BOULONNAIS_DRINK_TABLE_0.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993192/BOULONNAIS_DRINK_TABLE_1.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993202/BOULONNAIS_DRINK_TABLE_2.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993212/BOULONNAIS_DRINK_TABLE_3.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993222/BOULONNAIS_DRINK_TABLE_4.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993232/BOULONNAIS_DRINK_TABLE_5.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993242/BOULONNAIS_DRINK_TABLE_6.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/54993252/BOULONNAIS_DRINK_TABLE_7.jpg",
+          "width": 575,
+          "height": 435,
+          "short_side": 435,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "14107929",
+      "website": "https://designerpages.com/products/14107929",
+      "name": "Villa",
+      "brand": "Kimball",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T21:00:09.123Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/82682465/VillaLounge1SeatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682466/150110121003Villa1SeatwithShadeSweepcopycopy.jpg",
+          "width": 400,
+          "height": 500,
+          "short_side": 400,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682467/150110131020VillaEnvironment.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682468/2018ChicagoProfiXtNateNatty.jpg",
+          "width": 330,
+          "height": 500,
+          "short_side": 330,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682469/2023FultonShowroomZone02alt.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682470/AbbotEnv.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682471/AvonCaseStudy015.jpg",
+          "width": 700,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682472/BrickHouseBlueCS007.jpg",
+          "width": 654,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682473/EnvBackCover.jpg",
+          "width": 773,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682474/EnvCover.jpg",
+          "width": 441,
+          "height": 500,
+          "short_side": 441,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682475/EnvSpread1MeetingSpace.jpg",
+          "width": 708,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682476/EnvSpread2Cafe.jpg",
+          "width": 638,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682477/KIIChicago20226F.jpg",
+          "width": 766,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682478/KimballInternationalDallasVillaMilamSeraphina.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682479/KimballDCShowroom0842.jpg",
+          "width": 863,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682480/KimballDCShowroomHandhelds1120.jpg",
+          "width": 750,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682481/VillaLounge1SeatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682483/VillaLounge2Seatarmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682484/VillaLounge3seatArmless.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682485/VillaLounge1SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682486/VillaLounge2SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682487/VillaLounge3SeatArms.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682490/VillaLounge1SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682491/VillaLounge2SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682492/VillaLounge3SeatLeftArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682493/VillaLounge1SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682494/VillaLounge2SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682495/VillaLounge3SeatRightArm.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682497/VillaPrivacyBack1Seat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682498/VillaPrivacyBack90DegreeCorner.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682499/VillaPrivacyBack2Seat.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682500/VillaPrivacy1SeatSemiPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682501/VillaPrivacy1SeatPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682503/VillaPrivacy2SeatSemiPrivateShade.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682504/Villa2SeatPrivateShadePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682505/VillaTallBack2SeatPDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682506/VillaTallBack2SeatFloatingSurfacePDP.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682507/VillaBench45DegreeCrescent.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682509/VillaBenchHexagon.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682510/VillaBenchRectangle.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682512/VillaBenchSquareOttoman.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682513/VillaCorner30DegreeInsideWedge.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682515/VillaCorner45.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682516/VillaCorner45DegreeCrescent.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682517/VillaCorner90Degree.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682518/VillaCorner15DegreeOutsideWedge.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682519/VillaCornersPlateau.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682520/VillaTableCornerpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682521/VillaTableRectanglepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682522/VillaTableMagazinepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682523/VillaTableMagazineOpenStoragepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682524/VillaTable90DegreeCrescentpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682525/VillaTables90DegreeTrianglepdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/82682526/VillaTableRoundpdp.jpg",
+          "width": 667,
+          "height": 500,
+          "short_side": 500,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "4494311",
+      "website": "https://designerpages.com/products/4494311",
+      "name": "Nuvo Conference",
+      "brand": "Krug Furniture",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T21:04:21.433Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/57200231/Nuvo_Conference_0.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200241/Nuvo_Conference_1.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200251/Nuvo_Conference_2.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200261/Nuvo_Conference_3.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200271/Nuvo_Conference_4.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200281/Nuvo_Conference_5.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/57200291/Nuvo_Conference_6.jpg",
+          "width": 300,
+          "height": 300,
+          "short_side": 300,
+          "passed": false
+        },
+        {
+          "image_url": "https://content.designerpages.com/assets/71777071/582ab337-7d05-4010-9f66-c0dbab5d9958.JPG",
+          "width": 767,
+          "height": 268,
+          "short_side": 268,
+          "passed": false
+        }
+      ]
+    },
+    {
+      "source_system": "designerpages",
+      "source_product_id": "3808391",
+      "website": "https://designerpages.com/products/3808391",
+      "name": "Groupwork Flip Top Table by Steelcase",
+      "brand": "Turnstone",
+      "reason": "no image above minimum resolution",
+      "checked_at": "2026-05-08T21:04:33.436Z",
+      "image_checks": [
+        {
+          "image_url": "https://content.designerpages.com/assets/55447081/Groupwork_Flip_Top_Table_by_Steelcase_0_a.jpg",
+          "width": 538,
+          "height": 538,
+          "short_side": 538,
+          "passed": false
+        }
+      ]
+    }
+  ],
+  "flagged_total": 15,
+  "skipped_unmapped_products": [],
+  "skipped_unmapped_total": 0,
+  "resulting_catalog_totals": {
+    "products": 1090,
+    "images": 9002
+  }
+}
