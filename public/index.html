@@ -22,7 +22,7 @@
         window.__PIXELSEEK_HOME_PATH__ = url.pathname || (isPrivateBrowseRoute ? privateBrowsePath : "/");
       })();
     </script>
-    <link rel="stylesheet" href="/styles.css?v=20260507-v013-home-flash-fix" />
+    <link rel="stylesheet" href="/styles.css?v=20260507-v013-mobile-home-polish" />
   </head>
   <body>
     <div id="cachedSearchProgressStrip" class="cached-search-progress-strip" hidden aria-hidden="true"></div>
@@ -136,6 +136,19 @@
                       </select>
                     </span>
                     <span id="searchCategorySuffix" class="search-category-suffix" hidden></span>
+                  </div>
+                  <div id="mobileSearchExpandedPanel" class="mobile-search-expanded-panel" hidden>
+                    <label class="sr-only" for="mobileSearchExpandedInput">Edit search query</label>
+                    <textarea
+                      id="mobileSearchExpandedInput"
+                      class="mobile-search-expanded-input"
+                      rows="3"
+                      placeholder="Describe what you need"
+                    ></textarea>
+                    <div class="mobile-search-expanded-actions">
+                      <button id="mobileSearchCancelButton" class="mobile-search-cancel-button" type="button">Cancel</button>
+                      <button id="mobileSearchApplyButton" class="upload-button upload-button-strong mobile-search-apply-button" type="button">Search</button>
+                    </div>
                   </div>
                   <button
                     id="clearSearchInputButton"
@@ -271,7 +284,10 @@
           <section id="refineBulletSection" class="results-sidebar-section">
             <p class="results-sidebar-section-title">Bullet priority</p>
             <div id="refineBulletsList" class="refine-bullets-list"></div>
-            <button id="applyRefineBulletsButton" class="upload-button upload-button-strong refine-apply-button" type="button">Apply priorities</button>
+            <div id="mobileRefineFooter" class="mobile-refine-footer" hidden>
+              <button id="resetRefineBulletsButton" class="mobile-refine-reset" type="button">Reset all</button>
+              <button id="applyRefineBulletsButton" class="upload-button upload-button-strong refine-apply-button" type="button">Apply priorities</button>
+            </div>
           </section>
         </aside>
         <div class="results-main">
@@ -305,6 +321,22 @@
       <span id="appVersionIndicator" class="app-version-indicator" hidden></span>
     </footer>
 
+    <div id="mobileCategoryDropdownBackdrop" class="mobile-category-dropdown-backdrop" hidden></div>
+    <div id="mobileCategoryDropdown" class="mobile-category-dropdown" hidden></div>
+    <div id="mobileResultCardMenuBackdrop" class="mobile-result-card-menu-backdrop" hidden></div>
+    <div id="mobileResultCardMenu" class="mobile-result-card-menu" hidden>
+      <div class="mobile-result-card-menu-header">
+        <img id="mobileResultCardMenuThumb" class="mobile-result-card-menu-thumb" alt="" />
+        <div class="mobile-result-card-menu-copy">
+          <p id="mobileResultCardMenuName" class="mobile-result-card-menu-name"></p>
+          <p id="mobileResultCardMenuBrand" class="mobile-result-card-menu-brand"></p>
+        </div>
+      </div>
+      <button id="mobileResultCardMenuMore" class="mobile-result-card-menu-action mobile-result-card-menu-action-more" type="button">More like this</button>
+      <button id="mobileResultCardMenuLess" class="mobile-result-card-menu-action mobile-result-card-menu-action-less" type="button">Less like this</button>
+      <button id="mobileResultCardMenuView" class="mobile-result-card-menu-action" type="button">View product</button>
+    </div>
+
     <div id="imageModal" class="modal-shell" hidden>
       <div class="modal-backdrop" data-role="imageModalClose"></div>
       <div class="modal-card image-search-modal-card">
@@ -321,22 +353,24 @@
           <div class="modal-upload-grid image-search-upload-grid">
             <div class="modal-upload-block image-search-upload-block">
               <div class="image-search-upload-row">
-                <div class="image-search-upload-icon image-search-upload-icon-upload" aria-hidden="true"></div>
+                <div class="image-search-upload-icon image-search-upload-icon-camera" aria-hidden="true"></div>
                 <div class="image-search-upload-copy">
                   <p class="image-search-upload-title">Upload image</p>
-                  <p class="image-search-upload-subtitle">JPG or PNG</p>
+                  <p class="image-search-upload-subtitle">Tap to take a photo or upload</p>
                 </div>
                 <input id="imageUploadInput" type="file" accept="image/*" capture="environment" hidden />
-                <button id="imageUploadButton" class="upload-button image-search-choose-button" type="button">Choose Image</button>
+                <button id="imageUploadButton" class="upload-button upload-button-strong image-search-choose-button" type="button">Upload image</button>
               </div>
               <p id="selectedFileName" class="modal-helper image-search-file-name" hidden></p>
+              <button id="imageModalUrlToggle" class="search-entry-url-toggle image-modal-url-toggle" type="button">Or paste an image URL</button>
+              <p class="image-search-upload-format-hint">JPG, PNG, or GIF supported</p>
             </div>
-            <div class="modal-upload-block image-search-upload-block">
+            <div id="imageModalUrlBlock" class="modal-upload-block image-search-upload-block">
               <div class="image-search-upload-row image-search-upload-row-url">
                 <div class="image-search-upload-icon image-search-upload-icon-url" aria-hidden="true"></div>
                 <div class="image-search-upload-copy image-search-upload-copy-url">
                   <p class="image-search-upload-title">Paste an image URL</p>
-                  <input id="imageUrlInput" class="modal-url-input image-search-url-input" type="url" placeholder="http://..." />
+                  <input id="imageUrlInput" class="modal-url-input image-search-url-input" type="url" placeholder="Paste image URL..." />
                 </div>
               </div>
             </div>
@@ -372,6 +406,9 @@
             <div class="inspiration-preview-wrap">
               <div id="previewCanvas" class="inspiration-preview-canvas">
                 <img id="inspirationPreview" class="inspiration-preview" alt="Uploaded inspiration" />
+                <div id="touchCropHint" class="touch-crop-hint" hidden>Pinch to zoom · drag to pan</div>
+                <div id="touchCropZoomPill" class="touch-crop-zoom-pill" hidden>1.0×</div>
+                <button id="touchCropResetButton" class="touch-crop-reset-pill" type="button" hidden>Reset</button>
                 <div id="focusBox" class="focus-box" hidden>
                   <span class="focus-handle focus-handle-nw" data-role="focusHandle" data-handle="nw"></span>
                   <span class="focus-handle focus-handle-ne" data-role="focusHandle" data-handle="ne"></span>

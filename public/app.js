@@ -89,6 +89,7 @@ const state = {
   lastDisplayQuery: "",
   searchComposerPrefix: "",
   searchComposerMatch: "",
+  mobileSearchExpanded: false,
   refineDrawerOpen: false,
   cropModeActive: false,
   activeCardImageUrls: {},
@@ -120,8 +121,27 @@ const state = {
   weakerMatchesExpanded: false,
   weakerResultInteractionKeys: new Set(),
   landingOnlyMode: false,
-  storedImageContextCache: new Map()
+  storedImageContextCache: new Map(),
+  homepageImageDragDepth: 0,
+  touchCrop: {
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    hasInteracted: false
+  },
+  touchCropGesture: null,
+  touchCropHintDismissed: false,
+  mobileCategoryDropdownOpen: false,
+  mobileResultCardMenu: null,
+  longPressTimer: null,
+  longPressActiveProductId: ""
 };
+
+const TOUCH_PRIMARY_QUERY = '(hover: none) and (pointer: coarse)';
+const MOBILE_LAYOUT_MAX_WIDTH = 640;
+const TOUCH_CROP_MIN_SCALE = 1;
+const TOUCH_CROP_MAX_SCALE = 4;
+const MOBILE_CATEGORY_LABEL = "Switch Category";
 
 function getBootstrapRoutingTypes(bootstrap = state.bootstrap) {
   return buildRoutingTypesConfig(bootstrap);
@@ -450,6 +470,8 @@ const elements = {
   refineBulletsList: document.querySelector("#refineBulletsList"),
   refineSelectedImageWrap: document.querySelector("#refineSelectedImageWrap"),
   refineSelectedImage: document.querySelector("#refineSelectedImage"),
+  mobileRefineFooter: document.querySelector("#mobileRefineFooter"),
+  resetRefineBulletsButton: document.querySelector("#resetRefineBulletsButton"),
   applyRefineBulletsButton: document.querySelector("#applyRefineBulletsButton"),
   refineDrawerBackdrop: document.querySelector("#refineDrawerBackdrop"),
   reopenFocusOverlay: document.querySelector("#reopenFocusOverlay"),
@@ -467,6 +489,10 @@ const elements = {
   searchCategorySelect: document.querySelector("#searchCategorySelect"),
   searchCategorySuffix: document.querySelector("#searchCategorySuffix"),
   searchInput: document.querySelector("#searchInput"),
+  mobileSearchExpandedPanel: document.querySelector("#mobileSearchExpandedPanel"),
+  mobileSearchExpandedInput: document.querySelector("#mobileSearchExpandedInput"),
+  mobileSearchCancelButton: document.querySelector("#mobileSearchCancelButton"),
+  mobileSearchApplyButton: document.querySelector("#mobileSearchApplyButton"),
   browseCategoryScopeBar: document.querySelector("#browseCategoryScopeBar"),
   browseCategorySelect: document.querySelector("#browseCategorySelect"),
   browseTraitFilterPanel: document.querySelector("#browseTraitFilterPanel"),
@@ -1924,6 +1950,77 @@ function shouldShowSearchCategoryChip() {
   );
 }
 
+function closeMobileCategoryDropdown() {
+  state.mobileCategoryDropdownOpen = false;
+  if (elements.mobileCategoryDropdown) {
+    elements.mobileCategoryDropdown.hidden = true;
+  }
+  if (elements.mobileCategoryDropdownBackdrop) {
+    elements.mobileCategoryDropdownBackdrop.hidden = true;
+  }
+  elements.searchCategoryChipWrap?.classList.remove("is-open");
+}
+
+function renderMobileCategoryDropdown() {
+  if (!elements.mobileCategoryDropdown || !elements.searchCategorySelect || !elements.searchCategoryChipWrap) {
+    return;
+  }
+  const showMobileDropdown = isMobileViewport() && shouldShowSearchCategoryChip() && !elements.searchCategoryChipWrap.hidden;
+  if (!showMobileDropdown || !state.mobileCategoryDropdownOpen) {
+    elements.mobileCategoryDropdown.hidden = true;
+    if (elements.mobileCategoryDropdownBackdrop) {
+      elements.mobileCategoryDropdownBackdrop.hidden = true;
+    }
+    elements.searchCategoryChipWrap.classList.remove("is-open");
+    return;
+  }
+
+  elements.searchCategoryChipWrap.classList.add("is-open");
+  if (elements.mobileCategoryDropdownBackdrop) {
+    elements.mobileCategoryDropdownBackdrop.hidden = false;
+  }
+  const anchorRect = elements.searchForm?.querySelector(".search-field")?.getBoundingClientRect();
+  if (anchorRect) {
+    elements.mobileCategoryDropdown.style.top = `${Math.round(anchorRect.bottom + 8)}px`;
+    elements.mobileCategoryDropdown.style.left = `${Math.round(anchorRect.left)}px`;
+    elements.mobileCategoryDropdown.style.right = "auto";
+    elements.mobileCategoryDropdown.style.width = `${Math.round(anchorRect.width)}px`;
+  }
+  const selectedCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope) || elements.searchCategorySelect.value || "all";
+  const options = [...elements.searchCategorySelect.options]
+    .map((option) => ({ value: option.value, label: option.textContent || option.label || option.value }))
+    .filter((option) => option.value && option.value !== "all");
+  elements.mobileCategoryDropdown.innerHTML = "";
+
+  const label = document.createElement("div");
+  label.className = "mobile-category-dropdown-label";
+  label.textContent = MOBILE_CATEGORY_LABEL;
+  elements.mobileCategoryDropdown.appendChild(label);
+
+  options.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "mobile-category-dropdown-option";
+    button.textContent = option.label;
+    if (option.value === selectedCategory) {
+      button.classList.add("is-active");
+      const check = document.createElement("span");
+      check.className = "mobile-category-dropdown-check";
+      check.textContent = "✓";
+      button.appendChild(check);
+    }
+    button.addEventListener("click", async () => {
+      closeMobileCategoryDropdown();
+      if (elements.searchCategorySelect) {
+        elements.searchCategorySelect.value = option.value;
+      }
+      await handleCategoryScopeSelectionChange(option.value);
+    });
+    elements.mobileCategoryDropdown.appendChild(button);
+  });
+  elements.mobileCategoryDropdown.hidden = false;
+}
+
 function stripVagueVisualTypeReferenceFromQuery(query = "", selectedCategory = "") {
   const normalizedSelectedCategory = normalizeVisualTypeKey(selectedCategory);
   let nextQuery = String(query || "").trim();
@@ -1986,6 +2083,7 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
   elements.searchCategorySelect.value = selectedCategory;
   elements.searchCategorySelect.disabled = state.categoryScopeLoading;
   elements.searchCategorySelect.setAttribute("aria-busy", String(state.categoryScopeLoading));
+  elements.searchCategoryChipWrap.dataset.mobileLabel = formatVisualTypeLabel(selectedCategory, state.bootstrap);
   if (showChip) {
     elements.searchCategoryPrefix.hidden = !composerParts.prefix;
     elements.searchCategoryPrefix.textContent = composerParts.prefix;
@@ -2005,6 +2103,8 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
     elements.searchInput.textContent = String(fullQuery || "").trim();
   }
   updateSearchComposerClearButton();
+  renderMobileCategoryDropdown();
+  syncMobileSearchExpandedUi();
 }
 
 const BULLET_PRIORITY_LABELS = {
@@ -2959,6 +3059,11 @@ function autoResizeSearchInput() {
     return;
   }
 
+  if (isMobileResultsUi()) {
+    searchField.classList.remove("is-multiline");
+    return;
+  }
+
   const computed = window.getComputedStyle(elements.searchInput);
   const lineHeight = Number.parseFloat(computed.lineHeight) || 0;
   const inputHeight = elements.searchInput.getBoundingClientRect().height || 0;
@@ -3056,6 +3161,13 @@ function getSearchComposerTextParts() {
 
 function updateSearchComposerClearButton() {
   if (!elements.clearSearchInputButton || !elements.searchInput) {
+    return;
+  }
+  if (isMobileResultsUi()) {
+    elements.clearSearchInputButton.hidden = true;
+    if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
+      elements.clearSearchInputButton.remove();
+    }
     return;
   }
   const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
@@ -3282,26 +3394,79 @@ function buildFallbackQueryFromStructuredBullets(selectedBullets = []) {
 function closeRefineDrawer() {
   state.refineDrawerOpen = false;
   elements.resultsSidebar?.classList.remove("is-open");
+  if (isMobileResultsUi() && elements.resultsSidebar) {
+    elements.resultsSidebar.hidden = true;
+  }
   elements.refineDrawerBackdrop.hidden = true;
 }
 
 function openRefineDrawer() {
-  if (elements.resultsSidebar?.hidden) {
+  if (!elements.resultsSidebar) {
     return;
   }
+  elements.resultsSidebar.hidden = false;
   state.refineDrawerOpen = true;
   elements.resultsSidebar.classList.add("is-open");
   elements.refineDrawerBackdrop.hidden = false;
 }
 
 function syncRefineDrawer() {
-  if (!elements.resultsSidebar || elements.resultsSidebar.hidden) {
+  if (!elements.resultsSidebar) {
+    closeRefineDrawer();
+    return;
+  }
+  if (isMobileResultsUi()) {
+    elements.resultsSidebar.hidden = !state.refineDrawerOpen;
+    elements.resultsSidebar.classList.toggle("is-open", state.refineDrawerOpen);
+    elements.refineDrawerBackdrop.hidden = !state.refineDrawerOpen;
+    return;
+  }
+  if (elements.resultsSidebar.hidden) {
     closeRefineDrawer();
     return;
   }
 
   elements.resultsSidebar.classList.toggle("is-open", state.refineDrawerOpen);
   elements.refineDrawerBackdrop.hidden = !state.refineDrawerOpen;
+}
+
+function closeMobileResultCardMenu() {
+  state.mobileResultCardMenu = null;
+  state.longPressActiveProductId = "";
+  if (state.longPressTimer) {
+    clearTimeout(state.longPressTimer);
+    state.longPressTimer = null;
+  }
+  if (elements.mobileResultCardMenu) {
+    elements.mobileResultCardMenu.hidden = true;
+  }
+  if (elements.mobileResultCardMenuBackdrop) {
+    elements.mobileResultCardMenuBackdrop.hidden = true;
+  }
+}
+
+function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = window.innerHeight / 2, onMore = null, onLess = null } = {}) {
+  if (!isMobileViewport() || !elements.mobileResultCardMenu || !result) {
+    return;
+  }
+  state.mobileResultCardMenu = {
+    productId: result.product_id,
+    productUrl: String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id),
+    onMore,
+    onLess
+  };
+  state.longPressActiveProductId = String(result.product_id || "");
+  elements.mobileResultCardMenuName.textContent = result.name || "";
+  elements.mobileResultCardMenuBrand.textContent = result.brand || "";
+  elements.mobileResultCardMenuThumb.src = normalizeDisplayImageUrl(state.activeCardImageUrls[result.product_id] || result.best_image_url || "");
+  elements.mobileResultCardMenuThumb.hidden = !elements.mobileResultCardMenuThumb.src;
+  const menuWidth = Math.min(280, window.innerWidth - 32);
+  const left = clamp(x - (menuWidth / 2), 16, Math.max(16, window.innerWidth - menuWidth - 16));
+  const top = clamp(y - 32, 100, Math.max(100, window.innerHeight - 220));
+  elements.mobileResultCardMenu.style.left = `${left}px`;
+  elements.mobileResultCardMenu.style.top = `${top}px`;
+  elements.mobileResultCardMenu.hidden = false;
+  elements.mobileResultCardMenuBackdrop.hidden = false;
 }
 
 async function fetchJson(url, options) {
@@ -5107,6 +5272,7 @@ async function applyStoredImageSearchContext(context = {}) {
     });
     state.refinementLoading = false;
     renderResults(payload, state.lastQuery);
+    scrollViewportToResultsTop();
   } catch (error) {
     state.refinementLoading = false;
     renderResults(state.lastPayload, state.lastQuery);
@@ -5319,6 +5485,186 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
+function isTouchPrimaryDevice() {
+  return Boolean(window.matchMedia?.(TOUCH_PRIMARY_QUERY).matches);
+}
+
+function isMobileViewport() {
+  return window.innerWidth <= MOBILE_LAYOUT_MAX_WIDTH;
+}
+
+function isMobileTouchSearchUi() {
+  return isTouchPrimaryDevice() && isMobileViewport();
+}
+
+function isMobileResultsUi() {
+  return isMobileViewport() && !state.landingOnlyMode;
+}
+
+function isImageCropStageActive() {
+  return Boolean(elements.imageModal && !elements.imageModal.hidden && elements.imageModalResultsStage && !elements.imageModalResultsStage.hidden);
+}
+
+function isTouchCropStageActive() {
+  return isMobileTouchSearchUi() && isImageCropStageActive();
+}
+
+function getTouchCropBaseRect() {
+  const image = elements.inspirationPreview;
+  const canvasRect = elements.previewCanvas?.getBoundingClientRect();
+  const naturalWidth = Number(image?.naturalWidth || 0);
+  const naturalHeight = Number(image?.naturalHeight || 0);
+  if (!image || !canvasRect?.width || !canvasRect?.height || !naturalWidth || !naturalHeight) {
+    return null;
+  }
+
+  const canvasWidth = canvasRect.width;
+  const canvasHeight = canvasRect.height;
+  const aspect = naturalWidth / naturalHeight;
+  let width = canvasWidth;
+  let height = width / aspect;
+  if (height > canvasHeight) {
+    height = canvasHeight;
+    width = height * aspect;
+  }
+  return {
+    canvasWidth,
+    canvasHeight,
+    naturalWidth,
+    naturalHeight,
+    width,
+    height
+  };
+}
+
+function clampTouchCropOffsets(scale = state.touchCrop.scale, offsetX = state.touchCrop.offsetX, offsetY = state.touchCrop.offsetY) {
+  const base = getTouchCropBaseRect();
+  if (!base) {
+    return { offsetX: 0, offsetY: 0 };
+  }
+  const scaledWidth = base.width * scale;
+  const scaledHeight = base.height * scale;
+  const maxOffsetX = Math.max(0, (scaledWidth - base.canvasWidth) / 2);
+  const maxOffsetY = Math.max(0, (scaledHeight - base.canvasHeight) / 2);
+  return {
+    offsetX: clamp(offsetX, -maxOffsetX, maxOffsetX),
+    offsetY: clamp(offsetY, -maxOffsetY, maxOffsetY)
+  };
+}
+
+function updateTouchCropUi() {
+  const touchMode = isTouchCropStageActive();
+  elements.previewCanvas?.classList.toggle("is-touch-crop-mode", touchMode);
+  elements.previewCanvas?.classList.toggle("is-interacted", touchMode && state.touchCrop.hasInteracted);
+  elements.focusBox.hidden = touchMode || !Boolean(state.cropModeActive && state.focusArea);
+  if (!touchMode) {
+    if (elements.inspirationPreview) {
+      elements.inspirationPreview.style.position = "";
+      elements.inspirationPreview.style.left = "";
+      elements.inspirationPreview.style.top = "";
+      elements.inspirationPreview.style.width = "";
+      elements.inspirationPreview.style.height = "";
+      elements.inspirationPreview.style.maxWidth = "";
+      elements.inspirationPreview.style.maxHeight = "";
+      elements.inspirationPreview.style.transform = "";
+    }
+    elements.touchCropHint.hidden = true;
+    elements.touchCropZoomPill.hidden = true;
+    elements.touchCropResetButton.hidden = true;
+    return;
+  }
+
+  const base = getTouchCropBaseRect();
+  if (!base) {
+    return;
+  }
+  const scale = clamp(Number(state.touchCrop.scale || 1), TOUCH_CROP_MIN_SCALE, TOUCH_CROP_MAX_SCALE);
+  const clampedOffsets = clampTouchCropOffsets(scale, state.touchCrop.offsetX, state.touchCrop.offsetY);
+  state.touchCrop.scale = scale;
+  state.touchCrop.offsetX = clampedOffsets.offsetX;
+  state.touchCrop.offsetY = clampedOffsets.offsetY;
+  const scaledWidth = base.width * scale;
+  const scaledHeight = base.height * scale;
+  const left = ((base.canvasWidth - scaledWidth) / 2) + clampedOffsets.offsetX;
+  const top = ((base.canvasHeight - scaledHeight) / 2) + clampedOffsets.offsetY;
+  elements.inspirationPreview.style.position = "absolute";
+  elements.inspirationPreview.style.left = `${left}px`;
+  elements.inspirationPreview.style.top = `${top}px`;
+  elements.inspirationPreview.style.width = `${scaledWidth}px`;
+  elements.inspirationPreview.style.height = `${scaledHeight}px`;
+  elements.inspirationPreview.style.maxWidth = "none";
+  elements.inspirationPreview.style.maxHeight = "none";
+  elements.inspirationPreview.style.transform = "none";
+  elements.touchCropHint.hidden = state.touchCropHintDismissed || state.touchCrop.hasInteracted;
+  elements.touchCropZoomPill.hidden = !state.touchCrop.hasInteracted;
+  elements.touchCropZoomPill.textContent = `${scale.toFixed(1)}×`;
+  elements.touchCropResetButton.hidden = !state.touchCrop.hasInteracted;
+  syncFocusStageControls();
+}
+
+function resetTouchCropState() {
+  state.touchCrop = {
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    hasInteracted: false
+  };
+  state.touchCropGesture = null;
+  updateTouchCropUi();
+}
+
+function markTouchCropInteracted() {
+  state.touchCrop.hasInteracted = true;
+  state.touchCropHintDismissed = true;
+  updateTouchCropUi();
+}
+
+function computeTouchCropFocusArea() {
+  const base = getTouchCropBaseRect();
+  if (!base) {
+    return defaultFocusArea();
+  }
+  const scale = clamp(Number(state.touchCrop.scale || 1), TOUCH_CROP_MIN_SCALE, TOUCH_CROP_MAX_SCALE);
+  const offsets = clampTouchCropOffsets(scale, state.touchCrop.offsetX, state.touchCrop.offsetY);
+  const scaledWidth = base.width * scale;
+  const scaledHeight = base.height * scale;
+  const left = ((base.canvasWidth - scaledWidth) / 2) + offsets.offsetX;
+  const top = ((base.canvasHeight - scaledHeight) / 2) + offsets.offsetY;
+  const right = left + scaledWidth;
+  const bottom = top + scaledHeight;
+  return normalizeFocusArea({
+    x: clamp((0 - left) / scaledWidth, 0, 1),
+    y: clamp((0 - top) / scaledHeight, 0, 1),
+    width: clamp((Math.min(base.canvasWidth, right) - Math.max(0, left)) / scaledWidth, 0, 1),
+    height: clamp((Math.min(base.canvasHeight, bottom) - Math.max(0, top)) / scaledHeight, 0, 1)
+  }) || defaultFocusArea();
+}
+
+function getTouchDistance(touches = []) {
+  if (!touches || touches.length < 2) {
+    return 0;
+  }
+  const [a, b] = touches;
+  const dx = b.clientX - a.clientX;
+  const dy = b.clientY - a.clientY;
+  return Math.hypot(dx, dy);
+}
+
+function getTouchCenter(touches = []) {
+  if (!touches || !touches.length) {
+    return { x: 0, y: 0 };
+  }
+  const total = [...touches].reduce((acc, touch) => {
+    acc.x += touch.clientX;
+    acc.y += touch.clientY;
+    return acc;
+  }, { x: 0, y: 0 });
+  return {
+    x: total.x / touches.length,
+    y: total.y / touches.length
+  };
+}
+
 function normalizeFocusArea(area) {
   if (!area) return null;
   const width = clamp(Number(area.width || 0), 0.2, 1);
@@ -5345,15 +5691,20 @@ function createFocusAreaAroundPoint(clientX, clientY) {
 }
 
 function syncFocusStageControls() {
-  const hasCrop = Boolean(state.cropModeActive && state.focusArea);
+  const isTouchMode = isTouchCropStageActive();
+  const hasCrop = isTouchMode
+    ? Boolean(state.touchCrop.hasInteracted)
+    : Boolean(state.cropModeActive && state.focusArea);
   if (elements.focusCropPrompt) {
-    elements.focusCropPrompt.hidden = hasCrop || Boolean(state.imageAnalyzeLoading);
+    elements.focusCropPrompt.hidden = isTouchMode || hasCrop || Boolean(state.imageAnalyzeLoading);
   }
   if (elements.skipFocusButton) {
-    elements.skipFocusButton.hidden = !hasCrop;
+    elements.skipFocusButton.hidden = isTouchMode || !hasCrop;
   }
   if (elements.applyFocusButton) {
-    elements.applyFocusButton.textContent = hasCrop ? "Analyze Selected Area" : "Analyze Image";
+    elements.applyFocusButton.textContent = isTouchMode
+      ? (hasCrop ? "Analyze visible area" : "Analyze image")
+      : (hasCrop ? "Analyze Selected Area" : "Analyze Image");
   }
 }
 
@@ -5382,7 +5733,12 @@ function setImageAnalyzeLoading(isLoading) {
     renderImageAnalyzeProgress();
   }
   if (elements.analyzeImageButton) {
-    elements.analyzeImageButton.hidden = isLoading;
+    const shouldHideForSelection = isMobileViewport()
+      && elements.imageModalUploadStage
+      && !elements.imageModalUploadStage.hidden
+      && !state.selectedUploadFile
+      && !String(elements.imageUrlInput?.value || "").trim();
+    elements.analyzeImageButton.hidden = isLoading || shouldHideForSelection;
   }
   if (elements.applyFocusButton) {
     elements.applyFocusButton.hidden = isLoading;
@@ -5395,9 +5751,16 @@ function setImageAnalyzeLoading(isLoading) {
     elements.focusAnalyzeLoading.hidden = !isLoading;
   }
   elements.analyzeImageButton.textContent = isLoading ? "Analyzing..." : "Analyze Image";
+  syncImageModalUploadUi();
 }
 
 function renderFocusArea() {
+  if (isTouchCropStageActive()) {
+    elements.focusBox.hidden = true;
+    updateTouchCropUi();
+    syncFocusStageControls();
+    return;
+  }
   const area = normalizeFocusArea(state.focusArea);
   if (!area || !state.cropModeActive) {
     elements.focusBox.hidden = true;
@@ -5601,6 +5964,10 @@ function setResultsLoading(message = "") {
 
 function setResultCountMarkup(value, label) {
   if (!elements.resultCount) {
+    return;
+  }
+  if (isMobileResultsUi()) {
+    elements.resultCount.textContent = `${value} ${label.replace(/\bfound\b/i, "").replace(/\s+/g, " ").trim()}`;
     return;
   }
   elements.resultCount.innerHTML = `<strong>${value}</strong> ${label}`;
@@ -5946,7 +6313,11 @@ function renderSeedQueries(seedQueries) {
       if (state.landingOnlyMode && !shouldDeferBrowseTransitionForCachedSearch(query)) {
         enterBrowseMode(query);
       }
-      runSearch(query, { sort: state.sortMode, categoryFilter: state.categoryFilter });
+      runSearch(query, {
+        sort: state.sortMode,
+        categoryFilter: state.categoryFilter,
+        scrollToTopOnComplete: state.landingOnlyMode
+      });
     });
       elements.seedQueries.appendChild(button);
     });
@@ -7183,9 +7554,16 @@ function renderRefineSidebar() {
   const showSidebar = showBrowseSidebar || showRefineSidebar;
   elements.resultsLayout.classList.toggle("has-sidebar", showRefineSidebar);
   elements.resultsLayout.classList.toggle("has-browse-sidebar", showBrowseSidebar);
-  elements.resultsSidebar.hidden = !showSidebar;
+  elements.resultsSidebar.hidden = isMobileResultsUi() ? (!showSidebar || !state.refineDrawerOpen) : !showSidebar;
   elements.refineToggleButton.hidden = !showSidebar;
-  elements.refineToggleButton.textContent = browseMode ? "Filters" : "Refine";
+  if (isMobileResultsUi() && !browseMode) {
+    const count = state.currentBulletControls.length;
+    elements.refineToggleButton.innerHTML = `Refine${count ? ` <span class="refine-toggle-badge">${count}</span>` : ""}`;
+  } else {
+    elements.refineToggleButton.textContent = browseMode
+      ? "Filters"
+      : `Refine${state.currentBulletControls.length ? ` (${state.currentBulletControls.length})` : ""}`;
+  }
   elements.refineBulletsList.innerHTML = "";
   if (elements.resultsSidebarEyebrow) {
     elements.resultsSidebarEyebrow.textContent = browseMode ? "Browse" : "Tools";
@@ -7210,6 +7588,9 @@ function renderRefineSidebar() {
     if (elements.applyRefineBulletsButton) {
       elements.applyRefineBulletsButton.hidden = true;
     }
+    if (elements.mobileRefineFooter) {
+      elements.mobileRefineFooter.hidden = true;
+    }
     syncRefineDrawer();
     return;
   }
@@ -7221,13 +7602,16 @@ function renderRefineSidebar() {
     if (elements.applyRefineBulletsButton) {
       elements.applyRefineBulletsButton.hidden = true;
     }
+    if (elements.mobileRefineFooter) {
+      elements.mobileRefineFooter.hidden = true;
+    }
     syncRefineDrawer();
     return;
   }
 
   if (elements.refineSelectedImageWrap && elements.refineSelectedImage) {
     const selectedImageUrl = String(state.currentImageAnalysis?.image_preview_url || state.cropPreviewUrl || "").trim();
-    elements.refineSelectedImageWrap.hidden = !selectedImageUrl;
+    elements.refineSelectedImageWrap.hidden = isMobileResultsUi() || !selectedImageUrl;
     if (elements.reopenFocusOverlay) {
       const referenceMode = String(state.currentImageAnalysis?.reference_image_mode || "").trim().toLowerCase();
       elements.reopenFocusOverlay.hidden = !selectedImageUrl || referenceMode === "stored";
@@ -7246,7 +7630,8 @@ function renderRefineSidebar() {
   }
 
   const displayedControls = normalizeBulletControls(state.pendingBulletControls || state.currentBulletControls);
-  displayedControls.forEach((entry, index) => {
+  const renderRowsInto = (container, controls) => {
+    controls.forEach((entry, index) => {
     const row = document.createElement("div");
     row.className = "refine-bullet-row";
 
@@ -7296,14 +7681,48 @@ function renderRefineSidebar() {
     });
 
     row.append(copy, toggle);
-    elements.refineBulletsList.appendChild(row);
-  });
+      container.appendChild(row);
+    });
+  };
+
+  if (isMobileViewport()) {
+    const groups = new Map();
+    displayedControls.forEach((entry) => {
+      const parts = formatRefineBulletParts(entry.text);
+      const key = parts.label || "Other";
+      if (!groups.has(key)) {
+        groups.set(key, []);
+      }
+      groups.get(key).push(entry);
+    });
+    [...groups.entries()].forEach(([groupLabel, controls]) => {
+      const section = document.createElement("section");
+      section.className = "mobile-refine-group";
+      const heading = document.createElement("p");
+      heading.className = "results-sidebar-section-title mobile-refine-group-title";
+      heading.textContent = groupLabel;
+      section.appendChild(heading);
+      const body = document.createElement("div");
+      body.className = "mobile-refine-group-body";
+      renderRowsInto(body, controls);
+      section.appendChild(body);
+      elements.refineBulletsList.appendChild(section);
+    });
+  } else {
+    renderRowsInto(elements.refineBulletsList, displayedControls);
+  }
 
   if (elements.applyRefineBulletsButton) {
     const hasPendingChanges = JSON.stringify(displayedControls) !== JSON.stringify(normalizeBulletControls(state.currentBulletControls));
+    const resultCount = getVisibleResults(state.lastPayload, state.lastQuery).length;
     elements.applyRefineBulletsButton.hidden = !displayedControls.length || !hasPendingChanges;
     elements.applyRefineBulletsButton.disabled = state.refinementLoading;
-    elements.applyRefineBulletsButton.textContent = "Apply Adjusted Priorities";
+    elements.applyRefineBulletsButton.textContent = isMobileViewport()
+      ? `Apply (${resultCount} results)`
+      : "Apply Adjusted Priorities";
+  }
+  if (elements.mobileRefineFooter) {
+    elements.mobileRefineFooter.hidden = !isMobileViewport();
   }
 
   syncRefineDrawer();
@@ -8075,6 +8494,20 @@ function renderResults(payload, query) {
     if (metaBlock) {
       metaBlock.appendChild(planShapeReasoning);
     }
+    if (isMobileResultsUi()) {
+      thumbnails.hidden = true;
+      categoryTags.hidden = true;
+      refinementActions.hidden = true;
+      if (descriptionAuditButton) {
+        descriptionAuditButton.hidden = true;
+      }
+      if (inspectButton) {
+        inspectButton.hidden = true;
+      }
+      if (sceneBadge) {
+        sceneBadge.hidden = true;
+      }
+    }
     const scoreRank = index + 1;
     const isWeakerMatch = showWeakerMatchesToggle && scoreRank > cutoffMeta.cutoff;
 
@@ -8277,7 +8710,7 @@ function renderResults(payload, query) {
       scoreBreakdownLabel.hidden = true;
     }
 
-    moreLikeThisButton.addEventListener("click", async () => {
+    const handleMoreLikeThis = async () => {
       if (!hasMoreTraits) {
         return;
       }
@@ -8291,8 +8724,8 @@ function renderResults(payload, query) {
         mode: "more",
         imageUrl: state.activeCardImageUrls[result.product_id] || result.best_image_url
       });
-    });
-    lessLikeThisButton.addEventListener("click", async () => {
+    };
+    const handleLessLikeThis = async () => {
       if (!hasLessTraits) {
         return;
       }
@@ -8306,7 +8739,54 @@ function renderResults(payload, query) {
         mode: "less",
         imageUrl: state.activeCardImageUrls[result.product_id] || result.best_image_url
       });
-    });
+    };
+    moreLikeThisButton.addEventListener("click", handleMoreLikeThis);
+    lessLikeThisButton.addEventListener("click", handleLessLikeThis);
+
+    if (resultTile) {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      resultTile.addEventListener("touchstart", (event) => {
+        if (!isMobileViewport()) {
+          return;
+        }
+        const touch = event.touches?.[0];
+        if (!touch) {
+          return;
+        }
+        closeMobileResultCardMenu();
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        state.longPressTimer = window.setTimeout(() => {
+          openMobileResultCardMenu({
+            result,
+            x: touchStartX,
+            y: touchStartY,
+            onMore: hasMoreTraits ? handleMoreLikeThis : null,
+            onLess: hasLessTraits ? handleLessLikeThis : null
+          });
+          state.longPressTimer = null;
+        }, 500);
+      }, { passive: true });
+      resultTile.addEventListener("touchmove", (event) => {
+        const touch = event.touches?.[0];
+        if (!touch || !state.longPressTimer) {
+          return;
+        }
+        if (Math.hypot(touch.clientX - touchStartX, touch.clientY - touchStartY) > 10) {
+          clearTimeout(state.longPressTimer);
+          state.longPressTimer = null;
+        }
+      }, { passive: true });
+      ["touchend", "touchcancel"].forEach((eventName) => {
+        resultTile.addEventListener(eventName, () => {
+          if (state.longPressTimer) {
+            clearTimeout(state.longPressTimer);
+            state.longPressTimer = null;
+          }
+        }, { passive: true });
+      });
+    }
 
     if (panelState && metaBlock) {
       const panel = document.createElement("section");
@@ -8525,6 +9005,7 @@ async function runSearch(query, options = {}) {
   );
   const preserveOriginal = Boolean(options.preserveOriginal);
   const refinementActive = Boolean(options.refinementActive);
+  const scrollToTopOnComplete = Boolean(options.scrollToTopOnComplete);
   const productRefinements = normalizeProductRefinements(options.productRefinements || []);
   updateClarificationConflict(imageAnalysis ? getPrimaryClarificationConflict(imageAnalysis) : null);
   if (normalizedQuery && !state.bootstrap?.has_index) {
@@ -8685,6 +9166,9 @@ async function runSearch(query, options = {}) {
       refinementActive
     });
     renderResults(payload, normalizedStoredQuery);
+    if (scrollToTopOnComplete) {
+      scrollViewportToResultsTop();
+    }
     return payload;
   } catch (error) {
     setInitialSearchPending(false);
@@ -8707,6 +9191,7 @@ function openImageModal() {
   document.body.classList.add("modal-open");
   resetImageFlow();
   showUploadStage();
+  syncImageModalUploadUi();
 }
 
 function setSelectedUploadFile(file = null) {
@@ -9072,6 +9557,7 @@ function showUploadStage() {
   elements.focusBox.hidden = true;
   syncFocusStageControls();
   setImageAnalyzeLoading(false);
+  syncImageModalUploadUi();
 }
 
 function showCropStage(previewUrl) {
@@ -9081,6 +9567,7 @@ function showCropStage(previewUrl) {
   state.cropPreviewUrl = String(previewUrl || "").trim();
   state.cropModeActive = false;
   state.focusArea = null;
+  resetTouchCropState();
   elements.inspirationPreview.src = state.cropPreviewUrl;
   syncFocusStageControls();
 }
@@ -9107,14 +9594,19 @@ function resetImageFlow() {
   state.cropPreviewUrl = "";
   state.focusArea = null;
   state.cropModeActive = false;
+  resetTouchCropState();
   elements.imageUploadInput.value = "";
   elements.imageUrlInput.value = "";
+  if (elements.imageModalUrlBlock) {
+    elements.imageModalUrlBlock.dataset.mobileExpanded = "false";
+  }
   elements.selectedFileName.textContent = "";
   elements.selectedFileName.hidden = true;
   elements.inspirationPreview.removeAttribute("src");
   elements.focusBox.hidden = true;
   syncFocusStageControls();
   setImageAnalyzeLoading(false);
+  syncImageModalUploadUi();
 }
 
 async function composeQueryForBullets(selectedBullets = [], options = {}) {
@@ -9700,6 +10192,20 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
+document.addEventListener("pointerdown", (event) => {
+  if (!state.mobileSearchExpanded || !isMobileResultsUi()) {
+    return;
+  }
+  const target = event.target;
+  if (!(target instanceof Node)) {
+    return;
+  }
+  if (elements.searchForm?.contains(target) || elements.mobileCategoryDropdown?.contains(target)) {
+    return;
+  }
+  closeMobileSearchExpandedEditor();
+});
+
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const selectedCategory = elements.searchCategorySelect?.value || "all";
@@ -9738,6 +10244,20 @@ elements.searchInput?.addEventListener("input", () => {
   updateSearchComposerClearButton();
 });
 
+elements.searchInput?.addEventListener("click", (event) => {
+  if (!isMobileResultsUi() || state.mobileSearchExpanded) {
+    return;
+  }
+  const target = event.target;
+  if (target === elements.searchCategorySelect || target === elements.searchCategoryChipWrap || target?.closest?.("#searchCategoryChipWrap")) {
+    return;
+  }
+  if (target === elements.openImageSearchInline || target?.closest?.("#openImageSearchInline")) {
+    return;
+  }
+  openMobileSearchExpandedEditor();
+});
+
 elements.searchInput?.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
@@ -9749,6 +10269,16 @@ elements.clearSearchInputButton?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
   clearSearchComposer();
+});
+
+elements.mobileSearchCancelButton?.addEventListener("click", () => {
+  closeMobileSearchExpandedEditor();
+});
+
+elements.mobileSearchApplyButton?.addEventListener("click", () => {
+  state.searchInputEditedSinceLastSearch = true;
+  closeMobileSearchExpandedEditor({ restore: false });
+  elements.searchForm?.requestSubmit();
 });
 
 elements.siteNavBrandLink?.addEventListener("click", (event) => {
@@ -9831,7 +10361,51 @@ elements.searchCategorySelect?.addEventListener("change", async (event) => {
   if (!(target instanceof HTMLSelectElement)) {
     return;
   }
+  closeMobileCategoryDropdown();
   await handleCategoryScopeSelectionChange(target.value);
+});
+
+elements.searchCategoryChipWrap?.addEventListener("click", (event) => {
+  if (!isMobileViewport() || elements.searchCategoryChipWrap.hidden) {
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+  closeMobileSearchExpandedEditor({ restore: false });
+  state.mobileCategoryDropdownOpen = !state.mobileCategoryDropdownOpen;
+  renderMobileCategoryDropdown();
+});
+
+elements.mobileCategoryDropdownBackdrop?.addEventListener("click", () => {
+  closeMobileCategoryDropdown();
+});
+
+elements.mobileResultCardMenuBackdrop?.addEventListener("click", () => {
+  closeMobileResultCardMenu();
+});
+
+elements.mobileResultCardMenuMore?.addEventListener("click", async () => {
+  const action = state.mobileResultCardMenu?.onMore;
+  closeMobileResultCardMenu();
+  if (typeof action === "function") {
+    await action();
+  }
+});
+
+elements.mobileResultCardMenuLess?.addEventListener("click", async () => {
+  const action = state.mobileResultCardMenu?.onLess;
+  closeMobileResultCardMenu();
+  if (typeof action === "function") {
+    await action();
+  }
+});
+
+elements.mobileResultCardMenuView?.addEventListener("click", () => {
+  const productUrl = String(state.mobileResultCardMenu?.productUrl || "").trim();
+  closeMobileResultCardMenu();
+  if (productUrl) {
+    window.open(productUrl, "_blank", "noopener,noreferrer");
+  }
 });
 
 elements.browseCategorySelect?.addEventListener("change", async (event) => {
@@ -10180,6 +10754,9 @@ elements.focusHandles.forEach((handle) => {
 document.addEventListener("mousemove", updateFocusDrag);
 document.addEventListener("mouseup", stopFocusDrag);
 elements.previewCanvas.addEventListener("click", (event) => {
+  if (isTouchCropStageActive()) {
+    return;
+  }
   if (event.target === elements.focusBox || event.target.closest('[data-role="focusHandle"]')) {
     return;
   }
@@ -10194,6 +10771,86 @@ elements.focusBox.addEventListener("mouseup", () => {
   if (resized) {
     setFocusArea(resized);
   }
+});
+
+elements.previewCanvas?.addEventListener("touchstart", (event) => {
+  if (!isTouchCropStageActive()) {
+    return;
+  }
+  if (!elements.inspirationPreview.getAttribute("src")) {
+    return;
+  }
+  if (!state.touchCrop.hasInteracted) {
+    markTouchCropInteracted();
+  }
+  if (event.touches.length === 2) {
+    const center = getTouchCenter(event.touches);
+    state.touchCropGesture = {
+      mode: "pinch",
+      startDistance: getTouchDistance(event.touches),
+      startScale: state.touchCrop.scale,
+      startOffsetX: state.touchCrop.offsetX,
+      startOffsetY: state.touchCrop.offsetY,
+      startCenterX: center.x,
+      startCenterY: center.y
+    };
+    event.preventDefault();
+    return;
+  }
+  if (event.touches.length === 1) {
+    const touch = event.touches[0];
+    state.touchCropGesture = {
+      mode: "pan",
+      startX: touch.clientX,
+      startY: touch.clientY,
+      startOffsetX: state.touchCrop.offsetX,
+      startOffsetY: state.touchCrop.offsetY
+    };
+    event.preventDefault();
+  }
+}, { passive: false });
+
+elements.previewCanvas?.addEventListener("touchmove", (event) => {
+  if (!isTouchCropStageActive() || !state.touchCropGesture) {
+    return;
+  }
+  if (state.touchCropGesture.mode === "pinch" && event.touches.length >= 2) {
+    const distance = getTouchDistance(event.touches);
+    const center = getTouchCenter(event.touches);
+    const nextScale = clamp(
+      state.touchCropGesture.startScale * (distance / Math.max(state.touchCropGesture.startDistance || 1, 1)),
+      TOUCH_CROP_MIN_SCALE,
+      TOUCH_CROP_MAX_SCALE
+    );
+    state.touchCrop.scale = nextScale;
+    state.touchCrop.offsetX = state.touchCropGesture.startOffsetX + (center.x - state.touchCropGesture.startCenterX);
+    state.touchCrop.offsetY = state.touchCropGesture.startOffsetY + (center.y - state.touchCropGesture.startCenterY);
+    updateTouchCropUi();
+    event.preventDefault();
+    return;
+  }
+  if (state.touchCropGesture.mode === "pan" && event.touches.length === 1) {
+    const touch = event.touches[0];
+    state.touchCrop.offsetX = state.touchCropGesture.startOffsetX + (touch.clientX - state.touchCropGesture.startX);
+    state.touchCrop.offsetY = state.touchCropGesture.startOffsetY + (touch.clientY - state.touchCropGesture.startY);
+    updateTouchCropUi();
+    event.preventDefault();
+  }
+}, { passive: false });
+
+elements.previewCanvas?.addEventListener("touchend", () => {
+  if (!isTouchCropStageActive()) {
+    return;
+  }
+  state.touchCropGesture = null;
+});
+
+elements.previewCanvas?.addEventListener("touchcancel", () => {
+  state.touchCropGesture = null;
+});
+
+elements.touchCropResetButton?.addEventListener("click", () => {
+  resetTouchCropState();
 });
 
 elements.analyzeImageButton.addEventListener("click", async () => {
@@ -10218,7 +10875,9 @@ elements.skipFocusButton.addEventListener("click", async () => {
 
 elements.applyFocusButton.addEventListener("click", async () => {
   try {
-    const focusArea = captureFocusAreaFromDom() || state.focusArea || defaultFocusArea();
+    const focusArea = isTouchCropStageActive()
+      ? computeTouchCropFocusArea()
+      : (captureFocusAreaFromDom() || state.focusArea || defaultFocusArea());
     setFocusArea(focusArea);
     await runImageAnalysisSearch(null, focusArea);
   } catch (error) {
@@ -10257,6 +10916,11 @@ elements.applyRefineBulletsButton?.addEventListener("click", async () => {
   } catch (error) {
     setStatus(error.message || "Failed to apply bullet priorities.", "error");
   }
+});
+
+elements.resetRefineBulletsButton?.addEventListener("click", () => {
+  state.pendingBulletControls = normalizeBulletControls(state.currentBulletControls);
+  renderRefineSidebar();
 });
 
 autoResizeSearchInput();
