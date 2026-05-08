@@ -3920,6 +3920,14 @@ body.results-loading-active .results-layout {
   background: #6355d4 !important;
 }
 
+.desktop-refine-actions {
+  margin-top: 14px;
+}
+
+.desktop-refine-apply-button[hidden] {
+  display: none !important;
+}
+
 .refine-selected-image-wrap {
   position: relative;
 }

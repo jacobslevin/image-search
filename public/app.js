@@ -470,6 +470,8 @@ const elements = {
   refineBulletsList: document.querySelector("#refineBulletsList"),
   refineSelectedImageWrap: document.querySelector("#refineSelectedImageWrap"),
   refineSelectedImage: document.querySelector("#refineSelectedImage"),
+  desktopRefineActions: document.querySelector("#desktopRefineActions"),
+  desktopApplyRefineBulletsButton: document.querySelector("#desktopApplyRefineBulletsButton"),
   mobileRefineFooter: document.querySelector("#mobileRefineFooter"),
   resetRefineBulletsButton: document.querySelector("#resetRefineBulletsButton"),
   applyRefineBulletsButton: document.querySelector("#applyRefineBulletsButton"),
@@ -4852,13 +4854,18 @@ async function rerankResults({
   }
 }
 
-async function updateBulletPriority(index, priority) {
+async function updateBulletPriority(bulletText, priority) {
+  const normalizedBulletText = String(bulletText || "").trim().toLowerCase();
+  if (!normalizedBulletText) {
+    return;
+  }
   const sourceControls = normalizeBulletControls(state.pendingBulletControls || state.currentBulletControls);
-  state.pendingBulletControls = normalizeBulletControls(
+  const nextControls = normalizeBulletControls(
     sourceControls.map((entry, currentIndex) =>
-      currentIndex === index ? { ...entry, priority } : entry
+      String(entry?.text || "").trim().toLowerCase() === normalizedBulletText ? { ...entry, priority } : entry
     )
   );
+  state.pendingBulletControls = nextControls;
   renderRefineSidebar();
 }
 
@@ -4931,6 +4938,18 @@ async function applyProductRefinement(refinement) {
   });
 
   setStatus(summarizeRefinementChanges(previousPayload, payload, refinement.action === "more" ? "toward" : "away from", refinement.name));
+}
+
+function buildProductRefinementForResult(result = {}, action = "more") {
+  const normalizedAction = action === "less" ? "less" : "more";
+  const embedding = getRefinementEmbeddingForResult(result, getActiveImageContextForResult(result).matchingImage);
+  return normalizeProductRefinements([{
+    id: `${normalizedAction}:${result.product_id || result.id || result.name || ""}`,
+    productId: result.product_id || result.id || "",
+    name: result.name || "",
+    action: normalizedAction,
+    embedding
+  }])[0] || null;
 }
 
 async function removeProductRefinement(refinementId) {
@@ -7585,6 +7604,9 @@ function renderRefineSidebar() {
     if (elements.refineSelectedImageWrap) {
       elements.refineSelectedImageWrap.hidden = true;
     }
+    if (elements.desktopRefineActions) {
+      elements.desktopRefineActions.hidden = true;
+    }
     if (elements.applyRefineBulletsButton) {
       elements.applyRefineBulletsButton.hidden = true;
     }
@@ -7598,6 +7620,9 @@ function renderRefineSidebar() {
   if (showBrowseSidebar) {
     if (elements.refineSelectedImageWrap) {
       elements.refineSelectedImageWrap.hidden = true;
+    }
+    if (elements.desktopRefineActions) {
+      elements.desktopRefineActions.hidden = true;
     }
     if (elements.applyRefineBulletsButton) {
       elements.applyRefineBulletsButton.hidden = true;
@@ -7631,9 +7656,10 @@ function renderRefineSidebar() {
 
   const displayedControls = normalizeBulletControls(state.pendingBulletControls || state.currentBulletControls);
   const renderRowsInto = (container, controls) => {
-    controls.forEach((entry, index) => {
+    controls.forEach((entry) => {
     const row = document.createElement("div");
     row.className = "refine-bullet-row";
+    row.dataset.bulletText = entry.text;
 
     const copy = document.createElement("div");
     copy.className = "refine-bullet-copy";
@@ -7672,10 +7698,10 @@ function renderRefineSidebar() {
       button.title = stateOption.title;
       applyPriorityButtonState(button, entry.priority);
       button.addEventListener("click", () => {
-        if (state.refinementLoading || displayedControls[index]?.priority === stateOption.value) {
+        if (state.refinementLoading || entry.priority === stateOption.value) {
           return;
         }
-        updateBulletPriority(index, stateOption.value);
+        updateBulletPriority(entry.text, stateOption.value);
       });
       toggle.appendChild(button);
     });
@@ -7720,6 +7746,12 @@ function renderRefineSidebar() {
     elements.applyRefineBulletsButton.textContent = isMobileViewport()
       ? `Apply (${resultCount} results)`
       : "Apply Adjusted Priorities";
+  }
+  if (elements.desktopRefineActions && elements.desktopApplyRefineBulletsButton) {
+    const hasPendingChanges = JSON.stringify(displayedControls) !== JSON.stringify(normalizeBulletControls(state.currentBulletControls));
+    elements.desktopRefineActions.hidden = isMobileViewport() || !displayedControls.length;
+    elements.desktopApplyRefineBulletsButton.hidden = !hasPendingChanges;
+    elements.desktopApplyRefineBulletsButton.disabled = state.refinementLoading || !hasPendingChanges;
   }
   if (elements.mobileRefineFooter) {
     elements.mobileRefineFooter.hidden = !isMobileViewport();
@@ -8711,6 +8743,15 @@ function renderResults(payload, query) {
     }
 
     const handleMoreLikeThis = async () => {
+      if (isMobileViewport()) {
+        const refinement = buildProductRefinementForResult(result, "more");
+        if (!refinement) {
+          setStatus("We could not derive a refinement signal from this product.", "error");
+          return;
+        }
+        await applyProductRefinement(refinement);
+        return;
+      }
       if (!hasMoreTraits) {
         return;
       }
@@ -8726,6 +8767,15 @@ function renderResults(payload, query) {
       });
     };
     const handleLessLikeThis = async () => {
+      if (isMobileViewport()) {
+        const refinement = buildProductRefinementForResult(result, "less");
+        if (!refinement) {
+          setStatus("We could not derive a refinement signal from this product.", "error");
+          return;
+        }
+        await applyProductRefinement(refinement);
+        return;
+      }
       if (!hasLessTraits) {
         return;
       }
@@ -8762,8 +8812,8 @@ function renderResults(payload, query) {
             result,
             x: touchStartX,
             y: touchStartY,
-            onMore: hasMoreTraits ? handleMoreLikeThis : null,
-            onLess: hasLessTraits ? handleLessLikeThis : null
+            onMore: canRefine ? handleMoreLikeThis : null,
+            onLess: canRefine ? handleLessLikeThis : null
           });
           state.longPressTimer = null;
         }, 500);
@@ -10911,6 +10961,14 @@ elements.refineSelectedImageWrap?.addEventListener("click", () => {
 });
 
 elements.applyRefineBulletsButton?.addEventListener("click", async () => {
+  try {
+    await applyPendingBulletPriorities();
+  } catch (error) {
+    setStatus(error.message || "Failed to apply bullet priorities.", "error");
+  }
+});
+
+elements.desktopApplyRefineBulletsButton?.addEventListener("click", async () => {
   try {
     await applyPendingBulletPriorities();
   } catch (error) {
