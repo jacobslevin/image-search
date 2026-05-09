@@ -9855,6 +9855,9 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         progressRequestId
       });
       if (stage1Payload?.category_required) {
+        if (state.landingOnlyMode) {
+          enterBrowseMode("");
+        }
         closeImageModal();
         updateClarificationConflict(null);
         updateCategoryRequirement({
