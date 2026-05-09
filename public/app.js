@@ -1762,6 +1762,7 @@ async function handleCategoryScopeSelectionChange(nextRawValue = "") {
     syncBrowseCategoryControl(state.lastPayload, nextQuery);
     renderBrowseTraitFilters(state.lastPayload, nextQuery);
     renderResults(state.lastPayload, nextQuery);
+    scrollViewportToResultsTop();
     syncSearchPageUrl();
     if (categoryChanged) {
       logEvent("category_scope_changed", {
@@ -1783,6 +1784,7 @@ async function handleCategoryScopeSelectionChange(nextRawValue = "") {
     refreshAgeFilter: state.refreshAgeFilter,
     visualType: nextPrimaryCategory || "all",
     categoryScopeMode: state.categoryScopeMode,
+    scrollToTopOnComplete: true,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
     selectedBullets: state.currentSelectedBullets,
@@ -3470,6 +3472,9 @@ function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = windo
   elements.mobileResultCardMenu.style.top = `${top}px`;
   elements.mobileResultCardMenu.hidden = false;
   elements.mobileResultCardMenuBackdrop.hidden = false;
+  ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage).catch((error) => {
+    console.warn("[mobile-refinement] stored image context prefetch failed:", error?.message || error);
+  });
 }
 
 async function fetchJson(url, options) {
@@ -4846,6 +4851,7 @@ async function rerankResults({
     });
     state.refinementLoading = false;
     renderResults(payload, state.lastQuery);
+    scrollViewportToResultsTop();
     return { payload, previousPayload };
   } catch (error) {
     state.refinementLoading = false;
@@ -4892,6 +4898,7 @@ async function applyPendingBulletPriorities() {
     imageAnalysis: state.currentImageAnalysis,
     selectedBullets: nextSelectedBullets,
     bulletControls: pendingControls,
+    scrollToTopOnComplete: true,
     preserveOriginal: true,
     refinementActive: true,
     productRefinements: []
@@ -8784,6 +8791,11 @@ function renderResults(payload, query) {
 
     const handleMoreLikeThis = async () => {
       if (isMobileViewport()) {
+        try {
+          await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+        } catch (error) {
+          console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
+        }
         const refinement = buildProductRefinementForResult(result, "more");
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
@@ -8808,6 +8820,11 @@ function renderResults(payload, query) {
     };
     const handleLessLikeThis = async () => {
       if (isMobileViewport()) {
+        try {
+          await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+        } catch (error) {
+          console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
+        }
         const refinement = buildProductRefinementForResult(result, "less");
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
