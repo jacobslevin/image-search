@@ -89,6 +89,7 @@ const state = {
   lastDisplayQuery: "",
   searchComposerPrefix: "",
   searchComposerMatch: "",
+  searchComposerDraftSnapshot: null,
   mobileSearchExpanded: false,
   refineDrawerOpen: false,
   cropModeActive: false,
@@ -495,8 +496,6 @@ const elements = {
   mobileSearchExpandedInput: document.querySelector("#mobileSearchExpandedInput"),
   mobileSearchCancelButton: document.querySelector("#mobileSearchCancelButton"),
   mobileSearchApplyButton: document.querySelector("#mobileSearchApplyButton"),
-  mobileSearchClearButton: document.querySelector("#mobileSearchClearButton"),
-  mobileSearchResetButton: document.querySelector("#mobileSearchResetButton"),
   browseCategoryScopeBar: document.querySelector("#browseCategoryScopeBar"),
   browseCategorySelect: document.querySelector("#browseCategorySelect"),
   browseTraitFilterPanel: document.querySelector("#browseTraitFilterPanel"),
@@ -2110,7 +2109,6 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
     elements.searchInput.textContent = String(fullQuery || "").trim();
   }
   updateSearchComposerClearButton();
-  updateMobileSearchSecondaryActions();
   renderMobileCategoryDropdown();
   syncMobileSearchExpandedUi();
 }
@@ -3171,16 +3169,11 @@ function updateSearchComposerClearButton() {
   if (!elements.clearSearchInputButton || !elements.searchInput) {
     return;
   }
-  if (isMobileResultsUi()) {
-    elements.clearSearchInputButton.hidden = true;
-    if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
-      elements.clearSearchInputButton.remove();
-    }
-    return;
-  }
   const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
   const hasActiveSubmittedSearch = Boolean(String(state.lastQuery || "").trim());
-  const shouldShow = hasActiveSubmittedSearch && !state.searchInputEditedSinceLastSearch && hasComposableContent;
+  const shouldShow = isMobileResultsUi()
+    ? hasComposableContent
+    : hasActiveSubmittedSearch && !state.searchInputEditedSinceLastSearch && hasComposableContent;
   elements.clearSearchInputButton.hidden = !shouldShow;
   if (!shouldShow) {
     if (elements.clearSearchInputButton.parentNode === elements.searchInput) {
@@ -3190,21 +3183,6 @@ function updateSearchComposerClearButton() {
   }
   if (elements.clearSearchInputButton.parentNode !== elements.searchInput) {
     elements.searchInput.appendChild(elements.clearSearchInputButton);
-  }
-}
-
-function updateMobileSearchSecondaryActions() {
-  if (elements.mobileSearchClearButton) {
-    const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
-    elements.mobileSearchClearButton.hidden = !hasComposableContent;
-  }
-  if (elements.mobileSearchResetButton) {
-    const visibleResults = getVisibleResults(state.lastPayload, state.lastQuery);
-    elements.mobileSearchResetButton.hidden = !shouldShowResetSearchButton({
-      landingOnlyMode: state.landingOnlyMode,
-      isBrowseMode: isBrowsePayload(state.lastPayload, state.lastQuery),
-      visibleResultCount: visibleResults.length
-    });
   }
 }
 
@@ -3224,11 +3202,8 @@ function focusSearchComposerAtEnd() {
   selection.addRange(range);
 }
 
-function clearSearchComposer() {
+function clearSearchComposer({ focus = true } = {}) {
   state.searchInputEditedSinceLastSearch = true;
-  state.categorySelectionTouchedSinceLastSearch = false;
-  state.resultCategoryScope = ["all"];
-  state.categoryScopeMode = "all";
   state.lastDisplayQuery = "";
   setSearchInputValue("");
   renderSearchComposer("");
@@ -3237,7 +3212,38 @@ function clearSearchComposer() {
   state.inlineRefinementPanel = null;
   closeInlineRefinementPanel();
   syncSearchPageUrl();
-  focusSearchComposerAtEnd();
+  if (focus) {
+    focusSearchComposerAtEnd();
+  }
+}
+
+function clearSearchBarDraft({ focus = false } = {}) {
+  if (!state.searchComposerDraftSnapshot) {
+    state.searchComposerDraftSnapshot = {
+      query: state.lastDisplayQuery || state.lastQuery || "",
+      resultCategoryScope: Array.isArray(state.resultCategoryScope) ? [...state.resultCategoryScope] : ["all"],
+      categoryScopeMode: state.categoryScopeMode || "all"
+    };
+  }
+  clearSearchComposer({ focus });
+  state.categorySelectionTouchedSinceLastSearch = false;
+  state.resultCategoryScope = ["all"];
+  state.categoryScopeMode = "all";
+  renderSearchComposer("");
+}
+
+function restoreSearchComposerDraftSnapshot() {
+  const snapshot = state.searchComposerDraftSnapshot;
+  state.searchComposerDraftSnapshot = null;
+  if (!snapshot) {
+    renderSearchComposer(state.lastDisplayQuery || state.lastQuery || "");
+    return;
+  }
+  state.resultCategoryScope = Array.isArray(snapshot.resultCategoryScope) && snapshot.resultCategoryScope.length
+    ? [...snapshot.resultCategoryScope]
+    : ["all"];
+  state.categoryScopeMode = String(snapshot.categoryScopeMode || "all").trim() || "all";
+  renderSearchComposer(snapshot.query || "");
 }
 
 function shouldReturnHomeAfterClearingQuery() {
@@ -4680,7 +4686,6 @@ function updateResetSearchVisibility() {
     isBrowseMode: isBrowsePayload(state.lastPayload, state.lastQuery),
     visibleResultCount: visibleResults.length
   });
-  updateMobileSearchSecondaryActions();
 }
 
 function applyActiveSearchContext({
@@ -5793,9 +5798,10 @@ function setImageAnalyzeLoading(isLoading) {
   if (elements.skipFocusButton) {
     elements.skipFocusButton.hidden = isLoading || !Boolean(state.cropModeActive && state.focusArea);
   }
-  elements.imageAnalyzeLoading.hidden = !isLoading;
+  const shouldShowImageAnalyzeProgress = isLoading || isImageAnalysisCategoryRequirementActive();
+  elements.imageAnalyzeLoading.hidden = !shouldShowImageAnalyzeProgress;
   if (elements.focusAnalyzeLoading) {
-    elements.focusAnalyzeLoading.hidden = !isLoading;
+    elements.focusAnalyzeLoading.hidden = !shouldShowImageAnalyzeProgress;
   }
   elements.analyzeImageButton.textContent = isLoading ? "Analyzing..." : "Analyze Image";
   syncImageModalUploadUi();
@@ -6220,7 +6226,8 @@ function renderCategoryRequirementContent(container, categoryRequirement, catego
         }
         updateCategoryRequirement(null);
         runImageAnalysisSearch(requestBody, focusArea, {
-          visualTypeOverride: categoryKey
+          visualTypeOverride: categoryKey,
+          resumeFromCategoryRequirement: true
         }).catch((error) => {
           setStatus(error.message || "Failed to apply category selection.", "error");
         });
@@ -6289,6 +6296,8 @@ function renderCategoryRequirementContent(container, categoryRequirement, catego
   close.addEventListener("click", () => {
     updateCategoryRequirement(null);
     if (categoryRequirementMode === "image_analysis") {
+      stopImageAnalyzeProgressPolling();
+      setImageAnalyzeLoading(false);
       setStatus("Image search canceled.", "info");
       return;
     }
@@ -9442,7 +9451,9 @@ function closeMobileSearchExpandedEditor({ restore = true } = {}) {
   state.mobileSearchExpanded = false;
   syncMobileSearchExpandedUi();
   if (restore) {
-    renderSearchComposer(state.lastDisplayQuery || state.lastQuery || "");
+    restoreSearchComposerDraftSnapshot();
+  } else {
+    state.searchComposerDraftSnapshot = null;
   }
 }
 
@@ -9458,7 +9469,6 @@ function syncMobileSearchExpandedUi() {
     searchField?.classList.remove("is-mobile-expanded");
     return;
   }
-  updateMobileSearchSecondaryActions();
   document.body.classList.toggle("mobile-search-expanded-active", Boolean(state.mobileSearchExpanded));
   const searchField = elements.searchForm?.querySelector(".search-field");
   searchField?.classList.toggle("is-mobile-expanded", state.mobileSearchExpanded);
@@ -9906,22 +9916,37 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
 
   const body = focusArea ? { ...baseInput, focus_area: focusArea } : { ...baseInput };
   const cachedCategory = String(options.visualTypeOverride || options.seatingTypeOverride || getCachedImageAnalysisCategory(baseInput) || "").trim();
+  const resumeFromCategoryRequirement = Boolean(options.resumeFromCategoryRequirement);
   const progressRequestId = buildImageAnalyzeProgressRequestId();
   setImageAnalyzeLoading(true);
   startImageAnalyzeProgressPolling(progressRequestId);
-  state.imageAnalyzePrepareStartedAt = Date.now();
-  state.imageAnalyzeClassifyStartedAt = 0;
-  updateImageAnalyzeProgress("prepare", {
-    percent: 0,
-    percentLabel: "0–15%",
-    detail: focusArea
-      ? "Preparing the selected crop for image analysis."
-      : "Preparing the full image for analysis.",
-    indeterminate: true
-  });
-  setStatus(focusArea ? "Analyzing the selected focus area..." : "Analyzing the full image...");
+  if (resumeFromCategoryRequirement) {
+    state.imageAnalyzePrepareStartedAt = 0;
+    state.imageAnalyzeClassifyStartedAt = 0;
+    updateImageAnalyzeProgress("extract", {
+      percent: 30,
+      percentLabel: "30–85%",
+      detail: "Extracting visual traits...",
+      indeterminate: true,
+      extractTarget: resolveImageAnalyzeExtractTarget(1, 2)
+    });
+    setStatus("Extracting visual traits...");
+  } else {
+    state.imageAnalyzePrepareStartedAt = Date.now();
+    state.imageAnalyzeClassifyStartedAt = 0;
+    updateImageAnalyzeProgress("prepare", {
+      percent: 0,
+      percentLabel: "0–15%",
+      detail: focusArea
+        ? "Preparing the selected crop for image analysis."
+        : "Preparing the full image for analysis.",
+      indeterminate: true
+    });
+    setStatus(focusArea ? "Analyzing the selected focus area..." : "Analyzing the full image...");
+  }
 
   let analysis = null;
+  let keepProgressVisible = false;
   try {
     let analysisPayload;
     if (!cachedCategory) {
@@ -9950,8 +9975,14 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
           requestBody: baseInput,
           focusArea: focusArea ? normalizeFocusArea(focusArea) : null
         });
+        stopImageAnalyzeProgressPolling();
+        updateImageAnalyzeProgress("classify", {
+          percent: 30,
+          percentLabel: "15–30%",
+          detail: "Choose a category to continue."
+        });
+        keepProgressVisible = true;
         setStatus("");
-        setImageAnalyzeLoading(false);
         return;
       }
       const resolvedType = String(
@@ -10063,7 +10094,9 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     setStatus(errorMessage, "error");
     return null;
   } finally {
-    setImageAnalyzeLoading(false);
+    if (!keepProgressVisible) {
+      setImageAnalyzeLoading(false);
+    }
   }
 }
 
@@ -10339,6 +10372,7 @@ document.addEventListener("pointerdown", (event) => {
 
 elements.searchForm.addEventListener("submit", (event) => {
   event.preventDefault();
+  state.searchComposerDraftSnapshot = null;
   const selectedCategory = elements.searchCategorySelect?.value || "all";
   const shouldClearInheritedCategory = Boolean(
     selectedCategory !== "all" &&
@@ -10399,7 +10433,7 @@ elements.searchInput?.addEventListener("keydown", (event) => {
 elements.clearSearchInputButton?.addEventListener("click", (event) => {
   event.preventDefault();
   event.stopPropagation();
-  clearSearchComposer();
+  clearSearchBarDraft({ focus: false });
 });
 
 elements.mobileSearchCancelButton?.addEventListener("click", () => {
@@ -10410,15 +10444,6 @@ elements.mobileSearchApplyButton?.addEventListener("click", () => {
   state.searchInputEditedSinceLastSearch = true;
   closeMobileSearchExpandedEditor({ restore: false });
   elements.searchForm?.requestSubmit();
-});
-
-elements.mobileSearchClearButton?.addEventListener("click", () => {
-  clearSearchComposer();
-  updateMobileSearchSecondaryActions();
-});
-
-elements.mobileSearchResetButton?.addEventListener("click", () => {
-  returnToHomepageState();
 });
 
 elements.siteNavBrandLink?.addEventListener("click", (event) => {

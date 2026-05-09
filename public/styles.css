@@ -1147,7 +1147,7 @@ h1 {
 }
 
 .image-modal-category-requirement {
-  margin-bottom: 14px;
+  margin-top: 14px;
 }
 
 .image-modal-category-requirement .clarification-card {
@@ -3519,7 +3519,7 @@ body.results-loading-active .results-layout {
   align-items: center;
   flex-direction: column;
   gap: 18px;
-  padding: 12px 0 0;
+  padding: 12px 0 12px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -5189,28 +5189,11 @@ body.results-loading-active .results-layout {
   }
 
   .mobile-search-expanded-secondary-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-top: 8px;
+    display: none;
   }
 
   .mobile-search-secondary-button {
-    min-height: 34px;
-    padding: 0 12px;
-    border: 1px solid #d8d3cb;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.86);
-    color: #5c5868;
-    font: inherit;
-    font-size: 0.84rem;
-    font-weight: 600;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: none;
   }
 
   .mobile-search-cancel-button {
@@ -5406,7 +5389,7 @@ body.results-loading-active .results-layout {
   }
 
   .image-modal-category-requirement {
-    margin-bottom: 12px;
+    margin-top: 12px;
   }
 
   .inspiration-preview-wrap {
@@ -5658,7 +5641,9 @@ body.results-loading-active .results-layout {
   }
 
   .results-header-summary {
+    display: inline-flex;
     grid-column: 1;
+    gap: 10px;
   }
 
   .results-header-summary p {
@@ -5672,7 +5657,42 @@ body.results-loading-active .results-layout {
   }
 
   #resetSearchButton {
-    display: none !important;
+    display: inline-flex;
+    padding: 6px 10px;
+    font-size: 0.92rem;
+  }
+
+  .search-clear-button {
+    margin-left: 6px;
+    min-width: 30px;
+    min-height: 30px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(205, 197, 185, 0.96);
+    background: rgba(227, 221, 209, 0.92);
+    color: transparent;
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  .search-clear-button::before {
+    content: "×";
+    position: absolute;
+    inset: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #5f584d;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .search-clear-button:hover,
+  .search-clear-button:focus-visible {
+    background: rgba(216, 206, 191, 0.96);
+    color: transparent;
   }
 
   .refine-toggle-button {
