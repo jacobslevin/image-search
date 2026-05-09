@@ -1,0 +1,158 @@
+name: Deploy to Elastic Beanstalk
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag a to deploy'
+        required: true
+        type: string      
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: elasticbeanstalk-${{ vars.EB_ENVIRONMENT_NAME }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  EB_APPLICATION_NAME: ${{ vars.EB_APPLICATION_NAME }}
+  EB_ENVIRONMENT_NAME: ${{ vars.EB_ENVIRONMENT_NAME }}
+  EB_S3_BUCKET: ${{ vars.EB_S3_BUCKET }}
+  CONFIG_JSON_S3_URI: ${{ vars.CONFIG_JSON_S3_URI }}
+  CONFIG_JSON_DEST_PATH: ${{ vars.CONFIG_JSON_DEST_PATH }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  TAG_TO_DEPLOY: ${{ inputs.tag }}
+  PGHOST: ${{vars.PGHOST}}
+  PGPORT: ${{vars.PGPORT}}
+  PGDATABASE: ${{vars.PGDATABASE}}
+  PGUSER: ${{vars.PGUSER}}
+  PGPASSWORD: ${{secrets.PGPASSWORD}}
+  PGSSLMODE: ${{vars.PGSSLMODE}}
+  NODE_ENV: ${{vars.NODE_ENV}}
+
+jobs:
+  deploy:
+    name: Deploy application to Elastic Beanstalk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - name: Show selected revision
+        run: |
+          echo "Git ref: $GITHUB_REF"
+          echo "Git ref name: $GITHUB_REF_NAME"
+          echo "Requested tag: ${TAG_TO_DEPLOY:-not manually provided}"
+
+          git status
+          git log -1 --oneline
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6.1.0
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-session-name: github-eb-deploy-${{ github.run_id }}
+
+      - name: Verify Elastic Beanstalk environment
+        run: |
+          aws elasticbeanstalk describe-environments \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME" \
+            --region "$AWS_REGION" \
+            --query "Environments[0].{Name:EnvironmentName,Status:Status,Health:Health}" \
+            --output table
+      
+      - name: Copy JSON config file from S3
+        run: |
+          test -n "$CONFIG_JSON_S3_URI" || (echo "Missing CONFIG_JSON_S3_URI" && exit 1)
+          test -n "$CONFIG_JSON_DEST_PATH" || (echo "Missing CONFIG_JSON_DEST_PATH" && exit 1)
+
+          mkdir -p "$(dirname "$CONFIG_JSON_DEST_PATH")"
+
+          aws s3 cp "$CONFIG_JSON_S3_URI" "$CONFIG_JSON_DEST_PATH" \
+            --region "$AWS_REGION"
+
+          ls -l "$CONFIG_JSON_DEST_PATH"
+      - name: Run pre-deploy scripts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          test -n "$OPENAI_API_KEY" || (echo "Missing OPENAI_API_KEY secret" && exit 1)
+
+          node scripts/normalize-products.js
+          node scripts/build-index.js
+
+      - name: Create source bundle
+        run: |
+          SAFE_REF="${TAG_TO_DEPLOY:-$GITHUB_REF_NAME}"
+          SAFE_REF="$(echo "$SAFE_REF" | tr '/:@ ' '----')"
+
+          VERSION_LABEL="${SAFE_REF}-${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}"
+          ARTIFACT_NAME="app-${VERSION_LABEL}.zip"
+
+          echo "VERSION_LABEL=$VERSION_LABEL" >> "$GITHUB_ENV"
+          echo "ARTIFACT_NAME=$ARTIFACT_NAME" >> "$GITHUB_ENV"
+
+          zip -r "$ARTIFACT_NAME" . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x "node_modules/*" \
+            -x "tmp/*" \
+            -x "log/*" \
+            -x "*.zip"
+
+      - name: Upload source bundle to S3
+        run: |
+          S3_KEY="elasticbeanstalk/$EB_APPLICATION_NAME/$ARTIFACT_NAME"
+
+          aws s3 cp "$ARTIFACT_NAME" "s3://$EB_S3_BUCKET/$S3_KEY" \
+            --region "$AWS_REGION"
+
+          echo "S3_KEY=$S3_KEY" >> "$GITHUB_ENV"
+
+      - name: Create Elastic Beanstalk application version
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name "$EB_APPLICATION_NAME" \
+            --version-label "$VERSION_LABEL" \
+            --description "GitHub Actions deploy from commit $GITHUB_SHA" \
+            --source-bundle S3Bucket="$EB_S3_BUCKET",S3Key="$S3_KEY" \
+            --region "$AWS_REGION"
+
+      - name: Deploy version to Elastic Beanstalk environment
+        run: |
+          aws elasticbeanstalk update-environment \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-name "$EB_ENVIRONMENT_NAME" \
+            --version-label "$VERSION_LABEL" \
+            --region "$AWS_REGION"
+
+      - name: Wait for deployment to finish
+        run: |
+          aws elasticbeanstalk wait environment-updated \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME" \
+            --region "$AWS_REGION"
+
+      - name: Show final environment status
+        run: |
+          aws elasticbeanstalk describe-environments \
+            --application-name "$EB_APPLICATION_NAME" \
+            --environment-names "$EB_ENVIRONMENT_NAME" \
+            --region "$AWS_REGION" \
+            --query "Environments[0].{Name:EnvironmentName,Status:Status,Health:Health,Version:VersionLabel,CNAME:CNAME}" \
+            --output table
