@@ -9972,15 +9972,13 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
     renderResults(payload, resolvedQuery);
     scrollViewportToResultsTop();
   } catch (error) {
-    if (!analysis && String(error?.message || "").trim() === QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE) {
-      restoreImageAnalysisPreSubmitScreen(
-        body.image_data_url || body.image_url || state.cropPreviewUrl || "",
-        focusArea || state.focusArea || null
-      );
-      setStatus(QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE, "error");
-      return;
-    }
-    throw error;
+    const errorMessage = String(error?.message || "").trim() || "Image analysis failed.";
+    restoreImageAnalysisPreSubmitScreen(
+      body.image_data_url || body.image_url || state.cropPreviewUrl || "",
+      focusArea || state.focusArea || null
+    );
+    setStatus(errorMessage, "error");
+    return null;
   } finally {
     setImageAnalyzeLoading(false);
   }
