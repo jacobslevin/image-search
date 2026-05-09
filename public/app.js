@@ -507,7 +507,8 @@ const elements = {
   statusPanel: document.querySelector("#statusPanel"),
   uploadSupportNote: document.querySelector("#uploadSupportNote"),
   analyzeImageButton: document.querySelector("#analyzeImageButton"),
-  imageAnalyzeLoading: document.querySelector("#imageAnalyzeLoading")
+  imageAnalyzeLoading: document.querySelector("#imageAnalyzeLoading"),
+  imageModalCategoryRequirement: document.querySelector("#imageModalCategoryRequirement")
 };
 
 function syncRootClass(name, enabled) {
@@ -5711,14 +5712,15 @@ function createFocusAreaAroundPoint(clientX, clientY) {
 
 function syncFocusStageControls() {
   const isTouchMode = isTouchCropStageActive();
+  const hasCategoryRequirement = isImageAnalysisCategoryRequirementActive();
   const hasCrop = isTouchMode
     ? Boolean(state.touchCrop.hasInteracted)
     : Boolean(state.cropModeActive && state.focusArea);
   if (elements.focusCropPrompt) {
-    elements.focusCropPrompt.hidden = isTouchMode || hasCrop || Boolean(state.imageAnalyzeLoading);
+    elements.focusCropPrompt.hidden = isTouchMode || hasCrop || hasCategoryRequirement || Boolean(state.imageAnalyzeLoading);
   }
   if (elements.skipFocusButton) {
-    elements.skipFocusButton.hidden = isTouchMode || !hasCrop;
+    elements.skipFocusButton.hidden = isTouchMode || !hasCrop || hasCategoryRequirement;
   }
   if (elements.applyFocusButton) {
     elements.applyFocusButton.textContent = isTouchMode
@@ -5760,7 +5762,7 @@ function setImageAnalyzeLoading(isLoading) {
     elements.analyzeImageButton.hidden = isLoading || shouldHideForSelection;
   }
   if (elements.applyFocusButton) {
-    elements.applyFocusButton.hidden = isLoading;
+    elements.applyFocusButton.hidden = isLoading || isImageAnalysisCategoryRequirementActive();
   }
   if (elements.skipFocusButton) {
     elements.skipFocusButton.hidden = isLoading || !Boolean(state.cropModeActive && state.focusArea);
@@ -6126,25 +6128,16 @@ function applyRefineSelectedImageCrop(imageElement, wrapElement, imageUrl, focus
   imageElement.style.borderRadius = "0";
 }
 
-function renderClarificationBar() {
-  if (!elements.clarificationBar) {
-    return;
-  }
-
-  const categoryRequirement = state.categoryRequirement;
-  const categoryRequirementMode = String(categoryRequirement?.mode || "").trim();
-  const shouldShowCategoryRequirement = Boolean(
-    categoryRequirement &&
-    Array.isArray(categoryRequirement.options) &&
-    categoryRequirement.options.length &&
-    (state.lastQuery || categoryRequirementMode === "image_analysis")
+function isImageAnalysisCategoryRequirementActive() {
+  return Boolean(
+    !elements.imageModal?.hidden &&
+    state.categoryRequirement &&
+    String(state.categoryRequirement?.mode || "").trim() === "image_analysis"
   );
-  const shouldShow = shouldShowCategoryRequirement;
+}
 
-  elements.clarificationBar.innerHTML = "";
-  elements.clarificationBar.hidden = !shouldShow;
-  elements.clarificationBar.classList.toggle("is-category-requirement", shouldShowCategoryRequirement);
-  if (!shouldShow) {
+function renderCategoryRequirementContent(container, categoryRequirement, categoryRequirementMode = "") {
+  if (!container || !categoryRequirement) {
     return;
   }
 
@@ -6157,7 +6150,6 @@ function renderClarificationBar() {
   const normalizedMessage = message.replace(/\n+/g, "\n").trim();
   const [firstLine, ...remainingLines] = normalizedMessage.split("\n");
   const trailingText = remainingLines.join(" ").trim();
-  text.textContent = "";
   const firstLineNode = document.createElement("span");
   firstLineNode.textContent = firstLine || normalizedMessage;
   text.appendChild(firstLineNode);
@@ -6278,7 +6270,55 @@ function renderClarificationBar() {
   });
 
   card.append(text, options, close);
-  elements.clarificationBar.appendChild(card);
+  container.appendChild(card);
+}
+
+function renderImageModalCategoryRequirement() {
+  if (!elements.imageModalCategoryRequirement) {
+    return;
+  }
+  const active = isImageAnalysisCategoryRequirementActive();
+  elements.imageModalCategoryRequirement.innerHTML = "";
+  elements.imageModalCategoryRequirement.hidden = !active;
+  if (!active) {
+    return;
+  }
+  renderCategoryRequirementContent(
+    elements.imageModalCategoryRequirement,
+    state.categoryRequirement,
+    "image_analysis"
+  );
+}
+
+function renderClarificationBar() {
+  if (!elements.clarificationBar) {
+    return;
+  }
+
+  const categoryRequirement = state.categoryRequirement;
+  const categoryRequirementMode = String(categoryRequirement?.mode || "").trim();
+  const shouldShowCategoryRequirement = Boolean(
+    categoryRequirement &&
+    Array.isArray(categoryRequirement.options) &&
+    categoryRequirement.options.length &&
+    (state.lastQuery || categoryRequirementMode === "image_analysis")
+  );
+  const shouldShowInModal = shouldShowCategoryRequirement && isImageAnalysisCategoryRequirementActive();
+  const shouldShow = shouldShowCategoryRequirement && !shouldShowInModal;
+
+  elements.clarificationBar.innerHTML = "";
+  elements.clarificationBar.hidden = !shouldShow;
+  elements.clarificationBar.classList.toggle("is-category-requirement", shouldShowCategoryRequirement && !shouldShowInModal);
+  renderImageModalCategoryRequirement();
+  if (!shouldShow) {
+    return;
+  }
+
+  renderCategoryRequirementContent(
+    elements.clarificationBar,
+    categoryRequirement,
+    categoryRequirementMode
+  );
 }
 
 function renderSeedQueries(seedQueries) {
@@ -9382,6 +9422,7 @@ function syncMobileSearchExpandedUi() {
     searchField?.classList.remove("is-mobile-expanded");
     return;
   }
+  updateMobileSearchSecondaryActions();
   document.body.classList.toggle("mobile-search-expanded-active", Boolean(state.mobileSearchExpanded));
   const searchField = elements.searchForm?.querySelector(".search-field");
   searchField?.classList.toggle("is-mobile-expanded", state.mobileSearchExpanded);
@@ -9855,10 +9896,12 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
         progressRequestId
       });
       if (stage1Payload?.category_required) {
-        if (state.landingOnlyMode) {
-          enterBrowseMode("");
+        if (elements.imageModal.hidden) {
+          openImageModal();
         }
-        closeImageModal();
+        if (body.image_data_url || body.image_url) {
+          showCropStage(body.image_data_url || body.image_url);
+        }
         updateClarificationConflict(null);
         updateCategoryRequirement({
           mode: "image_analysis",
@@ -9872,6 +9915,7 @@ async function runImageAnalysisSearch(requestBody = null, focusArea = null, opti
           focusArea: focusArea ? normalizeFocusArea(focusArea) : null
         });
         setStatus("");
+        setImageAnalyzeLoading(false);
         return;
       }
       const resolvedType = String(
@@ -10736,6 +10780,14 @@ elements.homepageImageUploadInput?.addEventListener("change", (event) => {
 elements.imageUploadInput.addEventListener("change", (event) => {
   const [file] = event.target.files || [];
   setSelectedUploadFile(file || null);
+  if (!file) {
+    return;
+  }
+  analyzeSelectedImage().catch((error) => {
+    setStatus(error.message, "error");
+  }).finally(() => {
+    event.target.value = "";
+  });
 });
 
 elements.imageModalUrlToggle?.addEventListener("click", () => {
