@@ -457,6 +457,20 @@ function buildSyntheticUnmappedProductSkipRecord(productImage = {}, options = {}
   };
 }
 
+function resolveSupportedQueryImageVisualType(value = "") {
+  const normalized = normalizeVisualTypeKey(value);
+  if (!normalized) {
+    return "";
+  }
+  const entry = visualTypesRegistry.resolveRoutingKey(normalized);
+  if (!entry) {
+    return "";
+  }
+  return entry.family === "seating" || entry.family === "tables"
+    ? normalized
+    : "";
+}
+
 function sleepMs(ms = 0) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -6050,9 +6064,9 @@ export async function analyzeInspirationImage(imageUrl, options = {}) {
     };
   }
 
-  const forcedSeatingType = seatingTypes[String(options.seatingTypeOverride || "").trim()]
-    ? String(options.seatingTypeOverride || "").trim()
-    : "";
+  const forcedSeatingType = resolveSupportedQueryImageVisualType(
+    String(options.seatingTypeOverride || options.visualTypeOverride || "").trim()
+  );
   if (forcedSeatingType) {
     if (typeof runOptions.progressCallback === "function") {
       runOptions.progressCallback({
