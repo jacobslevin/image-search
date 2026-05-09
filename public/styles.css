@@ -304,6 +304,9 @@ h1 {
 
 .browse-trait-panel-fields-sidebar {
   grid-template-columns: 1fr;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .browse-trait-field {
@@ -3705,9 +3708,13 @@ body.results-loading-active .results-layout {
 .results-sidebar {
   position: sticky;
   top: 24px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   padding: 18px 16px;
+  max-height: calc(100vh - 48px);
+  min-height: 0;
+  overflow: hidden;
   border: 0;
   border-radius: 14px;
   background: #ffffff;
@@ -3754,6 +3761,14 @@ body.results-loading-active .results-layout {
 .results-sidebar-section {
   display: grid;
   gap: 0;
+  min-height: 0;
+}
+
+.results-sidebar #browseTraitFilterPanel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .refine-category-card {
@@ -3820,6 +3835,20 @@ body.results-loading-active .results-layout {
 .refine-products-list {
   display: grid;
   gap: 0;
+}
+
+#refineBulletSection {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.refine-bullets-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .refine-bullet-row,
@@ -3934,6 +3963,10 @@ body.results-loading-active .results-layout {
 
 .desktop-refine-actions {
   margin-top: 14px;
+  position: sticky;
+  bottom: 0;
+  padding-top: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #ffffff 24px);
 }
 
 .desktop-refine-apply-button[hidden] {
@@ -5129,13 +5162,13 @@ body.results-loading-active .results-layout {
 
   .mobile-search-expanded-panel {
     grid-column: 1 / -1;
-    display: flex;
-    justify-content: flex-end;
+    display: grid;
+    justify-items: stretch;
     margin-left: auto;
     margin-top: 2px;
     min-width: 0;
     padding-left: 8px;
-    width: fit-content;
+    width: min(100%, 390px);
     max-width: 100%;
   }
 
@@ -5149,11 +5182,35 @@ body.results-loading-active .results-layout {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
-    margin-left: auto;
     padding-top: 10px;
     border-top: 0.5px solid rgba(221, 215, 206, 0.92);
-    width: fit-content;
-    max-width: 100%;
+    width: 100%;
+    max-width: none;
+  }
+
+  .mobile-search-expanded-secondary-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .mobile-search-secondary-button {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid #d8d3cb;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #5c5868;
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .mobile-search-cancel-button {

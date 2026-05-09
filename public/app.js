@@ -495,6 +495,8 @@ const elements = {
   mobileSearchExpandedInput: document.querySelector("#mobileSearchExpandedInput"),
   mobileSearchCancelButton: document.querySelector("#mobileSearchCancelButton"),
   mobileSearchApplyButton: document.querySelector("#mobileSearchApplyButton"),
+  mobileSearchClearButton: document.querySelector("#mobileSearchClearButton"),
+  mobileSearchResetButton: document.querySelector("#mobileSearchResetButton"),
   browseCategoryScopeBar: document.querySelector("#browseCategoryScopeBar"),
   browseCategorySelect: document.querySelector("#browseCategorySelect"),
   browseTraitFilterPanel: document.querySelector("#browseTraitFilterPanel"),
@@ -2108,6 +2110,7 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
     elements.searchInput.textContent = String(fullQuery || "").trim();
   }
   updateSearchComposerClearButton();
+  updateMobileSearchSecondaryActions();
   renderMobileCategoryDropdown();
   syncMobileSearchExpandedUi();
 }
@@ -3187,6 +3190,21 @@ function updateSearchComposerClearButton() {
   }
   if (elements.clearSearchInputButton.parentNode !== elements.searchInput) {
     elements.searchInput.appendChild(elements.clearSearchInputButton);
+  }
+}
+
+function updateMobileSearchSecondaryActions() {
+  if (elements.mobileSearchClearButton) {
+    const hasComposableContent = hasSearchComposerClearableContent(getSearchComposerTextParts());
+    elements.mobileSearchClearButton.hidden = !hasComposableContent;
+  }
+  if (elements.mobileSearchResetButton) {
+    const visibleResults = getVisibleResults(state.lastPayload, state.lastQuery);
+    elements.mobileSearchResetButton.hidden = !shouldShowResetSearchButton({
+      landingOnlyMode: state.landingOnlyMode,
+      isBrowseMode: isBrowsePayload(state.lastPayload, state.lastQuery),
+      visibleResultCount: visibleResults.length
+    });
   }
 }
 
@@ -4662,6 +4680,7 @@ function updateResetSearchVisibility() {
     isBrowseMode: isBrowsePayload(state.lastPayload, state.lastQuery),
     visibleResultCount: visibleResults.length
   });
+  updateMobileSearchSecondaryActions();
 }
 
 function applyActiveSearchContext({
@@ -10391,6 +10410,15 @@ elements.mobileSearchApplyButton?.addEventListener("click", () => {
   state.searchInputEditedSinceLastSearch = true;
   closeMobileSearchExpandedEditor({ restore: false });
   elements.searchForm?.requestSubmit();
+});
+
+elements.mobileSearchClearButton?.addEventListener("click", () => {
+  clearSearchComposer();
+  updateMobileSearchSecondaryActions();
+});
+
+elements.mobileSearchResetButton?.addEventListener("click", () => {
+  returnToHomepageState();
 });
 
 elements.siteNavBrandLink?.addEventListener("click", (event) => {
