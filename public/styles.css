@@ -5392,6 +5392,20 @@ body.results-loading-active .results-layout {
     margin-top: 12px;
   }
 
+  .image-modal-category-requirement .clarification-card-category {
+    align-items: center;
+  }
+
+  .image-modal-category-requirement .clarification-options-category {
+    justify-items: center;
+  }
+
+  .image-modal-category-requirement .clarification-families,
+  .image-modal-category-requirement .clarification-subcategories {
+    width: 100%;
+    justify-content: center;
+  }
+
   #imageModalResultsStage[data-analysis-active="true"] .inspiration-preview-wrap {
     display: none;
   }
