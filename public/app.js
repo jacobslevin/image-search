@@ -3225,11 +3225,23 @@ function clearSearchBarDraft({ focus = false } = {}) {
       categoryScopeMode: state.categoryScopeMode || "all"
     };
   }
-  clearSearchComposer({ focus });
   state.categorySelectionTouchedSinceLastSearch = false;
+  state.searchInputEditedSinceLastSearch = true;
+  state.lastDisplayQuery = "";
   state.resultCategoryScope = ["all"];
   state.categoryScopeMode = "all";
+  updateCategoryRequirement(null);
+  state.clarificationConflict = null;
+  state.inlineRefinementPanel = null;
+  closeInlineRefinementPanel();
+  setSearchInputValue("");
   renderSearchComposer("");
+  syncBrowseCategoryControl(state.lastPayload, state.lastQuery);
+  renderBrowseTraitFilters(state.lastPayload, state.lastQuery);
+  updateSearchComposerClearButton();
+  if (focus) {
+    focusSearchComposerAtEnd();
+  }
 }
 
 function restoreSearchComposerDraftSnapshot() {
@@ -5804,6 +5816,7 @@ function setImageAnalyzeLoading(isLoading) {
     elements.focusAnalyzeLoading.hidden = !shouldShowImageAnalyzeProgress;
   }
   elements.analyzeImageButton.textContent = isLoading ? "Analyzing..." : "Analyze Image";
+  syncImageModalAnalysisState();
   syncImageModalUploadUi();
 }
 
@@ -6323,6 +6336,14 @@ function renderImageModalCategoryRequirement() {
     state.categoryRequirement,
     "image_analysis"
   );
+}
+
+function syncImageModalAnalysisState() {
+  if (!elements.imageModalResultsStage) {
+    return;
+  }
+  const isAnalysisActive = Boolean(state.imageAnalyzeLoading) || isImageAnalysisCategoryRequirementActive();
+  elements.imageModalResultsStage.dataset.analysisActive = isAnalysisActive ? "true" : "false";
 }
 
 function renderClarificationBar() {
@@ -9476,8 +9497,14 @@ function syncMobileSearchExpandedUi() {
 }
 
 function scrollViewportToResultsTop() {
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLElement && typeof activeElement.blur === "function") {
+    activeElement.blur();
+  }
   window.requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    });
   });
 }
 
@@ -9693,6 +9720,7 @@ function showUploadStage() {
   elements.inspirationPreview.removeAttribute("src");
   elements.focusBox.hidden = true;
   syncFocusStageControls();
+  syncImageModalAnalysisState();
   setImageAnalyzeLoading(false);
   syncImageModalUploadUi();
 }
@@ -9707,6 +9735,7 @@ function showCropStage(previewUrl) {
   resetTouchCropState();
   elements.inspirationPreview.src = state.cropPreviewUrl;
   syncFocusStageControls();
+  syncImageModalAnalysisState();
 }
 
 function restoreImageAnalysisPreSubmitScreen(previewUrl = "", focusArea = null) {
@@ -9742,6 +9771,7 @@ function resetImageFlow() {
   elements.inspirationPreview.removeAttribute("src");
   elements.focusBox.hidden = true;
   syncFocusStageControls();
+  syncImageModalAnalysisState();
   setImageAnalyzeLoading(false);
   syncImageModalUploadUi();
 }
