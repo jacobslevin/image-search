@@ -56,6 +56,10 @@ const VISUAL_TYPE_LABEL_TO_KEY = visualTypeEntries.reduce((acc, entry) => {
   acc[String(entry.label || "").toLowerCase()] = entry.visual_type;
   return acc;
 }, {});
+const VISUAL_TYPE_TO_ENTRY = visualTypeEntries.reduce((acc, entry) => {
+  acc[String(entry.visual_type || "").trim()] = entry;
+  return acc;
+}, {});
 const textQueryCategoryKeys = Object.freeze(visualTypeEntries.map((entry) => entry.visual_type));
 const inferableTextQueryCategoryEntries = Object.freeze(visualTypeEntries);
 const seatingVisualTypeKeys = Object.freeze(
@@ -69,6 +73,16 @@ const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
 const fallbackSeatingType = defaultSeatingType || Object.keys(seatingTypes)[0] || "";
 const stage1VisualTypeEnum = seatingVisualTypeKeys;
+const stage1PlausibleVisualTypeEnum = Object.freeze(
+  visualTypeEntries.map((entry) => entry.visual_type)
+);
+const stage1PlausibleCategoryEnum = Object.freeze(
+  [...new Set(
+    visualTypeEntries
+      .map((entry) => String(entry?.family || "").trim().toLowerCase())
+      .filter(Boolean)
+  )]
+);
 const stage1ResultEnum = ["product", "product_detail", "scene"];
 const stage0ResultEnum = ["product", "scene", "product_detail"];
 const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
@@ -344,7 +358,9 @@ function buildStage1OverrideVoteResult(result = "", overrideReason = null, confi
     stage1: {
       result: normalizedResult,
       seating_type: "",
-      override_reason: overrideReason || null
+      override_reason: overrideReason || null,
+      plausible_categories: [],
+      plausible_visual_types: []
     },
     ...buildEmptyStage23Payload(),
     field_confidence: {
@@ -1570,9 +1586,23 @@ function classifySchema() {
       seating_type: {
         type: "string",
         enum: [...stage1VisualTypeEnum, ""]
+      },
+      plausible_visual_types: {
+        type: "array",
+        items: {
+          type: "string",
+          enum: stage1PlausibleVisualTypeEnum
+        }
+      },
+      plausible_categories: {
+        type: "array",
+        items: {
+          type: "string",
+          enum: stage1PlausibleCategoryEnum
+        }
       }
     },
-    required: ["result", "override_reason", "seating_type"]
+    required: ["result", "override_reason", "seating_type", "plausible_visual_types", "plausible_categories"]
   };
 }
 
@@ -4005,22 +4035,62 @@ export function buildStage1ClassificationPrompt() {
 Return JSON only.
 Use the catalog context only as a disambiguation hint, not as override.
 
+For every response, include:
+- plausible_categories: a sparse array containing only the top-level product families that are genuinely visible or strongly implied by the visible product(s)
+- plausible_visual_types: a sparse array containing only the specific catalog subcategories that are genuinely plausible from what is visible
+
+For plausible_visual_types:
+- Allowed values: ${stage1PlausibleVisualTypeEnum.join(", ")}
+- Be conservative and sparse.
+- If the subject is very clear, return 1 specific type.
+- If it is ambiguous within a family, return only the small set of plausible types, usually 2-4.
+- If multiple visible products from different families are present, include plausible types across those families.
+- If you cannot narrow beyond the family confidently, return an empty plausible_visual_types array and let the caller fall back more broadly.
+- Never include a type that is clearly not visible.
+- plausible_visual_types must be compatible with plausible_categories. Do not return seating subtypes unless seating is actually plausible.
+
+Subtype hints:
+- lounge_chair: sofas, lounge chairs, loveseats, modular lounge pieces, privacy lounge forms, poufs/ottomans
+- guest_chair: side chairs, visitor chairs, dining-like guest seating, simple 4-leg or sled chairs with low adjustability
+- task_collab_chair: office, conference, training, classroom, or collaborative chairs with work/task ergonomics or notable adjustability
+- stool: counter/bar/perch seating, usually elevated, often backless or low-back
+- bench: multi-person seating without individual back support
+- occasional: coffee tables, side tables, lounge tables, small accent tables
+- conference: larger meeting tables, boardroom tables, formal conference surfaces
+- cafe_dining: dining-height cafe or dining tables, often smaller round/square tops
+- training: mobile, nesting, flip-top, classroom, or training tables
+- huddle_collaborative: small meeting / collaboration tables for team huddles, often round or soft-cornered
+- kitchen_faucet: kitchen sink faucets, gooseneck or pull-down kitchen fixtures
+- bathroom_lavatory_faucet: bathroom sink / vanity faucets, lavatory fixtures
+
+For plausible_categories:
+- Allowed values: seating, tables, faucets
+- Be conservative and sparse. Do not include a category "just in case."
+- If only seating is visible, return ["seating"].
+- If only tables are visible, return ["tables"].
+- If only faucets are visible, return ["faucets"].
+- If both seating and tables are clearly visible, return ["seating","tables"].
+- If you are uncertain whether a family is present, leave it out.
+
 Step 1: First assess whether this is a product_detail shot.
 - Determine whether at least approximately 75% of the full product is visible.
 - Check specifically:
   - Is the base visible?
 - Is the full silhouette of the product visible?
 - Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
-- If less than approximately 75% of the full product is visible, return {"result":"product_detail","seating_type":"","override_reason":"..."} and stop. The override_reason must briefly explain why this is a detail shot.
+- If less than approximately 75% of the full product is visible, return {"result":"product_detail","seating_type":"","override_reason":"...","plausible_visual_types":[...],"plausible_categories":[...]} and stop. The override_reason must briefly explain why this is a detail shot.
 
 Step 2: If this is not a product_detail shot, assess whether the image should be treated as a scene.
 - If more than one seating product is substantially visible and the non-primary seating is not just faint background presence, return scene.
 - Do not call it scene merely because it is photographed in a real room. A hero shot in a real room is still product if one seating product is clearly dominant and the room is secondary.
-- If this is a scene, return {"result":"scene","seating_type":"","override_reason":"..."} and stop. The override_reason must briefly explain why this is a scene.
+- If this is a scene, return {"result":"scene","seating_type":"","override_reason":"...","plausible_visual_types":[...],"plausible_categories":[...]} and stop. The override_reason must briefly explain why this is a scene.
 
 Step 3: If this is neither product_detail nor scene, classify the image into a seating type.
-- Return {"result":"product","seating_type":"...","override_reason":""}.
+- Return {"result":"product","seating_type":"...","override_reason":"","plausible_visual_types":[...],"plausible_categories":[...]}.
 - Choose exactly one seating_type from the enum.
+- For product results, if the primary product is seating, plausible_categories should almost always be ["seating"].
+- For product results, if the primary product is clearly one subcategory, plausible_visual_types should usually contain that single subcategory.
+- If the primary product is not seating, do not return result=product and do not return a seating_type.
 
 Type hints:
 - task_collab_chair: task, conference, classroom, or collaborative chair with a 5-star, sled, or 4-leg base and moderate to high adjustability
@@ -4063,11 +4133,74 @@ function normalizeStage1Classification(parsed = {}) {
   const overrideReason = result === "product_detail" || result === "scene"
     ? normalizeWhitespace(parsed?.override_reason || "")
     : "";
+  const normalizedSeatingType = ensureTypeKey(parsed?.seating_type);
+  const plausibleVisualTypes = [...new Set(
+    (Array.isArray(parsed?.plausible_visual_types) ? parsed.plausible_visual_types : [])
+      .map((value) => resolveSupportedQueryImageVisualType(String(value || "").trim().toLowerCase()))
+      .filter(Boolean)
+  )];
+  const plausibleCategories = [...new Set(
+    (Array.isArray(parsed?.plausible_categories) ? parsed.plausible_categories : [])
+      .map((value) => String(value || "").trim().toLowerCase())
+      .filter((value) => stage1PlausibleCategoryEnum.includes(value))
+  )];
+  const filteredPlausibleVisualTypes = plausibleVisualTypes.filter((visualType) => {
+    const entry = VISUAL_TYPE_TO_ENTRY[visualType];
+    const family = String(entry?.family || "").trim().toLowerCase();
+    return !plausibleCategories.length || plausibleCategories.includes(family);
+  });
+  if (!plausibleCategories.length) {
+    if (result === "product") {
+      plausibleCategories.push("seating");
+    }
+  }
+  if (result === "product") {
+    if (normalizedSeatingType && (plausibleCategories.length === 0 || plausibleCategories.includes("seating")) && !filteredPlausibleVisualTypes.includes(normalizedSeatingType)) {
+      filteredPlausibleVisualTypes.unshift(normalizedSeatingType);
+    }
+  }
+  const effectiveSeatingType = result === "product" && (plausibleCategories.length === 0 || plausibleCategories.includes("seating"))
+    ? normalizedSeatingType
+    : "";
   return {
     result,
-    seating_type: result === "product" ? ensureTypeKey(parsed?.seating_type) : "",
-    override_reason: overrideReason || null
+    seating_type: effectiveSeatingType,
+    override_reason: overrideReason || null,
+    plausible_visual_types: filteredPlausibleVisualTypes,
+    plausible_categories: plausibleCategories
   };
+}
+
+function aggregatePlausibleCategories(runs = [], options = {}) {
+  const minimumVotes = Math.max(1, Number(options.minimumVotes || Math.ceil(Math.max(1, runs.length) / 2)));
+  const counts = new Map();
+  for (const run of runs) {
+    const seenInRun = new Set(
+      (Array.isArray(run?.stage1?.plausible_categories) ? run.stage1.plausible_categories : [])
+        .map((value) => String(value || "").trim().toLowerCase())
+        .filter((value) => stage1PlausibleCategoryEnum.includes(value))
+    );
+    for (const category of seenInRun) {
+      counts.set(category, Number(counts.get(category) || 0) + 1);
+    }
+  }
+  return stage1PlausibleCategoryEnum.filter((category) => Number(counts.get(category) || 0) >= minimumVotes);
+}
+
+function aggregatePlausibleVisualTypes(runs = [], options = {}) {
+  const minimumVotes = Math.max(1, Number(options.minimumVotes || Math.ceil(Math.max(1, runs.length) / 2)));
+  const counts = new Map();
+  for (const run of runs) {
+    const seenInRun = new Set(
+      (Array.isArray(run?.stage1?.plausible_visual_types) ? run.stage1.plausible_visual_types : [])
+        .map((value) => resolveSupportedQueryImageVisualType(String(value || "").trim().toLowerCase()))
+        .filter(Boolean)
+    );
+    for (const visualType of seenInRun) {
+      counts.set(visualType, Number(counts.get(visualType) || 0) + 1);
+    }
+  }
+  return stage1PlausibleVisualTypeEnum.filter((visualType) => Number(counts.get(visualType) || 0) >= minimumVotes);
 }
 
 async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
@@ -5968,12 +6101,23 @@ async function voteStage1Classifications(imageInput, options = {}) {
   const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
   if (stage1ResultVote.value === "product_detail" || stage1ResultVote.value === "scene") {
     const winningRun = runs.find((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value) || {};
+    const matchingRuns = runs.filter((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value);
+    const plausibleCategories = aggregatePlausibleCategories(
+      matchingRuns
+    );
+    const plausibleVisualTypes = aggregatePlausibleVisualTypes(
+      matchingRuns
+    );
     return {
-      stage1: buildStage1OverrideVoteResult(
+      stage1: {
+        ...buildStage1OverrideVoteResult(
         stage1ResultVote.value,
         winningRun.stage1?.override_reason || null,
         stage1ResultVote.confidence
       ).stage1,
+        plausible_visual_types: plausibleVisualTypes,
+        plausible_categories: plausibleCategories
+      },
       field_confidence: {
         stage1: {
           result: stage1ResultVote.confidence,
@@ -5995,11 +6139,22 @@ async function voteStage1Classifications(imageInput, options = {}) {
   const resolvedSeatingType = seatingTypes[String(seatingTypeVote.value || "").trim()]
     ? seatingTypeVote.value
     : "";
+  const productRuns = runs.filter((run) => normalizeStage1Result(run.stage1?.result) === "product");
+  const plausibleCategories = aggregatePlausibleCategories(productRuns);
+  const plausibleVisualTypes = aggregatePlausibleVisualTypes(productRuns);
+  if (resolvedSeatingType && plausibleCategories.length === 0) {
+    plausibleCategories.unshift("seating");
+  }
+  if (resolvedSeatingType && (plausibleCategories.length === 0 || plausibleCategories.includes("seating")) && !plausibleVisualTypes.includes(resolvedSeatingType)) {
+    plausibleVisualTypes.unshift(resolvedSeatingType);
+  }
   return {
     stage1: {
       result: "product",
       seating_type: resolvedSeatingType,
-      override_reason: null
+      override_reason: null,
+      plausible_visual_types: plausibleVisualTypes,
+      plausible_categories: plausibleCategories
     },
     field_confidence: {
       stage1: {
@@ -6017,11 +6172,22 @@ function voteStage123Runs(runs = []) {
   const stage1ResultVote = voteFieldValues(runs.map((run) => normalizeStage1Result(run.stage1?.result)));
   if (stage1ResultVote.value === "product_detail" || stage1ResultVote.value === "scene") {
     const winningRun = runs.find((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value) || {};
-    return buildStage1OverrideVoteResult(
+    const matchingRuns = runs.filter((run) => normalizeStage1Result(run.stage1?.result) === stage1ResultVote.value);
+    const plausibleCategories = aggregatePlausibleCategories(matchingRuns);
+    const plausibleVisualTypes = aggregatePlausibleVisualTypes(matchingRuns);
+    const stage1Override = buildStage1OverrideVoteResult(
       stage1ResultVote.value,
       winningRun.stage1?.override_reason || null,
       stage1ResultVote.confidence
     );
+    return {
+      ...stage1Override,
+      stage1: {
+        ...stage1Override.stage1,
+        plausible_visual_types: plausibleVisualTypes,
+        plausible_categories: plausibleCategories
+      }
+    };
   }
   const primary = runs[0] || {};
   const seatingTypeVote = voteFieldValues(runs.map((run) => run.stage1?.seating_type || ""));
@@ -6033,11 +6199,23 @@ function voteStage123Runs(runs = []) {
       : null
   ));
 
+  const productRuns = runs.filter((run) => normalizeStage1Result(run.stage1?.result) === "product");
+  const plausibleCategories = aggregatePlausibleCategories(productRuns);
+  const plausibleVisualTypes = aggregatePlausibleVisualTypes(productRuns);
+  if ((seatingTypeVote.value || "") && plausibleCategories.length === 0) {
+    plausibleCategories.unshift("seating");
+  }
+  if ((seatingTypeVote.value || "") && (plausibleCategories.length === 0 || plausibleCategories.includes("seating")) && !plausibleVisualTypes.includes(seatingTypeVote.value)) {
+    plausibleVisualTypes.unshift(seatingTypeVote.value);
+  }
+
   return {
     stage1: {
       result: "product",
       seating_type: seatingTypeVote.value || "",
-      override_reason: null
+      override_reason: null,
+      plausible_visual_types: plausibleVisualTypes,
+      plausible_categories: plausibleCategories
     },
     stage2: {
       silhouette: primary.stage2?.silhouette || "",

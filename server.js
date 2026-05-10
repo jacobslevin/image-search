@@ -1516,6 +1516,109 @@ function normalizeRequestedVisualType(input = null) {
   return "";
 }
 
+function filterVisualTypeOptionsByFamilies(families = []) {
+  const normalizedFamilies = [...new Set(
+    (Array.isArray(families) ? families : [])
+      .map((value) => String(value || "").trim().toLowerCase())
+      .filter(Boolean)
+  )];
+  if (!normalizedFamilies.length) {
+    return [];
+  }
+  return allVisualTypeOptions.filter((visualType) => {
+    const entry = visualTypesRegistry.resolveRoutingKey(visualType);
+    return normalizedFamilies.includes(String(entry?.family || "").trim().toLowerCase());
+  });
+}
+
+function normalizeVisualTypeOptions(values = []) {
+  return [...new Set(
+    (Array.isArray(values) ? values : [])
+      .map((value) => normalizeRequestedVisualType({ visual_type: value }))
+      .filter(Boolean)
+  )];
+}
+
+function getStage1PlausibleCategories(analysis = null) {
+  return [...new Set(
+    (Array.isArray(analysis?.stage1?.plausible_categories) ? analysis.stage1.plausible_categories : Array.isArray(analysis?.plausible_categories) ? analysis.plausible_categories : [])
+      .map((value) => String(value || "").trim().toLowerCase())
+      .filter(Boolean)
+  )];
+}
+
+function getStage1PlausibleVisualTypes(analysis = null) {
+  return normalizeVisualTypeOptions(
+    analysis?.stage1?.plausible_visual_types || analysis?.plausible_visual_types || []
+  );
+}
+
+function resolveTrustedSingleStage1VisualType(analysis = null) {
+  const stage1Runs = Array.isArray(analysis?.stage1_runs) ? analysis.stage1_runs : [];
+  if (stage1Runs.length < 2) {
+    return "";
+  }
+  const perRunLeaves = stage1Runs.map((run) => normalizeVisualTypeOptions(run?.stage1?.plausible_visual_types || []));
+  if (!perRunLeaves.every((values) => values.length === 1)) {
+    return "";
+  }
+  const candidate = perRunLeaves[0][0];
+  if (!candidate) {
+    return "";
+  }
+  if (!perRunLeaves.every((values) => values[0] === candidate)) {
+    return "";
+  }
+  const plausibleCategories = getStage1PlausibleCategories(analysis);
+  const candidateFamily = String(visualTypesRegistry.resolveRoutingKey(candidate)?.family || "").trim().toLowerCase();
+  if (
+    plausibleCategories.length &&
+    (
+      !candidateFamily ||
+      plausibleCategories.length !== 1 ||
+      plausibleCategories[0] !== candidateFamily
+    )
+  ) {
+    return "";
+  }
+  return candidate;
+}
+
+function resolveStage1VisualTypeOptions(analysis = null) {
+  const plausibleVisualTypes = getStage1PlausibleVisualTypes(analysis);
+  const plausibleFamilies = getStage1PlausibleCategories(analysis);
+  const trustedSingleVisualType = resolveTrustedSingleStage1VisualType(analysis);
+  if (trustedSingleVisualType) {
+    return [trustedSingleVisualType];
+  }
+  if (plausibleVisualTypes.length === 1) {
+    const singleLeafFamily = String(visualTypesRegistry.resolveRoutingKey(plausibleVisualTypes[0])?.family || "").trim().toLowerCase();
+    const broadenedFamilyOptions = filterVisualTypeOptionsByFamilies(
+      plausibleFamilies.length
+        ? plausibleFamilies
+        : singleLeafFamily
+          ? [singleLeafFamily]
+          : []
+    );
+    return broadenedFamilyOptions.length ? broadenedFamilyOptions : allVisualTypeOptions;
+  }
+  if (plausibleVisualTypes.length) {
+    const coveredFamilies = new Set(
+      plausibleVisualTypes
+        .map((visualType) => String(visualTypesRegistry.resolveRoutingKey(visualType)?.family || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+    const additionalFamilyOptions = filterVisualTypeOptionsByFamilies(
+      plausibleFamilies.filter((family) => !coveredFamilies.has(family))
+    );
+    return [...new Set([...plausibleVisualTypes, ...additionalFamilyOptions])];
+  }
+  const filteredOptions = filterVisualTypeOptionsByFamilies(
+    plausibleFamilies
+  );
+  return filteredOptions.length ? filteredOptions : allVisualTypeOptions;
+}
+
 function isAllVisualTypeRequest(input = null) {
   if (typeof input === "string") {
     return String(input || "").trim().toLowerCase() === "all";
@@ -4060,22 +4163,31 @@ const server = http.createServer(async (request, response) => {
       });
 
       if (stage1Only) {
-        const stage1Result = String(analysis?.stage1?.result || "").trim().toLowerCase();
-        const seatingTypeConfidence = String(analysis?.field_confidence?.stage1?.seating_type || "").trim().toLowerCase();
+        const trustedSingleVisualType = resolveTrustedSingleStage1VisualType(analysis);
+        const stage1Options = resolveStage1VisualTypeOptions(analysis);
         const resolvedVisualType = normalizeRequestedVisualType({
-          visual_type: analysis?.visual_type || analysis?.stage1?.visual_type,
+          visual_type: trustedSingleVisualType || analysis?.visual_type || analysis?.stage1?.visual_type,
           seating_type: analysis?.seating_type || analysis?.stage1?.seating_type
         });
+        const categoryRequired = !trustedSingleVisualType && stage1Options.length > 1;
+        const analysisPayload = addVisualTypeToAnalysisPayload(
+          trustedSingleVisualType
+            ? {
+                ...analysis,
+                visual_type: trustedSingleVisualType,
+                stage1: {
+                  ...(analysis?.stage1 || {}),
+                  visual_type: trustedSingleVisualType
+                }
+              }
+            : analysis
+        );
         return json(response, 200, {
-          category_required: Boolean(
-            stage1Result !== "product" ||
-            seatingTypeConfidence !== "high" ||
-            !resolvedVisualType
-          ),
-          seating_category_options: allVisualTypeOptions,
-          visual_type_options: allVisualTypeOptions,
+          category_required: categoryRequired,
+          seating_category_options: stage1Options,
+          visual_type_options: stage1Options,
           analysis: {
-            ...addVisualTypeToAnalysisPayload(analysis),
+            ...analysisPayload,
             image_preview_url: imageSource
           }
         });
