@@ -87,6 +87,7 @@ const state = {
   categoryScopeLoading: false,
   categoryScopeMode: "all",
   lastDisplayQuery: "",
+  resultsInfoBanner: null,
   searchComposerPrefix: "",
   searchComposerMatch: "",
   searchComposerDraftSnapshot: null,
@@ -248,6 +249,9 @@ const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an une
 const QUERY_IMAGE_UPLOAD_MAX_DIMENSION = 1600;
 const QUERY_IMAGE_UPLOAD_JPEG_QUALITY = 0.82;
 const IMAGE_ANALYZE_MIN_PHASE_MS = 600;
+const CATEGORY_REQUIREMENT_AMBIGUITY_MESSAGE = "What kind of product are you looking for?\nLaTrobe couldn't quite tell which kind of product this is. Pick a category to continue.";
+const CATEGORY_REQUIREMENT_FAILURE_MESSAGE = "What kind of product are you looking for?\nLaTrobe got stuck trying to figure out what this is. Pick a category to continue, or try again.";
+const QUERY_REWRITE_FALLBACK_MESSAGE = "Refinement applied, but this wasn't an easy one — LaTrobe got a little fuzzy on the rewrite, results may be less precise.";
 const STRUCTURED_TRAITS_TAB_DEFS = [
   { id: "matrix", label: "Trait & Value Matrix" },
   { id: "scoring", label: "Per-Category Scoring" },
@@ -467,6 +471,7 @@ const elements = {
   sortSelect: document.querySelector("#sortSelect"),
   resetSearchButton: document.querySelector("#resetSearchButton"),
   clarificationBar: document.querySelector("#clarificationBar"),
+  resultsInfoBanner: document.querySelector("#resultsInfoBanner"),
   refineBulletSection: document.querySelector("#refineBulletSection"),
   refineBulletsList: document.querySelector("#refineBulletsList"),
   refineSelectedImageWrap: document.querySelector("#refineSelectedImageWrap"),
@@ -3544,7 +3549,11 @@ async function fetchJson(url, options) {
   }
 
   if (!response.ok) {
-    throw new Error(payload.error || "Request failed");
+    const error = new Error(payload.error || "Request failed");
+    error.status = response.status;
+    error.payload = payload;
+    error.llmFailure = payload?.llm_failure || null;
+    throw error;
   }
   return payload;
 }
@@ -5948,6 +5957,44 @@ function setStatus(message, kind = "info") {
   elements.statusPanel.textContent = message || "";
 }
 
+function buildTraitExtractionFallbackMessage(failure = null) {
+  const group = String(failure?.group || "").trim();
+  if (group === "openai_rate_limited" || group === "openai_server_error" || group === "network_or_timeout") {
+    return "Search ran. LaTrobe hiccupped in the middle of interpreting your query — results below are powered by our backup brain. Try resubmitting for tighter results.";
+  }
+  if (group === "openai_bad_request") {
+    return "Search ran, but LaTrobe got tangled up trying to parse your wording. Try rephrasing for tighter results.";
+  }
+  return "We pulled this off, mostly. LaTrobe got weird in the middle. Try rewording and resubmitting for cleaner results.";
+}
+
+function buildResultsInfoBanner(payload = state.lastPayload, query = state.lastQuery) {
+  if (!payload || !String(query || "").trim() || state.currentImageAnalysis) {
+    return null;
+  }
+  const failure = payload?.text_query_traits_fallback && typeof payload.text_query_traits_fallback === "object"
+    ? payload.text_query_traits_fallback
+    : null;
+  if (!failure) {
+    return null;
+  }
+  return {
+    kind: "warning",
+    message: buildTraitExtractionFallbackMessage(failure)
+  };
+}
+
+function renderResultsInfoBanner(payload = state.lastPayload, query = state.lastQuery) {
+  if (!elements.resultsInfoBanner) {
+    return;
+  }
+  state.resultsInfoBanner = buildResultsInfoBanner(payload, query);
+  const banner = state.resultsInfoBanner;
+  elements.resultsInfoBanner.hidden = !banner;
+  elements.resultsInfoBanner.textContent = banner?.message || "";
+  elements.resultsInfoBanner.className = `results-info-banner${banner ? ` ${banner.kind || "info"}` : ""}`;
+}
+
 function setResultsLoading(message = "") {
   const loadingState = typeof message === "string"
     ? {
@@ -6025,6 +6072,7 @@ function setResultsLoading(message = "") {
       elements.resultsGrid.innerHTML = "";
     }
     setStatus("");
+    renderResultsInfoBanner(null, "");
   }
 }
 
@@ -8432,6 +8480,7 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
   const traitChanges = buildTraitChangePayload(selectedTraits);
   let nextQuery = "";
   let rewriteFailureReason = "";
+  let rewriteFailed = false;
   try {
     nextQuery = await rewriteQueryForTraitChanges(
       currentQueryText,
@@ -8443,10 +8492,12 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
       ]
     );
   } catch (error) {
+    rewriteFailed = true;
     rewriteFailureReason = error.message || "rewrite request failed";
     console.warn("[rewrite-query-traits] falling back after request failure:", rewriteFailureReason);
   }
   if (!nextQuery) {
+    rewriteFailed = true;
     console.warn(
       "[rewrite-query-traits] falling back to composeQueryWithFallback",
       {
@@ -8515,7 +8566,11 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
       previousPayload = reranked.previousPayload;
     }
   }
-
+  setStatus(
+    rewriteFailed
+      ? QUERY_REWRITE_FALLBACK_MESSAGE
+      : summarizeRefinementChanges(previousPayload, payload, mode === "more" ? "toward" : "away from", result.name || "this product")
+  );
 }
 
 function renderResults(payload, query) {
@@ -8524,6 +8579,7 @@ function renderResults(payload, query) {
   state.lastPayload = payload;
   state.lastQuery = query;
   state.lastDisplayQuery = buildDisplayQueryFromPayload(payload, state.currentVisualType, query);
+  renderResultsInfoBanner(payload, query);
   const visibleResults = getVisibleResults(payload, query);
   renderBrowseTraitFilters(payload, query);
   renderSearchComposer(state.lastDisplayQuery || query);
@@ -9259,10 +9315,13 @@ async function runSearch(query, options = {}) {
       state.currentSelectedBullets = requestedSelectedBullets;
       state.currentBulletControls = requestedBulletControls;
       updateClarificationConflict(null);
+      const categoryRequirementReason = String(payload?.category_requirement_reason || "semantic_ambiguity").trim();
       updateCategoryRequirement({
         query: normalizedQuery,
         options: Array.isArray(payload?.visual_type_options) ? payload.visual_type_options : Array.isArray(payload?.seating_category_options) ? payload.seating_category_options : CATEGORY_REQUIREMENT_OPTION_KEYS,
-        message: "We could not determine the category of product you are looking for.\nPlease select an option below."
+        message: categoryRequirementReason === "llm_failure"
+          ? CATEGORY_REQUIREMENT_FAILURE_MESSAGE
+          : CATEGORY_REQUIREMENT_AMBIGUITY_MESSAGE
       });
       renderSearchComposer(normalizedQuery);
       setResultsLoading("");
@@ -9283,6 +9342,7 @@ async function runSearch(query, options = {}) {
         elements.resultsHeader.hidden = true;
       }
       renderContextPills();
+      renderResultsInfoBanner(null, "");
       setStatus("");
       return payload;
     }
@@ -9329,6 +9389,7 @@ async function runSearch(query, options = {}) {
   } catch (error) {
     setInitialSearchPending(false);
     setResultsLoading("");
+    renderResultsInfoBanner(null, "");
     setStatus(error.message, "error");
     return null;
   } finally {

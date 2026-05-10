@@ -1875,6 +1875,123 @@ async function callOpenAiJson({ apiKey, model, systemPrompt, userParts, schemaNa
   return result.data;
 }
 
+function parseOpenAiErrorBody(errorBody = "") {
+  const raw = String(errorBody || "").trim();
+  if (!raw) {
+    return {
+      openai_type: "",
+      openai_code: "",
+      openai_message: ""
+    };
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    const error = parsed?.error && typeof parsed.error === "object" ? parsed.error : {};
+    return {
+      openai_type: String(error.type || "").trim(),
+      openai_code: String(error.code || "").trim(),
+      openai_message: String(error.message || raw).trim()
+    };
+  } catch {
+    return {
+      openai_type: "",
+      openai_code: "",
+      openai_message: raw
+    };
+  }
+}
+
+function classifyLlmFailureGroup({ status = 0, kind = "", error = null } = {}) {
+  const normalizedKind = String(kind || "").trim().toLowerCase();
+  if (normalizedKind === "parse") {
+    return { group: "malformed_model_output", retryable: false, ambiguous: true };
+  }
+  if (normalizedKind === "empty_output") {
+    return { group: "empty_model_output", retryable: false, ambiguous: true };
+  }
+  if (normalizedKind === "network" || normalizedKind === "timeout") {
+    return { group: "network_or_timeout", retryable: true, ambiguous: false };
+  }
+
+  const numericStatus = Number(status || 0);
+  if (numericStatus === 429) {
+    return { group: "openai_rate_limited", retryable: true, ambiguous: false };
+  }
+  if (numericStatus >= 500 && numericStatus <= 599) {
+    return { group: "openai_server_error", retryable: true, ambiguous: false };
+  }
+  if (numericStatus === 400) {
+    return { group: "openai_bad_request", retryable: false, ambiguous: false };
+  }
+  if (numericStatus === 401 || numericStatus === 403) {
+    return { group: "openai_auth_or_config", retryable: false, ambiguous: false };
+  }
+
+  const errorName = String(error?.name || "").trim().toLowerCase();
+  const errorMessage = String(error?.message || "").trim().toLowerCase();
+  if (errorName === "timeouterror" || errorName === "aborterror" || /timed? out|timeout/.test(errorMessage)) {
+    return { group: "network_or_timeout", retryable: true, ambiguous: false };
+  }
+  if (
+    errorName === "typeerror" ||
+    /network|fetch failed|failed to fetch|socket|econnreset|econnrefused|enotfound/.test(errorMessage)
+  ) {
+    return { group: "network_or_timeout", retryable: true, ambiguous: false };
+  }
+
+  return { group: "unknown_llm_failure", retryable: false, ambiguous: true };
+}
+
+export function buildLlmFailureMeta({ source = "", status = 0, kind = "", errorBody = "", error = null } = {}) {
+  const numericStatus = Number(status || 0) || 0;
+  const details = parseOpenAiErrorBody(errorBody);
+  const classification = classifyLlmFailureGroup({
+    status: numericStatus,
+    kind,
+    error
+  });
+  return {
+    source: String(source || "").trim(),
+    kind: String(kind || "").trim().toLowerCase() || (
+      numericStatus ? "http" : classification.group === "network_or_timeout" ? "network" : "unknown"
+    ),
+    status: numericStatus || null,
+    group: classification.group,
+    retryable: Boolean(classification.retryable),
+    ambiguous: Boolean(classification.ambiguous),
+    openai_type: details.openai_type || "",
+    openai_code: details.openai_code || "",
+    openai_message: details.openai_message || ""
+  };
+}
+
+export function createLlmFailureError(message = "OpenAI request failed.", meta = {}) {
+  const error = new Error(message);
+  error.llm_failure = {
+    ...meta
+  };
+  return error;
+}
+
+export function normalizeLlmFailureMeta(error = null, fallback = {}) {
+  const existing = error?.llm_failure && typeof error.llm_failure === "object"
+    ? error.llm_failure
+    : null;
+  if (existing) {
+    return {
+      ...existing,
+      source: String(existing.source || fallback.source || "").trim()
+    };
+  }
+  return buildLlmFailureMeta({
+    source: fallback.source,
+    status: fallback.status || 0,
+    kind: fallback.kind || "",
+    errorBody: fallback.errorBody || "",
+    error
+  });
+}
+
 function normalizeOpenAiUsage(usage = {}) {
   const promptTokens = Number(usage?.input_tokens ?? usage?.prompt_tokens ?? 0) || 0;
   const completionTokens = Number(usage?.output_tokens ?? usage?.completion_tokens ?? 0) || 0;
@@ -1885,7 +2002,7 @@ function normalizeOpenAiUsage(usage = {}) {
   };
 }
 
-async function callOpenAiJsonWithMeta({ apiKey, model, systemPrompt, userParts, schemaName, schema }) {
+async function callOpenAiJsonWithMeta({ apiKey, model, systemPrompt, userParts, schemaName, schema, source = "" }) {
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
   const attempts = Number(process.env.OPENAI_MAX_RETRIES || 3);
   let lastError = null;
@@ -1926,16 +2043,34 @@ async function callOpenAiJsonWithMeta({ apiKey, model, systemPrompt, userParts, 
       if (!response.ok) {
         const errorBody = await response.text();
         console.error(`OpenAI error ${response.status}: ${errorBody}`);
-        throw new Error(`OpenAI request failed with ${response.status}.`);
+        throw createLlmFailureError(`OpenAI request failed with ${response.status}.`, buildLlmFailureMeta({
+          source,
+          status: response.status,
+          kind: "http",
+          errorBody
+        }));
       }
 
       const payload = await response.json();
       const outputText = payload.output_text || payload.output?.[0]?.content?.[0]?.text;
       if (!outputText) {
-        throw new Error("OpenAI response did not include JSON output.");
+        throw createLlmFailureError("OpenAI response did not include JSON output.", buildLlmFailureMeta({
+          source,
+          kind: "empty_output"
+        }));
+      }
+      let parsedOutput;
+      try {
+        parsedOutput = JSON.parse(outputText);
+      } catch (error) {
+        throw createLlmFailureError("OpenAI response returned malformed JSON output.", buildLlmFailureMeta({
+          source,
+          kind: "parse",
+          error
+        }));
       }
       return {
-        data: JSON.parse(outputText),
+        data: parsedOutput,
         usage: normalizeOpenAiUsage(payload.usage)
       };
     } catch (error) {
@@ -4584,7 +4719,9 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     const result = {
       status: "category_required",
       confidence: "low",
-      options: fallbackOptions
+      options: fallbackOptions,
+      clarification_reason: "semantic_ambiguity",
+      llm_failure: null
     };
     console.log(logPrefix, "empty-query", {
       openai_attempted: openAiAttempted,
@@ -4626,7 +4763,9 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     const result = {
       status: "category_required",
       confidence: "low",
-      options: fallbackOptions
+      options: fallbackOptions,
+      clarification_reason: "semantic_ambiguity",
+      llm_failure: null
     };
     console.log(logPrefix, "category-required-via-spatial-ambiguity", {
       openai_attempted: openAiAttempted,
@@ -4638,10 +4777,16 @@ export async function inferTextQueryCategory(query = "", options = {}) {
   }
 
   if (!options.apiKey) {
+    const failureMeta = buildLlmFailureMeta({
+      source: "category_inference",
+      kind: "config"
+    });
     const result = {
       status: "category_required",
       confidence: "low",
-      options: fallbackOptions
+      options: fallbackOptions,
+      clarification_reason: "llm_failure",
+      llm_failure: failureMeta
     };
     console.log(logPrefix, "category-required-no-api-key", {
       openai_attempted: openAiAttempted,
@@ -4666,7 +4811,8 @@ export async function inferTextQueryCategory(query = "", options = {}) {
         { type: "input_text", text: normalizedQuery }
       ],
       schemaName: "text_query_category_inference",
-      schema: textQueryCategoryInferenceSchema()
+      schema: textQueryCategoryInferenceSchema(),
+      source: "category_inference"
     });
     console.log(logPrefix, "openai-request-succeeded", {
       raw_result: result
@@ -4677,7 +4823,9 @@ export async function inferTextQueryCategory(query = "", options = {}) {
       const response = {
         status: "category_required",
         confidence: "low",
-        options: fallbackOptions
+        options: fallbackOptions,
+        clarification_reason: "semantic_ambiguity",
+        llm_failure: null
       };
       console.log(logPrefix, "openai-returned-category-required", {
         openai_attempted: openAiAttempted,
@@ -4706,9 +4854,13 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     return response;
   } catch (error) {
     catchPathFired = true;
+    const failureMeta = normalizeLlmFailureMeta(error, {
+      source: "category_inference"
+    });
     console.error(logPrefix, "openai-request-failed", {
       openai_attempted: openAiAttempted,
       catch_path_fired: catchPathFired,
+      failure_meta: failureMeta,
       error_name: error?.name || "",
       error_message: error?.message || String(error || ""),
       error_stack: error?.stack || ""
@@ -4716,7 +4868,9 @@ export async function inferTextQueryCategory(query = "", options = {}) {
     const response = {
       status: "category_required",
       confidence: "low",
-      options: fallbackOptions
+      options: fallbackOptions,
+      clarification_reason: "llm_failure",
+      llm_failure: failureMeta
     };
     console.log(logPrefix, "returning-category-required-from-catch", {
       openai_attempted: openAiAttempted,
@@ -4747,17 +4901,20 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
       search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType),
-      display_string: ""
+      display_string: "",
+      fallback_meta: null
     };
   }
 
   try {
+    const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${options.apiKey}`
       },
+      signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify({
         model: options.model || "gpt-4.1-mini",
         response_format: {
@@ -4777,15 +4934,33 @@ export async function extractTextQueryTraits(query = "", options = {}) {
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI text-query trait extraction failed with ${response.status}.`);
+      const errorBody = await response.text();
+      throw createLlmFailureError(`OpenAI text-query trait extraction failed with ${response.status}.`, buildLlmFailureMeta({
+        source: "trait_extraction",
+        status: response.status,
+        kind: "http",
+        errorBody
+      }));
     }
 
     const payload = await response.json();
     const raw = String(payload?.choices?.[0]?.message?.content || "").trim();
     if (!raw) {
-      throw new Error("OpenAI text-query trait extraction returned empty output.");
+      throw createLlmFailureError("OpenAI text-query trait extraction returned empty output.", buildLlmFailureMeta({
+        source: "trait_extraction",
+        kind: "empty_output"
+      }));
     }
-    const parsed = JSON.parse(raw);
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw createLlmFailureError("OpenAI text-query trait extraction returned malformed output.", buildLlmFailureMeta({
+        source: "trait_extraction",
+        kind: "parse",
+        error
+      }));
+    }
     const displayString = normalizeDisplayStringForQuery(parsed?.display_string, normalizedQuery);
     const enumFields = {};
     const allowedFields = new Set(getTextQueryTraitFields(resolvedType));
@@ -4815,17 +4990,25 @@ export async function extractTextQueryTraits(query = "", options = {}) {
       seating_type: resolvedType,
       enum_fields: mergedEnumFields,
       search_bullets: buildSearchTimeBullets(mergedEnumFields, resolvedType),
-      display_string: displayString
+      display_string: displayString,
+      fallback_meta: null
     };
   } catch (error) {
-    console.error("Text-query trait extraction failed; continuing without generated bullets:", error);
+    const failureMeta = normalizeLlmFailureMeta(error, {
+      source: "trait_extraction"
+    });
+    console.error("Text-query trait extraction failed; continuing without generated bullets:", {
+      failure_meta: failureMeta,
+      error
+    });
     return {
       visual_type: resolvedType,
       family,
       seating_type: resolvedType,
       enum_fields: deterministicEnumFields,
       search_bullets: buildSearchTimeBullets(deterministicEnumFields, resolvedType),
-      display_string: ""
+      display_string: "",
+      fallback_meta: failureMeta
     };
   }
 }

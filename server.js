@@ -6,7 +6,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
 
-import { analyzeInspirationImage, buildStage1ClassificationPrompt, combinedStage23Prompt, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, inferTextQueryCategory, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
+import { analyzeInspirationImage, buildLlmFailureMeta, buildStage1ClassificationPrompt, combinedStage23Prompt, createLlmFailureError, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, inferTextQueryCategory, normalizeLlmFailureMeta, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
 import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import {
@@ -1342,10 +1342,13 @@ async function executeSearchQuery({
       seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
       seating_type_source: seatingTypeSource,
       category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
+      category_requirement_reason: String(inferredCategory?.clarification_reason || "semantic_ambiguity").trim(),
+      category_requirement_failure: inferredCategory?.llm_failure || null,
       seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
       visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
       selected_bullets: effectiveSelectedBullets,
       text_query_traits: textQueryTraits,
+      text_query_traits_fallback: textQueryTraits?.fallback_meta || null,
       query_embedding: queryEmbedding,
       reranker_used: false,
       total_results: 0,
@@ -1393,10 +1396,13 @@ async function executeSearchQuery({
     seating_type_confidence: seatingTypeSource === "all" ? "low" : "high",
     seating_type_source: seatingTypeSource,
     category_required: Boolean(!resolvedVisualType && inferredCategory?.status === "category_required"),
+    category_requirement_reason: String(inferredCategory?.clarification_reason || "semantic_ambiguity").trim(),
+    category_requirement_failure: inferredCategory?.llm_failure || null,
     seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
     visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
     selected_bullets: effectiveSelectedBullets,
     text_query_traits: textQueryTraits,
+    text_query_traits_fallback: textQueryTraits?.fallback_meta || null,
     query_embedding: queryEmbedding,
     reranker_used: searchResponse.reranker_used,
     total_results: clientResults.length,
@@ -2268,12 +2274,14 @@ async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges 
   console.log("[rewrite-query-traits] system_prompt:", systemPrompt);
   console.log("[rewrite-query-traits] user_prompt:", userPrompt);
 
+  const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`
     },
+    signal: AbortSignal.timeout(timeoutMs),
     body: JSON.stringify({
       model: "gpt-4.1",
       messages: [
@@ -2290,7 +2298,13 @@ async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges 
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI targeted query rewrite failed with ${response.status}.`);
+    const errorBody = await response.text();
+    throw createLlmFailureError(`OpenAI targeted query rewrite failed with ${response.status}.`, buildLlmFailureMeta({
+      source: "query_rewrite",
+      status: response.status,
+      kind: "http",
+      errorBody
+    }));
   }
 
   const payload = await response.json();
@@ -2299,6 +2313,10 @@ async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges 
   console.log("[rewrite-query-traits] model_response_text:", content);
   if (!content) {
     console.log("[rewrite-query-traits] empty model response; client will fall back to composeQueryWithFallback.");
+    throw createLlmFailureError("OpenAI targeted query rewrite returned empty output.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      kind: "empty_output"
+    }));
   }
   return normalizeComposedQueryText(content);
 }
@@ -4196,7 +4214,14 @@ const server = http.createServer(async (request, response) => {
       );
       return json(response, 200, { query });
     } catch (error) {
-      return json(response, 500, { error: error.message || "Targeted query rewrite failed." });
+      const failureMeta = normalizeLlmFailureMeta(error, {
+        source: "query_rewrite"
+      });
+      const responseStatus = Number(failureMeta.status || 0) || 500;
+      return json(response, responseStatus, {
+        error: error.message || "Targeted query rewrite failed.",
+        llm_failure: failureMeta
+      });
     }
   }
 
