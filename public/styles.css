@@ -3846,6 +3846,17 @@ body.results-loading-active .results-layout {
   letter-spacing: 0.08em;
 }
 
+.refine-sidebar-notice {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(216, 210, 201, 0.95);
+  border-radius: 12px;
+  background: rgba(255, 248, 232, 0.92);
+  color: #6d5530;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
 .refine-bullets-list,
 .refine-products-list {
   display: grid;

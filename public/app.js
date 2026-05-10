@@ -84,6 +84,7 @@ const state = {
   originalRefreshAgeFilter: "",
   refinementActive: false,
   refinementLoading: false,
+  refineSidebarNotice: "",
   categoryScopeLoading: false,
   categoryScopeMode: "all",
   lastDisplayQuery: "",
@@ -473,6 +474,7 @@ const elements = {
   clarificationBar: document.querySelector("#clarificationBar"),
   resultsInfoBanner: document.querySelector("#resultsInfoBanner"),
   refineBulletSection: document.querySelector("#refineBulletSection"),
+  refineSidebarNotice: document.querySelector("#refineSidebarNotice"),
   refineBulletsList: document.querySelector("#refineBulletsList"),
   refineSelectedImageWrap: document.querySelector("#refineSelectedImageWrap"),
   refineSelectedImage: document.querySelector("#refineSelectedImage"),
@@ -5995,6 +5997,17 @@ function renderResultsInfoBanner(payload = state.lastPayload, query = state.last
   elements.resultsInfoBanner.className = `results-info-banner${banner ? ` ${banner.kind || "info"}` : ""}`;
 }
 
+function syncRefineSidebarNotice() {
+  if (!elements.refineSidebarNotice) {
+    return;
+  }
+  const message = !isBrowsePayload(state.lastPayload, state.lastQuery)
+    ? String(state.refineSidebarNotice || "").trim()
+    : "";
+  elements.refineSidebarNotice.hidden = !message;
+  elements.refineSidebarNotice.textContent = message;
+}
+
 function setResultsLoading(message = "") {
   const loadingState = typeof message === "string"
     ? {
@@ -7743,6 +7756,7 @@ function renderRefineSidebar() {
   if (elements.refineBulletSection) {
     elements.refineBulletSection.hidden = showBrowseSidebar;
   }
+  syncRefineSidebarNotice();
 
   if (!showSidebar) {
     if (elements.refineSelectedImageWrap) {
@@ -8437,6 +8451,8 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
   if (!selectedTraits.length) {
     return;
   }
+  state.refineSidebarNotice = "";
+  syncRefineSidebarNotice();
 
   const selectedKeys = new Set(selectedTraits.map((trait) => trait.key));
   const replacementMap = new Map(
@@ -8571,6 +8587,8 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
       ? QUERY_REWRITE_FALLBACK_MESSAGE
       : summarizeRefinementChanges(previousPayload, payload, mode === "more" ? "toward" : "away from", result.name || "this product")
   );
+  state.refineSidebarNotice = rewriteFailed ? QUERY_REWRITE_FALLBACK_MESSAGE : "";
+  syncRefineSidebarNotice();
 }
 
 function renderResults(payload, query) {
@@ -9158,6 +9176,8 @@ function renderResults(payload, query) {
 }
 
 async function runSearch(query, options = {}) {
+  state.refineSidebarNotice = "";
+  syncRefineSidebarNotice();
   const normalizedQuery = query.trim();
   const sourceImageUrl = String(options.sourceImageUrl || "").trim();
   const sort = options.sort || state.sortMode || "auto";

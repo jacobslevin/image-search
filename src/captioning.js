@@ -2002,6 +2002,75 @@ function normalizeOpenAiUsage(usage = {}) {
   };
 }
 
+function isDevFailureInjectionEnabled() {
+  return process.env.NODE_ENV !== "production" && process.env.PIXELSEEK_DEV_FAILURE_INJECTION === "1";
+}
+
+function getDevFailureInjectionMode(flagName = "") {
+  if (!isDevFailureInjectionEnabled()) {
+    return "";
+  }
+  return String(process.env[flagName] || "").trim().toLowerCase();
+}
+
+function maybeThrowInjectedLlmFailure(flagName = "", source = "") {
+  const mode = getDevFailureInjectionMode(flagName);
+  if (!mode) {
+    return "";
+  }
+
+  if (mode === "rate_limited") {
+    throw createLlmFailureError("Injected OpenAI rate limit failure.", buildLlmFailureMeta({
+      source,
+      status: 429,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "rate_limit_error", code: "rate_limit_exceeded", message: "Injected rate limit failure." } })
+    }));
+  }
+  if (mode === "server_error") {
+    throw createLlmFailureError("Injected OpenAI server failure.", buildLlmFailureMeta({
+      source,
+      status: 503,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "server_error", code: "server_error", message: "Injected server failure." } })
+    }));
+  }
+  if (mode === "bad_request") {
+    throw createLlmFailureError("Injected OpenAI bad request failure.", buildLlmFailureMeta({
+      source,
+      status: 400,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "invalid_request_error", code: "invalid_prompt", message: "Injected bad request failure." } })
+    }));
+  }
+  if (mode === "network_or_timeout") {
+    throw createLlmFailureError("Injected OpenAI timeout failure.", buildLlmFailureMeta({
+      source,
+      kind: "timeout"
+    }));
+  }
+  if (mode === "empty_output") {
+    throw createLlmFailureError("Injected OpenAI empty output failure.", buildLlmFailureMeta({
+      source,
+      kind: "empty_output"
+    }));
+  }
+  if (mode === "malformed") {
+    throw createLlmFailureError("Injected OpenAI malformed output failure.", buildLlmFailureMeta({
+      source,
+      kind: "parse"
+    }));
+  }
+  if (mode === "unknown") {
+    throw createLlmFailureError("Injected unknown OpenAI failure.", buildLlmFailureMeta({
+      source,
+      kind: "unknown"
+    }));
+  }
+
+  return mode;
+}
+
 async function callOpenAiJsonWithMeta({ apiKey, model, systemPrompt, userParts, schemaName, schema, source = "" }) {
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
   const attempts = Number(process.env.OPENAI_MAX_RETRIES || 3);
@@ -2009,6 +2078,9 @@ async function callOpenAiJsonWithMeta({ apiKey, model, systemPrompt, userParts, 
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
+      if (source === "category_inference") {
+        maybeThrowInjectedLlmFailure("PIXELSEEK_FAIL_CATEGORY_INFERENCE", source);
+      }
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: {
@@ -4908,6 +4980,7 @@ export async function extractTextQueryTraits(query = "", options = {}) {
 
   try {
     const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
+    maybeThrowInjectedLlmFailure("PIXELSEEK_FAIL_TEXT_QUERY_TRAITS", "trait_extraction");
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {

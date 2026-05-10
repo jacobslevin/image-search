@@ -2247,6 +2247,65 @@ function formatTraitChangeLine(change = {}) {
   return `- ${label}: ${oldValue} -> removed`;
 }
 
+function isDevFailureInjectionEnabled() {
+  return process.env.NODE_ENV !== "production" && process.env.PIXELSEEK_DEV_FAILURE_INJECTION === "1";
+}
+
+function maybeThrowInjectedQueryRewriteFailure() {
+  if (!isDevFailureInjectionEnabled()) {
+    return "";
+  }
+  const mode = String(process.env.PIXELSEEK_FAIL_QUERY_REWRITE || "").trim().toLowerCase();
+  if (!mode) {
+    return "";
+  }
+
+  if (mode === "rate_limited") {
+    throw createLlmFailureError("Injected OpenAI rate limit failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      status: 429,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "rate_limit_error", code: "rate_limit_exceeded", message: "Injected rate limit failure." } })
+    }));
+  }
+  if (mode === "server_error") {
+    throw createLlmFailureError("Injected OpenAI server failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      status: 503,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "server_error", code: "server_error", message: "Injected server failure." } })
+    }));
+  }
+  if (mode === "bad_request") {
+    throw createLlmFailureError("Injected OpenAI bad request failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      status: 400,
+      kind: "http",
+      errorBody: JSON.stringify({ error: { type: "invalid_request_error", code: "invalid_prompt", message: "Injected bad request failure." } })
+    }));
+  }
+  if (mode === "network_or_timeout") {
+    throw createLlmFailureError("Injected OpenAI timeout failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      kind: "timeout"
+    }));
+  }
+  if (mode === "empty_output") {
+    throw createLlmFailureError("Injected OpenAI empty output failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      kind: "empty_output"
+    }));
+  }
+  if (mode === "unknown") {
+    throw createLlmFailureError("Injected unknown OpenAI failure.", buildLlmFailureMeta({
+      source: "query_rewrite",
+      kind: "unknown"
+    }));
+  }
+
+  return mode;
+}
+
 async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges = [], activeBullets = [], apiKey = "") {
   const queryText = String(currentQueryText || "").trim();
   if (!queryText) {
@@ -2275,6 +2334,7 @@ async function rewriteQueryFromTraitChanges(currentQueryText = "", traitChanges 
   console.log("[rewrite-query-traits] user_prompt:", userPrompt);
 
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
+  maybeThrowInjectedQueryRewriteFailure();
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
