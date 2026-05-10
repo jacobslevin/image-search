@@ -426,6 +426,7 @@ const elements = {
   resultsLoadingBar: document.querySelector("#resultsLoadingBar"),
   resultsLoadingSteps: document.querySelector("#resultsLoadingSteps"),
   resultsLoadingCopy: document.querySelector(".results-loading-copy"),
+  resultsLoadingCategoryRequirement: document.querySelector("#resultsLoadingCategoryRequirement"),
   resultsHeader: document.querySelector(".results-header"),
   resultsGrid: document.querySelector("#resultsGrid"),
   batchManageBar: document.querySelector("#batchManageBar"),
@@ -6242,6 +6243,13 @@ function isImageAnalysisCategoryRequirementActive() {
   );
 }
 
+function isTextSearchCategoryRequirementActive() {
+  return Boolean(
+    state.categoryRequirement &&
+    String(state.categoryRequirement?.mode || "").trim() === "text_search"
+  );
+}
+
 function renderCategoryRequirementContent(container, categoryRequirement, categoryRequirementMode = "") {
   if (!container || !categoryRequirement) {
     return;
@@ -6399,6 +6407,23 @@ function renderImageModalCategoryRequirement() {
   );
 }
 
+function renderResultsLoadingCategoryRequirement() {
+  if (!elements.resultsLoadingCategoryRequirement) {
+    return;
+  }
+  const active = isTextSearchCategoryRequirementActive();
+  elements.resultsLoadingCategoryRequirement.innerHTML = "";
+  elements.resultsLoadingCategoryRequirement.hidden = !active;
+  if (!active) {
+    return;
+  }
+  renderCategoryRequirementContent(
+    elements.resultsLoadingCategoryRequirement,
+    state.categoryRequirement,
+    "text_search"
+  );
+}
+
 function syncImageModalAnalysisState() {
   if (!elements.imageModalResultsStage) {
     return;
@@ -6421,12 +6446,14 @@ function renderClarificationBar() {
     (state.lastQuery || categoryRequirementMode === "image_analysis")
   );
   const shouldShowInModal = shouldShowCategoryRequirement && isImageAnalysisCategoryRequirementActive();
-  const shouldShow = shouldShowCategoryRequirement && !shouldShowInModal;
+  const shouldShowInResultsLoading = shouldShowCategoryRequirement && isTextSearchCategoryRequirementActive();
+  const shouldShow = shouldShowCategoryRequirement && !shouldShowInModal && !shouldShowInResultsLoading;
 
   elements.clarificationBar.innerHTML = "";
   elements.clarificationBar.hidden = !shouldShow;
   elements.clarificationBar.classList.toggle("is-category-requirement", shouldShowCategoryRequirement && !shouldShowInModal);
   renderImageModalCategoryRequirement();
+  renderResultsLoadingCategoryRequirement();
   if (!shouldShow) {
     return;
   }
@@ -9339,15 +9366,21 @@ async function runSearch(query, options = {}) {
       updateCategoryRequirement({
         query: normalizedQuery,
         options: Array.isArray(payload?.visual_type_options) ? payload.visual_type_options : Array.isArray(payload?.seating_category_options) ? payload.seating_category_options : CATEGORY_REQUIREMENT_OPTION_KEYS,
+        mode: "text_search",
         message: categoryRequirementReason === "llm_failure"
           ? CATEGORY_REQUIREMENT_FAILURE_MESSAGE
           : CATEGORY_REQUIREMENT_AMBIGUITY_MESSAGE
       });
       renderSearchComposer(normalizedQuery);
-      setResultsLoading("");
-      if (elements.resultsGrid) {
-        elements.resultsGrid.innerHTML = "";
-      }
+      setResultsLoading({
+        mode: "text",
+        step: "parse",
+        percent: getTextSearchStepConfig("parse").percent,
+        percentLabel: getTextSearchStepConfig("parse").percentLabel,
+        indeterminate: true,
+        title: "Understanding your query...",
+        detail: "Pick a category to continue."
+      });
       if (elements.resultsSidebar) {
         elements.resultsSidebar.hidden = true;
         elements.resultsSidebar.classList.remove("is-open");

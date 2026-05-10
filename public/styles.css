@@ -3005,6 +3005,15 @@ body.results-loading-active .results-layout {
   gap: 0;
 }
 
+.results-loading-category-requirement {
+  margin-top: 22px;
+  width: 100%;
+}
+
+.results-loading-category-requirement .clarification-card-category {
+  gap: 16px;
+}
+
 .text-search-loading-card .image-analyze-loading-header {
   gap: 16px;
 }

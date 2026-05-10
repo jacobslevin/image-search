@@ -1275,6 +1275,35 @@ async function executeSearchQuery({
     seatingTypeSource = "all";
   }
 
+  if (!imageAnalysis && !resolvedVisualType && inferredCategory?.status === "category_required") {
+    return {
+      query,
+      category_filter: category,
+      refresh_age_filter: refreshAge,
+      sort,
+      match_mode: matchMode,
+      source_image_url: sourceImageUrl,
+      debug,
+      parsed,
+      seating_type: "",
+      visual_type: "",
+      seating_type_confidence: "low",
+      seating_type_source: "all",
+      category_required: true,
+      category_requirement_reason: String(inferredCategory?.clarification_reason || "semantic_ambiguity").trim(),
+      category_requirement_failure: inferredCategory?.llm_failure || null,
+      seating_category_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+      visual_type_options: Array.isArray(inferredCategory?.options) ? inferredCategory.options : allVisualTypeOptions,
+      selected_bullets: normalizeStructuredBullets(rawSelectedBullets, ""),
+      text_query_traits: null,
+      text_query_traits_fallback: null,
+      query_embedding: [],
+      reranker_used: false,
+      total_results: 0,
+      results: []
+    };
+  }
+
   const selectedBullets = normalizeStructuredBullets(rawSelectedBullets, resolvedVisualType);
   parsed.seating_type = resolvedVisualType || "";
   parsed.visual_type = resolvedVisualType || "";
