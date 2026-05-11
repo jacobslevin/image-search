@@ -4340,6 +4340,11 @@ body.results-loading-active .results-layout {
   cursor: pointer;
 }
 
+.mobile-result-card-menu-action-find-similar {
+  color: #5d53b6;
+  font-weight: 600;
+}
+
 .mobile-result-card-menu-action-more {
   color: #198f61;
 }
@@ -4498,16 +4503,69 @@ body.results-loading-active .results-layout {
   left: 10px;
   bottom: 10px;
   z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   width: 39px;
+  min-width: 39px;
   height: 39px;
+  padding: 0 12px;
   border: 2px solid rgba(255, 255, 255, 0.92);
   border-radius: 999px;
-  background: center / contain no-repeat url("/pixelseek-icons/search-ia-circle.svg");
-  color: transparent;
-  font-size: 0;
-  line-height: 0;
+  background: rgba(255, 255, 255, 0.96);
+  color: #5d53b6;
+  font-size: 0.96rem;
+  line-height: 1;
+  overflow: hidden;
   box-shadow: 0 10px 18px rgba(111, 84, 234, 0.22);
   cursor: pointer;
+  transition:
+    width 150ms ease-out,
+    box-shadow 150ms ease-out,
+    transform 150ms ease-out,
+    background-color 150ms ease-out;
+}
+
+.search-from-image-button:hover,
+.search-from-image-button:focus-visible {
+  width: fit-content;
+  min-width: 121px;
+  box-shadow: 0 14px 24px rgba(111, 84, 234, 0.28);
+  background: rgba(255, 255, 255, 1);
+}
+
+.search-from-image-button:focus-visible {
+  outline: 2px solid rgba(124, 109, 240, 0.28);
+  outline-offset: 2px;
+}
+
+.search-from-image-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  flex: 0 0 14px;
+}
+
+.search-from-image-button-label {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transform: translateX(-4px);
+  transition:
+    opacity 120ms ease-out,
+    max-width 150ms ease-out,
+    transform 150ms ease-out;
+}
+
+.search-from-image-button:hover .search-from-image-button-label,
+.search-from-image-button:focus-visible .search-from-image-button-label {
+  opacity: 1;
+  max-width: 82px;
+  transform: translateX(0);
 }
 
 .search-from-image-button:disabled {
@@ -6003,6 +6061,22 @@ body.results-loading-active .results-layout {
 
   .result-tile {
     padding-bottom: 0;
+  }
+
+  .search-from-image-button {
+    width: 39px;
+    min-width: 39px;
+    padding: 0;
+  }
+
+  .search-from-image-button:hover,
+  .search-from-image-button:focus-visible {
+    width: 39px;
+    min-width: 39px;
+  }
+
+  .search-from-image-button-label {
+    display: none;
   }
 
   .refinement-actions,

@@ -401,6 +401,7 @@ const elements = {
   mobileResultCardMenuThumb: document.querySelector("#mobileResultCardMenuThumb"),
   mobileResultCardMenuName: document.querySelector("#mobileResultCardMenuName"),
   mobileResultCardMenuBrand: document.querySelector("#mobileResultCardMenuBrand"),
+  mobileResultCardMenuFindSimilar: document.querySelector("#mobileResultCardMenuFindSimilar"),
   mobileResultCardMenuMore: document.querySelector("#mobileResultCardMenuMore"),
   mobileResultCardMenuLess: document.querySelector("#mobileResultCardMenuLess"),
   mobileResultCardMenuView: document.querySelector("#mobileResultCardMenuView"),
@@ -3782,13 +3783,14 @@ function closeMobileResultCardMenu() {
   }
 }
 
-function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = window.innerHeight / 2, onMore = null, onLess = null } = {}) {
+function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = window.innerHeight / 2, onFindSimilar = null, onMore = null, onLess = null } = {}) {
   if (!isMobileViewport() || !elements.mobileResultCardMenu || !result) {
     return;
   }
   state.mobileResultCardMenu = {
     productId: result.product_id,
     productUrl: String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id),
+    onFindSimilar,
     onMore,
     onLess
   };
@@ -8652,7 +8654,8 @@ function syncSearchFromImageButton(button, result, matchingImage = null) {
     (Array.isArray(matchingImage?.visual_summary_embedding) && matchingImage.visual_summary_embedding.length > 0);
   button.hidden = !hasStoredEmbedding;
   button.disabled = !hasStoredEmbedding || state.refinementLoading;
-  button.title = hasStoredEmbedding ? "Search from this image" : "No stored embedding for this image";
+  button.title = hasStoredEmbedding ? "Find similar" : "No stored embedding for this image";
+  button.setAttribute("aria-label", hasStoredEmbedding ? "Find similar" : "No stored embedding for this image");
   button.onclick = hasStoredEmbedding
     ? () => {
         searchFromStoredImage(result, matchingImage).catch((error) => {
@@ -9389,6 +9392,18 @@ function renderResults(payload, query) {
         imageUrl: state.activeCardImageUrls[result.product_id] || result.best_image_url
       });
     };
+    const handleFindSimilar = async () => {
+      const activeImage = getActiveImageContextForResult(result).matchingImage;
+      if (!activeImage) {
+        setStatus("We could not find a stored image context for this product.", "error");
+        return;
+      }
+      try {
+        await searchFromStoredImage(result, activeImage);
+      } catch (error) {
+        setStatus(error.message || "Stored image search failed.", "error");
+      }
+    };
     moreLikeThisButton.addEventListener("click", handleMoreLikeThis);
     lessLikeThisButton.addEventListener("click", handleLessLikeThis);
 
@@ -9411,6 +9426,7 @@ function renderResults(payload, query) {
             result,
             x: touchStartX,
             y: touchStartY,
+            onFindSimilar: handleFindSimilar,
             onMore: canRefine ? handleMoreLikeThis : null,
             onLess: canRefine ? handleLessLikeThis : null
           });
@@ -11317,6 +11333,14 @@ elements.mobileCategoryDropdownBackdrop?.addEventListener("click", () => {
 
 elements.mobileResultCardMenuBackdrop?.addEventListener("click", () => {
   closeMobileResultCardMenu();
+});
+
+elements.mobileResultCardMenuFindSimilar?.addEventListener("click", async () => {
+  const action = state.mobileResultCardMenu?.onFindSimilar;
+  closeMobileResultCardMenu();
+  if (typeof action === "function") {
+    await action();
+  }
 });
 
 elements.mobileResultCardMenuMore?.addEventListener("click", async () => {
