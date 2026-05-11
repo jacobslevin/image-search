@@ -59,6 +59,7 @@ const state = {
   categoryFilter: [],
   resultCategoryScope: [],
   refreshAgeFilter: "",
+  statusPanelAction: null,
   currentBaseQueryEmbedding: [],
   currentQueryEmbedding: [],
   currentSelectedBullets: { essential: [], normal: [], low: [] },
@@ -71,6 +72,7 @@ const state = {
   similarLookTargetVisualType: "",
   similarLookOriginLabel: "",
   similarLookFallbackMode: "",
+  similarLookNotice: "",
   similarLookSourceQuery: "",
   similarLookSourceBullets: { essential: [], normal: [], low: [] },
   similarLookSourceImageContext: null,
@@ -1478,6 +1480,7 @@ function clearSimilarLookContext() {
   state.similarLookTargetVisualType = "";
   state.similarLookOriginLabel = "";
   state.similarLookFallbackMode = "";
+  state.similarLookNotice = "";
   state.similarLookSourceQuery = "";
   state.similarLookSourceBullets = emptyStructuredBulletState();
   state.similarLookSourceImageContext = null;
@@ -1511,6 +1514,7 @@ function normalizeSimilarLookContext(context = null) {
     targetVisualType,
     originLabel,
     fallbackMode: String(context.fallbackMode || context.fallback_mode || "").trim(),
+    notice: String(context.notice || context.translation_notice || "").trim(),
     sourceQuery: String(context.sourceQuery || "").trim(),
     sourceBullets: normalizeSelectedBullets(context.sourceBullets || context.source_bullets || emptyStructuredBulletState(), sourceVisualType),
     sourceImageContext: context.sourceImageContext && typeof context.sourceImageContext === "object"
@@ -1530,6 +1534,7 @@ function applySimilarLookContext(context = null) {
   state.similarLookTargetVisualType = normalized.targetVisualType;
   state.similarLookOriginLabel = normalized.originLabel;
   state.similarLookFallbackMode = normalized.fallbackMode;
+  state.similarLookNotice = normalized.notice;
   state.similarLookSourceQuery = normalized.sourceQuery;
   state.similarLookSourceBullets = normalizeSelectedBullets(normalized.sourceBullets, normalized.sourceVisualType);
   state.similarLookSourceImageContext = normalized.sourceImageContext ? cloneValue(normalized.sourceImageContext) : null;
@@ -1562,6 +1567,7 @@ function getSimilarLookStateSnapshot() {
     targetVisualType: state.similarLookTargetVisualType,
     originLabel: state.similarLookOriginLabel,
     fallbackMode: state.similarLookFallbackMode,
+    notice: state.similarLookNotice,
     sourceQuery: state.similarLookSourceQuery,
     sourceBullets: cloneValue(state.similarLookSourceBullets),
     sourceImageContext: cloneValue(state.similarLookSourceImageContext)
@@ -2124,11 +2130,44 @@ function closeMobileCategoryDropdown() {
 function getSimilarLookAccordionGroups() {
   const sourceVisualType = String(state.similarLookSourceVisualType || state.currentVisualType || "").trim();
   const sourceFamily = getVisualTypeFamilyForSimilarLook(sourceVisualType);
-  return groupVisualTypeOptionsByFamily(getVisualTypeOptions(state.bootstrap), state.bootstrap)
+  const grouped = groupVisualTypeOptionsByFamily(CATEGORY_REQUIREMENT_OPTION_KEYS, state.bootstrap)
     .map((group) => ({
       ...group,
       allowed: isAllowedSimilarLookFamily(sourceFamily, group.family)
-    }))
+    }));
+  const knownFamilies = [
+    { family: "seating", label: "Seating" },
+    { family: "tables", label: "Tables" },
+    { family: "faucets", label: "Faucets" }
+  ];
+  const bootstrapTypes = state.bootstrap?.visual_types?.types && typeof state.bootstrap.visual_types.types === "object"
+    ? state.bootstrap.visual_types.types
+    : {};
+  const familyMap = state.bootstrap?.visual_type_family_map && typeof state.bootstrap.visual_type_family_map === "object"
+    ? state.bootstrap.visual_type_family_map
+    : {};
+  knownFamilies.forEach(({ family, label }) => {
+    if (grouped.some((group) => group.family === family)) {
+      return;
+    }
+    const options = Object.keys(bootstrapTypes)
+      .filter((key) => String(familyMap[normalizeVisualTypeKey(key)] || "").trim().toLowerCase() === family)
+      .map((key) => ({
+        value: key,
+        label: formatVisualTypeLabel(key, state.bootstrap)
+      }))
+      .sort((left, right) => left.label.localeCompare(right.label));
+    if (!options.length) {
+      return;
+    }
+    grouped.push({
+      family,
+      label,
+      options,
+      allowed: isAllowedSimilarLookFamily(sourceFamily, family)
+    });
+  });
+  return grouped
     .sort((left, right) => {
       const sourceMatchLeft = left.family === sourceFamily ? 0 : 1;
       const sourceMatchRight = right.family === sourceFamily ? 0 : 1;
@@ -2143,13 +2182,18 @@ function renderSimilarLookAccordionDropdown() {
   if (!elements.mobileCategoryDropdown || !elements.searchCategoryChipWrap) {
     return;
   }
-  const anchorRect = elements.searchForm?.querySelector(".search-field")?.getBoundingClientRect();
+  const anchorRect = (isMobileViewport()
+    ? elements.searchForm?.querySelector(".search-field")
+    : elements.searchCategoryChipWrap)?.getBoundingClientRect();
   if (anchorRect) {
     elements.mobileCategoryDropdown.style.top = `${Math.round(anchorRect.bottom + 8)}px`;
     elements.mobileCategoryDropdown.style.left = `${Math.round(anchorRect.left)}px`;
     elements.mobileCategoryDropdown.style.right = "auto";
-    elements.mobileCategoryDropdown.style.width = `${Math.round(anchorRect.width)}px`;
+    elements.mobileCategoryDropdown.style.width = isMobileViewport()
+      ? `${Math.round(anchorRect.width)}px`
+      : `${Math.min(Math.round(anchorRect.width + 120), 360)}px`;
   }
+  elements.mobileCategoryDropdown.dataset.dropdownMode = isMobileViewport() ? "mobile-similar-look" : "desktop-similar-look";
   elements.mobileCategoryDropdown.innerHTML = "";
   const label = document.createElement("div");
   label.className = "mobile-category-dropdown-label similar-look-dropdown-label";
@@ -6212,8 +6256,24 @@ function setStatus(message, kind = "info") {
   if (!elements.statusPanel) {
     return;
   }
+  const action = arguments.length > 2 && arguments[2] && typeof arguments[2] === "object" ? arguments[2] : null;
+  state.statusPanelAction = action;
   elements.statusPanel.className = `status-panel ${kind}`;
-  elements.statusPanel.textContent = message || "";
+  elements.statusPanel.innerHTML = "";
+  const text = String(message || "").trim();
+  if (text) {
+    const copy = document.createElement("span");
+    copy.textContent = text;
+    elements.statusPanel.appendChild(copy);
+  }
+  if (action?.label && typeof action.onClick === "function") {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "status-panel-action";
+    button.textContent = String(action.label).trim();
+    button.addEventListener("click", action.onClick);
+    elements.statusPanel.appendChild(button);
+  }
 }
 
 function buildTraitExtractionFallbackMessage(failure = null) {
@@ -6233,6 +6293,15 @@ function buildResultsInfoBanner(payload = state.lastPayload, query = state.lastQ
       kind: "info",
       message: state.similarLookLoadingNotice
     };
+  }
+  if (state.similarLookActive) {
+    const similarLookNotice = String(state.similarLookNotice || "").trim();
+    if (similarLookNotice) {
+      return {
+        kind: "info",
+        message: similarLookNotice
+      };
+    }
   }
   if (!payload || !String(query || "").trim() || state.currentImageAnalysis) {
     return null;
@@ -6412,7 +6481,7 @@ function renderContextPills(parsed = {}) {
     entries.push(`Brand: ${parsed.brand}`);
   }
 
-  if (sourceImageUrl) {
+  if (sourceImageUrl && !state.similarLookActive) {
     const pill = document.createElement("span");
     pill.className = "context-pill context-image-pill";
     const image = document.createElement("img");
@@ -8092,10 +8161,10 @@ function renderRefineSidebar() {
 
   if (elements.refineSelectedImageWrap && elements.refineSelectedImage) {
     const selectedImageUrl = String(state.currentImageAnalysis?.image_preview_url || state.cropPreviewUrl || "").trim();
-    elements.refineSelectedImageWrap.hidden = isMobileResultsUi() || !selectedImageUrl;
+    elements.refineSelectedImageWrap.hidden = isMobileResultsUi() || !selectedImageUrl || state.similarLookActive;
     if (elements.reopenFocusOverlay) {
       const referenceMode = String(state.currentImageAnalysis?.reference_image_mode || "").trim().toLowerCase();
-      elements.reopenFocusOverlay.hidden = !selectedImageUrl || referenceMode === "stored";
+      elements.reopenFocusOverlay.hidden = !selectedImageUrl || referenceMode === "stored" || state.similarLookActive;
     }
     if (selectedImageUrl) {
       applyRefineSelectedImageCrop(
@@ -8943,11 +9012,24 @@ function renderResults(payload, query) {
   if (!visibleResults.length) {
     const activeScopeCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
     setResultCountMarkup(0, "results found");
+    const scopedLabel = activeScopeCategory && activeScopeCategory !== "all"
+      ? formatVisualTypeLabel(activeScopeCategory, state.bootstrap)
+      : "";
     setStatus(
-      activeScopeCategory && activeScopeCategory !== "all"
-        ? `No matches in ${formatVisualTypeLabel(activeScopeCategory, state.bootstrap)}. Try another?`
-        : "No results matched that combination of category, brand, and visual traits.",
-      "empty"
+      state.similarLookActive && scopedLabel
+        ? `Limited matches in ${scopedLabel} right now.`
+        : activeScopeCategory && activeScopeCategory !== "all"
+          ? `No matches in ${scopedLabel}. Try another?`
+          : "No results matched that combination of category, brand, and visual traits.",
+      "empty",
+      state.similarLookActive && scopedLabel
+        ? {
+            label: `Show all ${scopedLabel}`,
+            onClick: () => {
+              void showAllSimilarLookTargetCategory(activeScopeCategory);
+            }
+          }
+        : null
     );
     return;
   }
@@ -10307,6 +10389,7 @@ function buildSimilarLookContextFromResult(result = {}, requestPayload = {}) {
     targetVisualType: String(result.target_visual_type || requestPayload.target_visual_type || "").trim(),
     originLabel: `Similar look from: ${getVisualTypeLabelForState(sourceVisualType)}`,
     fallbackMode: String(result.fallback_mode || "").trim(),
+    notice: String(result.translation_notice || "").trim(),
     sourceQuery: String(requestPayload.query || state.lastQuery || "").trim(),
     sourceBullets: normalizeSelectedBullets(
       requestPayload.selected_bullets || state.currentSelectedBullets,
@@ -10396,7 +10479,7 @@ async function beginSimilarLookCategorySwitch(targetVisualType = "") {
     ]);
     const similarLookContext = buildSimilarLookContextFromResult(result, requestPayload);
     const nextQuery = String(result.rewritten_query || "").trim();
-    const payload = await runSearch(nextQuery, {
+    let payload = await runSearch(nextQuery, {
       sort: state.sortMode,
       categoryFilter: state.categoryFilter,
       refreshAgeFilter: state.refreshAgeFilter,
@@ -10424,6 +10507,33 @@ async function beginSimilarLookCategorySwitch(targetVisualType = "") {
     renderSearchComposer(state.lastDisplayQuery || state.lastQuery);
     syncBrowseCategoryControl(state.lastPayload, state.lastQuery);
   }
+}
+
+async function showAllSimilarLookTargetCategory(targetVisualType = "") {
+  const normalizedTargetVisualType = normalizeVisualTypeKey(targetVisualType || state.currentVisualType || "");
+  if (!normalizedTargetVisualType) {
+    return null;
+  }
+  clearSimilarLookContext();
+  renderResultsInfoBanner(null, "");
+  renderSimilarLookOriginBadge();
+  renderContextPills();
+  renderRefineSidebar();
+  return runSearch("", {
+    sort: state.sortMode,
+    categoryFilter: state.categoryFilter,
+    refreshAgeFilter: state.refreshAgeFilter,
+    visualType: normalizedTargetVisualType,
+    categoryScopeMode: "explicit",
+    imageAnalysis: null,
+    sourceImageUrl: "",
+    selectedBullets: emptyStructuredBulletState(),
+    bulletControls: [],
+    preserveOriginal: false,
+    refinementActive: false,
+    preserveSimilarLookContext: false,
+    softLoading: true
+  });
 }
 
 function readFileAsDataUrl(file) {
