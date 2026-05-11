@@ -3538,7 +3538,7 @@ body.results-loading-active .results-layout {
 }
 
 .results-info-banner {
-  margin: -4px 0 18px;
+  margin: 0 0 18px;
   padding: 12px 14px;
   border: 1px solid rgba(216, 210, 201, 0.95);
   border-radius: 18px;
@@ -3559,13 +3559,6 @@ body.results-loading-active .results-layout {
   color: #4f438f;
   box-shadow: 0 18px 36px rgba(95, 76, 186, 0.08);
   font-weight: 600;
-}
-
-@media (min-width: 901px) {
-  .results-info-banner.similar-look-loading {
-    width: calc(100% - 324px);
-    margin-left: 324px;
-  }
 }
 
 .clarification-card {
