@@ -5759,6 +5759,9 @@ function hasVisibleResults(payload = state.lastPayload) {
 }
 
 function isBrowsePayload(payload = state.lastPayload, query = state.lastQuery) {
+  if (payload?.force_search_view) {
+    return false;
+  }
   return Boolean(!query || payload?.browse_mode);
 }
 
@@ -6290,7 +6293,7 @@ function buildTraitExtractionFallbackMessage(failure = null) {
 function buildResultsInfoBanner(payload = state.lastPayload, query = state.lastQuery) {
   if (state.similarLookLoadingNotice) {
     return {
-      kind: "info",
+      kind: "similar-look-loading",
       message: state.similarLookLoadingNotice
     };
   }
@@ -6327,6 +6330,41 @@ function renderResultsInfoBanner(payload = state.lastPayload, query = state.last
   elements.resultsInfoBanner.hidden = !banner;
   elements.resultsInfoBanner.textContent = banner?.message || "";
   elements.resultsInfoBanner.className = `results-info-banner${banner ? ` ${banner.kind || "info"}` : ""}`;
+}
+
+function renderResultsEmptyState(options = {}) {
+  if (!elements.resultsGrid) {
+    return;
+  }
+  const message = String(options.message || "").trim();
+  const actionLabel = String(options.actionLabel || "").trim();
+  const action = typeof options.onAction === "function" ? options.onAction : null;
+  const card = document.createElement("article");
+  card.className = "results-empty-state";
+
+  const title = document.createElement("h3");
+  title.className = "results-empty-state-title";
+  title.textContent = message || "No results found.";
+  card.appendChild(title);
+
+  if (actionLabel && action) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "results-empty-state-action";
+    button.textContent = actionLabel;
+    button.addEventListener("click", action);
+    card.appendChild(button);
+  }
+
+  elements.resultsGrid.appendChild(card);
+}
+
+function buildSimilarLookEmptyStateCopy(targetLabel = "") {
+  const normalizedLabel = String(targetLabel || "").trim();
+  if (!normalizedLabel) {
+    return "Nothing in this category matches the look you're searching for yet.";
+  }
+  return `No ${normalizedLabel} match the look you're searching for yet. Show all ${normalizedLabel} to browse what we have.`;
 }
 
 function renderSimilarLookOriginBadge() {
@@ -9015,21 +9053,22 @@ function renderResults(payload, query) {
     const scopedLabel = activeScopeCategory && activeScopeCategory !== "all"
       ? formatVisualTypeLabel(activeScopeCategory, state.bootstrap)
       : "";
+    if (state.similarLookActive && scopedLabel) {
+      setStatus("", "empty");
+      renderResultsEmptyState({
+        message: buildSimilarLookEmptyStateCopy(scopedLabel),
+        actionLabel: `Show all ${scopedLabel}`,
+        onAction: () => {
+          void showAllSimilarLookTargetCategory(activeScopeCategory);
+        }
+      });
+      return;
+    }
     setStatus(
-      state.similarLookActive && scopedLabel
-        ? `Limited matches in ${scopedLabel} right now.`
-        : activeScopeCategory && activeScopeCategory !== "all"
-          ? `No matches in ${scopedLabel}. Try another?`
-          : "No results matched that combination of category, brand, and visual traits.",
-      "empty",
-      state.similarLookActive && scopedLabel
-        ? {
-            label: `Show all ${scopedLabel}`,
-            onClick: () => {
-              void showAllSimilarLookTargetCategory(activeScopeCategory);
-            }
-          }
-        : null
+      activeScopeCategory && activeScopeCategory !== "all"
+        ? `No matches in ${scopedLabel}. Try another?`
+        : "No results matched that combination of category, brand, and visual traits.",
+      "empty"
     );
     return;
   }
@@ -9619,6 +9658,7 @@ async function runSearch(query, options = {}) {
   const refinementActive = Boolean(options.refinementActive);
   const scrollToTopOnComplete = Boolean(options.scrollToTopOnComplete);
   const softLoading = Boolean(options.softLoading);
+  const forceSearchView = Boolean(options.forceSearchView);
   const productRefinements = normalizeProductRefinements(options.productRefinements || []);
   const similarLookContext = options.similarLookContext && typeof options.similarLookContext === "object"
     ? cloneValue(options.similarLookContext)
@@ -9714,6 +9754,9 @@ async function runSearch(query, options = {}) {
             body: JSON.stringify(postRequestBody)
           })
         : await fetchJson(getRequestUrl);
+    if (payload && forceSearchView) {
+      payload.force_search_view = true;
+    }
     if (payload?.category_required && effectiveCategoryScopeMode === "all" && !apiRequestedVisualType) {
       setInitialSearchPending(false);
       state.lastQuery = normalizedQuery;
@@ -10514,6 +10557,13 @@ async function showAllSimilarLookTargetCategory(targetVisualType = "") {
   if (!normalizedTargetVisualType) {
     return null;
   }
+  const preservedImageAnalysis = cloneValue(state.currentImageAnalysis || state.similarLookSourceImageContext?.imageAnalysis || null);
+  const preservedSourceImageUrl = String(
+    preservedImageAnalysis?.image_preview_url ||
+    state.similarLookSourceImageContext?.sourceImageUrl ||
+    state.currentImageAnalysis?.image_preview_url ||
+    ""
+  ).trim();
   clearSimilarLookContext();
   renderResultsInfoBanner(null, "");
   renderSimilarLookOriginBadge();
@@ -10525,14 +10575,15 @@ async function showAllSimilarLookTargetCategory(targetVisualType = "") {
     refreshAgeFilter: state.refreshAgeFilter,
     visualType: normalizedTargetVisualType,
     categoryScopeMode: "explicit",
-    imageAnalysis: null,
-    sourceImageUrl: "",
+    imageAnalysis: preservedImageAnalysis,
+    sourceImageUrl: preservedSourceImageUrl,
     selectedBullets: emptyStructuredBulletState(),
     bulletControls: [],
     preserveOriginal: false,
     refinementActive: false,
     preserveSimilarLookContext: false,
-    softLoading: true
+    softLoading: true,
+    forceSearchView: true
   });
 }
 
