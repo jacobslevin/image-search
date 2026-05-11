@@ -694,6 +694,14 @@ h1 {
   margin: 0 8px;
 }
 
+.search-category-chip-wrap[data-dropdown-mode="similar-look"] {
+  cursor: pointer;
+}
+
+.search-category-chip-wrap[data-dropdown-mode="similar-look"] .search-category-select {
+  pointer-events: none;
+}
+
 .search-category-select {
   min-width: 0;
   border: 0;
@@ -4083,6 +4091,105 @@ body.results-loading-active .results-layout {
 .mobile-category-dropdown-check {
   font-size: 1rem;
   color: #6e62d3;
+}
+
+.similar-look-origin-badge {
+  margin: 2px 0 0;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(123, 115, 221, 0.12);
+  color: #5d53b6;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.similar-look-dropdown-label {
+  padding-bottom: 10px;
+}
+
+.similar-look-family {
+  display: grid;
+  border-top: 1px solid rgba(232, 229, 223, 0.95);
+}
+
+.similar-look-family:first-of-type {
+  border-top: 0;
+}
+
+.similar-look-family-button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  border: 0;
+  background: #fff;
+  color: #171421;
+  font: inherit;
+  font-size: 0.98rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.similar-look-family.is-expanded .similar-look-family-button {
+  background: rgba(127, 119, 221, 0.08);
+  color: #4d439d;
+}
+
+.similar-look-family.is-disabled .similar-look-family-button {
+  color: #aaa29a;
+  background: #f8f6f2;
+  cursor: default;
+}
+
+.similar-look-family-chevron {
+  color: rgba(93, 83, 182, 0.9);
+  font-size: 0.95rem;
+}
+
+.similar-look-family.is-disabled .similar-look-family-chevron {
+  color: #c1b8af;
+}
+
+.similar-look-options-wrap {
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 14px 16px;
+  background: rgba(127, 119, 221, 0.04);
+}
+
+.similar-look-option-button {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(214, 208, 233, 0.95);
+  border-radius: 14px;
+  background: #fff;
+  color: #171421;
+  font: inherit;
+  font-size: 0.94rem;
+  font-weight: 500;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.similar-look-option-button.is-active {
+  border-color: rgba(123, 115, 221, 0.75);
+  background: rgba(127, 119, 221, 0.14);
+  color: #4d439d;
+}
+
+.similar-look-loading-note {
+  padding: 12px 16px 16px;
+  color: #6a6378;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .mobile-result-card-menu {

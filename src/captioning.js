@@ -4577,6 +4577,14 @@ function getTextQueryTraitFields(typeKey = "") {
   return uniqueStrings(getTypeFields(resolveTextQueryTraitType(typeKey)).map((field) => String(field.field || "").trim()).filter(Boolean));
 }
 
+function formatTraitFieldLabel(field = "") {
+  return String(field || "")
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 const TEXT_QUERY_MAPPING_GUIDANCE_BY_FIELD = Object.freeze({});
 
 function buildTextQueryTraitPrompt(seatingType = "") {
@@ -4641,6 +4649,168 @@ function buildTextQueryTraitPrompt(seatingType = "") {
     `- Query: "backless sofas with wood legs" -> {"display_string":"[CATEGORY], specifically sofas without backs with wood legs","back_height":"Low","back_finish":"Unupholstered shell","base_finish":"Natural wood"}`,
     `- Query: "counter stools with wood seats" -> {"display_string":"[CATEGORY], specifically counter stools with wood seats","back":"Backless","seat_finish":"Natural wood"}`
   ].join("\n");
+}
+
+export function getVisualTypeTraitVocabulary(typeKey = "") {
+  const resolvedType = resolveTextQueryTraitType(typeKey);
+  const family = getVisualTypeFamily(resolvedType) || "seating";
+  const typeLabel = getVisualTypeLabel(resolvedType);
+  const fields = getTypeFields(resolvedType)
+    .map((field = {}) => {
+      const fieldName = String(field.field || "").trim();
+      if (!fieldName) {
+        return null;
+      }
+      const allowedValues = Array.isArray(field.allowed_values)
+        ? field.allowed_values
+          .map((value) => String(value || "").trim())
+          .filter((value) => value && value.toLowerCase() !== "unknown")
+        : [];
+      return {
+        field: fieldName,
+        label: formatTraitFieldLabel(fieldName),
+        allowed_values: allowedValues
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    visual_type: resolvedType,
+    family,
+    label: typeLabel,
+    fields
+  };
+}
+
+function buildSimilarLookRewritePrompt(sourceType = "", targetType = "", intentSummary = "", targetVocabulary = null) {
+  const sourceLabel = getVisualTypeLabel(sourceType);
+  const targetLabel = getVisualTypeLabel(targetType);
+  const family = getVisualTypeFamily(targetType) || "seating";
+  const fieldLines = Array.isArray(targetVocabulary?.fields) && targetVocabulary.fields.length
+    ? targetVocabulary.fields.map((field = {}) => `- ${field.field}: ${(field.allowed_values || []).join(" | ")}`).join("\n")
+    : "- No structured fields available";
+
+  return {
+    systemPrompt: [
+      "You translate furniture-search intent from one product category into another.",
+      "Your goal is to preserve aesthetic and structural intent while rewriting the query so it sounds natural for the target category.",
+      "",
+      "Rules:",
+      `- The source category is ${sourceLabel}. The target category is ${targetLabel}.`,
+      `- The target family is ${family}. Rewrite the query so it clearly describes a ${targetLabel.toLowerCase()} product.`,
+      "- Preserve the look-and-feel intent where it transfers cleanly: proportions, posture, silhouette, support logic, visual weight, material cues, and design register.",
+      "- Do not mechanically copy source-category parts that do not belong on the target product.",
+      "- Prefer natural prose, not a bullet list.",
+      "- Keep the rewrite concise and product-focused.",
+      "- If the source intent does not translate cleanly, still produce the best target-category rewrite you can instead of refusing.",
+      "- Return JSON only with a single key: rewritten_query",
+      "",
+      "Target category vocabulary:",
+      fieldLines
+    ].join("\n"),
+    userPrompt: [
+      "Rewrite this search intent for the target category.",
+      "",
+      `Source category: ${sourceLabel}`,
+      `Target category: ${targetLabel}`,
+      "",
+      "Current search intent:",
+      intentSummary || "- No additional intent provided"
+    ].join("\n")
+  };
+}
+
+export async function rewriteSimilarLookQueryForCategorySwitch(options = {}) {
+  const sourceType = resolveTextQueryTraitType(options.sourceVisualType || options.sourceType || "");
+  const targetType = resolveTextQueryTraitType(options.targetVisualType || options.targetType || "");
+  const intentSummary = normalizeWhitespace(options.intentSummary || options.query || "");
+  const apiKey = String(options.apiKey || "").trim();
+  const targetVocabulary = getVisualTypeTraitVocabulary(targetType);
+
+  if (!targetType) {
+    throw new Error("A target visual type is required for similar-look rewrites.");
+  }
+  if (!intentSummary) {
+    return {
+      rewritten_query: "",
+      target_vocabulary: targetVocabulary
+    };
+  }
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is required for similar-look rewrites.");
+  }
+
+  const { systemPrompt, userPrompt } = buildSimilarLookRewritePrompt(
+    sourceType,
+    targetType,
+    intentSummary,
+    targetVocabulary
+  );
+  const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
+  maybeThrowInjectedLlmFailure("PIXELSEEK_FAIL_SIMILAR_LOOK_REWRITE", "similar_look_rewrite");
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`
+    },
+    signal: AbortSignal.timeout(timeoutMs),
+    body: JSON.stringify({
+      model: options.model || "gpt-4.1",
+      response_format: {
+        type: "json_object"
+      },
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
+        },
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw createLlmFailureError(`OpenAI similar-look rewrite failed with ${response.status}.`, buildLlmFailureMeta({
+      source: "similar_look_rewrite",
+      status: response.status,
+      kind: "http",
+      errorBody
+    }));
+  }
+
+  const payload = await response.json();
+  const raw = String(payload?.choices?.[0]?.message?.content || "").trim();
+  if (!raw) {
+    throw createLlmFailureError("OpenAI similar-look rewrite returned empty output.", buildLlmFailureMeta({
+      source: "similar_look_rewrite",
+      kind: "empty_output"
+    }));
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    throw createLlmFailureError("OpenAI similar-look rewrite returned malformed output.", buildLlmFailureMeta({
+      source: "similar_look_rewrite",
+      kind: "parse",
+      error
+    }));
+  }
+
+  return {
+    rewritten_query: normalizeWhitespace(parsed?.rewritten_query || ""),
+    target_vocabulary: targetVocabulary,
+    prompts: {
+      system: systemPrompt,
+      user: userPrompt
+    }
+  };
 }
 
 function looksJsonLikeDisplayString(value = "") {

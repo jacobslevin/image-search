@@ -66,6 +66,14 @@ const state = {
   pendingBulletControls: null,
   currentVisualType: "",
   currentImageAnalysis: null,
+  similarLookActive: false,
+  similarLookSourceVisualType: "",
+  similarLookTargetVisualType: "",
+  similarLookOriginLabel: "",
+  similarLookFallbackMode: "",
+  similarLookSourceQuery: "",
+  similarLookSourceBullets: { essential: [], normal: [], low: [] },
+  similarLookSourceImageContext: null,
   clarificationConflict: null,
   categoryRequirement: null,
   currentProductRefinements: [],
@@ -135,6 +143,9 @@ const state = {
   touchCropGesture: null,
   touchCropHintDismissed: false,
   mobileCategoryDropdownOpen: false,
+  similarLookAccordionFamily: "",
+  similarLookSwitchLoading: false,
+  similarLookLoadingNotice: "",
   mobileResultCardMenu: null,
   longPressTimer: null,
   longPressActiveProductId: ""
@@ -382,6 +393,7 @@ const elements = {
   imageSearchDropZoneStatus: document.querySelector("#imageSearchDropZoneStatus"),
   mobileCategoryDropdown: document.querySelector("#mobileCategoryDropdown"),
   mobileCategoryDropdownBackdrop: document.querySelector("#mobileCategoryDropdownBackdrop"),
+  similarLookOriginBadge: document.querySelector("#similarLookOriginBadge"),
   mobileResultCardMenu: document.querySelector("#mobileResultCardMenu"),
   mobileResultCardMenuBackdrop: document.querySelector("#mobileResultCardMenuBackdrop"),
   mobileResultCardMenuThumb: document.querySelector("#mobileResultCardMenuThumb"),
@@ -1426,6 +1438,136 @@ function cloneValue(value) {
   return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 }
 
+function emptyStructuredBulletState() {
+  return { essential: [], normal: [], low: [] };
+}
+
+function getVisualTypeLabelForState(typeKey = "") {
+  return formatVisualTypeLabel(typeKey, state.bootstrap) || String(typeKey || "").trim();
+}
+
+function getVisualTypeFamilyForSimilarLook(typeKey = "") {
+  const familyMap = state.bootstrap?.visual_type_family_map && typeof state.bootstrap.visual_type_family_map === "object"
+    ? state.bootstrap.visual_type_family_map
+    : {};
+  return String(familyMap[normalizeVisualTypeKey(typeKey)] || "").trim().toLowerCase();
+}
+
+function isAllowedSimilarLookFamily(sourceFamily = "", targetFamily = "") {
+  const source = String(sourceFamily || "").trim().toLowerCase();
+  const target = String(targetFamily || "").trim().toLowerCase();
+  if (!source || !target) {
+    return false;
+  }
+  if (source === "faucets" || target === "faucets") {
+    return source === target;
+  }
+  return true;
+}
+
+function isAllowedSimilarLookVisualType(sourceVisualType = "", targetVisualType = "") {
+  return isAllowedSimilarLookFamily(
+    getVisualTypeFamilyForSimilarLook(sourceVisualType),
+    getVisualTypeFamilyForSimilarLook(targetVisualType)
+  );
+}
+
+function clearSimilarLookContext() {
+  state.similarLookActive = false;
+  state.similarLookSourceVisualType = "";
+  state.similarLookTargetVisualType = "";
+  state.similarLookOriginLabel = "";
+  state.similarLookFallbackMode = "";
+  state.similarLookSourceQuery = "";
+  state.similarLookSourceBullets = emptyStructuredBulletState();
+  state.similarLookSourceImageContext = null;
+  state.similarLookAccordionFamily = "";
+  state.similarLookSwitchLoading = false;
+  state.similarLookLoadingNotice = "";
+}
+
+function buildCurrentImageContextSnapshot() {
+  return {
+    imageAnalysis: state.currentImageAnalysis ? cloneValue(state.currentImageAnalysis) : null,
+    queryEmbedding: Array.isArray(state.currentBaseQueryEmbedding) ? [...state.currentBaseQueryEmbedding] : [],
+    visualType: String(state.currentVisualType || "").trim(),
+    sourceImageUrl: String(state.currentImageAnalysis?.image_preview_url || "").trim()
+  };
+}
+
+function normalizeSimilarLookContext(context = null) {
+  if (!context || typeof context !== "object") {
+    return null;
+  }
+  const sourceVisualType = normalizeVisualTypeKey(context.sourceVisualType || context.source_visual_type || "");
+  const targetVisualType = normalizeVisualTypeKey(context.targetVisualType || context.target_visual_type || "");
+  const originLabel = String(
+    context.originLabel ||
+    (sourceVisualType ? `Similar look from: ${getVisualTypeLabelForState(sourceVisualType)}` : "")
+  ).trim();
+  return {
+    active: Boolean(sourceVisualType && targetVisualType),
+    sourceVisualType,
+    targetVisualType,
+    originLabel,
+    fallbackMode: String(context.fallbackMode || context.fallback_mode || "").trim(),
+    sourceQuery: String(context.sourceQuery || "").trim(),
+    sourceBullets: normalizeSelectedBullets(context.sourceBullets || context.source_bullets || emptyStructuredBulletState(), sourceVisualType),
+    sourceImageContext: context.sourceImageContext && typeof context.sourceImageContext === "object"
+      ? cloneValue(context.sourceImageContext)
+      : null
+  };
+}
+
+function applySimilarLookContext(context = null) {
+  const normalized = normalizeSimilarLookContext(context);
+  if (!normalized?.active) {
+    clearSimilarLookContext();
+    return;
+  }
+  state.similarLookActive = true;
+  state.similarLookSourceVisualType = normalized.sourceVisualType;
+  state.similarLookTargetVisualType = normalized.targetVisualType;
+  state.similarLookOriginLabel = normalized.originLabel;
+  state.similarLookFallbackMode = normalized.fallbackMode;
+  state.similarLookSourceQuery = normalized.sourceQuery;
+  state.similarLookSourceBullets = normalizeSelectedBullets(normalized.sourceBullets, normalized.sourceVisualType);
+  state.similarLookSourceImageContext = normalized.sourceImageContext ? cloneValue(normalized.sourceImageContext) : null;
+  state.similarLookAccordionFamily = getVisualTypeFamilyForSimilarLook(state.similarLookTargetVisualType || state.currentVisualType);
+}
+
+function shouldPreserveExistingSimilarLookContext({
+  imageAnalysis = null,
+  preserveExplicitly = false
+} = {}) {
+  if (preserveExplicitly) {
+    return true;
+  }
+  if (!state.similarLookActive) {
+    return false;
+  }
+  const nextSourceImageUrl = String(imageAnalysis?.image_preview_url || "").trim();
+  const currentSourceImageUrl = String(state.currentImageAnalysis?.image_preview_url || "").trim();
+  return Boolean(
+    nextSourceImageUrl &&
+    currentSourceImageUrl &&
+    nextSourceImageUrl === currentSourceImageUrl
+  );
+}
+
+function getSimilarLookStateSnapshot() {
+  return {
+    similarLookActive: state.similarLookActive,
+    sourceVisualType: state.similarLookSourceVisualType,
+    targetVisualType: state.similarLookTargetVisualType,
+    originLabel: state.similarLookOriginLabel,
+    fallbackMode: state.similarLookFallbackMode,
+    sourceQuery: state.similarLookSourceQuery,
+    sourceBullets: cloneValue(state.similarLookSourceBullets),
+    sourceImageContext: cloneValue(state.similarLookSourceImageContext)
+  };
+}
+
 function wait(ms) {
   return new Promise((resolve) => {
     window.setTimeout(resolve, ms);
@@ -1964,6 +2106,10 @@ function shouldShowSearchCategoryChip() {
   );
 }
 
+function isSimilarLookDropdownEligible() {
+  return isImageOriginSimilarLookEligible() && Boolean(getPrimaryCategoryScopeSelection(state.resultCategoryScope) && getPrimaryCategoryScopeSelection(state.resultCategoryScope) !== "all");
+}
+
 function closeMobileCategoryDropdown() {
   state.mobileCategoryDropdownOpen = false;
   if (elements.mobileCategoryDropdown) {
@@ -1975,12 +2121,104 @@ function closeMobileCategoryDropdown() {
   elements.searchCategoryChipWrap?.classList.remove("is-open");
 }
 
-function renderMobileCategoryDropdown() {
+function getSimilarLookAccordionGroups() {
+  const sourceVisualType = String(state.similarLookSourceVisualType || state.currentVisualType || "").trim();
+  const sourceFamily = getVisualTypeFamilyForSimilarLook(sourceVisualType);
+  return groupVisualTypeOptionsByFamily(getVisualTypeOptions(state.bootstrap), state.bootstrap)
+    .map((group) => ({
+      ...group,
+      allowed: isAllowedSimilarLookFamily(sourceFamily, group.family)
+    }))
+    .sort((left, right) => {
+      const sourceMatchLeft = left.family === sourceFamily ? 0 : 1;
+      const sourceMatchRight = right.family === sourceFamily ? 0 : 1;
+      if (sourceMatchLeft !== sourceMatchRight) {
+        return sourceMatchLeft - sourceMatchRight;
+      }
+      return left.label.localeCompare(right.label);
+    });
+}
+
+function renderSimilarLookAccordionDropdown() {
+  if (!elements.mobileCategoryDropdown || !elements.searchCategoryChipWrap) {
+    return;
+  }
+  const anchorRect = elements.searchForm?.querySelector(".search-field")?.getBoundingClientRect();
+  if (anchorRect) {
+    elements.mobileCategoryDropdown.style.top = `${Math.round(anchorRect.bottom + 8)}px`;
+    elements.mobileCategoryDropdown.style.left = `${Math.round(anchorRect.left)}px`;
+    elements.mobileCategoryDropdown.style.right = "auto";
+    elements.mobileCategoryDropdown.style.width = `${Math.round(anchorRect.width)}px`;
+  }
+  elements.mobileCategoryDropdown.innerHTML = "";
+  const label = document.createElement("div");
+  label.className = "mobile-category-dropdown-label similar-look-dropdown-label";
+  label.textContent = "Show similar look in:";
+  elements.mobileCategoryDropdown.appendChild(label);
+
+  const groups = getSimilarLookAccordionGroups();
+  const currentFamily = getVisualTypeFamilyForSimilarLook(state.currentVisualType);
+  const expandedFamily = String(state.similarLookAccordionFamily || currentFamily || groups.find((group) => group.allowed)?.family || "").trim().toLowerCase();
+  state.similarLookAccordionFamily = expandedFamily;
+
+  groups.forEach((group) => {
+    const familyRow = document.createElement("div");
+    familyRow.className = `similar-look-family${group.allowed ? "" : " is-disabled"}${group.family === expandedFamily ? " is-expanded" : ""}`;
+
+    const familyButton = document.createElement("button");
+    familyButton.type = "button";
+    familyButton.className = "similar-look-family-button";
+    familyButton.disabled = !group.allowed || state.similarLookSwitchLoading;
+    familyButton.setAttribute("aria-expanded", String(group.family === expandedFamily));
+    familyButton.innerHTML = `<span>${group.label}</span><span class="similar-look-family-chevron" aria-hidden="true">${group.allowed ? (group.family === expandedFamily ? "▾" : "▸") : ""}</span>`;
+    familyButton.addEventListener("click", () => {
+      if (!group.allowed) {
+        return;
+      }
+      state.similarLookAccordionFamily = group.family === expandedFamily ? "" : group.family;
+      renderCategoryChipDropdown();
+    });
+    familyRow.appendChild(familyButton);
+
+    if (group.allowed && group.family === expandedFamily) {
+      const optionsWrap = document.createElement("div");
+      optionsWrap.className = "similar-look-options-wrap";
+      group.options.forEach((option) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = `similar-look-option-button${option.value === state.currentVisualType ? " is-active" : ""}`;
+        optionButton.textContent = option.label;
+        optionButton.disabled = state.similarLookSwitchLoading;
+        optionButton.addEventListener("click", async () => {
+          closeMobileCategoryDropdown();
+          if (option.value === state.currentVisualType) {
+            return;
+          }
+          await beginSimilarLookCategorySwitch(option.value);
+        });
+        optionsWrap.appendChild(optionButton);
+      });
+      familyRow.appendChild(optionsWrap);
+    }
+
+    elements.mobileCategoryDropdown.appendChild(familyRow);
+  });
+
+  if (state.similarLookSwitchLoading) {
+    const loading = document.createElement("div");
+    loading.className = "similar-look-loading-note";
+    loading.textContent = state.similarLookLoadingNotice || "Finding a similar look...";
+    elements.mobileCategoryDropdown.appendChild(loading);
+  }
+  elements.mobileCategoryDropdown.hidden = false;
+}
+
+function renderCategoryChipDropdown() {
   if (!elements.mobileCategoryDropdown || !elements.searchCategorySelect || !elements.searchCategoryChipWrap) {
     return;
   }
-  const showMobileDropdown = isMobileViewport() && shouldShowSearchCategoryChip() && !elements.searchCategoryChipWrap.hidden;
-  if (!showMobileDropdown || !state.mobileCategoryDropdownOpen) {
+  const showDropdown = shouldShowSearchCategoryChip() && !elements.searchCategoryChipWrap.hidden && (isMobileViewport() || isSimilarLookDropdownEligible());
+  if (!showDropdown || !state.mobileCategoryDropdownOpen) {
     elements.mobileCategoryDropdown.hidden = true;
     if (elements.mobileCategoryDropdownBackdrop) {
       elements.mobileCategoryDropdownBackdrop.hidden = true;
@@ -1992,6 +2230,10 @@ function renderMobileCategoryDropdown() {
   elements.searchCategoryChipWrap.classList.add("is-open");
   if (elements.mobileCategoryDropdownBackdrop) {
     elements.mobileCategoryDropdownBackdrop.hidden = false;
+  }
+  if (isSimilarLookDropdownEligible()) {
+    renderSimilarLookAccordionDropdown();
+    return;
   }
   const anchorRect = elements.searchForm?.querySelector(".search-field")?.getBoundingClientRect();
   if (anchorRect) {
@@ -2085,6 +2327,7 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
 
   const selectedCategory = getPrimaryCategoryScopeSelection(state.resultCategoryScope) || "all";
   const showChip = shouldShowSearchCategoryChip();
+  const useSimilarLookAccordion = showChip && isSimilarLookDropdownEligible();
   const searchField = elements.searchForm.querySelector(".search-field");
   const composerParts = showChip
     ? splitQueryAroundCategoryScope(fullQuery, selectedCategory)
@@ -2095,9 +2338,10 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
   state.searchComposerPrefix = showChip ? composerParts.prefix : "";
   state.searchComposerMatch = showChip ? composerParts.match : "";
   elements.searchCategorySelect.value = selectedCategory;
-  elements.searchCategorySelect.disabled = state.categoryScopeLoading;
+  elements.searchCategorySelect.disabled = state.categoryScopeLoading || useSimilarLookAccordion;
   elements.searchCategorySelect.setAttribute("aria-busy", String(state.categoryScopeLoading));
   elements.searchCategoryChipWrap.dataset.mobileLabel = formatVisualTypeLabel(selectedCategory, state.bootstrap);
+  elements.searchCategoryChipWrap.dataset.dropdownMode = useSimilarLookAccordion ? "similar-look" : "standard";
   if (showChip) {
     elements.searchCategoryPrefix.hidden = !composerParts.prefix;
     elements.searchCategoryPrefix.textContent = composerParts.prefix;
@@ -2117,7 +2361,7 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
     elements.searchInput.textContent = String(fullQuery || "").trim();
   }
   updateSearchComposerClearButton();
-  renderMobileCategoryDropdown();
+  renderCategoryChipDropdown();
   syncMobileSearchExpandedUi();
 }
 
@@ -4725,7 +4969,9 @@ function applyActiveSearchContext({
   categoryFilter = "",
   refreshAgeFilter = "",
   preserveOriginal = false,
-  refinementActive = false
+  refinementActive = false,
+  similarLookContext = null,
+  preserveSimilarLookContext = false
 }) {
   if (state.landingOnlyMode) {
     const browseParams = {};
@@ -4779,9 +5025,19 @@ function applyActiveSearchContext({
   state.inlineRefinementPanel = null;
   state.activeCardImageUrls = {};
   state.lastDisplayQuery = buildDisplayQueryFromPayload(payload, state.currentVisualType, state.lastQuery);
+  if (similarLookContext && typeof similarLookContext === "object") {
+    applySimilarLookContext(similarLookContext);
+  } else if (!shouldPreserveExistingSimilarLookContext({
+    nextQuery: query,
+    imageAnalysis,
+    preserveExplicitly: preserveSimilarLookContext
+  })) {
+    clearSimilarLookContext();
+  }
   if (!isBrowsePayload(payload, state.lastQuery)) {
     clearBrowseTraitFilters();
   }
+  renderSimilarLookOriginBadge();
 
   if (elements.categoryFilterButton) {
     elements.categoryFilterButton.textContent = formatCategoryFilterLabel(state.categoryFilter);
@@ -5972,6 +6228,12 @@ function buildTraitExtractionFallbackMessage(failure = null) {
 }
 
 function buildResultsInfoBanner(payload = state.lastPayload, query = state.lastQuery) {
+  if (state.similarLookLoadingNotice) {
+    return {
+      kind: "info",
+      message: state.similarLookLoadingNotice
+    };
+  }
   if (!payload || !String(query || "").trim() || state.currentImageAnalysis) {
     return null;
   }
@@ -5996,6 +6258,15 @@ function renderResultsInfoBanner(payload = state.lastPayload, query = state.last
   elements.resultsInfoBanner.hidden = !banner;
   elements.resultsInfoBanner.textContent = banner?.message || "";
   elements.resultsInfoBanner.className = `results-info-banner${banner ? ` ${banner.kind || "info"}` : ""}`;
+}
+
+function renderSimilarLookOriginBadge() {
+  if (!elements.similarLookOriginBadge) {
+    return;
+  }
+  const label = state.similarLookActive ? String(state.similarLookOriginLabel || "").trim() : "";
+  elements.similarLookOriginBadge.hidden = !label;
+  elements.similarLookOriginBadge.textContent = label;
 }
 
 function syncRefineSidebarNotice() {
@@ -9265,7 +9536,12 @@ async function runSearch(query, options = {}) {
   const preserveOriginal = Boolean(options.preserveOriginal);
   const refinementActive = Boolean(options.refinementActive);
   const scrollToTopOnComplete = Boolean(options.scrollToTopOnComplete);
+  const softLoading = Boolean(options.softLoading);
   const productRefinements = normalizeProductRefinements(options.productRefinements || []);
+  const similarLookContext = options.similarLookContext && typeof options.similarLookContext === "object"
+    ? cloneValue(options.similarLookContext)
+    : null;
+  const preserveSimilarLookContext = Boolean(options.preserveSimilarLookContext);
   updateClarificationConflict(imageAnalysis ? getPrimaryClarificationConflict(imageAnalysis) : null);
   if (normalizedQuery && !state.bootstrap?.has_index) {
     setStatus("The search index is missing. Run the normalize and index scripts first.", "error");
@@ -9274,10 +9550,14 @@ async function runSearch(query, options = {}) {
 
   renderContextPills();
   state.refineDrawerOpen = false;
-  elements.resultCount.textContent = normalizedQuery ? "Searching..." : "Loading catalog...";
+  if (!softLoading) {
+    elements.resultCount.textContent = normalizedQuery ? "Searching..." : "Loading catalog...";
+  }
   const useStreamedTextProgress = Boolean(normalizedQuery && !imageAnalysis && !isSeedQuery(normalizedQuery));
   const useCachedSearchStrip = isPublicSeedQuery;
-  if (useCachedSearchStrip) {
+  if (softLoading) {
+    setResultsLoading("");
+  } else if (useCachedSearchStrip) {
     setResultsLoading("");
     startCachedSearchProgressStrip();
   } else {
@@ -9432,7 +9712,9 @@ async function runSearch(query, options = {}) {
       categoryFilter: payload?.category_filter ?? effectiveCategoryFilter,
       refreshAgeFilter: payload?.refresh_age_filter ?? refreshAgeFilter,
       preserveOriginal,
-      refinementActive
+      refinementActive,
+      similarLookContext,
+      preserveSimilarLookContext
     });
     renderResults(payload, normalizedStoredQuery);
     if (scrollToTopOnComplete) {
@@ -9977,6 +10259,173 @@ async function requestImageAnalysis(body, options = {}) {
   });
 }
 
+function isImageOriginSimilarLookEligible() {
+  return Boolean(state.currentImageAnalysis && state.currentVisualType);
+}
+
+function buildSimilarLookSwitchPayload(targetVisualType = "", overrides = {}) {
+  const normalizedTargetVisualType = normalizeVisualTypeKey(
+    targetVisualType ||
+    overrides.target_visual_type ||
+    overrides.targetVisualType ||
+    ""
+  );
+  return {
+    source_visual_type: String(state.currentVisualType || "").trim(),
+    target_visual_type: normalizedTargetVisualType,
+    query: String(overrides.query || getSearchComposerRequestQuery(state.lastQuery) || "").trim(),
+    selected_bullets: normalizeSelectedBullets(
+      overrides.selected_bullets || overrides.selectedBullets || state.currentSelectedBullets,
+      state.currentVisualType
+    ),
+    image_analysis: overrides.image_analysis || overrides.imageAnalysis || cloneValue(state.currentImageAnalysis),
+    query_embedding: Array.isArray(overrides.query_embedding || overrides.queryEmbedding)
+      ? [...(overrides.query_embedding || overrides.queryEmbedding)]
+      : Array.isArray(state.currentBaseQueryEmbedding)
+        ? [...state.currentBaseQueryEmbedding]
+        : []
+  };
+}
+
+async function requestSimilarLookSwitch(payload = null) {
+  return fetchJson("/api/similar-look-switch", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {})
+  });
+}
+
+function buildSimilarLookContextFromResult(result = {}, requestPayload = {}) {
+  const sourceVisualType = String(result.source_visual_type || requestPayload.source_visual_type || "").trim();
+  const queryEmbedding = Array.isArray(requestPayload.query_embedding)
+    ? [...requestPayload.query_embedding]
+    : Array.isArray(state.currentBaseQueryEmbedding)
+      ? [...state.currentBaseQueryEmbedding]
+      : [];
+  return {
+    sourceVisualType,
+    targetVisualType: String(result.target_visual_type || requestPayload.target_visual_type || "").trim(),
+    originLabel: `Similar look from: ${getVisualTypeLabelForState(sourceVisualType)}`,
+    fallbackMode: String(result.fallback_mode || "").trim(),
+    sourceQuery: String(requestPayload.query || state.lastQuery || "").trim(),
+    sourceBullets: normalizeSelectedBullets(
+      requestPayload.selected_bullets || state.currentSelectedBullets,
+      sourceVisualType
+    ),
+    sourceImageContext: {
+      imageAnalysis: requestPayload.image_analysis && typeof requestPayload.image_analysis === "object"
+        ? cloneValue(requestPayload.image_analysis)
+        : cloneValue(state.currentImageAnalysis),
+      queryEmbedding,
+      visualType: sourceVisualType,
+      sourceImageUrl: String(requestPayload.image_analysis?.image_preview_url || state.currentImageAnalysis?.image_preview_url || "").trim()
+    }
+  };
+}
+
+function buildSimilarLookStateTransitionPreview({
+  result = {},
+  requestPayload = null
+} = {}) {
+  const payload = requestPayload || {};
+  const targetVisualType = String(result.target_visual_type || payload.target_visual_type || "").trim();
+  const translatedBullets = normalizeSelectedBullets(
+    result.translated_bullets || emptyStructuredBulletState(),
+    targetVisualType
+  );
+  return {
+    before: {
+      query: String(state.lastQuery || "").trim(),
+      visualType: String(state.currentVisualType || "").trim(),
+      selectedBullets: cloneValue(state.currentSelectedBullets),
+      imageAnalysisPresent: Boolean(state.currentImageAnalysis),
+      similarLook: getSimilarLookStateSnapshot()
+    },
+    after: {
+      query: String(result.rewritten_query || "").trim(),
+      visualType: targetVisualType,
+      selectedBullets: cloneValue(translatedBullets),
+      imageAnalysisPresent: Boolean(state.currentImageAnalysis),
+      similarLook: cloneValue(buildSimilarLookContextFromResult(result, payload))
+    }
+  };
+}
+
+async function previewSimilarLookStateTransition(targetVisualType = "", overrides = {}) {
+  const requestPayload = buildSimilarLookSwitchPayload(targetVisualType, overrides);
+  const result = await requestSimilarLookSwitch(requestPayload);
+  return {
+    requestPayload,
+    result,
+    transition: buildSimilarLookStateTransitionPreview({
+      result,
+      requestPayload
+    })
+  };
+}
+
+function applySimilarLookSwitchResult(result = {}, requestPayload = null) {
+  const payload = requestPayload || {};
+  applySimilarLookContext(buildSimilarLookContextFromResult(result, payload));
+  state.lastDisplayQuery = String(result.rewritten_query || "").trim();
+}
+
+async function beginSimilarLookCategorySwitch(targetVisualType = "") {
+  const normalizedTargetVisualType = normalizeVisualTypeKey(targetVisualType);
+  if (!normalizedTargetVisualType || state.similarLookSwitchLoading || !isSimilarLookDropdownEligible()) {
+    return null;
+  }
+  const requestPayload = buildSimilarLookSwitchPayload(normalizedTargetVisualType);
+  const targetLabel = getVisualTypeLabelForState(normalizedTargetVisualType);
+  state.similarLookSwitchLoading = true;
+  state.categoryScopeLoading = true;
+  state.similarLookLoadingNotice = `Finding a similar look in ${targetLabel}...`;
+  renderResultsInfoBanner(state.lastPayload, state.lastQuery);
+  renderSearchComposer(state.lastDisplayQuery || state.lastQuery);
+  syncBrowseCategoryControl(state.lastPayload, state.lastQuery);
+  try {
+    const result = await requestSimilarLookSwitch(requestPayload);
+    const translatedBullets = normalizeSelectedBullets(
+      result.translated_bullets || emptyStructuredBulletState(),
+      normalizedTargetVisualType
+    );
+    const bulletControls = normalizeBulletControls([
+      ...translatedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...translatedBullets.normal.map((text) => ({ text, priority: "normal" })),
+      ...translatedBullets.low.map((text) => ({ text, priority: "low" }))
+    ]);
+    const similarLookContext = buildSimilarLookContextFromResult(result, requestPayload);
+    const nextQuery = String(result.rewritten_query || "").trim();
+    const payload = await runSearch(nextQuery, {
+      sort: state.sortMode,
+      categoryFilter: state.categoryFilter,
+      refreshAgeFilter: state.refreshAgeFilter,
+      visualType: normalizedTargetVisualType,
+      categoryScopeMode: "explicit",
+      sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
+      imageAnalysis: state.currentImageAnalysis,
+      selectedBullets: translatedBullets,
+      bulletControls,
+      preserveOriginal: false,
+      refinementActive: false,
+      similarLookContext,
+      preserveSimilarLookContext: false,
+      softLoading: true
+    });
+    if (payload) {
+      applySimilarLookSwitchResult(result, requestPayload);
+    }
+    return { result, payload };
+  } finally {
+    state.similarLookSwitchLoading = false;
+    state.categoryScopeLoading = false;
+    state.similarLookLoadingNotice = "";
+    renderResultsInfoBanner(state.lastPayload, state.lastQuery);
+    renderSearchComposer(state.lastDisplayQuery || state.lastQuery);
+    syncBrowseCategoryControl(state.lastPayload, state.lastQuery);
+  }
+}
+
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -10445,6 +10894,13 @@ async function bootstrap() {
   }
 }
 
+window.__PIXELSEEK_DEBUG__ = {
+  previewSimilarLookStateTransition,
+  getSimilarLookStateSnapshot,
+  clearSimilarLookContext,
+  buildSimilarLookSwitchPayload
+};
+
 window.addEventListener("error", (event) => {
   reportClientError(event.error || event.message, "Window error");
 });
@@ -10670,19 +11126,28 @@ elements.searchCategorySelect?.addEventListener("change", async (event) => {
   if (!(target instanceof HTMLSelectElement)) {
     return;
   }
+  if (isSimilarLookDropdownEligible()) {
+    return;
+  }
   closeMobileCategoryDropdown();
   await handleCategoryScopeSelectionChange(target.value);
 });
 
 elements.searchCategoryChipWrap?.addEventListener("click", (event) => {
-  if (!isMobileViewport() || elements.searchCategoryChipWrap.hidden) {
+  if (elements.searchCategoryChipWrap.hidden) {
+    return;
+  }
+  if (!isMobileViewport() && !isSimilarLookDropdownEligible()) {
     return;
   }
   event.preventDefault();
   event.stopPropagation();
   closeMobileSearchExpandedEditor({ restore: false });
   state.mobileCategoryDropdownOpen = !state.mobileCategoryDropdownOpen;
-  renderMobileCategoryDropdown();
+  if (state.mobileCategoryDropdownOpen && isSimilarLookDropdownEligible()) {
+    state.similarLookAccordionFamily = getVisualTypeFamilyForSimilarLook(state.currentVisualType);
+  }
+  renderCategoryChipDropdown();
 });
 
 elements.mobileCategoryDropdownBackdrop?.addEventListener("click", () => {

@@ -6,7 +6,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
 
-import { analyzeInspirationImage, buildLlmFailureMeta, buildStage1ClassificationPrompt, combinedStage23Prompt, createLlmFailureError, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, inferTextQueryCategory, normalizeLlmFailureMeta, QueryImageAnalysisStageError, ResolutionGateError } from "./src/captioning.js";
+import { analyzeInspirationImage, buildLlmFailureMeta, buildStage1ClassificationPrompt, combinedStage23Prompt, createLlmFailureError, extractTextQueryTraits, generateProductExtractionRecordsWithCap, generateSearchQuery, getVisualTypeTraitVocabulary, inferTextQueryCategory, normalizeLlmFailureMeta, QueryImageAnalysisStageError, ResolutionGateError, rewriteSimilarLookQueryForCategorySwitch } from "./src/captioning.js";
 import { RESULT_CUTOFF_DEFAULTS } from "./public/result-cutoff.js";
 import { parseSearchQuery } from "./src/query-parser.js";
 import {
@@ -1112,6 +1112,62 @@ function formatSearchTraitList(traits = [], visualType = "") {
     return "";
   }
   return naturalJoin(items);
+}
+
+function flattenStructuredBulletsForIntent(bullets = {}, visualType = "") {
+  const normalized = normalizeStructuredBullets(bullets, visualType);
+  return ["essential", "normal", "low"]
+    .flatMap((priority) => Array.isArray(normalized?.[priority]) ? normalized[priority] : [])
+    .filter(Boolean);
+}
+
+function getVisualTypeDisplayLabel(typeKey = "") {
+  const normalizedType = String(typeKey || "").trim();
+  return String(
+    seatingTypes[normalizedType]?.label ||
+    visualTypesRegistry?.categories?.[normalizedType]?.label ||
+    getCategoryDisplayLabel(normalizedType) ||
+    normalizedType
+  ).trim();
+}
+
+function buildCategorySwitchIntentSummary({
+  query = "",
+  sourceVisualType = "",
+  selectedBullets = null
+} = {}) {
+  const normalizedQuery = String(query || "").trim();
+  const traitList = formatSearchTraitList(
+    flattenStructuredBulletsForIntent(selectedBullets, sourceVisualType),
+    sourceVisualType
+  );
+  const parts = [];
+  if (normalizedQuery) {
+    parts.push(`Query: ${normalizedQuery}`);
+  }
+  if (traitList) {
+    parts.push(`Applied visual priorities: ${traitList}`);
+  }
+  if (!parts.length && sourceVisualType) {
+    parts.push(`Starting from ${getVisualTypeDisplayLabel(sourceVisualType)} results.`);
+  }
+  return parts.join("\n");
+}
+
+function getVisualTypeFamilyForSwitch(typeKey = "") {
+  return String(visualTypesRegistry.resolveRoutingKey(typeKey)?.family || "").trim().toLowerCase();
+}
+
+function isAllowedSimilarLookSwitch(sourceVisualType = "", targetVisualType = "") {
+  const sourceFamily = getVisualTypeFamilyForSwitch(sourceVisualType);
+  const targetFamily = getVisualTypeFamilyForSwitch(targetVisualType);
+  if (!sourceFamily || !targetFamily) {
+    return false;
+  }
+  if (sourceFamily === "faucets" || targetFamily === "faucets") {
+    return sourceFamily === targetFamily;
+  }
+  return true;
 }
 
 function renderCategoryDisplayString(displayString = "", visualType = "") {
@@ -4423,6 +4479,98 @@ const server = http.createServer(async (request, response) => {
         error: error.message || "Targeted query rewrite failed.",
         llm_failure: failureMeta
       });
+    }
+  }
+
+  if (url.pathname === "/api/similar-look-switch" && request.method === "POST") {
+    try {
+      const body = await readRequestJson(request);
+      const sourceVisualType = normalizeRequestedVisualType({ visual_type: body.source_visual_type, seating_type: body.source_seating_type });
+      const targetVisualType = normalizeRequestedVisualType({ visual_type: body.target_visual_type, seating_type: body.target_seating_type });
+      if (!sourceVisualType || !targetVisualType) {
+        return json(response, 400, { ok: false, error: "source_visual_type and target_visual_type are required." });
+      }
+      if (!isAllowedSimilarLookSwitch(sourceVisualType, targetVisualType)) {
+        return json(response, 400, {
+          ok: false,
+          error: "That similar-look category switch is not allowed in phase 1."
+        });
+      }
+
+      const selectedBullets = normalizeStructuredBullets(body.selected_bullets, sourceVisualType);
+      const intentSummary = buildCategorySwitchIntentSummary({
+        query: body.query,
+        sourceVisualType,
+        selectedBullets
+      });
+      const targetVocabulary = getVisualTypeTraitVocabulary(targetVisualType);
+
+      try {
+        const rewriteResult = await rewriteSimilarLookQueryForCategorySwitch({
+          sourceVisualType,
+          targetVisualType,
+          intentSummary,
+          query: body.query,
+          apiKey: process.env.OPENAI_API_KEY
+        });
+        const rewrittenQuery = String(rewriteResult?.rewritten_query || "").trim();
+        if (!rewrittenQuery) {
+          return json(response, 200, {
+            ok: true,
+            source_visual_type: sourceVisualType,
+            target_visual_type: targetVisualType,
+            rewritten_query: "",
+            translated_bullets: { essential: [], normal: [], low: [] },
+            translated_traits: null,
+            fallback_mode: "embedding_only",
+            llm_failure: null,
+            intent_summary: intentSummary,
+            target_vocabulary: targetVocabulary,
+            prompts: rewriteResult?.prompts || null
+          });
+        }
+
+        const translatedTraits = await extractTextQueryTraits(rewrittenQuery, {
+          apiKey: process.env.OPENAI_API_KEY,
+          model: "gpt-4.1-mini",
+          visualType: targetVisualType
+        });
+        const translatedBullets = normalizeStructuredBullets(
+          translatedTraits?.search_bullets || [],
+          targetVisualType
+        );
+        return json(response, 200, {
+          ok: true,
+          source_visual_type: sourceVisualType,
+          target_visual_type: targetVisualType,
+          rewritten_query: rewrittenQuery,
+          translated_bullets: translatedBullets,
+          translated_traits: translatedTraits,
+          fallback_mode: translatedTraits?.fallback_meta ? "trait_extraction_fallback" : null,
+          llm_failure: translatedTraits?.fallback_meta || null,
+          intent_summary: intentSummary,
+          target_vocabulary: targetVocabulary,
+          prompts: rewriteResult?.prompts || null
+        });
+      } catch (error) {
+        const failureMeta = normalizeLlmFailureMeta(error, {
+          source: "similar_look_rewrite"
+        });
+        return json(response, 200, {
+          ok: true,
+          source_visual_type: sourceVisualType,
+          target_visual_type: targetVisualType,
+          rewritten_query: "",
+          translated_bullets: { essential: [], normal: [], low: [] },
+          translated_traits: null,
+          fallback_mode: "embedding_only",
+          llm_failure: failureMeta,
+          intent_summary: intentSummary,
+          target_vocabulary: targetVocabulary
+        });
+      }
+    } catch (error) {
+      return json(response, 500, { ok: false, error: error.message || "Similar-look switch failed." });
     }
   }
 
