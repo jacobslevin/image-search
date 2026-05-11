@@ -4682,40 +4682,56 @@ export function getVisualTypeTraitVocabulary(typeKey = "") {
   };
 }
 
-function buildSimilarLookRewritePrompt(sourceType = "", targetType = "", intentSummary = "", targetVocabulary = null) {
+function buildSimilarLookRewritePrompt({
+  sourceType = "",
+  targetType = "",
+  sourceQuery = "",
+  carriedTargetBullets = { essential: [], normal: [], low: [] },
+  droppedSourceBullets = []
+} = {}) {
   const sourceLabel = getVisualTypeLabel(sourceType);
   const targetLabel = getVisualTypeLabel(targetType);
-  const family = getVisualTypeFamily(targetType) || "seating";
-  const fieldLines = Array.isArray(targetVocabulary?.fields) && targetVocabulary.fields.length
-    ? targetVocabulary.fields.map((field = {}) => `- ${field.field}: ${(field.allowed_values || []).join(" | ")}`).join("\n")
-    : "- No structured fields available";
+  const normalizedQuery = normalizeWhitespace(sourceQuery || "");
+  const flattenedCarriedBullets = ["essential", "normal", "low"]
+    .flatMap((priority) => (Array.isArray(carriedTargetBullets?.[priority]) ? carriedTargetBullets[priority] : []))
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+  const flattenedDroppedBullets = (Array.isArray(droppedSourceBullets) ? droppedSourceBullets : [])
+    .map((entry = {}) => String(entry.source_bullet || "").trim())
+    .filter(Boolean);
 
   return {
     systemPrompt: [
-      "You translate furniture-search intent from one product category into another.",
-      "Your goal is to preserve aesthetic and structural intent while rewriting the query so it sounds natural for the target category.",
+      "You rewrite furniture search text from one category into another.",
+      "",
+      "Your job is to write a concise target-category search query that reflects the original query, the target category, and any carried-over target traits we already validated.",
       "",
       "Rules:",
-      `- The source category is ${sourceLabel}. The target category is ${targetLabel}.`,
-      `- The target family is ${family}. Rewrite the query so it clearly describes a ${targetLabel.toLowerCase()} product.`,
-      "- Preserve the look-and-feel intent where it transfers cleanly: proportions, posture, silhouette, support logic, visual weight, material cues, and design register.",
-      "- Do not mechanically copy source-category parts that do not belong on the target product.",
-      "- Prefer natural prose, not a bullet list.",
-      "- Keep the rewrite concise and product-focused.",
-      "- If the source intent does not translate cleanly, still produce the best target-category rewrite you can instead of refusing.",
+      `- Source category: ${sourceLabel}.`,
+      `- Target category: ${targetLabel}.`,
+      "- Do not invent new structured traits.",
+      "- Do not add target-specific attributes unless they are directly supported by the carried-over target traits or the original query text.",
+      "- Keep the output short and search-bar friendly.",
+      "- Prefer a short noun phrase or one short sentence.",
+      "- Aim for about 4 to 12 words when possible.",
+      "- Avoid metaphor, storytelling, explanation, or design-brief language.",
+      "- Use carried-over target traits if they are useful; ignore dropped traits unless they naturally belong in the rewritten query.",
       "- Return JSON only with a single key: rewritten_query",
-      "",
-      "Target category vocabulary:",
-      fieldLines
     ].join("\n"),
     userPrompt: [
-      "Rewrite this search intent for the target category.",
+      "Rewrite this search for the target category.",
       "",
       `Source category: ${sourceLabel}`,
       `Target category: ${targetLabel}`,
       "",
-      "Current search intent:",
-      intentSummary || "- No additional intent provided"
+      "Original query:",
+      normalizedQuery || "(none)",
+      "",
+      "Carried-over target traits:",
+      ...(flattenedCarriedBullets.length ? flattenedCarriedBullets.map((line) => `- ${line}`) : ["- None"]),
+      "",
+      "Dropped source traits:",
+      ...(flattenedDroppedBullets.length ? flattenedDroppedBullets.map((line) => `- ${line}`) : ["- None"])
     ].join("\n")
   };
 }
@@ -4723,14 +4739,18 @@ function buildSimilarLookRewritePrompt(sourceType = "", targetType = "", intentS
 export async function rewriteSimilarLookQueryForCategorySwitch(options = {}) {
   const sourceType = resolveTextQueryTraitType(options.sourceVisualType || options.sourceType || "");
   const targetType = resolveTextQueryTraitType(options.targetVisualType || options.targetType || "");
-  const intentSummary = normalizeWhitespace(options.intentSummary || options.query || "");
+  const sourceQuery = normalizeWhitespace(options.query || options.sourceQuery || "");
   const apiKey = String(options.apiKey || "").trim();
   const targetVocabulary = getVisualTypeTraitVocabulary(targetType);
+  const hasCarriedBullets = ["essential", "normal", "low"].some((priority) => (
+    Array.isArray(options?.carriedTargetBullets?.[priority]) &&
+    options.carriedTargetBullets[priority].length
+  ));
 
   if (!targetType) {
     throw new Error("A target visual type is required for similar-look rewrites.");
   }
-  if (!intentSummary) {
+  if (!sourceQuery && !hasCarriedBullets) {
     return {
       rewritten_query: "",
       target_vocabulary: targetVocabulary
@@ -4740,12 +4760,13 @@ export async function rewriteSimilarLookQueryForCategorySwitch(options = {}) {
     throw new Error("OPENAI_API_KEY is required for similar-look rewrites.");
   }
 
-  const { systemPrompt, userPrompt } = buildSimilarLookRewritePrompt(
+  const { systemPrompt, userPrompt } = buildSimilarLookRewritePrompt({
     sourceType,
     targetType,
-    intentSummary,
-    targetVocabulary
-  );
+    sourceQuery,
+    carriedTargetBullets: options.carriedTargetBullets,
+    droppedSourceBullets: options.droppedSourceBullets
+  });
   const timeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 60000);
   maybeThrowInjectedLlmFailure("PIXELSEEK_FAIL_SIMILAR_LOOK_REWRITE", "similar_look_rewrite");
   const response = await fetch("https://api.openai.com/v1/chat/completions", {

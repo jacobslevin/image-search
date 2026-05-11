@@ -71,6 +71,7 @@ const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json")
 const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
 const traitCorrectionImagesDir = path.join(__dirname, "data", "trait-correction-images");
 const captioningSourcePath = path.join(__dirname, "src", "captioning.js");
+const similarLookAnalogMappingsPath = path.join(__dirname, "config", "similar-look-analog-mappings.json");
 const seatingTypesConfig = loadSeatingTypesAdapter();
 const seatingTypes = seatingTypesConfig.types || {};
 const defaultSeatingType = seatingTypesConfig.default_type || "";
@@ -84,6 +85,20 @@ const PROMPT_LIBRARY_STAGE23_TYPES = [
   "stool",
   "bench"
 ];
+const similarLookAnalogMappings = loadSimilarLookAnalogMappings();
+
+function loadSimilarLookAnalogMappings() {
+  try {
+    const raw = fsSync.readFileSync(similarLookAnalogMappingsPath, "utf8");
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object"
+      ? parsed
+      : { global_exact_field_fallback: true, anti_mappings: [], family_mappings: {} };
+  } catch (error) {
+    console.warn("Unable to load similar-look analog mappings; defaulting to empty config.", error);
+    return { global_exact_field_fallback: true, anti_mappings: [], family_mappings: {} };
+  }
+}
 const PROMPT_LIBRARY_SECTION_RANGES = {
   stage1: [
     { label: "Stage 1 prompt builder", start: 2656, end: 2684 }
@@ -1158,6 +1173,31 @@ function getVisualTypeFamilyForSwitch(typeKey = "") {
   return String(visualTypesRegistry.resolveRoutingKey(typeKey)?.family || "").trim().toLowerCase();
 }
 
+function buildSimilarLookFallbackQuery(targetVisualType = "") {
+  const vocabulary = getVisualTypeTraitVocabulary(targetVisualType);
+  const label = String(vocabulary?.label || getVisualTypeDisplayLabel(targetVisualType) || targetVisualType || "").trim().toLowerCase();
+  return label || String(targetVisualType || "").trim().toLowerCase();
+}
+
+function normalizeSimilarLookQueryText(value = "") {
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/\s+,/g, ",")
+    .replace(/,\s*,+/g, ", ")
+    .replace(/^[,.;:!?]+|[,.;:!?]+$/g, "")
+    .trim();
+}
+
+function ensureCompleteSimilarLookQuery(query = "", targetVisualType = "") {
+  const normalizedQuery = normalizeSimilarLookQueryText(query || "");
+  const wordCount = normalizedQuery ? normalizedQuery.split(/\s+/).filter(Boolean).length : 0;
+  if (wordCount >= 2) {
+    return normalizedQuery;
+  }
+  return buildSimilarLookFallbackQuery(targetVisualType);
+}
+
 function isAllowedSimilarLookSwitch(sourceVisualType = "", targetVisualType = "") {
   const sourceFamily = getVisualTypeFamilyForSwitch(sourceVisualType);
   const targetFamily = getVisualTypeFamilyForSwitch(targetVisualType);
@@ -1168,6 +1208,253 @@ function isAllowedSimilarLookSwitch(sourceVisualType = "", targetVisualType = ""
     return sourceFamily === targetFamily;
   }
   return true;
+}
+
+function normalizeSimilarLookKey(value = "") {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[_/]+/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getSimilarLookTypeFields(typeKey = "") {
+  const vocabulary = getVisualTypeTraitVocabulary(typeKey);
+  return Array.isArray(vocabulary?.fields) ? vocabulary.fields : [];
+}
+
+function getSimilarLookFieldDefinition(typeKey = "", fieldKey = "") {
+  return getSimilarLookTypeFields(typeKey).find((field) => String(field?.field || "").trim() === String(fieldKey || "").trim()) || null;
+}
+
+function resolveSimilarLookBulletField(typeKey = "", fieldLabel = "") {
+  const normalizedField = normalizeSimilarLookKey(fieldLabel).replace(/\s+/g, "_");
+  if (!normalizedField) {
+    return "";
+  }
+
+  const fields = getSimilarLookTypeFields(typeKey);
+  if (fields.some((field) => field.field === normalizedField)) {
+    return normalizedField;
+  }
+
+  const labelMatch = fields.find((field) => normalizeSimilarLookKey(field.label || field.field) === normalizeSimilarLookKey(fieldLabel));
+  if (labelMatch?.field) {
+    return labelMatch.field;
+  }
+
+  const aliasMatch = STRUCTURED_BULLET_FIELD_ALIASES.get(normalizedField);
+  if (aliasMatch && fields.some((field) => field.field === aliasMatch)) {
+    return aliasMatch;
+  }
+
+  return "";
+}
+
+function flattenStructuredBulletsWithPriority(bullets = {}, visualType = "") {
+  const normalized = normalizeStructuredBullets(bullets, visualType);
+  return ["essential", "normal", "low"].flatMap((priority) =>
+    (Array.isArray(normalized?.[priority]) ? normalized[priority] : [])
+      .map((text) => ({ text: String(text || "").trim(), priority }))
+      .filter((entry) => entry.text)
+  );
+}
+
+function getSimilarLookFamilyMapping(sourceFamily = "", targetFamily = "") {
+  const key = `${String(sourceFamily || "").trim().toLowerCase()}->${String(targetFamily || "").trim().toLowerCase()}`;
+  const mappings = similarLookAnalogMappings?.family_mappings;
+  return mappings && typeof mappings === "object" ? mappings[key] || null : null;
+}
+
+function isSimilarLookAntiMapping(sourceField = "", targetFamily = "") {
+  const normalizedSourceField = String(sourceField || "").trim();
+  const normalizedTargetFamily = String(targetFamily || "").trim().toLowerCase();
+  return (Array.isArray(similarLookAnalogMappings?.anti_mappings) ? similarLookAnalogMappings.anti_mappings : []).some((rule = {}) => (
+    String(rule.source_field || "").trim() === normalizedSourceField &&
+    ["*", normalizedTargetFamily].includes(String(rule.target_family || "").trim().toLowerCase())
+  ));
+}
+
+function buildAllowedValueLookup(typeKey = "", fieldKey = "") {
+  const fieldDefinition = getSimilarLookFieldDefinition(typeKey, fieldKey);
+  const lookup = new Map();
+  for (const rawValue of Array.isArray(fieldDefinition?.allowed_values) ? fieldDefinition.allowed_values : []) {
+    const normalizedValue = normalizeSimilarLookKey(rawValue);
+    if (!normalizedValue || normalizedValue === "unknown") {
+      continue;
+    }
+    lookup.set(normalizedValue, String(rawValue || "").trim());
+  }
+  return lookup;
+}
+
+function canonicalizeSimilarLookTargetValue(typeKey = "", fieldKey = "", sourceValue = "", mapping = null) {
+  const allowedLookup = buildAllowedValueLookup(typeKey, fieldKey);
+  if (!allowedLookup.size) {
+    return "";
+  }
+
+  const valueMap = mapping && typeof mapping.value_map === "object" ? mapping.value_map : null;
+  const normalizedSourceValue = normalizeSimilarLookKey(sourceValue);
+  if (valueMap && normalizedSourceValue) {
+    for (const [rawSource, rawTarget] of Object.entries(valueMap)) {
+      if (normalizeSimilarLookKey(rawSource) !== normalizedSourceValue) {
+        continue;
+      }
+      const mappedTarget = allowedLookup.get(normalizeSimilarLookKey(rawTarget));
+      if (mappedTarget) {
+        return mappedTarget;
+      }
+    }
+  }
+
+  return allowedLookup.get(normalizeSimilarLookKey(sourceValue)) || "";
+}
+
+function buildSimilarLookCarryOverBullet(fieldKey = "", value = "") {
+  const label = formatStructuredBulletFieldLabel(fieldKey);
+  return `${label}: ${String(value || "").trim()}`;
+}
+
+function translateSimilarLookBullets({
+  sourceVisualType = "",
+  targetVisualType = "",
+  selectedBullets = null
+} = {}) {
+  const sourceFamily = getVisualTypeFamilyForSwitch(sourceVisualType);
+  const targetFamily = getVisualTypeFamilyForSwitch(targetVisualType);
+  const familyMapping = getSimilarLookFamilyMapping(sourceFamily, targetFamily);
+  const fieldMappings = familyMapping && typeof familyMapping.field_mappings === "object"
+    ? familyMapping.field_mappings
+    : {};
+  const useExactFallback = Boolean(similarLookAnalogMappings?.global_exact_field_fallback);
+  const translatedBySemanticKey = new Map();
+  const priorityRank = new Map([
+    ["essential", 3],
+    ["normal", 2],
+    ["low", 1]
+  ]);
+  const translationMeta = {
+    carried: [],
+    dropped: []
+  };
+
+  for (const entry of flattenStructuredBulletsWithPriority(selectedBullets, sourceVisualType)) {
+    const separatorIndex = entry.text.indexOf(":");
+    if (separatorIndex === -1) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_priority: entry.priority,
+        reason: "unparseable_bullet"
+      });
+      continue;
+    }
+
+    const sourceFieldLabel = entry.text.slice(0, separatorIndex).trim();
+    const sourceValue = entry.text.slice(separatorIndex + 1).trim();
+    const sourceField = resolveSimilarLookBulletField(sourceVisualType, sourceFieldLabel);
+    if (!sourceField) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_priority: entry.priority,
+        reason: "unknown_source_field"
+      });
+      continue;
+    }
+
+    if (isSimilarLookAntiMapping(sourceField, targetFamily)) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_field: sourceField,
+        source_priority: entry.priority,
+        reason: "anti_mapping"
+      });
+      continue;
+    }
+
+    const explicitMapping = fieldMappings[sourceField] && typeof fieldMappings[sourceField] === "object"
+      ? fieldMappings[sourceField]
+      : null;
+    const fallbackExactAllowed = useExactFallback && getSimilarLookFieldDefinition(targetVisualType, sourceField);
+    const mapping = explicitMapping || (fallbackExactAllowed
+      ? {
+          target_field: sourceField,
+          kind: "exact"
+        }
+      : null);
+
+    if (!mapping?.target_field) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_field: sourceField,
+        source_priority: entry.priority,
+        reason: "no_allowed_target_mapping"
+      });
+      continue;
+    }
+
+    const targetField = String(mapping.target_field || "").trim();
+    if (!getSimilarLookFieldDefinition(targetVisualType, targetField)) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_field: sourceField,
+        source_priority: entry.priority,
+        reason: "unknown_target_field"
+      });
+      continue;
+    }
+
+    const targetValue = canonicalizeSimilarLookTargetValue(targetVisualType, targetField, sourceValue, mapping);
+    if (!targetValue) {
+      translationMeta.dropped.push({
+        source_bullet: entry.text,
+        source_field: sourceField,
+        source_priority: entry.priority,
+        target_field: targetField,
+        reason: "no_valid_target_value"
+      });
+      continue;
+    }
+
+    const targetBullet = buildSimilarLookCarryOverBullet(targetField, targetValue);
+    const semanticKey = `${targetField}::${normalizeSimilarLookKey(targetValue)}`;
+    const existing = translatedBySemanticKey.get(semanticKey);
+    if (!existing || (priorityRank.get(entry.priority) || 0) > (priorityRank.get(existing.priority) || 0)) {
+      translatedBySemanticKey.set(semanticKey, {
+        text: targetBullet,
+        priority: entry.priority,
+        targetField,
+        targetValue,
+        sourceField,
+        sourceValue,
+        mappingKind: String(mapping.kind || (explicitMapping ? "analog" : "exact")).trim() || "exact"
+      });
+    }
+  }
+
+  const translatedBullets = { essential: [], normal: [], low: [] };
+  for (const carried of translatedBySemanticKey.values()) {
+    translatedBullets[carried.priority].push(carried.text);
+    translationMeta.carried.push({
+      source_field: carried.sourceField,
+      source_value: carried.sourceValue,
+      target_field: carried.targetField,
+      target_value: carried.targetValue,
+      priority: carried.priority,
+      mapping_kind: carried.mappingKind,
+      bullet: carried.text
+    });
+  }
+
+  return {
+    translatedBullets: normalizeStructuredBullets(translatedBullets, targetVisualType),
+    translationMeta,
+    translationNotice: translationMeta.carried.length
+      ? ""
+      : "No direct trait matches carried over — using visual similarity only."
+  };
 }
 
 function renderCategoryDisplayString(displayString = "", visualType = "") {
@@ -4504,24 +4791,37 @@ const server = http.createServer(async (request, response) => {
         selectedBullets
       });
       const targetVocabulary = getVisualTypeTraitVocabulary(targetVisualType);
+      const {
+        translatedBullets,
+        translationMeta,
+        translationNotice
+      } = translateSimilarLookBullets({
+        sourceVisualType,
+        targetVisualType,
+        selectedBullets
+      });
+
+      const fallbackQuery = buildSimilarLookFallbackQuery(targetVisualType);
 
       try {
         const rewriteResult = await rewriteSimilarLookQueryForCategorySwitch({
           sourceVisualType,
           targetVisualType,
-          intentSummary,
           query: body.query,
+          carriedTargetBullets: translatedBullets,
+          droppedSourceBullets: translationMeta.dropped,
           apiKey: process.env.OPENAI_API_KEY
         });
-        const rewrittenQuery = String(rewriteResult?.rewritten_query || "").trim();
+        const rewrittenQuery = ensureCompleteSimilarLookQuery(rewriteResult?.rewritten_query || fallbackQuery, targetVisualType);
         if (!rewrittenQuery) {
           return json(response, 200, {
             ok: true,
             source_visual_type: sourceVisualType,
             target_visual_type: targetVisualType,
             rewritten_query: "",
-            translated_bullets: { essential: [], normal: [], low: [] },
-            translated_traits: null,
+            translated_bullets: translatedBullets,
+            translation_meta: translationMeta,
+            translation_notice: translationNotice,
             fallback_mode: "embedding_only",
             llm_failure: null,
             intent_summary: intentSummary,
@@ -4529,25 +4829,16 @@ const server = http.createServer(async (request, response) => {
             prompts: rewriteResult?.prompts || null
           });
         }
-
-        const translatedTraits = await extractTextQueryTraits(rewrittenQuery, {
-          apiKey: process.env.OPENAI_API_KEY,
-          model: "gpt-4.1-mini",
-          visualType: targetVisualType
-        });
-        const translatedBullets = normalizeStructuredBullets(
-          translatedTraits?.search_bullets || [],
-          targetVisualType
-        );
         return json(response, 200, {
           ok: true,
           source_visual_type: sourceVisualType,
           target_visual_type: targetVisualType,
           rewritten_query: rewrittenQuery,
           translated_bullets: translatedBullets,
-          translated_traits: translatedTraits,
-          fallback_mode: translatedTraits?.fallback_meta ? "trait_extraction_fallback" : null,
-          llm_failure: translatedTraits?.fallback_meta || null,
+          translation_meta: translationMeta,
+          translation_notice: translationNotice,
+          fallback_mode: translationNotice ? "visual_similarity_only" : null,
+          llm_failure: null,
           intent_summary: intentSummary,
           target_vocabulary: targetVocabulary,
           prompts: rewriteResult?.prompts || null
@@ -4560,9 +4851,10 @@ const server = http.createServer(async (request, response) => {
           ok: true,
           source_visual_type: sourceVisualType,
           target_visual_type: targetVisualType,
-          rewritten_query: "",
-          translated_bullets: { essential: [], normal: [], low: [] },
-          translated_traits: null,
+          rewritten_query: ensureCompleteSimilarLookQuery(fallbackQuery, targetVisualType),
+          translated_bullets: translatedBullets,
+          translation_meta: translationMeta,
+          translation_notice: translationNotice,
           fallback_mode: "embedding_only",
           llm_failure: failureMeta,
           intent_summary: intentSummary,

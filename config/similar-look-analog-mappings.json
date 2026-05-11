@@ -1,0 +1,99 @@
+{
+  "global_exact_field_fallback": true,
+  "anti_mappings": [
+    { "source_field": "back_height", "target_family": "*" },
+    { "source_field": "back_style", "target_family": "*" },
+    { "source_field": "back_option", "target_family": "*" },
+    { "source_field": "back_profile", "target_family": "*" },
+    { "source_field": "arms", "target_family": "*" },
+    { "source_field": "arm_option", "target_family": "*" },
+    { "source_field": "narrow_arms", "target_family": "*" },
+    { "source_field": "arms_flush_with_back", "target_family": "*" },
+    { "source_field": "seat_material", "target_family": "*" },
+    { "source_field": "seat_finish", "target_family": "*" },
+    { "source_field": "seat_upholstery", "target_family": "*" },
+    { "source_field": "back_finish", "target_family": "*" },
+    { "source_field": "back_upholstery", "target_family": "*" },
+    { "source_field": "swivel_mechanism", "target_family": "*" },
+    { "source_field": "height_adjustability", "target_family": "*" },
+    { "source_field": "lumbar", "target_family": "*" },
+    { "source_field": "headrest", "target_family": "*" },
+    { "source_field": "shape_character", "target_family": "*" },
+    { "source_field": "top_shape", "target_family": "*" },
+    { "source_field": "top_thickness", "target_family": "*" },
+    { "source_field": "edge_profile", "target_family": "*" },
+    { "source_field": "height_register", "target_family": "*" },
+    { "source_field": "power_data_integration", "target_family": "*" }
+  ],
+  "family_mappings": {
+    "seating->tables": {
+      "field_mappings": {
+        "base_type": {
+          "target_field": "base_type",
+          "kind": "exact"
+        },
+        "base_finish": {
+          "target_field": "base_finish",
+          "kind": "exact",
+          "value_map": {
+            "black": "Matte black",
+            "polished chrome / aluminum": "Polished chrome / nickel"
+          }
+        },
+        "base_frame_finish": {
+          "target_field": "base_finish",
+          "kind": "analog",
+          "value_map": {
+            "black": "Matte black",
+            "white": "White",
+            "painted color": "Painted color",
+            "natural wood": "Natural wood",
+            "polished chrome / aluminum": "Polished chrome / nickel"
+          }
+        },
+        "design_register": {
+          "target_field": "design_register",
+          "kind": "exact"
+        },
+        "mobility": {
+          "target_field": "mobility",
+          "kind": "exact"
+        },
+        "frame_material": {
+          "target_field": "top_material",
+          "kind": "analog",
+          "value_map": {
+            "solid wood": "Wood-look",
+            "wood + steel": "Wood-look",
+            "steel tube": "Metal",
+            "metal sheet": "Metal"
+          }
+        }
+      }
+    },
+    "tables->seating": {
+      "field_mappings": {
+        "base_type": {
+          "target_field": "base_type",
+          "kind": "exact"
+        },
+        "base_finish": {
+          "target_field": "base_finish",
+          "kind": "exact",
+          "value_map": {
+            "matte black": "Black",
+            "polished chrome / nickel": "Polished chrome / aluminum"
+          }
+        },
+        "design_register": {
+          "target_field": "design_register",
+          "kind": "exact"
+        },
+        "mobility": {
+          "target_field": "mobility",
+          "kind": "exact"
+        }
+      }
+    }
+  }
+}
