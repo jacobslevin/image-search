@@ -1457,6 +1457,59 @@ function translateSimilarLookBullets({
   };
 }
 
+function countStructuredBullets(bullets = null) {
+  if (!bullets || typeof bullets !== "object") {
+    return 0;
+  }
+  return ["essential", "normal", "low"].reduce((sum, priority) => (
+    sum + (Array.isArray(bullets?.[priority]) ? bullets[priority].length : 0)
+  ), 0);
+}
+
+function classifySimilarLookFailureNoticeClass(failureMeta = null) {
+  const group = String(failureMeta?.group || "").trim().toLowerCase();
+  if (["openai_rate_limited", "openai_server_error", "network_or_timeout"].includes(group)) {
+    return "rewrite_transient";
+  }
+  if (group === "openai_bad_request") {
+    return "rewrite_input_problem";
+  }
+  if ([
+    "malformed_model_output",
+    "empty_model_output",
+    "unknown_llm_failure",
+    "openai_auth_or_config"
+  ].includes(group)) {
+    return "rewrite_output_problem";
+  }
+  return "rewrite_output_problem";
+}
+
+function buildSimilarLookFallbackNotice({
+  translatedBullets = null,
+  llmFailure = null,
+  translationNotice = ""
+} = {}) {
+  const normalizedTranslationNotice = String(translationNotice || "").trim();
+  if (!llmFailure) {
+    return normalizedTranslationNotice;
+  }
+
+  const hasTraitMatches = countStructuredBullets(translatedBullets) > 0;
+  if (!hasTraitMatches) {
+    return "LaTrobe hiccupped while rewriting this similar-look search. We’re using visual similarity only.";
+  }
+
+  const failureClass = classifySimilarLookFailureNoticeClass(llmFailure);
+  if (failureClass === "rewrite_transient") {
+    return "LaTrobe hiccupped while rewriting this similar-look search. We kept the trait matches and used a simpler query.";
+  }
+  if (failureClass === "rewrite_input_problem") {
+    return "LaTrobe got tangled up rewriting this similar-look search. We kept the trait matches and used a simpler query.";
+  }
+  return "LaTrobe got fuzzy while rewriting this similar-look search. We kept the trait matches and used a simpler query.";
+}
+
 function renderCategoryDisplayString(displayString = "", visualType = "") {
   const normalized = String(displayString || "").trim();
   if (!normalized.includes("[CATEGORY]")) {
@@ -4814,6 +4867,11 @@ const server = http.createServer(async (request, response) => {
         });
         const rewrittenQuery = ensureCompleteSimilarLookQuery(rewriteResult?.rewritten_query || fallbackQuery, targetVisualType);
         if (!rewrittenQuery) {
+          const switchNotice = buildSimilarLookFallbackNotice({
+            translatedBullets,
+            llmFailure: null,
+            translationNotice
+          });
           return json(response, 200, {
             ok: true,
             source_visual_type: sourceVisualType,
@@ -4822,6 +4880,7 @@ const server = http.createServer(async (request, response) => {
             translated_bullets: translatedBullets,
             translation_meta: translationMeta,
             translation_notice: translationNotice,
+            switch_notice: switchNotice,
             fallback_mode: "embedding_only",
             llm_failure: null,
             intent_summary: intentSummary,
@@ -4837,6 +4896,11 @@ const server = http.createServer(async (request, response) => {
           translated_bullets: translatedBullets,
           translation_meta: translationMeta,
           translation_notice: translationNotice,
+          switch_notice: buildSimilarLookFallbackNotice({
+            translatedBullets,
+            llmFailure: null,
+            translationNotice
+          }),
           fallback_mode: translationNotice ? "visual_similarity_only" : null,
           llm_failure: null,
           intent_summary: intentSummary,
@@ -4847,6 +4911,11 @@ const server = http.createServer(async (request, response) => {
         const failureMeta = normalizeLlmFailureMeta(error, {
           source: "similar_look_rewrite"
         });
+        const switchNotice = buildSimilarLookFallbackNotice({
+          translatedBullets,
+          llmFailure: failureMeta,
+          translationNotice
+        });
         return json(response, 200, {
           ok: true,
           source_visual_type: sourceVisualType,
@@ -4855,6 +4924,7 @@ const server = http.createServer(async (request, response) => {
           translated_bullets: translatedBullets,
           translation_meta: translationMeta,
           translation_notice: translationNotice,
+          switch_notice: switchNotice,
           fallback_mode: "embedding_only",
           llm_failure: failureMeta,
           intent_summary: intentSummary,

@@ -1514,7 +1514,7 @@ function normalizeSimilarLookContext(context = null) {
     targetVisualType,
     originLabel,
     fallbackMode: String(context.fallbackMode || context.fallback_mode || "").trim(),
-    notice: String(context.notice || context.translation_notice || "").trim(),
+    notice: String(context.notice || context.switch_notice || context.translation_notice || "").trim(),
     sourceQuery: String(context.sourceQuery || "").trim(),
     sourceBullets: normalizeSelectedBullets(context.sourceBullets || context.source_bullets || emptyStructuredBulletState(), sourceVisualType),
     sourceImageContext: context.sourceImageContext && typeof context.sourceImageContext === "object"
@@ -10432,7 +10432,7 @@ function buildSimilarLookContextFromResult(result = {}, requestPayload = {}) {
     targetVisualType: String(result.target_visual_type || requestPayload.target_visual_type || "").trim(),
     originLabel: `Similar look from: ${getVisualTypeLabelForState(sourceVisualType)}`,
     fallbackMode: String(result.fallback_mode || "").trim(),
-    notice: String(result.translation_notice || "").trim(),
+    notice: String(result.switch_notice || result.translation_notice || "").trim(),
     sourceQuery: String(requestPayload.query || state.lastQuery || "").trim(),
     sourceBullets: normalizeSelectedBullets(
       requestPayload.selected_bullets || state.currentSelectedBullets,
