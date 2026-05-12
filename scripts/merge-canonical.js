@@ -126,6 +126,30 @@ function buildTailIndex(products) {
   return index;
 }
 
+function chooseTailIdCandidate(candidates, catalogProductId) {
+  if (candidates.length <= 1) {
+    return candidates[0] || null;
+  }
+
+  const dpCandidates = candidates.filter((candidate) =>
+    normalizeText(candidate.source_product_id).startsWith("product_dp_")
+  );
+
+  if (dpCandidates.length === 1) {
+    const preferred = dpCandidates[0];
+    const discarded = candidates
+      .filter((candidate) => candidate.id !== preferred.id)
+      .map((candidate) => candidate.source_product_id);
+    console.warn(
+      `[merge-canonical] tail-id disambiguation for ${catalogProductId}: ` +
+        `preferred ${preferred.source_product_id} over ${discarded.join(", ")}`
+    );
+    return preferred;
+  }
+
+  return null;
+}
+
 function buildImageUrlIndex(images) {
   const index = new Map();
   for (const image of images) {
@@ -617,7 +641,26 @@ async function main() {
       if (dpNumericId) {
         const tailCandidates = imageIndexByTail.get(dpNumericId) || [];
         if (tailCandidates.length > 1) {
-          throw new Error(`Ambiguous tail-id product match for ${catalogProduct.source_product_id}: ${tailCandidates.map((item) => item.source_product_id).join(", ")}`);
+          const preferredCandidate = chooseTailIdCandidate(tailCandidates, catalogProduct.source_product_id);
+          if (!preferredCandidate) {
+            throw new Error(
+              `Ambiguous tail-id product match for ${catalogProduct.source_product_id}: ` +
+                `${tailCandidates.map((item) => item.source_product_id).join(", ")}`
+            );
+          }
+          const imageIndexProduct = preferredCandidate;
+          const matchStrategy = "tail_dp_numeric_id";
+          const matchConfidence = "high";
+          mergeStats.matched_by_tail += 1;
+          matchedImageIndexProductIds.add(imageIndexProduct.id);
+          canonicalProductPlans.push({
+            catalogProduct,
+            imageIndexProduct,
+            dpNumericId,
+            matchStrategy,
+            matchConfidence
+          });
+          continue;
         }
         if (tailCandidates.length === 1) {
           const imageIndexProduct = tailCandidates[0];
