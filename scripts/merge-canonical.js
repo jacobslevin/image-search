@@ -648,11 +648,13 @@ async function main() {
                 `${tailCandidates.map((item) => item.source_product_id).join(", ")}`
             );
           }
+          for (const candidate of tailCandidates) {
+            matchedImageIndexProductIds.add(candidate.id);
+          }
           const imageIndexProduct = preferredCandidate;
           const matchStrategy = "tail_dp_numeric_id";
           const matchConfidence = "high";
           mergeStats.matched_by_tail += 1;
-          matchedImageIndexProductIds.add(imageIndexProduct.id);
           canonicalProductPlans.push({
             catalogProduct,
             imageIndexProduct,
