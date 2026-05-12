@@ -5471,9 +5471,13 @@ async function applyProductRefinement(refinement, debugContext = null) {
   setStatus(summarizeRefinementChanges(previousPayload, payload, refinement.action === "more" ? "toward" : "away from", refinement.name));
 }
 
-function buildProductRefinementForResult(result = {}, action = "more") {
+function buildProductRefinementForResult(result = {}, action = "more", storedContext = null) {
   const normalizedAction = action === "less" ? "less" : "more";
-  const embedding = getRefinementEmbeddingForResult(result, getActiveImageContextForResult(result).matchingImage);
+  const embedding = getRefinementEmbeddingForResult(
+    result,
+    getActiveImageContextForResult(result).matchingImage,
+    storedContext
+  );
   return normalizeProductRefinements([{
     id: `${normalizedAction}:${result.product_id || result.id || result.name || ""}`,
     productId: result.product_id || result.id || "",
@@ -8954,8 +8958,10 @@ function getActiveImageContextForResult(result = {}) {
   };
 }
 
-function getRefinementEmbeddingForResult(result = {}, matchingImage = null) {
+function getRefinementEmbeddingForResult(result = {}, matchingImage = null, storedContext = null) {
   return normalizeClientEmbedding(
+    storedContext?.embedding ||
+    storedContext?.matchingImage?.visual_summary_embedding ||
     matchingImage?.visual_summary_embedding ||
     result.hero_image?.visual_summary_embedding ||
     result.visual_summary_embedding ||
@@ -9509,8 +9515,9 @@ function renderResults(payload, query) {
 
     const handleMoreLikeThis = async (debugContext = null) => {
       if (isMobileViewport()) {
+        let storedContext = null;
         try {
-          await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+          storedContext = await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
         } catch (error) {
           console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
           if (debugContext) {
@@ -9520,7 +9527,7 @@ function renderResults(payload, query) {
             });
           }
         }
-        const refinement = buildProductRefinementForResult(result, "more");
+        const refinement = buildProductRefinementForResult(result, "more", storedContext);
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
           if (debugContext) {
@@ -9550,8 +9557,9 @@ function renderResults(payload, query) {
     };
     const handleLessLikeThis = async (debugContext = null) => {
       if (isMobileViewport()) {
+        let storedContext = null;
         try {
-          await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
+          storedContext = await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
         } catch (error) {
           console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
           if (debugContext) {
@@ -9561,7 +9569,7 @@ function renderResults(payload, query) {
             });
           }
         }
-        const refinement = buildProductRefinementForResult(result, "less");
+        const refinement = buildProductRefinementForResult(result, "less", storedContext);
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
           if (debugContext) {
