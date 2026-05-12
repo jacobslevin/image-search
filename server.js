@@ -66,8 +66,6 @@ const indexPath = getImageIndexPath();
 const unmappedCategoryDecisionsPath = getUnmappedCategoryDecisionsPath();
 const sceneFilterProgressPath = path.join(__dirname, "data", "scene-filter-progress.json");
 const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
-const debugLogDir = path.join("/tmp", "pixelseek-debug");
-const mobileMoreLessDebugLogPath = path.join(debugLogDir, "mobile-more-less.jsonl");
 const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
 const evalJudgmentsPath = path.join(__dirname, "scripts", "eval-judgments.json");
 const traitCorrectionsPath = path.join(__dirname, "data", "trait-corrections.json");
@@ -80,8 +78,6 @@ const defaultSeatingType = seatingTypesConfig.default_type || "";
 const allVisualTypeOptions = getAllVisualTypeOptions();
 const visualTypesRegistry = loadVisualTypesRegistry();
 const QUERY_IMAGE_ANALYSIS_RETRY_MESSAGE = "Our fault, but we encountered an unexpected issue. Please resubmit your image.";
-const DEBUG_LOG_CHANNELS = new Set(["mobile_more_less"]);
-const DEBUG_LOG_RETRIEVAL_SECRET = process.env.PIXELSEEK_DEBUG_LOG_SECRET || "pixelseek-debug-v0-3-16-1-6f2a1e9c";
 const PROMPT_LIBRARY_STAGE23_TYPES = [
   "lounge_chair",
   "task_collab_chair",
@@ -174,65 +170,6 @@ const APP_VERSION = (() => {
     return "";
   }
 })();
-
-function normalizeDebugLogChannel(value = "") {
-  const normalized = String(value || "").trim().toLowerCase();
-  return DEBUG_LOG_CHANNELS.has(normalized) ? normalized : "";
-}
-
-function getDebugLogPathForChannel(channel = "") {
-  switch (normalizeDebugLogChannel(channel)) {
-    case "mobile_more_less":
-      return mobileMoreLessDebugLogPath;
-    default:
-      return "";
-  }
-}
-
-function isAuthorizedDebugLogRequest(request) {
-  const provided = String(request.headers["x-pixelseek-debug-secret"] || "").trim();
-  return Boolean(provided) && provided === DEBUG_LOG_RETRIEVAL_SECRET;
-}
-
-async function appendDebugLogEvent(channel = "", payload = null) {
-  const logPath = getDebugLogPathForChannel(channel);
-  if (!logPath || !payload || typeof payload !== "object") {
-    return false;
-  }
-  await ensureDir(path.dirname(logPath));
-  await fs.appendFile(logPath, `${JSON.stringify(payload)}\n`, "utf8");
-  return true;
-}
-
-async function readDebugLogEntries(channel = "", limit = 200) {
-  const logPath = getDebugLogPathForChannel(channel);
-  if (!logPath) {
-    return [];
-  }
-  let raw = "";
-  try {
-    raw = await fs.readFile(logPath, "utf8");
-  } catch (error) {
-    if (error?.code === "ENOENT") {
-      return [];
-    }
-    throw error;
-  }
-  const entries = raw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      try {
-        return JSON.parse(line);
-      } catch {
-        return null;
-      }
-    })
-    .filter(Boolean);
-  const cappedLimit = Number.isFinite(limit) ? Math.max(1, Math.min(1000, Math.trunc(limit))) : 200;
-  return entries.slice(-cappedLimit);
-}
 
 function pruneQueryImageProgressStore(now = Date.now()) {
   for (const [requestId, entry] of queryImageProgressStore.entries()) {
@@ -4381,58 +4318,6 @@ const server = http.createServer(async (request, response) => {
       });
     } catch (error) {
       return json(response, 500, { error: error.message || "Search refinement failed." });
-    }
-  }
-
-  if (url.pathname === "/api/debug-log" && request.method === "POST") {
-    try {
-      const body = await readRequestJson(request);
-      const channel = normalizeDebugLogChannel(body?.channel);
-      if (!channel) {
-        return json(response, 400, { error: "channel is required." });
-      }
-      const eventId = String(body.event_id || "").trim();
-      const stage = String(body.stage || "").trim();
-      if (!eventId || !stage) {
-        return json(response, 400, { error: "event_id and stage are required." });
-      }
-      const payload = {
-        channel,
-        event_id: eventId,
-        stage,
-        timestamp: String(body.timestamp || new Date().toISOString()),
-        build_version: APP_VERSION,
-        data: body?.data && typeof body.data === "object" ? body.data : {}
-      };
-      if (JSON.stringify(payload).length > 20_000) {
-        return json(response, 413, { error: "debug log payload too large." });
-      }
-      await appendDebugLogEvent(channel, payload);
-      return json(response, 200, { ok: true });
-    } catch (error) {
-      return json(response, 500, { error: error?.message || "Debug log write failed." });
-    }
-  }
-
-  if (url.pathname === "/api/debug-log" && request.method === "GET") {
-    if (!isAuthorizedDebugLogRequest(request)) {
-      return json(response, 403, { error: "Forbidden." });
-    }
-    try {
-      const channel = normalizeDebugLogChannel(url.searchParams.get("channel") || "");
-      if (!channel) {
-        return json(response, 400, { error: "channel is required." });
-      }
-      const limit = Number(url.searchParams.get("limit") || 200);
-      const entries = await readDebugLogEntries(channel, limit);
-      return json(response, 200, {
-        ok: true,
-        channel,
-        count: entries.length,
-        entries
-      });
-    } catch (error) {
-      return json(response, 500, { error: error?.message || "Debug log read failed." });
     }
   }
 
