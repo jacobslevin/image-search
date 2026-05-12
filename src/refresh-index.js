@@ -6,6 +6,19 @@ import {
   normalizeVisualTypeKey
 } from "./utils.js";
 
+function tailId(productId = "") {
+  const match = String(productId || "").match(/(\d+)$/);
+  return match ? match[1] : "";
+}
+
+function isDpProductId(productId = "") {
+  return /^product_dp_\d+$/i.test(String(productId || ""));
+}
+
+function isHashedProductId(productId = "") {
+  return /^product_[0-9a-f]+_\d+$/i.test(String(productId || ""));
+}
+
 export function cloneRefreshDiagnostics(value = null) {
   if (!value || typeof value !== "object") {
     return null;
@@ -43,6 +56,7 @@ export function buildLightweightProductRecords(catalog, imageRecords = [], previ
     (Array.isArray(previousProducts) ? previousProducts : [])
       .map((product) => [String(product?.product_id || "").trim(), product])
   );
+  const hashedCatalogProductIdByTail = new Map();
 
   for (const product of catalog?.products || []) {
     const { a_level, b_level, c_level } = getCategoryLevels(product);
@@ -59,12 +73,29 @@ export function buildLightweightProductRecords(catalog, imageRecords = [], previ
       passing_image_count: 0,
       refresh_diagnostics: cloneRefreshDiagnostics(previous.refresh_diagnostics)
     });
+    const productId = String(product.product_id || "").trim();
+    const tail = tailId(productId);
+    if (tail && isHashedProductId(productId) && !hashedCatalogProductIdByTail.has(tail)) {
+      hashedCatalogProductIdByTail.set(tail, productId);
+    }
   }
 
   for (const image of imageRecords) {
-    if (!byProductId.has(image.product_id)) {
-      byProductId.set(image.product_id, {
-        product_id: image.product_id,
+    const imageProductId = String(image.product_id || "").trim();
+    const imageTail = tailId(imageProductId);
+    const summaryProductId = (
+      imageProductId &&
+      !byProductId.has(imageProductId) &&
+      isDpProductId(imageProductId) &&
+      imageTail &&
+      hashedCatalogProductIdByTail.has(imageTail)
+    )
+      ? hashedCatalogProductIdByTail.get(imageTail)
+      : imageProductId;
+
+    if (!byProductId.has(summaryProductId)) {
+      byProductId.set(summaryProductId, {
+        product_id: summaryProductId,
         product_name: image.product_name || image.name || "",
         name: image.product_name || image.name || "",
         brand: image.brand || "",
@@ -73,11 +104,11 @@ export function buildLightweightProductRecords(catalog, imageRecords = [], previ
         c_level: image.c_level || [],
         image_urls: [],
         passing_image_count: 0,
-        refresh_diagnostics: cloneRefreshDiagnostics(previousByProductId.get(String(image.product_id || "").trim())?.refresh_diagnostics)
+        refresh_diagnostics: cloneRefreshDiagnostics(previousByProductId.get(summaryProductId)?.refresh_diagnostics)
       });
     }
 
-    const product = byProductId.get(image.product_id);
+    const product = byProductId.get(summaryProductId);
     product.image_urls = [...new Set([...product.image_urls, image.image_url].filter(Boolean))];
     if (getEffectiveClassification(image) === "product") {
       product.passing_image_count += 1;
