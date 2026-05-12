@@ -13,6 +13,63 @@ import {
   vectorLiteral
 } from "./postgres-dev-common.js";
 
+function tailId(sourceProductId = "") {
+  const match = normalizeText(sourceProductId).match(/(\d+)$/);
+  return match ? match[1] : "";
+}
+
+function isDpProductId(sourceProductId = "") {
+  return /^product_dp_\d+$/i.test(normalizeText(sourceProductId));
+}
+
+function isHashedProductId(sourceProductId = "") {
+  return /^product_[0-9a-f]+_\d+$/i.test(normalizeText(sourceProductId));
+}
+
+function buildSkippedHashedSummaryMap(productSummaries = []) {
+  const byTail = new Map();
+
+  for (const summary of productSummaries) {
+    const sourceProductId = normalizeText(summary?.product_id).trim();
+    const tail = tailId(sourceProductId);
+    if (!tail) {
+      continue;
+    }
+    if (!byTail.has(tail)) {
+      byTail.set(tail, []);
+    }
+    byTail.get(tail).push(summary);
+  }
+
+  const skippedHashedSummaryIds = new Set();
+  const collisionLogs = [];
+
+  for (const summaries of byTail.values()) {
+    const dpSummaries = summaries.filter((summary) => isDpProductId(summary?.product_id));
+    const hashedSummaries = summaries.filter((summary) => isHashedProductId(summary?.product_id));
+
+    if (dpSummaries.length !== 1 || hashedSummaries.length === 0) {
+      continue;
+    }
+
+    const winnerId = normalizeText(dpSummaries[0].product_id).trim();
+    for (const hashedSummary of hashedSummaries) {
+      const hashedId = normalizeText(hashedSummary?.product_id).trim();
+      skippedHashedSummaryIds.add(hashedId);
+      collisionLogs.push({
+        hashedId,
+        winnerId,
+        productName: normalizeText(hashedSummary?.product_name || hashedSummary?.name || dpSummaries[0]?.product_name || dpSummaries[0]?.name).trim()
+      });
+    }
+  }
+
+  return {
+    skippedHashedSummaryIds,
+    collisionLogs
+  };
+}
+
 async function upsertProduct(client, imageRecord, productSummary = null) {
   const summary = normalizeJson(productSummary);
   const result = await client.query(
@@ -299,15 +356,28 @@ async function main() {
       ? imageIndex.images
       : [];
   const productSummaries = Array.isArray(imageIndex?.products) ? imageIndex.products : [];
+  const {
+    skippedHashedSummaryIds,
+    collisionLogs
+  } = buildSkippedHashedSummaryMap(productSummaries);
+  const filteredProductSummaries = productSummaries.filter(
+    (summary) => !skippedHashedSummaryIds.has(normalizeText(summary?.product_id).trim())
+  );
   const productSummaryById = new Map(
-    productSummaries.map((product) => [normalizeText(product.product_id), product])
+    filteredProductSummaries.map((product) => [normalizeText(product.product_id), product])
   );
   const client = await createDevClient();
   const productIdCache = new Map();
 
   try {
     await client.query("BEGIN");
-    for (const summary of productSummaries) {
+    for (const { hashedId, winnerId, productName } of collisionLogs) {
+      console.log(
+        `[importer] Skipping hashed duplicate: ${hashedId}` +
+          `${productName ? ` (${productName})` : ""} — keeping ${winnerId}`
+      );
+    }
+    for (const summary of filteredProductSummaries) {
       const sourceProductId = normalizeText(summary.product_id);
       if (!sourceProductId) {
         continue;
@@ -340,6 +410,9 @@ async function main() {
           database: APP_DATABASE_NAME,
           source: LIVE_IMAGE_INDEX_PATH,
           image_records: rows.length,
+          products_in_index: productSummaries.length,
+          hashed_duplicates_skipped: skippedHashedSummaryIds.size,
+          products_upserted: filteredProductSummaries.length,
           products_seen: productIdCache.size
         },
         null,
