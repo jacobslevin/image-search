@@ -3789,6 +3789,7 @@ function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = windo
   }
   state.mobileResultCardMenu = {
     productId: result.product_id,
+    resultIndex: Number.isFinite(result.__resultIndex) ? Number(result.__resultIndex) : -1,
     productUrl: String(result.website || "").trim() || buildDesignerPagesProductUrl(result.product_id),
     onFindSimilar,
     onMore,
@@ -3811,7 +3812,90 @@ function openMobileResultCardMenu({ result, x = window.innerWidth / 2, y = windo
   });
 }
 
-async function fetchJson(url, options) {
+function buildMobileMoreLessDebugEventId() {
+  return `mobile-more-less-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getMobileMoreLessViewportSummary() {
+  return {
+    width: Number(window.innerWidth || 0),
+    height: Number(window.innerHeight || 0),
+    device_pixel_ratio: Number(window.devicePixelRatio || 1)
+  };
+}
+
+function summarizeSelectedBulletsForDebug(selectedBullets = state.currentSelectedBullets) {
+  const normalized = normalizeSelectedBullets(selectedBullets, state.currentVisualType);
+  return {
+    essential: normalized.essential.length,
+    normal: normalized.normal.length,
+    low: normalized.low.length
+  };
+}
+
+function summarizeResultsForDebug(payload = null, limit = 5) {
+  const results = Array.isArray(payload?.results) ? payload.results : [];
+  return {
+    total_results: Number(payload?.total_results ?? results.length ?? 0),
+    top_product_ids: results
+      .slice(0, limit)
+      .map((entry) => String(entry?.product_id || "").trim())
+      .filter(Boolean)
+  };
+}
+
+function createMobileMoreLessDebugContext({
+  productId = "",
+  actionType = "",
+  resultIndex = -1
+} = {}) {
+  return {
+    channel: "mobile_more_less",
+    eventId: buildMobileMoreLessDebugEventId(),
+    productId: String(productId || "").trim(),
+    actionType: actionType === "less_like_this" ? "less_like_this" : "more_like_this",
+    resultIndex: Number.isFinite(resultIndex) ? Number(resultIndex) : -1
+  };
+}
+
+async function logMobileMoreLessDebugEvent(context = null, stage = "", data = {}) {
+  if (!context?.eventId || !stage) {
+    return;
+  }
+  const requestUrl = apiUrl("/api/debug-log");
+  const requestHomePath = typeof HOME_PATH === "string" && HOME_PATH ? HOME_PATH : window.location.pathname || "/";
+  const payload = {
+    channel: context.channel || "mobile_more_less",
+    event_id: context.eventId,
+    stage,
+    timestamp: new Date().toISOString(),
+    data: {
+      page_url: window.location.href,
+      user_agent: navigator.userAgent,
+      viewport: getMobileMoreLessViewportSummary(),
+      product_id: context.productId,
+      action_type: context.actionType,
+      result_index: context.resultIndex,
+      visual_type: state.currentVisualType || "",
+      selected_bullet_counts: summarizeSelectedBulletsForDebug(),
+      ...data
+    }
+  };
+  try {
+    await fetch(requestUrl, {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+        "X-PixelSeek-Home-Path": requestHomePath
+      },
+      body: JSON.stringify(payload)
+    });
+  } catch {}
+}
+
+async function fetchJson(url, options, hooks = null) {
   const requestUrl = apiUrl(url);
   const requestHomePath = typeof HOME_PATH === "string" && HOME_PATH ? HOME_PATH : window.location.pathname || "/";
   const mergedOptions = {
@@ -3827,6 +3911,9 @@ async function fetchJson(url, options) {
   try {
     response = await fetch(requestUrl, mergedOptions);
   } catch (error) {
+    if (typeof hooks?.onNetworkError === "function") {
+      hooks.onNetworkError(error);
+    }
     throw new Error("Failed to reach the server. Refresh the page and try again.");
   }
   const responseText = await response.text();
@@ -3835,10 +3922,27 @@ async function fetchJson(url, options) {
   try {
     payload = responseText ? JSON.parse(responseText) : {};
   } catch {
+    if (typeof hooks?.onResponse === "function") {
+      hooks.onResponse({
+        status: response.status,
+        ok: response.ok,
+        payload: null,
+        responseText
+      });
+    }
     if (!response.ok) {
       throw new Error(`Request failed (${response.status}): ${responseText || response.statusText}`);
     }
     throw new Error("Server returned a non-JSON response.");
+  }
+
+  if (typeof hooks?.onResponse === "function") {
+    hooks.onResponse({
+      status: response.status,
+      ok: response.ok,
+      payload,
+      responseText
+    });
   }
 
   if (!response.ok) {
@@ -4972,22 +5076,66 @@ async function refineSearchResults({
   sourceImageUrl = state.currentImageAnalysis?.image_preview_url || "",
   rerankerEnabled = true,
   action = "",
-  productId = ""
+  productId = "",
+  debugContext = null
 } = {}) {
+  const normalizedSelectedBullets = normalizeSelectedBullets(selectedBullets);
+  const requestBody = {
+    query_embedding: queryEmbedding,
+    selected_bullets: normalizedSelectedBullets,
+    category: [],
+    refresh_age: String(refreshAgeFilter || "").trim(),
+    source_image_url: String(sourceImageUrl || "").trim(),
+    reranker_enabled: Boolean(rerankerEnabled),
+    visual_type: String(visualType || seatingType || "").trim(),
+    ...(action && productId ? { action, product_id: productId } : {})
+  };
+  if (debugContext) {
+    logMobileMoreLessDebugEvent(debugContext, "request_fired", {
+      request_url: "/api/refine-search",
+      method: "POST",
+      request_payload_summary: {
+        visual_type: String(requestBody.visual_type || "").trim(),
+        has_query_embedding: Array.isArray(requestBody.query_embedding) && requestBody.query_embedding.length > 0,
+        query_embedding_length: Array.isArray(requestBody.query_embedding) ? requestBody.query_embedding.length : 0,
+        selected_bullet_counts: summarizeSelectedBulletsForDebug(normalizedSelectedBullets),
+        refresh_age: requestBody.refresh_age || "",
+        reranker_enabled: requestBody.reranker_enabled === true,
+        action: requestBody.action || "",
+        product_id: requestBody.product_id || ""
+      }
+    });
+  }
   return fetchJson("/api/refine-search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query_embedding: queryEmbedding,
-      selected_bullets: normalizeSelectedBullets(selectedBullets),
-      category: [],
-      refresh_age: String(refreshAgeFilter || "").trim(),
-      source_image_url: String(sourceImageUrl || "").trim(),
-      reranker_enabled: Boolean(rerankerEnabled),
-      visual_type: String(visualType || seatingType || "").trim(),
-      ...(action && productId ? { action, product_id: productId } : {})
-    })
-  });
+    body: JSON.stringify(requestBody)
+  }, debugContext ? {
+    onNetworkError: (error) => {
+      logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+        where: "refine_search_fetch",
+        message: error?.message || "Network request failed."
+      });
+    },
+    onResponse: ({ status, ok, payload }) => {
+      logMobileMoreLessDebugEvent(debugContext, "response_received", {
+        status,
+        ok,
+        response_summary: payload && typeof payload === "object"
+          ? {
+              total_results: Number(payload.total_results || 0),
+              top_product_ids: Array.isArray(payload.results)
+                ? payload.results.slice(0, 5).map((entry) => String(entry?.product_id || "").trim()).filter(Boolean)
+                : [],
+              error: String(payload.error || "").trim()
+            }
+          : {
+              total_results: 0,
+              top_product_ids: []
+            }
+      });
+    }
+  } : null);
 }
 
 function updateResetSearchVisibility() {
@@ -5167,7 +5315,8 @@ async function rerankResults({
   bulletControls = state.currentBulletControls,
   baseQueryEmbedding = state.currentBaseQueryEmbedding,
   productRefinements = state.currentProductRefinements,
-  statusMessage = "Re-ranking results..."
+  statusMessage = "Re-ranking results...",
+  debugContext = null
 } = {}) {
   const previousPayload = cloneValue(state.lastPayload);
   const selectedBullets = deriveSelectedBulletsFromControls(bulletControls);
@@ -5183,8 +5332,15 @@ async function rerankResults({
       selectedBullets,
       visualType: state.currentVisualType,
       categoryFilter: state.categoryFilter,
-      refreshAgeFilter: state.refreshAgeFilter
+      refreshAgeFilter: state.refreshAgeFilter,
+      debugContext
     });
+    if (debugContext) {
+      await logMobileMoreLessDebugEvent(debugContext, "dom_update_triggered", {
+        results_before: Array.isArray(previousPayload?.results) ? previousPayload.results.length : 0,
+        results_after_payload: Array.isArray(payload?.results) ? payload.results.length : 0
+      });
+    }
     applyActiveSearchContext({
       payload,
       query,
@@ -5202,11 +5358,21 @@ async function rerankResults({
     state.refinementLoading = false;
     renderResults(payload, state.lastQuery);
     scrollViewportToResultsTop();
+    if (debugContext) {
+      await logMobileMoreLessDebugEvent(debugContext, "state_after", summarizeResultsForDebug(payload));
+    }
     return { payload, previousPayload };
   } catch (error) {
     state.refinementLoading = false;
     renderResults(state.lastPayload, state.lastQuery);
     setStatus(error.message || "Search refinement failed.", "error");
+    if (debugContext) {
+      await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+        where: "rerank_results",
+        message: error?.message || "Search refinement failed.",
+        stack: String(error?.stack || "").slice(0, 4000)
+      });
+    }
     throw error;
   }
 }
@@ -5278,9 +5444,15 @@ async function applyPendingBulletPriorities() {
   state.pendingBulletControls = null;
 }
 
-async function applyProductRefinement(refinement) {
+async function applyProductRefinement(refinement, debugContext = null) {
   if (state.currentProductRefinements.length >= 3) {
     setStatus("You can stack up to 3 product refinements. Remove one before adding another.", "error");
+    if (debugContext) {
+      await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+        where: "apply_product_refinement_limit",
+        message: "You can stack up to 3 product refinements."
+      });
+    }
     return;
   }
 
@@ -5292,7 +5464,8 @@ async function applyProductRefinement(refinement) {
     bulletControls: state.currentBulletControls,
     baseQueryEmbedding: state.currentBaseQueryEmbedding,
     productRefinements: nextRefinements,
-    statusMessage: refinement.action === "more" ? `Refining toward ${refinement.name}...` : `Refining away from ${refinement.name}...`
+    statusMessage: refinement.action === "more" ? `Refining toward ${refinement.name}...` : `Refining away from ${refinement.name}...`,
+    debugContext
   });
 
   setStatus(summarizeRefinementChanges(previousPayload, payload, refinement.action === "more" ? "toward" : "away from", refinement.name));
@@ -9334,19 +9507,31 @@ function renderResults(payload, query) {
       scoreBreakdownLabel.hidden = true;
     }
 
-    const handleMoreLikeThis = async () => {
+    const handleMoreLikeThis = async (debugContext = null) => {
       if (isMobileViewport()) {
         try {
           await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
         } catch (error) {
           console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
+          if (debugContext) {
+            await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+              where: "ensure_stored_image_context",
+              message: error?.message || "Stored image context fetch failed."
+            });
+          }
         }
         const refinement = buildProductRefinementForResult(result, "more");
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
+          if (debugContext) {
+            await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+              where: "build_product_refinement",
+              message: "We could not derive a refinement signal from this product."
+            });
+          }
           return;
         }
-        await applyProductRefinement(refinement);
+        await applyProductRefinement(refinement, debugContext);
         return;
       }
       if (!hasMoreTraits) {
@@ -9363,19 +9548,31 @@ function renderResults(payload, query) {
         imageUrl: state.activeCardImageUrls[result.product_id] || result.best_image_url
       });
     };
-    const handleLessLikeThis = async () => {
+    const handleLessLikeThis = async (debugContext = null) => {
       if (isMobileViewport()) {
         try {
           await ensureStoredImageContext(result, getActiveImageContextForResult(result).matchingImage);
         } catch (error) {
           console.warn("[mobile-refinement] stored image context fetch failed:", error?.message || error);
+          if (debugContext) {
+            await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+              where: "ensure_stored_image_context",
+              message: error?.message || "Stored image context fetch failed."
+            });
+          }
         }
         const refinement = buildProductRefinementForResult(result, "less");
         if (!refinement) {
           setStatus("We could not derive a refinement signal from this product.", "error");
+          if (debugContext) {
+            await logMobileMoreLessDebugEvent(debugContext, "error_caught", {
+              where: "build_product_refinement",
+              message: "We could not derive a refinement signal from this product."
+            });
+          }
           return;
         }
-        await applyProductRefinement(refinement);
+        await applyProductRefinement(refinement, debugContext);
         return;
       }
       if (!hasLessTraits) {
@@ -9423,7 +9620,7 @@ function renderResults(payload, query) {
         touchStartY = touch.clientY;
         state.longPressTimer = window.setTimeout(() => {
           openMobileResultCardMenu({
-            result,
+            result: { ...result, __resultIndex: index },
             x: touchStartX,
             y: touchStartY,
             onFindSimilar: handleFindSimilar,
@@ -11345,17 +11542,29 @@ elements.mobileResultCardMenuFindSimilar?.addEventListener("click", async () => 
 
 elements.mobileResultCardMenuMore?.addEventListener("click", async () => {
   const action = state.mobileResultCardMenu?.onMore;
+  const debugContext = createMobileMoreLessDebugContext({
+    productId: state.mobileResultCardMenu?.productId || "",
+    actionType: "more_like_this",
+    resultIndex: Number(state.mobileResultCardMenu?.resultIndex ?? -1)
+  });
   closeMobileResultCardMenu();
   if (typeof action === "function") {
-    await action();
+    await logMobileMoreLessDebugEvent(debugContext, "click_registered");
+    await action(debugContext);
   }
 });
 
 elements.mobileResultCardMenuLess?.addEventListener("click", async () => {
   const action = state.mobileResultCardMenu?.onLess;
+  const debugContext = createMobileMoreLessDebugContext({
+    productId: state.mobileResultCardMenu?.productId || "",
+    actionType: "less_like_this",
+    resultIndex: Number(state.mobileResultCardMenu?.resultIndex ?? -1)
+  });
   closeMobileResultCardMenu();
   if (typeof action === "function") {
-    await action();
+    await logMobileMoreLessDebugEvent(debugContext, "click_registered");
+    await action(debugContext);
   }
 });
 
