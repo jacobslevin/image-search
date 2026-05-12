@@ -4946,7 +4946,7 @@ runPostgresConnectionTest().catch((error) => {
 });
 
 const port = Number(process.env.PORT || 3000);
-const host = process.env.HOST || "127.0.0.1";
+const host = process.env.HOST || (process.env.NODE_ENV === "production" ? "127.0.0.1" : "0.0.0.0");
 
 server.on("error", (error) => {
   if (error?.syscall === "listen") {
