@@ -26,8 +26,8 @@ function isHashedProductId(sourceProductId = "") {
   return /^product_[0-9a-f]+_\d+$/i.test(normalizeText(sourceProductId));
 }
 
-function buildSkippedHashedSummaryMap(productSummaries = []) {
-  const byTail = new Map();
+async function buildSkippedHashedSummaryMap(client, productSummaries = [], imageRows = []) {
+  const summaryByTail = new Map();
 
   for (const summary of productSummaries) {
     const sourceProductId = normalizeText(summary?.product_id).trim();
@@ -35,38 +35,105 @@ function buildSkippedHashedSummaryMap(productSummaries = []) {
     if (!tail) {
       continue;
     }
-    if (!byTail.has(tail)) {
-      byTail.set(tail, []);
+    if (!summaryByTail.has(tail)) {
+      summaryByTail.set(tail, []);
     }
-    byTail.get(tail).push(summary);
+    summaryByTail.get(tail).push(summary);
+  }
+
+  const dpIdsInImageRowsByTail = new Map();
+  for (const imageRow of imageRows) {
+    const sourceProductId = normalizeText(imageRow?.product_id).trim();
+    if (!isDpProductId(sourceProductId)) {
+      continue;
+    }
+    const tail = tailId(sourceProductId);
+    if (!tail) {
+      continue;
+    }
+    if (!dpIdsInImageRowsByTail.has(tail)) {
+      dpIdsInImageRowsByTail.set(tail, new Set());
+    }
+    dpIdsInImageRowsByTail.get(tail).add(sourceProductId);
+  }
+
+  const tails = [...summaryByTail.keys()];
+  const localDpRowsByTail = new Map();
+  if (tails.length) {
+    const { rows: existingDpRows } = await client.query(
+      `SELECT source_product_id
+         FROM products
+        WHERE source_system = $1
+          AND source_product_id = ANY($2::text[])`,
+      [
+        IMAGE_INDEX_SOURCE_SYSTEM,
+        tails.map((tail) => `product_dp_${tail}`)
+      ]
+    );
+
+    for (const row of existingDpRows) {
+      const sourceProductId = normalizeText(row?.source_product_id).trim();
+      const tail = tailId(sourceProductId);
+      if (!tail) {
+        continue;
+      }
+      localDpRowsByTail.set(tail, sourceProductId);
+    }
   }
 
   const skippedHashedSummaryIds = new Set();
   const collisionLogs = [];
 
-  for (const summaries of byTail.values()) {
+  for (const [tail, summaries] of summaryByTail.entries()) {
     const dpSummaries = summaries.filter((summary) => isDpProductId(summary?.product_id));
     const hashedSummaries = summaries.filter((summary) => isHashedProductId(summary?.product_id));
-
-    if (dpSummaries.length !== 1 || hashedSummaries.length === 0) {
+    if (hashedSummaries.length === 0) {
       continue;
     }
 
-    const winnerId = normalizeText(dpSummaries[0].product_id).trim();
+    const productSummaryWinnerId = dpSummaries.length === 1
+      ? normalizeText(dpSummaries[0].product_id).trim()
+      : "";
+    const imageRowWinnerId = [...(dpIdsInImageRowsByTail.get(tail) || [])][0] || "";
+    const localDbWinnerId = localDpRowsByTail.get(tail) || "";
+    const winnerId = productSummaryWinnerId || imageRowWinnerId || localDbWinnerId;
+
+    if (!winnerId) {
+      continue;
+    }
+
     for (const hashedSummary of hashedSummaries) {
       const hashedId = normalizeText(hashedSummary?.product_id).trim();
       skippedHashedSummaryIds.add(hashedId);
+      const productName = normalizeText(
+        hashedSummary?.product_name ||
+          hashedSummary?.name ||
+          dpSummaries[0]?.product_name ||
+          dpSummaries[0]?.name
+      ).trim();
+      let reason = "product_dp counterpart exists in products[]";
+      if (!productSummaryWinnerId && imageRowWinnerId) {
+        reason = "product_dp identity exists in images[] section";
+      } else if (!productSummaryWinnerId && !imageRowWinnerId && localDbWinnerId) {
+        reason = "product_dp row exists in local DB";
+      }
       collisionLogs.push({
         hashedId,
         winnerId,
-        productName: normalizeText(hashedSummary?.product_name || hashedSummary?.name || dpSummaries[0]?.product_name || dpSummaries[0]?.name).trim()
+        productName,
+        reason
       });
     }
   }
 
   return {
     skippedHashedSummaryIds,
-    collisionLogs
+    collisionLogs,
+    counts: {
+      sameProductsSection: collisionLogs.filter((entry) => entry.reason === "product_dp counterpart exists in products[]").length,
+      sameImagesSection: collisionLogs.filter((entry) => entry.reason === "product_dp identity exists in images[] section").length,
+      localDb: collisionLogs.filter((entry) => entry.reason === "product_dp row exists in local DB").length
+    }
   };
 }
 
@@ -356,25 +423,26 @@ async function main() {
       ? imageIndex.images
       : [];
   const productSummaries = Array.isArray(imageIndex?.products) ? imageIndex.products : [];
+  const client = await createDevClient();
   const {
     skippedHashedSummaryIds,
-    collisionLogs
-  } = buildSkippedHashedSummaryMap(productSummaries);
+    collisionLogs,
+    counts: skippedCounts
+  } = await buildSkippedHashedSummaryMap(client, productSummaries, rows);
   const filteredProductSummaries = productSummaries.filter(
     (summary) => !skippedHashedSummaryIds.has(normalizeText(summary?.product_id).trim())
   );
   const productSummaryById = new Map(
     filteredProductSummaries.map((product) => [normalizeText(product.product_id), product])
   );
-  const client = await createDevClient();
   const productIdCache = new Map();
 
   try {
     await client.query("BEGIN");
-    for (const { hashedId, winnerId, productName } of collisionLogs) {
+    for (const { hashedId, winnerId, productName, reason } of collisionLogs) {
       console.log(
-        `[importer] Skipping hashed duplicate: ${hashedId}` +
-          `${productName ? ` (${productName})` : ""} — keeping ${winnerId}`
+        `[importer] Skipping hashed summary: ${hashedId}` +
+          `${productName ? ` (${productName})` : ""} — ${reason} (${winnerId})`
       );
     }
     for (const summary of filteredProductSummaries) {
@@ -411,6 +479,9 @@ async function main() {
           source: LIVE_IMAGE_INDEX_PATH,
           image_records: rows.length,
           products_in_index: productSummaries.length,
+          skipped_due_to_dp_in_products_section: skippedCounts.sameProductsSection,
+          skipped_due_to_dp_in_images_section: skippedCounts.sameImagesSection,
+          skipped_due_to_dp_in_local_db: skippedCounts.localDb,
           hashed_duplicates_skipped: skippedHashedSummaryIds.size,
           products_upserted: filteredProductSummaries.length,
           products_seen: productIdCache.size
