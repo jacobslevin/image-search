@@ -149,3 +149,29 @@ test("computeTraitBoost supports tables records directly", () => {
   assert.ok(boost.contributions.top_shape);
   assert.ok(boost.contributions.power_data_integration);
 });
+
+test("computeTraitBoost softens table top-shape penalties within configured groups", () => {
+  const groupedMiss = computeTraitBoost(
+    ["Top Shape: Square"],
+    {
+      visual_type: "occasional",
+      enum_fields: {
+        top_shape: "Rectangle"
+      }
+    }
+  );
+
+  const fullMiss = computeTraitBoost(
+    ["Top Shape: Oval"],
+    {
+      visual_type: "occasional",
+      enum_fields: {
+        top_shape: "Rectangle"
+      }
+    }
+  );
+
+  assert.equal(groupedMiss.contributions.top_shape.state, "near-miss");
+  assert.equal(fullMiss.contributions.top_shape.state, "miss");
+  assert.ok(groupedMiss.contributions.top_shape.contribution > fullMiss.contributions.top_shape.contribution);
+});

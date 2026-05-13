@@ -866,6 +866,16 @@
                 "Soft-organic",
                 "unknown"
               ],
+              "groups": [
+                [
+                  "Rectangle",
+                  "Square"
+                ],
+                [
+                  "Round",
+                  "Oval"
+                ]
+              ],
               "priority": "high",
               "detectability": "high"
             },
@@ -926,6 +936,16 @@
                 "Standard",
                 "Thick-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Thick-slab",
+                  "Standard"
+                ],
+                [
+                  "Standard",
+                  "Thin"
+                ]
               ],
               "priority": "low",
               "detectability": "medium"
@@ -991,6 +1011,16 @@
                 "Soft-organic",
                 "unknown"
               ],
+              "groups": [
+                [
+                  "Rectangle",
+                  "Square"
+                ],
+                [
+                  "Round",
+                  "Oval"
+                ]
+              ],
               "priority": "high",
               "detectability": "high"
             },
@@ -1051,6 +1081,16 @@
                 "Standard",
                 "Thick-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Thick-slab",
+                  "Standard"
+                ],
+                [
+                  "Standard",
+                  "Thin"
+                ]
               ],
               "priority": "low",
               "detectability": "medium"
@@ -1116,6 +1156,16 @@
                 "Soft-organic",
                 "unknown"
               ],
+              "groups": [
+                [
+                  "Rectangle",
+                  "Square"
+                ],
+                [
+                  "Round",
+                  "Oval"
+                ]
+              ],
               "priority": "high",
               "detectability": "high"
             },
@@ -1176,6 +1226,16 @@
                 "Standard",
                 "Thick-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Thick-slab",
+                  "Standard"
+                ],
+                [
+                  "Standard",
+                  "Thin"
+                ]
               ],
               "priority": "low",
               "detectability": "medium"
@@ -1241,6 +1301,16 @@
                 "Soft-organic",
                 "unknown"
               ],
+              "groups": [
+                [
+                  "Rectangle",
+                  "Square"
+                ],
+                [
+                  "Round",
+                  "Oval"
+                ]
+              ],
               "priority": "high",
               "detectability": "high"
             },
@@ -1301,6 +1371,16 @@
                 "Standard",
                 "Thick-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Thick-slab",
+                  "Standard"
+                ],
+                [
+                  "Standard",
+                  "Thin"
+                ]
               ],
               "priority": "low",
               "detectability": "medium"
@@ -1377,6 +1457,16 @@
                 "Soft-organic",
                 "unknown"
               ],
+              "groups": [
+                [
+                  "Rectangle",
+                  "Square"
+                ],
+                [
+                  "Round",
+                  "Oval"
+                ]
+              ],
               "priority": "high",
               "detectability": "high"
             },
@@ -1437,6 +1527,16 @@
                 "Standard",
                 "Thick-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Thick-slab",
+                  "Standard"
+                ],
+                [
+                  "Standard",
+                  "Thin"
+                ]
               ],
               "priority": "low",
               "detectability": "medium"
