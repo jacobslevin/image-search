@@ -366,7 +366,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
-  return priority === "essential" || priority === "low" || priority === "normal"
+  return priority === "high" || priority === "low" || priority === "normal"
     ? priority
     : "normal";
 }
@@ -1131,7 +1131,7 @@ function formatSearchTraitList(traits = [], visualType = "") {
 
 function flattenStructuredBulletsForIntent(bullets = {}, visualType = "") {
   const normalized = normalizeStructuredBullets(bullets, visualType);
-  return ["essential", "normal", "low"]
+  return ["high", "normal", "low"]
     .flatMap((priority) => Array.isArray(normalized?.[priority]) ? normalized[priority] : [])
     .filter(Boolean);
 }
@@ -1255,7 +1255,7 @@ function resolveSimilarLookBulletField(typeKey = "", fieldLabel = "") {
 
 function flattenStructuredBulletsWithPriority(bullets = {}, visualType = "") {
   const normalized = normalizeStructuredBullets(bullets, visualType);
-  return ["essential", "normal", "low"].flatMap((priority) =>
+  return ["high", "normal", "low"].flatMap((priority) =>
     (Array.isArray(normalized?.[priority]) ? normalized[priority] : [])
       .map((text) => ({ text: String(text || "").trim(), priority }))
       .filter((entry) => entry.text)
@@ -1332,7 +1332,7 @@ function translateSimilarLookBullets({
   const useExactFallback = Boolean(similarLookAnalogMappings?.global_exact_field_fallback);
   const translatedBySemanticKey = new Map();
   const priorityRank = new Map([
-    ["essential", 3],
+    ["high", 3],
     ["normal", 2],
     ["low", 1]
   ]);
@@ -1434,7 +1434,7 @@ function translateSimilarLookBullets({
     }
   }
 
-  const translatedBullets = { essential: [], normal: [], low: [] };
+  const translatedBullets = { high: [], normal: [], low: [] };
   for (const carried of translatedBySemanticKey.values()) {
     translatedBullets[carried.priority].push(carried.text);
     translationMeta.carried.push({
@@ -1461,7 +1461,7 @@ function countStructuredBullets(bullets = null) {
   if (!bullets || typeof bullets !== "object") {
     return 0;
   }
-  return ["essential", "normal", "low"].reduce((sum, priority) => (
+  return ["high", "normal", "low"].reduce((sum, priority) => (
     sum + (Array.isArray(bullets?.[priority]) ? bullets[priority].length : 0)
   ), 0);
 }
@@ -1532,7 +1532,7 @@ function renderCategoryDisplayString(displayString = "", visualType = "") {
 function buildSearchInterpretationMessage(visualType = "", selectedBullets = null, parsed = {}, textQueryTraits = null) {
   const bulletState = selectedBullets && typeof selectedBullets === "object" ? selectedBullets : {};
   const traits = [
-    ...(Array.isArray(bulletState.essential) ? bulletState.essential : []),
+    ...(Array.isArray(bulletState.high) ? bulletState.high : []),
     ...(Array.isArray(bulletState.normal) ? bulletState.normal : []),
     ...(Array.isArray(bulletState.low) ? bulletState.low : [])
   ];
@@ -2649,7 +2649,7 @@ function normalizeStructuredBullets(bullets = [], seatingType = "") {
   };
 
   if (Array.isArray(bullets)) {
-    const normalized = { essential: [], normal: [], low: [] };
+    const normalized = { high: [], normal: [], low: [] };
     normalizeList(bullets).forEach((bullet) => {
       const text = String(bullet || "");
       const separatorIndex = text.indexOf(":");
@@ -2657,8 +2657,8 @@ function normalizeStructuredBullets(bullets = [], seatingType = "") {
         ? ""
         : text.slice(0, separatorIndex).trim().toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
       const priority = getFieldPriority(seatingType, field);
-      if (priority === "essential") {
-        normalized.essential.push(text);
+      if (priority === "high") {
+        normalized.high.push(text);
       } else if (priority === "low") {
         normalized.low.push(text);
       } else {
@@ -2669,11 +2669,11 @@ function normalizeStructuredBullets(bullets = [], seatingType = "") {
   }
 
   if (!bullets || typeof bullets !== "object") {
-    return { essential: [], normal: [], low: [] };
+    return { high: [], normal: [], low: [] };
   }
 
   return {
-    essential: normalizeList(bullets.essential || []),
+    high: normalizeList(bullets.high || []),
     normal: normalizeList(bullets.normal || []),
     low: normalizeList(bullets.low || [])
   };
@@ -2681,7 +2681,7 @@ function normalizeStructuredBullets(bullets = [], seatingType = "") {
 
 function mergeStructuredBullets(seatingType = "", ...groups) {
   const priorityRank = new Map([
-    ["essential", 3],
+    ["high", 3],
     ["normal", 2],
     ["low", 1]
   ]);
@@ -2705,7 +2705,7 @@ function mergeStructuredBullets(seatingType = "", ...groups) {
 
   for (const group of groups) {
     const normalized = normalizeStructuredBullets(group, seatingType);
-    for (const priority of ["essential", "normal", "low"]) {
+    for (const priority of ["high", "normal", "low"]) {
       for (const bullet of normalized[priority]) {
         const key = semanticKeyForBullet(bullet) || `raw::${String(bullet || "").trim().toLowerCase()}`;
         const existing = mergedByKey.get(key);
@@ -2730,7 +2730,7 @@ function mergeStructuredBullets(seatingType = "", ...groups) {
     }
   }
 
-  const merged = { essential: [], normal: [], low: [] };
+  const merged = { high: [], normal: [], low: [] };
   [...mergedByKey.values()]
     .sort((left, right) => left.order - right.order)
     .forEach((entry) => {
