@@ -8,7 +8,7 @@ const state = {
   selectedUploadFile: null,
   currentImageAnalysis: null,
   currentQuery: "",
-  currentSelectedBullets: { essential: [], normal: [] },
+  currentSelectedBullets: { high: [], normal: [] },
   currentResults: [],
   curatedResults: [],
   sourceImageUrl: "",
@@ -132,33 +132,33 @@ function normalizePriorityBulletList(values = []) {
 
 function normalizeSelectedBullets(selectedBullets = []) {
   if (Array.isArray(selectedBullets)) {
-    return { essential: [], normal: normalizePriorityBulletList(selectedBullets) };
+    return { high: [], normal: normalizePriorityBulletList(selectedBullets) };
   }
 
   if (!selectedBullets || typeof selectedBullets !== "object") {
-    return { essential: [], normal: [] };
+    return { high: [], normal: [] };
   }
 
   return {
-    essential: normalizePriorityBulletList(selectedBullets.essential || []),
+    high: normalizePriorityBulletList(selectedBullets.high || []),
     normal: normalizePriorityBulletList(selectedBullets.normal || [])
   };
 }
 
 function hasSelectedBullets(selectedBullets = []) {
   const normalized = normalizeSelectedBullets(selectedBullets);
-  return normalized.essential.length + normalized.normal.length > 0;
+  return normalized.high.length + normalized.normal.length > 0;
 }
 
 function buildFallbackQueryFromStructuredBullets(selectedBullets = []) {
   const normalized = normalizeSelectedBullets(selectedBullets);
-  return [...normalized.essential, ...normalized.normal].join(", ");
+  return [...normalized.high, ...normalized.normal].join(", ");
 }
 
 function bulletsFromAnalysis(analysis) {
   if (analysis?.search_bullets && typeof analysis.search_bullets === "object") {
     const structured = normalizeSelectedBullets(analysis.search_bullets);
-    if (structured.essential.length || structured.normal.length) {
+    if (structured.high.length || structured.normal.length) {
       return structured;
     }
   }
@@ -234,7 +234,7 @@ async function fetchTopResults({ query, imageAnalysis, selectedBullets, sourceIm
 }
 
 function renderAnalysisSummary() {
-  const bullets = [...state.currentSelectedBullets.essential, ...state.currentSelectedBullets.normal];
+  const bullets = [...state.currentSelectedBullets.high, ...state.currentSelectedBullets.normal];
   if (!state.currentQuery && !bullets.length && !state.sourceImageUrl) {
     elements.analysisSummary.hidden = true;
     return;
@@ -387,7 +387,7 @@ function handleDragEnd() {
 async function exportCuratedResults() {
   const payload = {
     query: state.currentQuery,
-    image_analysis_bullets: [...state.currentSelectedBullets.essential, ...state.currentSelectedBullets.normal],
+    image_analysis_bullets: [...state.currentSelectedBullets.high, ...state.currentSelectedBullets.normal],
     curated_results: state.curatedResults.map((result) => ({
       product_id: result.product_id,
       name: result.name

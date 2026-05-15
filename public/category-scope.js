@@ -235,7 +235,7 @@ export function stripCategoryScopeFromSelectedBullets(selectedBullets = {}) {
   );
 
   return {
-    essential: filterBullets(source.essential),
+    high: filterBullets(source.high),
     normal: filterBullets(source.normal),
     low: filterBullets(source.low)
   };

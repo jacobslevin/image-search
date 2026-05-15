@@ -103,7 +103,7 @@
               "field": "back_finish",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Mesh / net",
                 "Upholstered",
@@ -116,7 +116,7 @@
               "field": "back_profile",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Square / angular",
                 "Rounded / curved",
@@ -127,7 +127,7 @@
               "field": "arm_option",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Armless",
                 "Fixed arms",
@@ -250,7 +250,7 @@
               "field": "arm_option",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Armless",
                 "One arm",
@@ -263,7 +263,7 @@
               "field": "body_construction",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Upholstered",
                 "Molded plastic shell",
@@ -306,7 +306,7 @@
               "field": "base_type",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "4-leg",
                 "Sled",
@@ -358,7 +358,7 @@
               "field": "back_height",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Low",
                 "Mid",
@@ -381,7 +381,7 @@
               "field": "configuration",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Single seat",
                 "Double seat",
@@ -426,7 +426,7 @@
               "field": "arms_flush_with_back",
               "type": "enum",
               "detectability": "stage4",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Flush with Back",
                 "Below Back"
@@ -481,7 +481,7 @@
               "field": "seat_geometry",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Flat",
                 "Angled / perch",
@@ -494,7 +494,7 @@
               "field": "back",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Backless",
                 "Low back",
@@ -623,7 +623,7 @@
               "field": "arm_option",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Armless",
                 "Open arm",
@@ -636,7 +636,7 @@
               "field": "back_profile",
               "type": "enum",
               "detectability": "yes",
-              "priority": "essential",
+              "priority": "high",
               "allowed_values": [
                 "Square / angular",
                 "Rounded / curved",
@@ -836,7 +836,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium_high"
             },
             {
@@ -852,7 +852,7 @@
                 "Panel-slab",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -876,7 +876,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -890,7 +890,7 @@
                 "Metal",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -901,7 +901,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -919,7 +919,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -970,7 +970,7 @@
                 "Not visible",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high_when_present"
             }
           ]
@@ -981,7 +981,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium_high"
             },
             {
@@ -997,7 +997,7 @@
                 "Panel-slab",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1021,7 +1021,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1035,7 +1035,7 @@
                 "Metal",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1046,7 +1046,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1064,7 +1064,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1115,7 +1115,7 @@
                 "End/Side",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             }
           ]
@@ -1126,7 +1126,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium_high"
             },
             {
@@ -1142,7 +1142,7 @@
                 "Panel-slab",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1166,7 +1166,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1180,7 +1180,7 @@
                 "Metal",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1191,7 +1191,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1209,7 +1209,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1260,7 +1260,7 @@
                 "Standing",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             }
           ]
@@ -1271,7 +1271,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium_high"
             },
             {
@@ -1287,7 +1287,7 @@
                 "Panel-slab",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1311,7 +1311,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1325,7 +1325,7 @@
                 "Metal",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1336,7 +1336,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1354,7 +1354,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1405,7 +1405,7 @@
                 "Standing",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1416,7 +1416,7 @@
                 "Not visible",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high_when_present"
             }
           ]
@@ -1427,7 +1427,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium_high"
             },
             {
@@ -1443,7 +1443,7 @@
                 "Panel-slab",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1467,7 +1467,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1481,7 +1481,7 @@
                 "Metal",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1492,7 +1492,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1510,7 +1510,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "medium"
             },
             {
@@ -1561,7 +1561,7 @@
                 "Standing",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1572,7 +1572,7 @@
                 "Not visible",
                 "unknown"
               ],
-              "priority": "medium",
+              "priority": "normal",
               "detectability": "high_when_present"
             }
           ]

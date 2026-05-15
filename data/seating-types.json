@@ -22,7 +22,7 @@
             "Knit",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "back_profile",
@@ -33,7 +33,7 @@
             "Rounded / curved",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "arm_option",
@@ -52,7 +52,7 @@
               "Adjustable arms"
             ]
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "base_type",
@@ -178,7 +178,7 @@
             "Integrated / sculpted",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "body_construction",
@@ -199,7 +199,7 @@
             "Suspended / sling": "material is tensioned between a visible frame; seat and back hang rather than rest on a surface",
             "Panel / privacy enclosure": "high side panels form a three-sided or four-sided enclosure, rising above shoulder or head level"
           },
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "base_finish",
@@ -245,7 +245,7 @@
               "Casters"
             ]
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "seat_finish",
@@ -296,7 +296,7 @@
               "High"
             ]
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "configuration",
@@ -321,7 +321,7 @@
               "Corner unit"
             ]
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "seat_construction",
@@ -351,7 +351,7 @@
             "Flush with Back",
             "Below Back"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "design_register",
@@ -418,7 +418,7 @@
             "Wobble / balance",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "back",
@@ -436,7 +436,7 @@
               "Full back"
             ]
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "base_type",
@@ -569,7 +569,7 @@
             "Integrated",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "back_profile",
@@ -580,7 +580,7 @@
             "Rounded / curved",
             "unknown"
           ],
-          "priority": "essential"
+          "priority": "high"
         },
         {
           "field": "frame_openness",

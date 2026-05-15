@@ -15,7 +15,7 @@ test("conference tables query produces table-shaped enum fields", async () => {
   assert.equal(traits.enum_fields.arm_option, undefined);
   assert.equal(traits.enum_fields.back_finish, undefined);
   assert.ok(
-    [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
+    [...traits.search_bullets.high, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("top material: Wood-look")
   );
 });
@@ -30,7 +30,7 @@ test("small round cafe table query produces cafe_dining bullets", async () => {
   assert.equal(traits.enum_fields.top_shape, "Round");
   assert.equal(traits.enum_fields.arm_option, undefined);
   assert.ok(
-    [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
+    [...traits.search_bullets.high, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("top shape: Round")
   );
 });
@@ -45,7 +45,7 @@ test("training table with casters query produces mobility bullets", async () => 
   assert.equal(traits.enum_fields.mobility, "Casters");
   assert.equal(traits.enum_fields.back_finish, undefined);
   assert.ok(
-    [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
+    [...traits.search_bullets.high, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("mobility: Casters")
   );
 });
@@ -61,7 +61,7 @@ test("seating query regression remains functionally equivalent", async () => {
   assert.equal(traits.enum_fields.arm_option, "Armless");
   assert.equal(traits.enum_fields.top_shape, undefined);
   assert.ok(
-    [...traits.search_bullets.essential, ...traits.search_bullets.normal, ...traits.search_bullets.low]
+    [...traits.search_bullets.high, ...traits.search_bullets.normal, ...traits.search_bullets.low]
       .includes("arm option: Armless")
   );
   assert.equal(traits.display_string, "");

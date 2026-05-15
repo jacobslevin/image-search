@@ -95,7 +95,7 @@ test("adapter works from a stub registry without reading seating-types.json dire
                     field: "design_register",
                     inherits: "design_register",
                     detectability: "yes",
-                    priority: "essential"
+                    priority: "high"
                   }
                 ]
               }
@@ -124,7 +124,7 @@ test("adapter works from a stub registry without reading seating-types.json dire
             field: "design_register",
             type: "enum",
             detectability: "yes",
-            priority: "essential",
+            priority: "high",
             allowed_values: ["Minimal", "Traditional", "unknown"]
           }
         ]

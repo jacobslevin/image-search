@@ -4033,11 +4033,11 @@ body.results-loading-active .results-layout {
   background-size: 32px 32px;
 }
 
-.priority-button[data-value="essential"] {
+.priority-button[data-value="high"] {
   background-image: url("/pixelseek-icons/arrow-up.svg");
 }
 
-.priority-button[data-value="essential"].is-active {
+.priority-button[data-value="high"].is-active {
   background-image: url("/pixelseek-icons/arrow-up_active.svg");
 }
 

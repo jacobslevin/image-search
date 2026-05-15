@@ -882,7 +882,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
-  return priority === "essential" || priority === "low" || priority === "normal"
+  return priority === "high" || priority === "low" || priority === "normal"
     ? priority
     : "normal";
 }
@@ -2247,14 +2247,14 @@ export async function generateSearchQuery(seatingType, selectedBullets, options 
   )];
   const isComposableBullet = () => true;
   const bulletsByPriority = Array.isArray(selectedBullets)
-    ? { essential: [], normal: normalizePriorityList(selectedBullets).filter((bullet) => isComposableBullet(bullet)) }
+    ? { high: [], normal: normalizePriorityList(selectedBullets).filter((bullet) => isComposableBullet(bullet)) }
     : {
-        essential: normalizePriorityList(selectedBullets?.essential || []).filter((bullet) => isComposableBullet(bullet)),
+        high: normalizePriorityList(selectedBullets?.high || []).filter((bullet) => isComposableBullet(bullet)),
         normal: normalizePriorityList(selectedBullets?.normal || []).filter((bullet) => isComposableBullet(bullet))
       };
-  const essential = bulletsByPriority.essential;
+  const high = bulletsByPriority.high;
   const normal = bulletsByPriority.normal;
-  const cleanBullets = [...essential, ...normal];
+  const cleanBullets = [...high, ...normal];
 
   if (!cleanBullets.length) {
     return "";
@@ -2282,13 +2282,13 @@ Rules:
         type: "input_text",
         text: `Seating type: ${seatingType}
 
-Essential visual characteristics (lead with these, make them the primary focus of the query):
-${essential.map((b) => `- ${b}`).join("\n")}
+High-priority visual characteristics (lead with these, make them the primary focus of the query):
+${high.map((b) => `- ${b}`).join("\n")}
 
 Secondary characteristics (include naturally if space allows):
 ${normal.map((b) => `- ${b}`).join("\n")}
 
-Write a natural language search query that emphasizes the essential characteristics above all else. The query should read like a human describing exactly what they are looking for. No category names. No brand names. Under 50 words.`
+Write a natural language search query that emphasizes the high-priority characteristics above all else. The query should read like a human describing exactly what they are looking for. No category names. No brand names. Under 50 words.`
       }
     ],
     schemaName: "search_query",
@@ -4409,7 +4409,7 @@ function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
   );
 
   const selectedBullets = {
-    essential: [],
+    high: [],
     normal: [],
     low: []
   };
@@ -4441,8 +4441,8 @@ function buildSearchTimeBullets(enumFields = {}, typeKey = "") {
     .forEach((bullet) => {
       const field = bullet.split(":")[0].trim().replace(/\s+/g, "_");
       const priority = getFieldPriority(typeKey, field);
-      if (priority === "essential") {
-        selectedBullets.essential.push(bullet);
+      if (priority === "high") {
+        selectedBullets.high.push(bullet);
       } else if (priority === "low") {
         selectedBullets.low.push(bullet);
       } else {
@@ -4686,13 +4686,13 @@ function buildSimilarLookRewritePrompt({
   sourceType = "",
   targetType = "",
   sourceQuery = "",
-  carriedTargetBullets = { essential: [], normal: [], low: [] },
+  carriedTargetBullets = { high: [], normal: [], low: [] },
   droppedSourceBullets = []
 } = {}) {
   const sourceLabel = getVisualTypeLabel(sourceType);
   const targetLabel = getVisualTypeLabel(targetType);
   const normalizedQuery = normalizeWhitespace(sourceQuery || "");
-  const flattenedCarriedBullets = ["essential", "normal", "low"]
+  const flattenedCarriedBullets = ["high", "normal", "low"]
     .flatMap((priority) => (Array.isArray(carriedTargetBullets?.[priority]) ? carriedTargetBullets[priority] : []))
     .map((value) => String(value || "").trim())
     .filter(Boolean);
@@ -4742,7 +4742,7 @@ export async function rewriteSimilarLookQueryForCategorySwitch(options = {}) {
   const sourceQuery = normalizeWhitespace(options.query || options.sourceQuery || "");
   const apiKey = String(options.apiKey || "").trim();
   const targetVocabulary = getVisualTypeTraitVocabulary(targetType);
-  const hasCarriedBullets = ["essential", "normal", "low"].some((priority) => (
+  const hasCarriedBullets = ["high", "normal", "low"].some((priority) => (
     Array.isArray(options?.carriedTargetBullets?.[priority]) &&
     options.carriedTargetBullets[priority].length
   ));

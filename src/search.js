@@ -131,7 +131,7 @@ export function getFieldPriority(typeKey = "", fieldName = "") {
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
-  return priority === "essential" || priority === "low" || priority === "normal" || priority === "high" || priority === "medium"
+  return priority === "high" || priority === "low" || priority === "normal"
     ? priority
     : "normal";
 }
@@ -458,13 +458,13 @@ function normalizePriorityBulletList(values = []) {
 
 function normalizeSelectedBulletsByPriority(selectedBullets = [], typeKey = "") {
   if (Array.isArray(selectedBullets)) {
-    const normalized = { essential: [], normal: [], low: [] };
+    const normalized = { high: [], normal: [], low: [] };
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
       const parsedBullet = parseStructuredTraitBullet(bullet, typeKey);
       const field = parsedBullet?.field || "";
       const priority = getFieldPriority(typeKey, field);
-      if (priority === "essential") {
-        normalized.essential.push(bullet);
+      if (priority === "high") {
+        normalized.high.push(bullet);
       } else if (priority === "low") {
         normalized.low.push(bullet);
       } else {
@@ -475,11 +475,11 @@ function normalizeSelectedBulletsByPriority(selectedBullets = [], typeKey = "") 
   }
 
   if (!selectedBullets || typeof selectedBullets !== "object") {
-    return { essential: [], normal: [], low: [] };
+    return { high: [], normal: [], low: [] };
   }
 
   return {
-    essential: normalizePriorityBulletList(selectedBullets.essential || []),
+    high: normalizePriorityBulletList(selectedBullets.high || []),
     normal: normalizePriorityBulletList(selectedBullets.normal || []),
     low: normalizePriorityBulletList(selectedBullets.low || [])
   };
@@ -527,7 +527,7 @@ function parseStructuredTraitBullet(bullet = "", typeKey = "") {
   };
 }
 
-function essentialMissPenalty(bullet = "", options = {}) {
+function highMissPenalty(bullet = "", options = {}) {
   const normalizedBullet = normalizeString(bullet);
   const hasNearMandatoryPhrase = NEAR_MANDATORY_TERMS.some((term) => normalizedBullet.includes(term));
   const grouped = Boolean(options.grouped);
@@ -575,31 +575,10 @@ function isBaseFinishBullet(bullet = "") {
     /\bpowder coat\b/.test(normalizedBullet);
 }
 
-function traitFieldWeightScale(typeKey = "", field = "") {
-  const normalizedField = normalizeBulletFieldLabel(field);
-  if (!normalizedField) {
-    return 1;
-  }
-  const priority = getFieldPriority(typeKey, normalizedField);
-  if (priority === "essential") {
-    return 2;
-  }
-  if (priority === "high") {
-    return 1.5;
-  }
-  if (priority === "medium") {
-    return 1;
-  }
-  if (priority === "low") {
-    return 0.5;
-  }
-  return 1;
-}
-
 export function computeTraitBoost(selectedBullets = [], record = {}, options = {}) {
   const enumFieldValues = collectEnumFieldValueMap(record);
   const enumFieldSource = record?.enum_fields || record?.image_traits || {};
-  const priorityWeights = { essential: 0.35, normal: 0.1, low: 0.05 };
+  const priorityWeights = { high: 0.35, normal: 0.1, low: 0.05 };
   const isExactSourceImage = Boolean(options.isExactSourceImage);
   const typeKey = resolveRecordVisualType(record);
   const bulletsByPriority = normalizeSelectedBulletsByPriority(selectedBullets, typeKey);
@@ -609,7 +588,7 @@ export function computeTraitBoost(selectedBullets = [], record = {}, options = {
   const contributions = new Map();
   const seen = new Set();
 
-  for (const priority of ["essential", "normal", "low"]) {
+  for (const priority of ["high", "normal", "low"]) {
     for (const bullet of bulletsByPriority[priority]) {
       const rawBullet = String(bullet || "").trim();
       const normalizedBullet = normalizeString(bullet);
@@ -618,7 +597,6 @@ export function computeTraitBoost(selectedBullets = [], record = {}, options = {
         continue;
       }
       seen.add(normalizedBullet);
-      const weightScale = parsedBullet ? traitFieldWeightScale(typeKey, parsedBullet.field) : (isBaseFinishBullet(rawBullet) ? 0.5 : 1);
       const storedValue = parsedBullet ? enumFieldValues.get(parsedBullet.field) : "";
       const rawStoredValue = parsedBullet ? String(enumFieldSource?.[parsedBullet.field] ?? "").trim() : "";
       const matchesTraitValue = Boolean(parsedBullet && storedValue === parsedBullet.value);
@@ -630,19 +608,19 @@ export function computeTraitBoost(selectedBullets = [], record = {}, options = {
           matched.push(rawBullet);
           matchedFields.push(parsedBullet.field);
         }
-        contributionValue = priorityWeights[priority] * weightScale;
+        contributionValue = priorityWeights[priority];
         contributionState = "hit";
-      } else if ((priority === "essential" || priority === "normal") && !isExactSourceImage) {
+      } else if ((priority === "high" || priority === "normal") && !isExactSourceImage) {
         const groupedMiss = Boolean(
           parsedBullet &&
           storedValue &&
           sharesGroup(typeKey, parsedBullet.field, storedValue, parsedBullet.value)
         );
         contributionValue = (
-          priority === "essential"
-            ? essentialMissPenalty(rawBullet, { grouped: groupedMiss })
+          priority === "high"
+            ? highMissPenalty(rawBullet, { grouped: groupedMiss })
             : normalMissPenalty({ grouped: groupedMiss })
-        ) * weightScale;
+        );
         contributionState = groupedMiss ? "near-miss" : "miss";
       }
 
@@ -658,17 +636,6 @@ export function computeTraitBoost(selectedBullets = [], record = {}, options = {
           bonus: 0
         });
       }
-    }
-  }
-
-  const matchBonus = matched.length >= 3 ? 0.15 : 0;
-  if (matchBonus && matchedFields.length) {
-    const bonusField = matchedFields[0];
-    const existing = contributions.get(bonusField);
-    if (existing) {
-      existing.contribution += matchBonus;
-      existing.bonus += matchBonus;
-      contributions.set(bonusField, existing);
     }
   }
 
@@ -688,7 +655,7 @@ export function computeTraitBoost(selectedBullets = [], record = {}, options = {
     value: Number(totalValue.toFixed(6)),
     matched,
     contributions: contributionObject,
-    bonus: Number(matchBonus.toFixed(4))
+    bonus: 0
   };
 }
 

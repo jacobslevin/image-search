@@ -25,12 +25,12 @@ test("normalizeCategoryScopeSelection preserves the all sentinel", () => {
 test("stripCategoryScopeFromSelectedBullets removes legacy seating type bullets", () => {
   assert.deepEqual(
     stripCategoryScopeFromSelectedBullets({
-      essential: ["Seating Type: stool", "Base Material: wood"],
+      high: ["Seating Type: stool", "Base Material: wood"],
       normal: ["Frame: metal"],
       low: ["seating_type: lounge_chair"]
     }),
     {
-      essential: ["Base Material: wood"],
+      high: ["Base Material: wood"],
       normal: ["Frame: metal"],
       low: []
     }
@@ -40,12 +40,12 @@ test("stripCategoryScopeFromSelectedBullets removes legacy seating type bullets"
 test("stripCategoryScopeFromSelectedBullets removes canonical visual_type bullets too", () => {
   assert.deepEqual(
     stripCategoryScopeFromSelectedBullets({
-      essential: ["Visual Type: stool", "Base Material: wood"],
+      high: ["Visual Type: stool", "Base Material: wood"],
       normal: ["Frame: metal"],
       low: ["visual_type: lounge_chair"]
     }),
     {
-      essential: ["Base Material: wood"],
+      high: ["Base Material: wood"],
       normal: ["Frame: metal"],
       low: []
     }

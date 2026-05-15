@@ -62,7 +62,7 @@ const state = {
   statusPanelAction: null,
   currentBaseQueryEmbedding: [],
   currentQueryEmbedding: [],
-  currentSelectedBullets: { essential: [], normal: [], low: [] },
+  currentSelectedBullets: { high: [], normal: [], low: [] },
   currentBulletControls: [],
   pendingBulletControls: null,
   currentVisualType: "",
@@ -74,7 +74,7 @@ const state = {
   similarLookFallbackMode: "",
   similarLookNotice: "",
   similarLookSourceQuery: "",
-  similarLookSourceBullets: { essential: [], normal: [], low: [] },
+  similarLookSourceBullets: { high: [], normal: [], low: [] },
   similarLookSourceImageContext: null,
   clarificationConflict: null,
   categoryRequirement: null,
@@ -83,7 +83,7 @@ const state = {
   originalQuery: "",
   originalBaseQueryEmbedding: [],
   originalQueryEmbedding: [],
-  originalSelectedBullets: { essential: [], normal: [], low: [] },
+  originalSelectedBullets: { high: [], normal: [], low: [] },
   originalBulletControls: [],
   originalVisualType: "",
   originalImageAnalysis: null,
@@ -1442,7 +1442,7 @@ function cloneValue(value) {
 }
 
 function emptyStructuredBulletState() {
-  return { essential: [], normal: [], low: [] };
+  return { high: [], normal: [], low: [] };
 }
 
 function getVisualTypeLabelForState(typeKey = "") {
@@ -2411,7 +2411,7 @@ function renderSearchComposer(fullQuery = state.lastDisplayQuery || state.lastQu
 }
 
 const BULLET_PRIORITY_LABELS = {
-  essential: "essential",
+  high: "high",
   normal: "normal",
   low: "low",
   off: "off"
@@ -2618,8 +2618,8 @@ function buildQueryBulletMap(selectedBullets = [], typeKey = state.currentVisual
   const normalized = normalizeSelectedBullets(selectedBullets);
   const map = new Map();
 
-  normalized.essential.forEach((bullet) => {
-    const parsed = parseStructuredBulletEntry(bullet, "essential", typeKey);
+  normalized.high.forEach((bullet) => {
+    const parsed = parseStructuredBulletEntry(bullet, "high", typeKey);
     if (parsed) {
       map.set(parsed.field, parsed);
     }
@@ -2771,21 +2771,6 @@ function scoreBreakdownValue(breakdown = [], label = "") {
   return Number(item?.value || 0);
 }
 
-function traitFieldWeightScale(typeKey = "", field = "") {
-  const normalizedField = normalizeTraitFieldKey(field);
-  if (!normalizedField) {
-    return 1;
-  }
-  const priority = getFieldPriority(typeKey, normalizedField);
-  if (priority === "essential") {
-    return 2;
-  }
-  if (priority === "low") {
-    return 0.5;
-  }
-  return 1;
-}
-
 function formatContribution(value = 0) {
   const numeric = Number(value || 0);
   if (!numeric) {
@@ -2927,7 +2912,7 @@ function getDebugScoreFields(selectedBullets = state.currentSelectedBullets) {
   const orderedSchemaFields = getOrderedSchemaFieldsForType(activeTypeKey);
   const selectedFieldSet = new Set();
 
-  [...normalized.essential, ...normalized.normal, ...normalized.low].forEach((bullet) => {
+  [...normalized.high, ...normalized.normal, ...normalized.low].forEach((bullet) => {
     const parsed = parseStructuredBulletEntry(bullet, "normal", activeTypeKey);
     if (parsed?.field) {
       selectedFieldSet.add(parsed.field);
@@ -3045,7 +3030,7 @@ async function renderDebugLightbox() {
     const th = document.createElement("th");
     const queryEntry = queryBulletMap.get(field);
     const subLabel = queryEntry
-      ? `${queryEntry.value}${queryEntry.priority === "essential" ? " · essential" : queryEntry.priority === "low" ? " · low" : ""}`
+      ? `${queryEntry.value}${queryEntry.priority === "high" ? " · high" : queryEntry.priority === "low" ? " · low" : ""}`
       : "";
     th.innerHTML = `
       <span class="debug-score-header-main">${formatTraitFieldLabel(field)}</span>
@@ -3208,7 +3193,7 @@ function buildDebugTableTsv() {
     ...debugScoreFields.map((field) => {
       const queryEntry = queryBulletMap.get(field);
       return queryEntry
-        ? `${field} (${queryEntry.value}${queryEntry.priority === "essential" ? "; essential" : queryEntry.priority === "low" ? "; low" : ""})`
+        ? `${field} (${queryEntry.value}${queryEntry.priority === "high" ? "; high" : queryEntry.priority === "low" ? "; low" : ""})`
         : field;
     })
   ];
@@ -3264,7 +3249,7 @@ function normalizePriorityBulletList(values = []) {
 
 function normalizeSelectedBullets(selectedBullets = [], typeKey = state.currentVisualType) {
   if (Array.isArray(selectedBullets)) {
-    const normalized = { essential: [], normal: [], low: [] };
+    const normalized = { high: [], normal: [], low: [] };
     normalizePriorityBulletList(selectedBullets).forEach((bullet) => {
       const filtered = stripCategoryScopeFromSelectedBullets({
         normal: [bullet]
@@ -3277,11 +3262,11 @@ function normalizeSelectedBullets(selectedBullets = [], typeKey = state.currentV
   }
 
   if (!selectedBullets || typeof selectedBullets !== "object") {
-    return { essential: [], normal: [], low: [] };
+    return { high: [], normal: [], low: [] };
   }
 
   return stripCategoryScopeFromSelectedBullets({
-    essential: normalizePriorityBulletList(selectedBullets.essential || []),
+    high: normalizePriorityBulletList(selectedBullets.high || []),
     normal: normalizePriorityBulletList(selectedBullets.normal || []),
     low: normalizePriorityBulletList(selectedBullets.low || [])
   });
@@ -3300,7 +3285,7 @@ function isAbsenceStyleMatchReason(value = "") {
 
 function hasSelectedBullets(selectedBullets = []) {
   const normalized = normalizeSelectedBullets(selectedBullets);
-  return normalized.essential.length + normalized.normal.length + normalized.low.length > 0;
+  return normalized.high.length + normalized.normal.length + normalized.low.length > 0;
 }
 
 function normalizeBulletControls(bulletControls = []) {
@@ -3309,7 +3294,7 @@ function normalizeBulletControls(bulletControls = []) {
 
   for (const entry of bulletControls || []) {
     const text = String(entry?.text || entry?.value || "").trim();
-    const priority = ["essential", "normal", "low", "off"].includes(entry?.priority)
+    const priority = ["high", "normal", "low", "off"].includes(entry?.priority)
       ? entry.priority
       : defaultPriorityForBulletText(text);
     const key = text.toLowerCase();
@@ -3326,18 +3311,18 @@ function normalizeBulletControls(bulletControls = []) {
 function buildBulletControlsFromBullets(bullets = []) {
   const normalized = normalizeSelectedBullets(bullets);
   return [
-    ...normalized.essential.map((text) => ({ text, priority: "essential" })),
+    ...normalized.high.map((text) => ({ text, priority: "high" })),
     ...normalized.normal.map((text) => ({ text, priority: "normal" })),
     ...normalized.low.map((text) => ({ text, priority: "low" }))
   ];
 }
 
 function deriveSelectedBulletsFromControls(bulletControls = []) {
-  const selected = { essential: [], normal: [], low: [] };
+  const selected = { high: [], normal: [], low: [] };
 
   for (const entry of normalizeBulletControls(bulletControls)) {
-    if (entry.priority === "essential") {
-      selected.essential.push(entry.text);
+    if (entry.priority === "high") {
+      selected.high.push(entry.text);
     } else if (entry.priority === "normal") {
       selected.normal.push(entry.text);
     } else if (entry.priority === "low") {
@@ -3723,7 +3708,7 @@ function computeQueryEmbeddingFromRefinements(baseEmbedding = [], refinements = 
 function buildFallbackQueryFromStructuredBullets(selectedBullets = []) {
   const normalized = normalizeSelectedBullets(selectedBullets);
   return filterQueryComposableBullets([
-    ...normalized.essential,
+    ...normalized.high,
     ...normalized.normal,
     ...normalized.low
   ]).join(", ");
@@ -5005,7 +4990,7 @@ function updateResetSearchVisibility() {
 function applyActiveSearchContext({
   payload,
   query,
-  selectedBullets = { essential: [], normal: [], low: [] },
+  selectedBullets = { high: [], normal: [], low: [] },
   bulletControls = [],
   baseQueryEmbedding = null,
   visualType = "",
@@ -5039,7 +5024,7 @@ function applyActiveSearchContext({
   state.currentSelectedBullets = normalizeSelectedBullets(selectedBullets);
   state.currentBulletControls = normalizeBulletControls(
     bulletControls.length ? bulletControls : [
-      ...state.currentSelectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...state.currentSelectedBullets.high.map((text) => ({ text, priority: "high" })),
       ...state.currentSelectedBullets.normal.map((text) => ({ text, priority: "normal" })),
       ...state.currentSelectedBullets.low.map((text) => ({ text, priority: "low" }))
     ]
@@ -5350,7 +5335,7 @@ function getFieldPriority(typeKey = "", fieldName = "") {
   const priority = String(getTraitFieldConfig(typeKey, fieldName)?.priority || "")
     .trim()
     .toLowerCase();
-  return priority === "essential" || priority === "low" || priority === "normal"
+  return priority === "high" || priority === "low" || priority === "normal"
     ? priority
     : "normal";
 }
@@ -5367,20 +5352,20 @@ function getTypeFields(typeKey = "") {
 }
 
 function getOrderedSchemaFieldsForType(typeKey = "") {
-  const groups = { essential: [], normal: [], low: [] };
+  const groups = { high: [], normal: [], low: [] };
   getTypeFields(typeKey).forEach((fieldConfig) => {
     groups[getFieldPriority(typeKey, fieldConfig.field)].push(fieldConfig.field);
   });
-  return [...groups.essential, ...groups.normal, ...groups.low];
+  return [...groups.high, ...groups.normal, ...groups.low];
 }
 
 function getDebugTraitGroupsForType(typeKey = "", fields = []) {
   const groupLabels = {
-    essential: "Essential",
+    high: "High",
     normal: "Normal",
     low: "Low"
   };
-  return ["essential", "normal", "low"]
+  return ["high", "normal", "low"]
     .map((priority) => ({
       label: groupLabels[priority],
       fields: fields.filter((field) => getFieldPriority(typeKey, field) === priority)
@@ -5467,7 +5452,7 @@ function buildStoredImageSearchContext(result = {}, matchingImage = null) {
   );
   const bulletControls = normalizeBulletControls(
     [
-      ...selectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...selectedBullets.high.map((text) => ({ text, priority: "high" })),
       ...selectedBullets.normal.map((text) => ({ text, priority: "normal" })),
       ...selectedBullets.low.map((text) => ({ text, priority: "low" }))
     ]
@@ -5554,7 +5539,7 @@ async function ensureStoredImageContext(result = {}, matchingImage = null) {
     fetchedBulletTexts.length
       ? fetchedBulletTexts
       : [
-          ...baseContext.selectedBullets.essential,
+          ...baseContext.selectedBullets.high,
           ...baseContext.selectedBullets.normal,
           ...baseContext.selectedBullets.low
         ],
@@ -5562,7 +5547,7 @@ async function ensureStoredImageContext(result = {}, matchingImage = null) {
   );
   const fetchedBulletControls = normalizeBulletControls(
     [
-      ...fetchedSelectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...fetchedSelectedBullets.high.map((text) => ({ text, priority: "high" })),
       ...fetchedSelectedBullets.normal.map((text) => ({ text, priority: "normal" })),
       ...fetchedSelectedBullets.low.map((text) => ({ text, priority: "low" }))
     ]
@@ -7127,14 +7112,14 @@ function traitFieldIsInspectable(field = {}) {
 }
 
 function getStructuredTraitPriorityLabel(priority = "normal") {
-  if (priority === "essential" || priority === "low") {
+  if (priority === "high" || priority === "low") {
     return priority;
   }
   return "default";
 }
 
 function getStructuredTraitWeightLabel(priority = "normal") {
-  if (priority === "essential") {
+  if (priority === "high") {
     return "high";
   }
   if (priority === "low") {
@@ -7467,7 +7452,7 @@ function renderStructuredTraitsMatrixTab(root, inspectorData) {
 }
 
 function renderStructuredTraitsScoringTab(root, inspectorData) {
-  const priorityOrder = { essential: 0, normal: 1, low: 2 };
+  const priorityOrder = { high: 0, normal: 1, low: 2 };
   inspectorData.entries.forEach(({ typeKey, type }) => {
     const card = document.createElement("section");
     card.className = "structured-traits-section-card";
@@ -8091,7 +8076,7 @@ async function copyPromptLibraryPrompt() {
 }
 
 function applyPriorityButtonState(button, priority) {
-  const nextPriority = ["essential", "normal", "low", "off"].includes(priority) ? priority : "normal";
+  const nextPriority = ["high", "normal", "low", "off"].includes(priority) ? priority : "normal";
   button.dataset.priority = nextPriority;
   button.classList.toggle("is-active", button.dataset.value === nextPriority);
 }
@@ -8252,7 +8237,7 @@ function renderRefineSidebar() {
     toggle.className = "priority-toggle";
 
     const states = [
-      { value: "essential", label: "!!", title: "Essential" },
+      { value: "high", label: "!!", title: "High" },
       { value: "normal", label: "✓", title: "Normal" },
       { value: "low", label: "↓", title: "Low" },
       { value: "off", label: "–", title: "Off" }
@@ -8916,7 +8901,7 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
       currentQueryText,
       traitChanges,
       [
-        ...nextSelectedBullets.essential,
+        ...nextSelectedBullets.high,
         ...nextSelectedBullets.normal,
         ...nextSelectedBullets.low
       ]
@@ -8935,7 +8920,7 @@ async function applyInlineTraitRefinement({ result, mode, traits }) {
         currentQueryText,
         traitChanges,
         activeBullets: filterQueryComposableBullets([
-          ...nextSelectedBullets.essential,
+          ...nextSelectedBullets.high,
           ...nextSelectedBullets.normal,
           ...nextSelectedBullets.low
         ])
@@ -9673,7 +9658,7 @@ async function runSearch(query, options = {}) {
     options.bulletControls?.length
       ? options.bulletControls
       : [
-          ...requestedSelectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+          ...requestedSelectedBullets.high.map((text) => ({ text, priority: "high" })),
           ...requestedSelectedBullets.normal.map((text) => ({ text, priority: "normal" })),
           ...requestedSelectedBullets.low.map((text) => ({ text, priority: "low" }))
         ]
@@ -9836,7 +9821,7 @@ async function runSearch(query, options = {}) {
       requestedBulletControls.length && !hasSelectedBullets(payloadSelectedBullets)
         ? requestedBulletControls
         : [
-            ...effectiveSelectedBullets.essential.map((text) => ({ text, priority: "essential" })),
+            ...effectiveSelectedBullets.high.map((text) => ({ text, priority: "high" })),
             ...effectiveSelectedBullets.normal.map((text) => ({ text, priority: "normal" })),
             ...effectiveSelectedBullets.low.map((text) => ({ text, priority: "low" }))
           ]
@@ -10324,7 +10309,7 @@ function resetImageFlow() {
 async function composeQueryForBullets(selectedBullets = [], options = {}) {
   const normalized = normalizeSelectedBullets(selectedBullets);
   const composableBullets = filterQueryComposableBullets([
-    ...normalized.essential,
+    ...normalized.high,
     ...normalized.normal,
     ...normalized.low
   ]);
@@ -10341,7 +10326,7 @@ async function composeQueryForBullets(selectedBullets = [], options = {}) {
     body: JSON.stringify({
       visual_type: String(options.visualType || options.seatingType || getPayloadVisualType(state.currentImageAnalysis) || ""),
       bullets: {
-        essential: normalized.essential.filter((bullet) => isQueryComposableBullet(bullet)),
+        high: normalized.high.filter((bullet) => isQueryComposableBullet(bullet)),
         normal: normalized.normal.filter((bullet) => isQueryComposableBullet(bullet)),
         low: normalized.low.filter((bullet) => isQueryComposableBullet(bullet))
       }
@@ -10540,7 +10525,7 @@ async function beginSimilarLookCategorySwitch(targetVisualType = "") {
       normalizedTargetVisualType
     );
     const bulletControls = normalizeBulletControls([
-      ...translatedBullets.essential.map((text) => ({ text, priority: "essential" })),
+      ...translatedBullets.high.map((text) => ({ text, priority: "high" })),
       ...translatedBullets.normal.map((text) => ({ text, priority: "normal" })),
       ...translatedBullets.low.map((text) => ({ text, priority: "low" }))
     ]);
@@ -10669,7 +10654,7 @@ async function prepareUploadImageDataUrl(file, options = {}) {
 function bulletsFromAnalysis(analysis) {
   if (analysis?.search_bullets && typeof analysis.search_bullets === "object") {
     const structured = normalizeSelectedBullets(analysis.search_bullets);
-    if (structured.essential.length || structured.normal.length || structured.low.length) {
+    if (structured.high.length || structured.normal.length || structured.low.length) {
       return structured;
     }
   }

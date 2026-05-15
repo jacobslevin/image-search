@@ -1,10 +1,8 @@
 import { buildRoutingTypesConfig } from "./visual-type-ui.js";
 
 const PRIORITY_ORDER = {
-  essential: 0,
   high: 0,
   normal: 1,
-  medium: 1,
   low: 2
 };
 
