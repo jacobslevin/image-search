@@ -28,7 +28,9 @@ test("getTypeFields for cafe_dining includes height_register and excludes power_
 
 test("getFieldPriority returns registry-backed priorities for tables fields", () => {
   assert.equal(getFieldPriority("conference", "base_type"), "normal");
-  assert.equal(getFieldPriority("conference", "base_visual_weight"), "normal");
+  assert.equal(getFieldPriority("conference", "base_visual_weight"), "high");
+  assert.equal(getFieldPriority("conference", "top_shape"), "high");
+  assert.equal(getFieldPriority("conference", "base_finish"), "low");
   assert.equal(getFieldPriority("conference", "mobility"), "low");
 });
 
@@ -150,7 +152,7 @@ test("computeTraitBoost supports tables records directly", () => {
   assert.ok(boost.contributions.power_data_integration);
 });
 
-test("computeTraitBoost gives equal base hit values to normal-priority table traits", () => {
+test("computeTraitBoost uses registry priority defaults for table traits", () => {
   const boost = computeTraitBoost(
     [
       "Base: T-leg",
@@ -172,7 +174,7 @@ test("computeTraitBoost gives equal base hit values to normal-priority table tra
   assert.equal(boost.contributions.base_finish.state, "hit");
   assert.equal(boost.contributions.base_type.contribution, 0.1);
   assert.equal(boost.contributions.top_material.contribution, 0.1);
-  assert.equal(boost.contributions.base_finish.contribution, 0.1);
+  assert.equal(boost.contributions.base_finish.contribution, 0.05);
   assert.equal(boost.bonus, 0);
 });
 

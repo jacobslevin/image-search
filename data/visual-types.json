@@ -876,7 +876,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -901,7 +901,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -919,7 +919,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "normal",
+              "priority": "low",
               "detectability": "medium"
             },
             {
@@ -1021,7 +1021,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1046,7 +1046,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1064,7 +1064,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "normal",
+              "priority": "low",
               "detectability": "medium"
             },
             {
@@ -1166,7 +1166,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1191,7 +1191,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1209,7 +1209,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "normal",
+              "priority": "low",
               "detectability": "medium"
             },
             {
@@ -1311,7 +1311,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1336,7 +1336,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1354,7 +1354,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "normal",
+              "priority": "low",
               "detectability": "medium"
             },
             {
@@ -1467,7 +1467,7 @@
                   "Oval"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1492,7 +1492,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1510,7 +1510,7 @@
                 "Painted color",
                 "Unknown"
               ],
-              "priority": "normal",
+              "priority": "low",
               "detectability": "medium"
             },
             {
