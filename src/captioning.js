@@ -733,8 +733,24 @@ ${fieldLines}
 
   TABLE-SPECIFIC GUIDANCE:
   - Treat tabletop shape, edge read, thickness impression, and base structure as the primary visual cues.
-  - Describe support structure precisely when visible: pedestal, 4-leg, trestle, T-leg, X-base, tripod, or panel-slab.
-  - Use base_visual_weight to explain whether the support reads light/airy or heavy/grounded.
+  - Describe support structure precisely when visible: Pedestal, Solid-form extrusion, Solid-form tapered, 4-leg, T-leg, Trestle, Tripod, X-base, or Panel-slab.
+  - For base_type, identify the structural support form, not just whether the support is central.
+  - Use Pedestal only when there is a narrow vertical column or stem between separate top and bottom anchors.
+  - The column may be cylindrical, slightly tapered along its length, or faceted, but its narrowness is consistent across the whole column - it does not flare or widen meaningfully into the base. A column that visibly widens from one end to the other is not Pedestal; it is Solid-form tapered.
+  - Use Solid-form extrusion when the base is a continuous solid mass with a mostly uniform cross-section from top to bottom. The form itself is the base.
+  - Use Solid-form tapered when the base is a continuous solid mass whose width changes meaningfully from one end to the other. The form itself is the base and reads as a cone, wedge, flare, or other tapered volume.
+  - Structural test: ask whether there is a column with separate anchors, or whether the form itself is the base. If there is a visibly distinct column/stem between anchors, use Pedestal. If the upright volume itself is the base mass, use a Solid-form value.
+  - Tiebreaker for ambiguous cases: ask whether a designer would naturally describe the table as "on a pedestal" or "on a conical / cylindrical / solid base." If the shape of the base is dominant enough to be named, use Solid-form. If the column structure is what reads first, use Pedestal.
+  - Use base_visual_weight to describe visible mass, not floor contact.
+  - Heavy/grounded means the base has substantial visible bulk and reads as a significant volume.
+  - Light/airy means the base is slim, thin, or visually minimal.
+  - base_type and base_visual_weight are orthogonal traits: a Pedestal can be Heavy/grounded or Light/airy, and a Solid-form base can also be Heavy/grounded or Light/airy depending on visible mass.
+  - For Pedestal, judge mass by looking at the anchors, especially the bottom anchor. A thin stem with a thin disc or plate anchor is Light/airy. It is Heavy/grounded only when the bottom anchor itself has visible bulk - a thick block, a chunky cylinder, or a substantial volume that grounds the composition.
+  - For Solid-form extrusion and Solid-form tapered, judge mass by looking at the whole form's visible volume.
+  - For legs of any kind, judge mass by leg thickness.
+  - For Trestle, judge mass by the thickness of the trestle members and feet.
+  - For Panel-slab, judge mass by the thickness and volume of the slab or panel.
+  - Broad floor contact does not automatically mean Heavy/grounded. A thin disc or plate that touches the floor broadly is still Light/airy if it remains visually thin and minimal.
   - Mention mobility only if it is visually obvious.
   - Do not include height_register or power_data_integration in the summary; those are structured extraction traits, not summary prose.
   - If chairs or other furniture appear around the table, ignore them and describe only the table product itself.
@@ -4493,6 +4509,8 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
       { pattern: /\bt[-\s]?leg\b/, value: "T-leg" },
       { pattern: /\bx[-\s]?base\b/, value: "X-base" },
       { pattern: /\b4[-\s]?leg\b|\bfour[-\s]?leg\b|\bfour legs\b/, value: "4-leg" },
+      { pattern: /\bconical\b|\bcone\b|\bflared base\b/, value: "Solid-form tapered" },
+      { pattern: /\bcylindrical\b|\bcylinder\b|\bdrum base\b|\bsolid column\b/, value: "Solid-form extrusion" },
       { pattern: /\bpedestal\b/, value: "Pedestal" }
     ];
     const topMaterialRules = [
@@ -4537,9 +4555,9 @@ function buildDeterministicTextQueryEnumFields(query = "", seatingType = "") {
     } else if (/\bsquare edge\b|\bsharp edge\b/.test(normalizedQuery)) {
       enumFields.edge_profile = "Square";
     }
-    if (/\blightweight\b|\bairy\b|\bopen base\b/.test(normalizedQuery)) {
+    if (/\bairy\b|\blightweight\b|\blight\b|\bslim\b|\bslender\b|\bthin base\b|\bminimal base\b|\bdelicate\b|\bopen base\b/.test(normalizedQuery)) {
       enumFields.base_visual_weight = "Light/airy";
-    } else if (/\bgrounded\b|\bsubstantial\b|\bchunky\b|\bheavy\b/.test(normalizedQuery)) {
+    } else if (/\bgrounded\b|\bsubstantial\b|\bchunky\b|\bheavy\b|\bthick base\b|\bmassive\b|\bbulky\b|\bblocky\b|\bmonolithic\b/.test(normalizedQuery)) {
       enumFields.base_visual_weight = "Heavy/grounded";
     }
     if (/\bminimal\b|\bclean[-\s]?lined\b/.test(normalizedQuery)) {

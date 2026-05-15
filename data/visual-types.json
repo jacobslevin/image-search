@@ -843,14 +843,22 @@
               "field": "base_type",
               "type": "enum",
               "allowed_values": [
-                "Pedestal",
                 "4-leg",
-                "Trestle",
                 "T-leg",
-                "X-base",
+                "Trestle",
                 "Tripod",
+                "X-base",
+                "Pedestal",
+                "Solid-form extrusion",
+                "Solid-form tapered",
                 "Panel-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Solid-form extrusion",
+                  "Solid-form tapered"
+                ]
               ],
               "priority": "normal",
               "detectability": "high"
@@ -988,14 +996,22 @@
               "field": "base_type",
               "type": "enum",
               "allowed_values": [
-                "Pedestal",
                 "4-leg",
-                "Trestle",
                 "T-leg",
-                "X-base",
+                "Trestle",
                 "Tripod",
+                "X-base",
+                "Pedestal",
+                "Solid-form extrusion",
+                "Solid-form tapered",
                 "Panel-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Solid-form extrusion",
+                  "Solid-form tapered"
+                ]
               ],
               "priority": "normal",
               "detectability": "high"
@@ -1133,14 +1149,22 @@
               "field": "base_type",
               "type": "enum",
               "allowed_values": [
-                "Pedestal",
                 "4-leg",
-                "Trestle",
                 "T-leg",
-                "X-base",
+                "Trestle",
                 "Tripod",
+                "X-base",
+                "Pedestal",
+                "Solid-form extrusion",
+                "Solid-form tapered",
                 "Panel-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Solid-form extrusion",
+                  "Solid-form tapered"
+                ]
               ],
               "priority": "normal",
               "detectability": "high"
@@ -1278,14 +1302,22 @@
               "field": "base_type",
               "type": "enum",
               "allowed_values": [
-                "Pedestal",
                 "4-leg",
-                "Trestle",
                 "T-leg",
-                "X-base",
+                "Trestle",
                 "Tripod",
+                "X-base",
+                "Pedestal",
+                "Solid-form extrusion",
+                "Solid-form tapered",
                 "Panel-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Solid-form extrusion",
+                  "Solid-form tapered"
+                ]
               ],
               "priority": "normal",
               "detectability": "high"
@@ -1434,14 +1466,22 @@
               "field": "base_type",
               "type": "enum",
               "allowed_values": [
-                "Pedestal",
                 "4-leg",
-                "Trestle",
                 "T-leg",
-                "X-base",
+                "Trestle",
                 "Tripod",
+                "X-base",
+                "Pedestal",
+                "Solid-form extrusion",
+                "Solid-form tapered",
                 "Panel-slab",
                 "unknown"
+              ],
+              "groups": [
+                [
+                  "Solid-form extrusion",
+                  "Solid-form tapered"
+                ]
               ],
               "priority": "normal",
               "detectability": "high"
