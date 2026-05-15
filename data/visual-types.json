@@ -858,9 +858,16 @@
                 [
                   "Solid-form extrusion",
                   "Solid-form tapered"
+                ],
+                [
+                  "4-leg",
+                  "T-leg",
+                  "X-base",
+                  "Tripod",
+                  "Trestle"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -909,7 +916,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1011,9 +1018,16 @@
                 [
                   "Solid-form extrusion",
                   "Solid-form tapered"
+                ],
+                [
+                  "4-leg",
+                  "T-leg",
+                  "X-base",
+                  "Tripod",
+                  "Trestle"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1062,7 +1076,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1164,9 +1178,16 @@
                 [
                   "Solid-form extrusion",
                   "Solid-form tapered"
+                ],
+                [
+                  "4-leg",
+                  "T-leg",
+                  "X-base",
+                  "Tripod",
+                  "Trestle"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1215,7 +1236,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1317,9 +1338,16 @@
                 [
                   "Solid-form extrusion",
                   "Solid-form tapered"
+                ],
+                [
+                  "4-leg",
+                  "T-leg",
+                  "X-base",
+                  "Tripod",
+                  "Trestle"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1368,7 +1396,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
@@ -1481,9 +1509,16 @@
                 [
                   "Solid-form extrusion",
                   "Solid-form tapered"
+                ],
+                [
+                  "4-leg",
+                  "T-leg",
+                  "X-base",
+                  "Tripod",
+                  "Trestle"
                 ]
               ],
-              "priority": "normal",
+              "priority": "high",
               "detectability": "high"
             },
             {
@@ -1532,7 +1567,7 @@
                 "Light/airy",
                 "unknown"
               ],
-              "priority": "high",
+              "priority": "normal",
               "detectability": "high"
             },
             {
