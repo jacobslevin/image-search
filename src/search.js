@@ -1015,8 +1015,7 @@ export async function searchIndex({
       free_text: image.free_text || {},
       structured_caption: image.structured_caption || image.free_text?.structured_caption || "",
       visual_summary: image.visual_summary || image.free_text?.visual_summary || image.stage2?.visual_summary || "",
-      enum_fields: image.enum_fields || image.image_traits || {},
-      visual_summary_embedding: image.visual_summary_embedding || image.search_text_embedding || []
+      enum_fields: image.enum_fields || image.image_traits || {}
     };
 
     if (!existing) {
@@ -1061,7 +1060,6 @@ export async function searchIndex({
         is_room_scene: Boolean(image.is_room_scene),
         scene_filter: buildSceneFilterBadge(image, image.image_url),
         scene_filter_results: getSceneFilterResults(image),
-        visual_summary_embedding: image.visual_summary_embedding || image.search_text_embedding || [],
         confidence_tier: image.confidence_tier,
         confidence_rank: image.confidence_rank
       });
@@ -1102,7 +1100,6 @@ export async function searchIndex({
       };
       existing.scene_filter = buildSceneFilterBadge(image, image.image_url);
       existing.scene_filter_results = getSceneFilterResults(image);
-      existing.visual_summary_embedding = image.visual_summary_embedding || image.search_text_embedding || [];
       existing.confidence_tier = image.confidence_tier;
       existing.confidence_rank = image.confidence_rank;
     }
