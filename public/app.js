@@ -5225,18 +5225,25 @@ async function applyPendingBulletPriorities() {
   const previousPayloadSnapshot = cloneValue(state.lastPayload);
   const nextSelectedBullets = deriveSelectedBulletsFromControls(pendingControls);
   const nextQuery = await composeQueryWithFallback(nextSelectedBullets, { silent: true });
+  const activeVisualType = String(state.currentVisualType || "").trim();
+  const similarLookContext = state.similarLookActive
+    ? getSimilarLookStateSnapshot()
+    : null;
   setSearchInputValue(nextQuery);
 
   const basePayload = await runSearch(nextQuery, {
     sort: state.sortMode,
     sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
     imageAnalysis: state.currentImageAnalysis,
+    visualType: activeVisualType,
     selectedBullets: nextSelectedBullets,
     bulletControls: pendingControls,
     scrollToTopOnComplete: true,
     preserveOriginal: true,
     refinementActive: true,
-    productRefinements: []
+    productRefinements: [],
+    similarLookContext,
+    preserveSimilarLookContext: Boolean(similarLookContext)
   });
   if (!basePayload) {
     return;
@@ -10538,7 +10545,6 @@ async function beginSimilarLookCategorySwitch(targetVisualType = "") {
       visualType: normalizedTargetVisualType,
       categoryScopeMode: "explicit",
       sourceImageUrl: state.currentImageAnalysis?.image_preview_url || "",
-      imageAnalysis: state.currentImageAnalysis,
       selectedBullets: translatedBullets,
       bulletControls,
       preserveOriginal: false,
