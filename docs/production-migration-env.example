@@ -1,0 +1,22 @@
+# Production product migration environment template
+#
+# The migration script reads from the local source database using the standard
+# PG* variables and writes to production using PROD_PG* variables. Fill these in
+# from the approved credential source before running
+# scripts/migrate-products-to-production.js.
+
+# Local source database
+PGHOST=
+PGPORT=
+PGDATABASE=
+PGUSER=
+PGPASSWORD=
+PGSSLMODE=
+
+# Production target database
+PROD_PGHOST=
+PROD_PGPORT=
+PROD_PGDATABASE=
+PROD_PGUSER=
+PROD_PGPASSWORD=
+PROD_PGSSLMODE=require
