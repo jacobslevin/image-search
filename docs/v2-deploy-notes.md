@@ -63,3 +63,13 @@ OpenAI:
 - Phase 1.5 moved the app read paths from JSON files to canonical PostgreSQL tables.
 - Source-data refresh and extraction write paths still remain JSON-backed for now; that does not block the production read deployment.
 - Bump `package.json`'s `version` field alongside each release tag so the UI version indicator stays accurate.
+
+## Current Local Findings
+
+### 2026-05-16
+
+- Cross-category similar-look feature is now functional end-to-end:
+  - Apply Priorities preservation: commit `d7896b9` (state correctly preserves through trait adjustments)
+  - 0-results fix: commit `56dad18` (dropping `imageAnalysis` from `beginSimilarLookCategorySwitch()` restored normal result return)
+- Chip narrowing fix shipped (`d7896b9`): stage-1 prompt updated to require non-empty `plausible_categories` for `product_detail` cases
+- Admin route payload reduced from ~35.5 MB to ~8 MB via `field_confidence` strip (`d6e8d4f`) and `visual_summary_embedding` lazy-fetch (Phase 2)
