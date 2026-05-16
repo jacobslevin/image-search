@@ -981,16 +981,16 @@ export async function searchIndex({
         confidence_tier: record.confidence_tier || deriveOverallConfidenceFromFields(record.field_confidence),
         confidence_rank: confidenceValue
       };
-    })
-    .sort((a, b) => {
-      if (includeSourceImage && a.is_exact_source_image !== b.is_exact_source_image) {
-        return Number(b.is_exact_source_image) - Number(a.is_exact_source_image);
-      }
-      if (b.score !== a.score) {
-        return b.score - a.score;
-      }
-      return b.confidence_rank - a.confidence_rank;
     });
+  scoredImages.sort((a, b) => {
+    if (includeSourceImage && a.is_exact_source_image !== b.is_exact_source_image) {
+      return Number(b.is_exact_source_image) - Number(a.is_exact_source_image);
+    }
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    return b.confidence_rank - a.confidence_rank;
+  });
 
   const productLookup = new Map((index.products || []).map((product) => [product.product_id, product]));
   const productMap = new Map();
@@ -1128,7 +1128,6 @@ export async function searchIndex({
       product.best_image_url = product.hero_image.image_url;
     }
   }
-
   const sortedProducts = sortProducts([...productMap.values()], sort);
   const { products: rerankedProducts, rerankerUsed } = rerankerEnabled
     ? await rerankProducts(query, sortedProducts, apiKey)
