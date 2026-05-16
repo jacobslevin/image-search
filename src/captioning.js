@@ -4082,11 +4082,15 @@ Subtype hints:
 For plausible_categories:
 - Allowed values: seating, tables, faucets
 - Be conservative and sparse. Do not include a category "just in case."
+- However, this does not mean returning empty arrays for real product images. Empty plausible_categories is only valid for non-product content or cases where no product family can honestly be inferred.
 - If only seating is visible, return ["seating"].
 - If only tables are visible, return ["tables"].
 - If only faucets are visible, return ["faucets"].
 - If both seating and tables are clearly visible, return ["seating","tables"].
 - If you are uncertain whether a family is present, leave it out.
+- For result="product" or result="product_detail", plausible_categories MUST contain at least one value whenever a real product is visible.
+- An empty plausible_categories array is only valid when the image is non-product content, irrelevant content, or a scene/detail where no product family can honestly be inferred.
+- For a product_detail image, return the narrowest family-level guess that is still defensible from the visible evidence, even if you cannot identify the exact subcategory.
 
 Step 1: First assess whether this is a product_detail shot.
 - Determine whether at least approximately 75% of the full product is visible.
@@ -4095,6 +4099,14 @@ Step 1: First assess whether this is a product_detail shot.
 - Is the full silhouette of the product visible?
 - Is this a close-up of a single component such as fabric, stitching, an arm, a leg, or a headrest?
 - If less than approximately 75% of the full product is visible, return {"result":"product_detail","seating_type":"","override_reason":"...","plausible_visual_types":[...],"plausible_categories":[...]} and stop. The override_reason must briefly explain why this is a detail shot.
+- For result="product_detail", plausible_categories must never be empty if the visible item is clearly furniture or a faucet.
+- For result="product_detail", plausible_visual_types may be empty if you cannot narrow within the family, but plausible_categories must still contain the most defensible family.
+
+Examples for ambiguous but clearly real product images:
+- A cropped square table with a thick top and a solid central base, where the full size/use context is unclear:
+  {"result":"product_detail","seating_type":"","override_reason":"The full table size and surrounding context are not visible, so this reads as a product detail rather than a full product shot.","plausible_visual_types":["occasional","cafe_dining"],"plausible_categories":["tables"]}
+- A close product shot of a furniture base and top where it is clearly a table but unclear whether it is side, lounge, or meeting scale:
+  {"result":"product_detail","seating_type":"","override_reason":"The image shows a real table product, but not enough of the overall scale or setting to determine the exact table subtype confidently.","plausible_visual_types":[],"plausible_categories":["tables"]}
 
 Step 2: If this is not a product_detail shot, assess whether the image should be treated as a scene.
 - If more than one seating product is substantially visible and the non-primary seating is not just faint background presence, return scene.
