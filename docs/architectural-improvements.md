@@ -2,6 +2,8 @@
 
 ## DB-Direct Extraction Plan
 
+See `docs/db-direct-extraction-design.md` for the implementation-level companion design covering module interfaces, transaction semantics, integration points, validation, rollback, and Phase 1 scope.
+
 ### Background
 
 The current local extraction pipeline uses `data/image-index.json` as a middle step between AI extraction and the runtime database:
@@ -105,4 +107,3 @@ Additional work for full cutover:
 Product-level replace semantics are mandatory.
 
 DB-direct extraction should not merely upsert by image ID. On a product refresh, old `image_index` staging rows for that product must be deleted, superseded, or otherwise excluded before the new extracted rows become canonical candidates. Without this, DB-direct extraction would preserve the same stale-row failure mode that caused the catalog-only products drift.
-
