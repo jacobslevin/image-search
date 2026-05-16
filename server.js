@@ -904,29 +904,58 @@ function selectResponseCompression(acceptEncoding = "") {
 }
 
 function maybeCompressJsonBody(response, body) {
+  const perfStart = Date.now();
   const bodyBuffer = Buffer.from(body);
   if (bodyBuffer.length < JSON_COMPRESSION_MIN_BYTES) {
-    return { body: bodyBuffer, encoding: "" };
+    return {
+      body: bodyBuffer,
+      encoding: "",
+      input_bytes: bodyBuffer.length,
+      output_bytes: bodyBuffer.length,
+      compression_ms: Date.now() - perfStart
+    };
   }
   const encoding = selectResponseCompression(response.__pixelseekAcceptEncoding || "");
   if (encoding === "br") {
+    const compressed = zlib.brotliCompressSync(bodyBuffer);
     return {
-      body: zlib.brotliCompressSync(bodyBuffer),
-      encoding
+      body: compressed,
+      encoding,
+      input_bytes: bodyBuffer.length,
+      output_bytes: compressed.length,
+      compression_ms: Date.now() - perfStart
     };
   }
   if (encoding === "gzip") {
+    const compressed = zlib.gzipSync(bodyBuffer);
     return {
-      body: zlib.gzipSync(bodyBuffer),
-      encoding
+      body: compressed,
+      encoding,
+      input_bytes: bodyBuffer.length,
+      output_bytes: compressed.length,
+      compression_ms: Date.now() - perfStart
     };
   }
-  return { body: bodyBuffer, encoding: "" };
+  return {
+    body: bodyBuffer,
+    encoding: "",
+    input_bytes: bodyBuffer.length,
+    output_bytes: bodyBuffer.length,
+    compression_ms: Date.now() - perfStart
+  };
 }
 
 function json(response, statusCode, payload) {
+  const stringifyStartedAt = Date.now();
   const rawBody = JSON.stringify(payload);
-  const { body, encoding } = maybeCompressJsonBody(response, rawBody);
+  const stringify_ms = Date.now() - stringifyStartedAt;
+  const {
+    body,
+    encoding,
+    input_bytes,
+    output_bytes,
+    compression_ms
+  } = maybeCompressJsonBody(response, rawBody);
   const headers = {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
@@ -937,8 +966,23 @@ function json(response, statusCode, payload) {
   if (encoding) {
     headers["Content-Encoding"] = encoding;
   }
+  const writeHeadStartedAt = Date.now();
   response.writeHead(statusCode, headers);
+  const writeHead_ms = Date.now() - writeHeadStartedAt;
+  const endStartedAt = Date.now();
   response.end(body);
+  const end_call_ms = Date.now() - endStartedAt;
+  if (response.__pixelseekPerfLabel) {
+    console.log(`[TEMP-PERF-DIAG] ${response.__pixelseekPerfLabel} response sent`, {
+      stringify_ms,
+      compression_ms,
+      compression: encoding || "none",
+      input_bytes,
+      output_bytes,
+      writeHead_ms,
+      end_call_ms
+    });
+  }
 }
 
 function beginJsonLineStream(response, statusCode = 200) {
@@ -972,9 +1016,12 @@ function trimResultImageForClient(image = {}, { debug = false } = {}) {
     confidence_tier: image.confidence_tier,
     has_stored_embedding: image.has_stored_embedding === true || (Array.isArray(image.visual_summary_embedding) && image.visual_summary_embedding.length > 0),
     matched_traits: Array.isArray(image.matched_traits) ? image.matched_traits : [],
-    trait_contributions: image.trait_contributions || {},
     enum_fields: image.enum_fields || {}
   };
+
+  if (debug) {
+    payload.trait_contributions = image.trait_contributions || {};
+  }
 
   if (debug) {
     payload.field_confidence = image.field_confidence || {};
@@ -1637,6 +1684,7 @@ async function executeSearchQuery({
   serveFullSearchResponse = false,
   onProgress = null
 } = {}) {
+  const perfDiagStartedAt = Date.now();
   if (typeof onProgress === "function") {
     await onProgress({
       phase: "parsing",
@@ -1720,6 +1768,10 @@ async function executeSearchQuery({
     textQueryTraits?.search_bullets,
     selectedBullets
   );
+  const effectiveSelectedBulletCount =
+    (Array.isArray(effectiveSelectedBullets?.high) ? effectiveSelectedBullets.high.length : 0) +
+    (Array.isArray(effectiveSelectedBullets?.normal) ? effectiveSelectedBullets.normal.length : 0) +
+    (Array.isArray(effectiveSelectedBullets?.low) ? effectiveSelectedBullets.low.length : 0);
   if (typeof onProgress === "function") {
     await onProgress({
       phase: "parsed",
@@ -1806,6 +1858,15 @@ async function executeSearchQuery({
     refreshAge
   );
   const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
+
+  console.log("[TEMP-PERF-DIAG] /api/search done", {
+    total_ms: Date.now() - perfDiagStartedAt,
+    query: String(query || "").slice(0, 120),
+    selected_bullet_count: effectiveSelectedBulletCount,
+    visual_type: resolvedVisualType || "",
+    has_image_analysis: Boolean(imageAnalysis),
+    result_count: Array.isArray(clientResults) ? clientResults.length : 0
+  });
 
   return {
     query,
@@ -4217,6 +4278,7 @@ const server = http.createServer(async (request, response) => {
 
   if (url.pathname === "/api/refine-search" && request.method === "POST") {
     try {
+      const perfDiagStartedAt = Date.now();
       const body = await readRequestJson(request);
       const serveFullSearchResponse = shouldServeFullSearchResponse(request);
       const queryEmbedding = Array.isArray(body.query_embedding) ? body.query_embedding.map((value) => Number(value)) : [];
@@ -4228,6 +4290,10 @@ const server = http.createServer(async (request, response) => {
       const requestedVisualTypeInput = { visual_type: body.visual_type, seating_type: body.seating_type };
       const visualType = normalizeRequestedVisualType(requestedVisualTypeInput);
       const selectedBullets = normalizeStructuredBullets(body.selected_bullets, visualType);
+      const selectedBulletCount =
+        (Array.isArray(selectedBullets.high) ? selectedBullets.high.length : 0) +
+        (Array.isArray(selectedBullets.normal) ? selectedBullets.normal.length : 0) +
+        (Array.isArray(selectedBullets.low) ? selectedBullets.low.length : 0);
       const rerankerEnabled = body.reranker_enabled !== false;
       const action = String(body.action || "").trim();
       const productId = String(body.product_id || "").trim();
@@ -4242,6 +4308,14 @@ const server = http.createServer(async (request, response) => {
         });
       }
       let blendedQueryEmbedding = normalizeEmbedding(queryEmbedding);
+
+      console.log("[TEMP-PERF-DIAG] /api/refine-search start", {
+        selected_bullet_count: selectedBulletCount,
+        visual_type: visualType || "",
+        reranker_enabled: rerankerEnabled,
+        has_source_image_url: Boolean(sourceImageUrl),
+        query_embedding_dims: queryEmbedding.length
+      });
 
       if (action || productId) {
         if (!productId) {
@@ -4303,6 +4377,13 @@ const server = http.createServer(async (request, response) => {
       );
       const clientResults = serveFullSearchResponse ? results : trimSearchResultsForClient(results, { debug });
 
+      console.log("[TEMP-PERF-DIAG] /api/refine-search done", {
+        total_ms: Date.now() - perfDiagStartedAt,
+        candidate_images_loaded: Array.isArray(canonicalIndex?.images) ? canonicalIndex.images.length : 0,
+        result_count: Array.isArray(clientResults) ? clientResults.length : 0
+      });
+
+      response.__pixelseekPerfLabel = "/api/refine-search";
       return json(response, 200, {
         action,
         category_filter: category,
