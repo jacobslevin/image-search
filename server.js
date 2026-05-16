@@ -1001,7 +1001,6 @@ function trimResultImageForClient(image = {}, { debug = false } = {}) {
   }
 
   if (debug) {
-    payload.field_confidence = image.field_confidence || {};
     payload.free_text = image.free_text || {};
     payload.score_breakdown = Array.isArray(image.score_breakdown) ? image.score_breakdown : [];
     payload.structured_caption = String(image.structured_caption || "").trim();

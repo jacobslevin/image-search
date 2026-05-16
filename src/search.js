@@ -1012,7 +1012,6 @@ export async function searchIndex({
         (image.visual_summary_embedding || image.search_text_embedding).length > 0,
       matched_traits: image.matched_traits.slice(0, 4),
       trait_contributions: image.trait_contributions || {},
-      field_confidence: image.field_confidence || {},
       free_text: image.free_text || {},
       structured_caption: image.structured_caption || image.free_text?.structured_caption || "",
       visual_summary: image.visual_summary || image.free_text?.visual_summary || image.stage2?.visual_summary || "",
