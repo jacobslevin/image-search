@@ -4151,10 +4151,11 @@ function renderExtractionSummary(summary = state.extractionSummary) {
   const timestampText = generatedAt
     ? `Latest snapshot: ${new Date(generatedAt).toLocaleString()}.`
     : "Latest snapshot unavailable.";
+  const productScopeText = " By visual type counts product-classified images only.";
   const deltaText = baselineAvailable
     ? ` Traits are flagged below ${coverageThreshold}% coverage or after a ${dropThreshold}%+ drop vs the saved baseline.`
     : ` Traits are flagged below ${coverageThreshold}% coverage. Delta flags will appear once a baseline snapshot is saved.`;
-  tableMeta.textContent = `${timestampText}${deltaText}`;
+  tableMeta.textContent = `${timestampText}${productScopeText}${deltaText}`;
 
   const tableWrap = document.createElement("div");
   tableWrap.className = "extraction-summary-table-wrap";
@@ -4165,7 +4166,7 @@ function renderExtractionSummary(summary = state.extractionSummary) {
     <thead>
       <tr>
         <th>Visual type</th>
-        <th>Images</th>
+        <th>Product-classified images</th>
         <th>Tiebreakers</th>
         <th>Trait health</th>
       </tr>

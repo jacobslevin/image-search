@@ -1,5 +1,4 @@
 import {
-  ACTIVE_SEATING_TYPE_KEYS,
   getEffectiveClassification,
   getPipelineDiagnosticsBaselinePath,
   normalizeRoutingTypeKey,
@@ -7,10 +6,9 @@ import {
   writeJson
 } from "./utils.js";
 import { getLoungeSofaTraitApplicability } from "./lounge-sofa-traits.js";
-import { loadSeatingTypesAdapter } from "./seating-types-adapter.js";
+import { loadVisualTypesRegistry } from "./visual-types-registry.js";
 
-const seatingTypesConfig = loadSeatingTypesAdapter();
-const seatingTypes = seatingTypesConfig.types || {};
+const visualTypesRegistry = loadVisualTypesRegistry();
 
 export const DIAGNOSTICS_UNSPECIFIED = "unspecified";
 export const TRAIT_HEALTH_COVERAGE_THRESHOLD = 0.8;
@@ -21,6 +19,11 @@ export const DIAGNOSTICS_CATEGORY_ORDER = Object.freeze([
   "lounge_chair",
   "bench",
   "stool",
+  "conference",
+  "huddle_collaborative",
+  "cafe_dining",
+  "occasional",
+  "training",
   DIAGNOSTICS_UNSPECIFIED
 ]);
 
@@ -48,9 +51,20 @@ function normalizeCategoryKey(value = "") {
 }
 
 function getTraitFieldConfigs(typeKey = "") {
-  return (seatingTypes[typeKey]?.fields || []).filter((field) => (
-    field?.type === "enum" && field?.detectability !== "no"
-  ));
+  if (!typeKey || typeKey === DIAGNOSTICS_UNSPECIFIED) {
+    return [];
+  }
+  try {
+    const resolved = visualTypesRegistry.resolveRoutingKey(typeKey);
+    if (!resolved) {
+      return [];
+    }
+    return visualTypesRegistry.getCategoryFields(resolved.family, resolved.visual_type).filter((field) => (
+      field?.type === "enum" && field?.detectability !== "no"
+    ));
+  } catch {
+    return [];
+  }
 }
 
 function buildAllowedValueLookup(typeKey = "") {
@@ -266,15 +280,22 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
   for (const image of images) {
     const categoryKey = normalizeCategoryKey(image?.seating_type || "");
     const category = ensureCategory(categoryKey);
-    category.total_images += 1;
     const effectiveClassification = getEffectiveClassification(image);
 
     if (Boolean(image?.tiebreaker_triggered)) {
       tiebreakers += 1;
+    }
+
+    if (effectiveClassification !== "product") {
+      continue;
+    }
+
+    category.total_images += 1;
+    if (Boolean(image?.tiebreaker_triggered)) {
       category.tiebreakers_triggered += 1;
     }
 
-    if (categoryKey === DIAGNOSTICS_UNSPECIFIED || effectiveClassification !== "product") {
+    if (categoryKey === DIAGNOSTICS_UNSPECIFIED) {
       continue;
     }
 
@@ -583,6 +604,6 @@ export function buildPipelineDiagnostics(index = { images: [] }, options = {}) {
         ? Number((loungeSofaTraitStage.total_tokens / loungeSofaTraitStage.eligible_image_count).toFixed(1))
         : 0
     },
-    supported_categories: [...ACTIVE_SEATING_TYPE_KEYS]
+    supported_categories: visualTypesRegistry.listVisualTypes().map((entry) => entry.visual_type)
   };
 }

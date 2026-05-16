@@ -440,13 +440,95 @@ function buildUnmappedCombinationSummary(index = { images: [] }, decisions = {})
 async function buildExtractionSummary(index = { images: [] }) {
   const baseline = await readPipelineDiagnosticsBaseline();
   const diagnostics = buildPipelineDiagnostics(index, { baseline });
+  const canonicalCategoryCounts = await loadCanonicalPipelineCategoryCounts();
   const decisions = await readJson(unmappedCategoryDecisionsPath, {});
   const unmappedCombinations = buildUnmappedCombinationSummary(index, decisions);
 
   return {
     ...diagnostics,
+    categories: mergeCanonicalCategoryCountsIntoDiagnostics(diagnostics, canonicalCategoryCounts),
     unmapped_combinations: unmappedCombinations
   };
+}
+
+async function loadCanonicalPipelineCategoryCounts() {
+  const result = await queryPostgres(
+    `SELECT
+       COALESCE(NULLIF(ci.visual_type, ''), 'unspecified') AS category_key,
+       count(*)::int AS total_images,
+       count(*) FILTER (WHERE ci.tiebreaker_triggered = true)::int AS tiebreakers_triggered
+     FROM canonical_images ci
+     WHERE ci.effective_classification = 'product'
+       AND COALESCE(ci.excluded, false) = false
+     GROUP BY 1`
+  );
+
+  const counts = new Map();
+  for (const row of result.rows || []) {
+    const categoryKey = String(row.category_key || "").trim() || "unspecified";
+    counts.set(categoryKey, {
+      category_key: categoryKey,
+      total_images: Number(row.total_images) || 0,
+      tiebreakers_triggered: Number(row.tiebreakers_triggered) || 0
+    });
+  }
+  return counts;
+}
+
+function buildHollowDiagnosticsCategory(categoryKey = "") {
+  const normalizedKey = String(categoryKey || "").trim();
+  return {
+    category_key: normalizedKey,
+    total_images: 0,
+    tiebreakers_triggered: 0,
+    has_trait_health: false,
+    image_failures: {
+      product_count: 0,
+      failed_image_count: 0
+    },
+    trait_health: {
+      traits: [],
+      checked_trait_count: 0,
+      issue_count: 0,
+      healthy: true
+    }
+  };
+}
+
+function mergeCanonicalCategoryCountsIntoDiagnostics(diagnostics = {}, canonicalCounts = new Map()) {
+  const supported = Array.isArray(diagnostics?.supported_categories)
+    ? diagnostics.supported_categories
+    : [];
+  const imageIndexCategories = Array.isArray(diagnostics?.categories)
+    ? diagnostics.categories
+    : [];
+
+  const byCategory = new Map(
+    imageIndexCategories.map((category) => [String(category.category_key || "").trim(), category])
+  );
+
+  for (const [categoryKey, countData] of canonicalCounts.entries()) {
+    const existing = byCategory.get(categoryKey) || buildHollowDiagnosticsCategory(categoryKey);
+    byCategory.set(categoryKey, {
+      ...existing,
+      total_images: Number(countData.total_images) || 0,
+      tiebreakers_triggered: Number(countData.tiebreakers_triggered) || 0
+    });
+  }
+
+  const order = [...supported, "unspecified"];
+  return [...byCategory.values()].sort((left, right) => {
+    const leftKey = String(left.category_key || "").trim();
+    const rightKey = String(right.category_key || "").trim();
+    const leftRank = order.indexOf(leftKey);
+    const rightRank = order.indexOf(rightKey);
+    const normalizedLeftRank = leftRank >= 0 ? leftRank : Number.MAX_SAFE_INTEGER;
+    const normalizedRightRank = rightRank >= 0 ? rightRank : Number.MAX_SAFE_INTEGER;
+    if (normalizedLeftRank !== normalizedRightRank) {
+      return normalizedLeftRank - normalizedRightRank;
+    }
+    return leftKey.localeCompare(rightKey);
+  });
 }
 
 function normalizeFocusAreaPayload(rawFocusArea = null) {
