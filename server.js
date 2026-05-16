@@ -32,9 +32,12 @@ import {
   getCategoryGroupingKey,
   getEffectiveClassification,
   getImageIndexPath,
+  getPixelSeekType,
+  getPixelSeekTypeLabel,
   getUnmappedCategoryDecisionsPath,
   getLeafCategories,
   normalizeImageClassification,
+  normalizePixelSeekTypeFilter,
   normalizeVisualTypeKey,
   resolveVisualType,
   readJson,
@@ -64,6 +67,7 @@ const privateBrowsePath = "/velvet-lobster-orbit-773-nebula";
 const normalizedPath = path.join(__dirname, "data", "normalized-catalog.json");
 const indexPath = getImageIndexPath();
 const unmappedCategoryDecisionsPath = getUnmappedCategoryDecisionsPath();
+const CATEGORY_MAPPING_DIAGNOSTICS_CACHE_TTL_MS = 5 * 60 * 1000;
 const sceneFilterProgressPath = path.join(__dirname, "data", "scene-filter-progress.json");
 const sceneFilterBatchLogPath = path.join("/tmp", "scene-filter-batch.log");
 const evalResultsPath = path.join(__dirname, "scripts", "eval-results.json");
@@ -86,6 +90,10 @@ const PROMPT_LIBRARY_STAGE23_TYPES = [
   "bench"
 ];
 const similarLookAnalogMappings = loadSimilarLookAnalogMappings();
+let categoryMappingDiagnosticsCache = {
+  expiresAt: 0,
+  value: null
+};
 
 function loadSimilarLookAnalogMappings() {
   try {
@@ -529,6 +537,411 @@ function mergeCanonicalCategoryCountsIntoDiagnostics(diagnostics = {}, canonical
     }
     return leftKey.localeCompare(rightKey);
   });
+}
+
+function extractDesignerPagesNumericId(value = "") {
+  const match = String(value || "").trim().match(/(\d+)$/);
+  return match ? match[1] : "";
+}
+
+function chooseLaterTimestamp(currentValue = "", candidateValue = "") {
+  const current = String(currentValue || "").trim();
+  const candidate = String(candidateValue || "").trim();
+  if (!candidate) {
+    return current;
+  }
+  if (!current) {
+    return candidate;
+  }
+  return candidate > current ? candidate : current;
+}
+
+function choosePrimaryVisualType(productState = null) {
+  if (!productState?.visualTypeCounts || !(productState.visualTypeCounts instanceof Map) || !productState.visualTypeCounts.size) {
+    return "";
+  }
+  return [...productState.visualTypeCounts.entries()]
+    .sort((left, right) => {
+      if (right[1].count !== left[1].count) {
+        return right[1].count - left[1].count;
+      }
+      return String(right[1].lastExtractedAt || "").localeCompare(String(left[1].lastExtractedAt || ""));
+    })[0][0];
+}
+
+async function loadCanonicalCategoryMappingDiagnostics() {
+  const result = await queryPostgres(
+    `SELECT
+       cp.dp_numeric_id,
+       cp.canonical_key,
+       cp.product_name,
+       cp.brand,
+       cp.a_level,
+       cp.b_level,
+       cp.c_level,
+       cp.updated_at AS canonical_updated_at,
+       ci.visual_type,
+       ci.effective_classification,
+       ci.excluded,
+       ci.excluded_reason,
+       ci.ai_refreshed_at,
+       ci.extraction_timestamp
+     FROM canonical_products cp
+     LEFT JOIN canonical_images ci
+       ON ci.canonical_product_id = cp.id
+     WHERE cp.dp_numeric_id <> ''
+     ORDER BY cp.dp_numeric_id, ci.id`
+  );
+  return result.rows;
+}
+
+function resolveCategoryMappingSource({
+  grouping = "",
+  sampleProduct = null,
+  decisions = {},
+  canonicalProducts = []
+} = {}) {
+  const decision = decisions?.[grouping] && typeof decisions[grouping] === "object"
+    ? decisions[grouping]
+    : null;
+  const decisionStatus = String(decision?.status || "").trim().toLowerCase();
+  const decisionTarget = normalizeVisualTypeKey(decision?.mapping_target || "");
+  if (decisionStatus === "mapped" && decisionTarget) {
+    return {
+      mapping_source: "decision",
+      visual_type: decisionTarget,
+      pixel_seek_label: getPixelSeekTypeLabel(decisionTarget),
+      decision_status: "mapped",
+      legacy_extraction_concentration: null
+    };
+  }
+  if (decisionStatus === "intentionally_excluded") {
+    return {
+      mapping_source: "decision",
+      visual_type: "",
+      pixel_seek_label: "",
+      decision_status: "intentionally_excluded",
+      legacy_extraction_concentration: null
+    };
+  }
+
+  const tableTargetLabel = sampleProduct ? getPixelSeekType(sampleProduct, {}) : "SKIP";
+  const tableTarget = normalizePixelSeekTypeFilter(tableTargetLabel);
+  if (tableTarget) {
+    return {
+      mapping_source: "table",
+      visual_type: tableTarget,
+      pixel_seek_label: getPixelSeekTypeLabel(tableTarget),
+      decision_status: "",
+      legacy_extraction_concentration: null
+    };
+  }
+
+  const extractedPrimaryTypes = canonicalProducts
+    .map((product) => product.primary_visual_type)
+    .filter(Boolean);
+  if (extractedPrimaryTypes.length) {
+    const counts = new Map();
+    extractedPrimaryTypes.forEach((typeKey) => {
+      counts.set(typeKey, (counts.get(typeKey) || 0) + 1);
+    });
+    const [dominantType, dominantCount] = [...counts.entries()].sort((left, right) => right[1] - left[1])[0];
+    const concentration = dominantCount / extractedPrimaryTypes.length;
+    if (concentration >= 0.8) {
+      return {
+        mapping_source: "legacy_extraction",
+        visual_type: dominantType,
+        pixel_seek_label: getPixelSeekTypeLabel(dominantType),
+        decision_status: "",
+        legacy_extraction_concentration: Number(concentration.toFixed(3))
+      };
+    }
+  }
+
+  return {
+    mapping_source: "unmapped",
+    visual_type: "",
+    pixel_seek_label: "",
+    decision_status: "",
+    legacy_extraction_concentration: null
+  };
+}
+
+async function buildCategoryMappingDiagnostics({ forceRefresh = false } = {}) {
+  const now = Date.now();
+  if (!forceRefresh && categoryMappingDiagnosticsCache.value && categoryMappingDiagnosticsCache.expiresAt > now) {
+    return categoryMappingDiagnosticsCache.value;
+  }
+
+  const [normalizedCatalog, imageIndex, decisions, canonicalRows] = await Promise.all([
+    readJson(normalizedPath, { products: [] }),
+    readJson(indexPath, { images: [] }),
+    readJson(unmappedCategoryDecisionsPath, {}),
+    loadCanonicalCategoryMappingDiagnostics()
+  ]);
+
+  const normalizedByGrouping = new Map();
+  for (const product of normalizedCatalog?.products || []) {
+    const dpNumericId = extractDesignerPagesNumericId(product?.source_product_id || product?.product_id || "");
+    if (!dpNumericId) {
+      continue;
+    }
+    const grouping = getCategoryGroupingKey(product);
+    if (!grouping) {
+      continue;
+    }
+    const normalizedProduct = {
+      dp_numeric_id: dpNumericId,
+      normalized_product_id: String(product.product_id || "").trim(),
+      source_product_id: `product_dp_${dpNumericId}`,
+      product_name: String(product.name || product.product_name || "").trim(),
+      brand: String(product.brand || "").trim(),
+      a_level: product.a_level || [],
+      b_level: product.b_level || [],
+      c_level: product.c_level || [],
+      grouping
+    };
+    if (!normalizedByGrouping.has(grouping)) {
+      normalizedByGrouping.set(grouping, []);
+    }
+    normalizedByGrouping.get(grouping).push(normalizedProduct);
+  }
+
+  const imageIndexByDpId = new Map();
+  for (const image of imageIndex?.images || []) {
+    const dpNumericId = extractDesignerPagesNumericId(image?.product_id || "");
+    if (!dpNumericId) {
+      continue;
+    }
+    if (!imageIndexByDpId.has(dpNumericId)) {
+      imageIndexByDpId.set(dpNumericId, {
+        has_rows: false,
+        has_stage0_data: false,
+        stage0_results: new Set(),
+        effective_classifications: new Set(),
+        exclusion_reasons: new Set(),
+        last_extracted_at: ""
+      });
+    }
+    const entry = imageIndexByDpId.get(dpNumericId);
+    entry.has_rows = true;
+    const stage0 = String(image?.stage_0_result || "").trim();
+    const effective = String(getEffectiveClassification(image) || "").trim();
+    const excludedReason = String(image?.excluded_reason || "").trim();
+    if (stage0) {
+      entry.has_stage0_data = true;
+      entry.stage0_results.add(stage0);
+    }
+    if (effective) {
+      entry.effective_classifications.add(effective);
+    }
+    if (excludedReason) {
+      entry.exclusion_reasons.add(excludedReason);
+    }
+    entry.last_extracted_at = chooseLaterTimestamp(
+      entry.last_extracted_at,
+      String(image?.ai_refreshed_at || image?.extraction_timestamp || "").trim()
+    );
+  }
+
+  const canonicalByDpId = new Map();
+  for (const row of canonicalRows) {
+    const dpNumericId = String(row.dp_numeric_id || "").trim();
+    if (!dpNumericId) {
+      continue;
+    }
+    if (!canonicalByDpId.has(dpNumericId)) {
+      canonicalByDpId.set(dpNumericId, {
+        dp_numeric_id: dpNumericId,
+        canonical_key: String(row.canonical_key || "").trim(),
+        product_name: String(row.product_name || "").trim(),
+        brand: String(row.brand || "").trim(),
+        a_level: row.a_level || [],
+        b_level: row.b_level || [],
+        c_level: row.c_level || [],
+        grouping: getCategoryGroupingKey(row),
+        canonical_updated_at: String(row.canonical_updated_at || "").trim(),
+        visualTypeCounts: new Map(),
+        last_extracted_at: ""
+      });
+    }
+    const entry = canonicalByDpId.get(dpNumericId);
+    const visualType = normalizeVisualTypeKey(row.visual_type || "");
+    const isExtracted = String(row.effective_classification || "").trim() === "product" && row.excluded !== true && visualType;
+    const extractedAt = String(row.ai_refreshed_at || row.extraction_timestamp || "").trim();
+    if (isExtracted) {
+      const current = entry.visualTypeCounts.get(visualType) || { count: 0, lastExtractedAt: "" };
+      current.count += 1;
+      current.lastExtractedAt = chooseLaterTimestamp(current.lastExtractedAt, extractedAt);
+      entry.visualTypeCounts.set(visualType, current);
+      entry.last_extracted_at = chooseLaterTimestamp(entry.last_extracted_at, extractedAt);
+    }
+  }
+
+  const allGroupings = new Set([
+    ...normalizedByGrouping.keys(),
+    ...Object.keys(decisions || {}),
+    ...[...canonicalByDpId.values()].map((entry) => entry.grouping).filter(Boolean)
+  ]);
+
+  const rows = [...allGroupings].map((grouping) => {
+    const normalizedProducts = normalizedByGrouping.get(grouping) || [];
+    const normalizedDpIds = new Set(normalizedProducts.map((product) => product.dp_numeric_id));
+    const canonicalProducts = [...canonicalByDpId.values()].filter((product) => product.grouping === grouping);
+    canonicalProducts.forEach((product) => {
+      product.primary_visual_type = choosePrimaryVisualType(product);
+    });
+
+    const mapping = resolveCategoryMappingSource({
+      grouping,
+      sampleProduct: normalizedProducts[0] || canonicalProducts[0] || null,
+      decisions,
+      canonicalProducts
+    });
+
+    const stage0ProductCount = normalizedProducts.filter((product) => imageIndexByDpId.get(product.dp_numeric_id)?.has_stage0_data).length;
+    const extractedProductCount = mapping.visual_type
+      ? normalizedProducts.filter((product) => canonicalByDpId.get(product.dp_numeric_id)?.primary_visual_type === mapping.visual_type).length
+      : 0;
+    const canonicalProductCount = canonicalProducts.length;
+    const staleCanonicalCount = Math.max(canonicalProductCount - normalizedProducts.length, 0);
+    const lastExtractedAt = normalizedProducts.reduce((latest, product) => (
+      chooseLaterTimestamp(latest, imageIndexByDpId.get(product.dp_numeric_id)?.last_extracted_at || "")
+    ), "");
+
+    const detailProducts = [
+      ...normalizedProducts.map((product) => {
+        const imageIndexState = imageIndexByDpId.get(product.dp_numeric_id);
+        const canonicalState = canonicalByDpId.get(product.dp_numeric_id);
+        let status = "no_extraction_rows";
+        if (canonicalState?.primary_visual_type) {
+          status = "extracted";
+        } else if (imageIndexState?.exclusion_reasons?.has("unmapped_category_grouping")) {
+          status = "excluded_unmapped_grouping";
+        } else if (imageIndexState?.has_stage0_data) {
+          status = "has_stage0_only";
+        }
+        return {
+          dp_numeric_id: product.dp_numeric_id,
+          source_product_id: product.source_product_id,
+          normalized_product_id: product.normalized_product_id,
+          canonical_key: canonicalState?.canonical_key || "",
+          product_name: product.product_name,
+          brand: product.brand,
+          status,
+          stage_0_result: imageIndexState?.stage0_results?.size ? [...imageIndexState.stage0_results].sort()[0] : "",
+          effective_classification: imageIndexState?.effective_classifications?.size ? [...imageIndexState.effective_classifications].sort()[0] : "",
+          exclusion_reason: imageIndexState?.exclusion_reasons?.size ? [...imageIndexState.exclusion_reasons].sort().join(", ") : "",
+          last_extracted_at: imageIndexState?.last_extracted_at || "",
+          extracted_visual_type: canonicalState?.primary_visual_type || "",
+          extracted_visual_type_label: getPixelSeekTypeLabel(canonicalState?.primary_visual_type || "")
+        };
+      }),
+      ...canonicalProducts
+        .filter((product) => !normalizedDpIds.has(product.dp_numeric_id))
+        .map((product) => ({
+          dp_numeric_id: product.dp_numeric_id,
+          source_product_id: `product_dp_${product.dp_numeric_id}`,
+          normalized_product_id: "",
+          canonical_key: product.canonical_key,
+          product_name: product.product_name,
+          brand: product.brand,
+          status: "canonical_only",
+          stage_0_result: "",
+          effective_classification: "",
+          exclusion_reason: "",
+          last_extracted_at: product.last_extracted_at || "",
+          extracted_visual_type: product.primary_visual_type || "",
+          extracted_visual_type_label: getPixelSeekTypeLabel(product.primary_visual_type || "")
+        }))
+    ].sort((left, right) => (
+      String(left.product_name || left.source_product_id).localeCompare(String(right.product_name || right.source_product_id))
+    ));
+
+    return {
+      grouping,
+      pixel_seek_mapping: mapping.pixel_seek_label,
+      visual_type: mapping.visual_type,
+      mapping_source: mapping.mapping_source,
+      decision_status: mapping.decision_status,
+      normalized_product_count: normalizedProducts.length,
+      stage0_product_count: stage0ProductCount,
+      extracted_product_count: extractedProductCount,
+      canonical_product_count: canonicalProductCount,
+      stale_canonical_count: staleCanonicalCount,
+      missing_count: mapping.visual_type
+        ? Math.max(normalizedProducts.length - extractedProductCount, 0)
+        : null,
+      last_extracted_at: lastExtractedAt,
+      legacy_extraction_concentration: mapping.legacy_extraction_concentration,
+      products: detailProducts
+    };
+  }).sort((left, right) => {
+    const rank = (row) => {
+      if (row.mapping_source === "unmapped") {
+        return 0;
+      }
+      if (!row.visual_type) {
+        return 2;
+      }
+      return 1;
+    };
+    const leftRank = rank(left);
+    const rightRank = rank(right);
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    if (leftRank === 0) {
+      if (right.normalized_product_count !== left.normalized_product_count) {
+        return right.normalized_product_count - left.normalized_product_count;
+      }
+      return left.grouping.localeCompare(right.grouping);
+    }
+    if (leftRank === 1) {
+      if ((right.missing_count || 0) !== (left.missing_count || 0)) {
+        return (right.missing_count || 0) - (left.missing_count || 0);
+      }
+      if (right.normalized_product_count !== left.normalized_product_count) {
+        return right.normalized_product_count - left.normalized_product_count;
+      }
+      return left.grouping.localeCompare(right.grouping);
+    }
+    if (right.normalized_product_count !== left.normalized_product_count) {
+      return right.normalized_product_count - left.normalized_product_count;
+    }
+    return left.grouping.localeCompare(right.grouping);
+  });
+
+  const payload = {
+    generated_at: new Date().toISOString(),
+    meta: {
+      cache_ttl_ms: CATEGORY_MAPPING_DIAGNOSTICS_CACHE_TTL_MS,
+      stage0_is_best_effort: true,
+      last_extracted_at_source: "image-index",
+      legacy_extraction_threshold: 0.8,
+      mapping_source_help: {
+        table: "Mapped by an explicit rule in PIXELSEEK_TYPE_BY_GROUPING.",
+        decision: "Mapped or intentionally excluded via data/unmapped-category-decisions.json.",
+        legacy_extraction: "Inferred from prior canonical extractions when 80% or more of extracted canonical products in this Designer Pages grouping concentrate in one PixelSeek category.",
+        unmapped: "No current mapping rule or qualifying legacy extraction signal."
+      }
+    },
+    summary: {
+      total_groupings: rows.length,
+      mapped_groupings: rows.filter((row) => row.mapping_source !== "unmapped").length,
+      unmapped_groupings: rows.filter((row) => row.mapping_source === "unmapped").length,
+      normalized_products: rows.reduce((sum, row) => sum + row.normalized_product_count, 0),
+      extracted_products: rows.reduce((sum, row) => sum + row.extracted_product_count, 0),
+      missing_products: rows.reduce((sum, row) => sum + (row.missing_count || 0), 0)
+    },
+    rows
+  };
+
+  categoryMappingDiagnosticsCache = {
+    expiresAt: now + CATEGORY_MAPPING_DIAGNOSTICS_CACHE_TTL_MS,
+    value: payload
+  };
+  return payload;
 }
 
 function normalizeFocusAreaPayload(rawFocusArea = null) {
@@ -4140,6 +4553,15 @@ const server = http.createServer(async (request, response) => {
       return json(response, 200, await buildExtractionSummary(index));
     } catch (error) {
       return json(response, 500, { error: error.message || "Extraction summary unavailable." });
+    }
+  }
+
+  if (url.pathname === "/api/category-mapping-diagnostics" && request.method === "GET") {
+    try {
+      const forceRefresh = url.searchParams.get("refresh") === "1";
+      return json(response, 200, await buildCategoryMappingDiagnostics({ forceRefresh }));
+    } catch (error) {
+      return json(response, 500, { error: error.message || "Category mapping diagnostics unavailable." });
     }
   }
 

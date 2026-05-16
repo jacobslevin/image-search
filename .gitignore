@@ -10,5 +10,6 @@ data/*-backup.json
 data/stage0-v2-results.json
 data/stage0-v2-retry-results.json
 tmp/
+.tmp-*
 scripts/eval-judgments.json
 scripts/eval-results.json

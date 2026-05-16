@@ -51,6 +51,15 @@ const state = {
   extractionSummary: null,
   extractionSummaryExpandedRows: new Set(),
   extractionSummaryFullRows: new Set(),
+  categoryMappingDiagnostics: null,
+  categoryMappingExpandedRows: new Set(),
+  categoryMappingFilters: {
+    search: "",
+    mappingSource: "all",
+    pixelSeekMapping: "all",
+    actionScope: "all",
+    sort: "priority"
+  },
   searchInputEditedSinceLastSearch: false,
   categorySelectionTouchedSinceLastSearch: false,
   manageMode: false,
@@ -410,6 +419,7 @@ const elements = {
   touchCropResetButton: document.querySelector("#touchCropResetButton"),
   openPromptLibrary: document.querySelector("#openPromptLibrary"),
   openExtractionSummary: document.querySelector("#openExtractionSummary"),
+  openCategoryMappingDiagnostics: document.querySelector("#openCategoryMappingDiagnostics"),
   copyStructuredTraits: document.querySelector("#copyStructuredTraits"),
   copyStructuredTraitsModalButton: document.querySelector("#copyStructuredTraitsModalButton"),
   copyStructuredTraitsStatus: document.querySelector("#copyStructuredTraitsStatus"),
@@ -434,6 +444,10 @@ const elements = {
   closeExtractionSummaryModal: document.querySelector("#closeExtractionSummaryModal"),
   extractionSummaryModalCloseTargets: document.querySelectorAll('[data-role="extractionSummaryModalClose"]'),
   extractionSummaryContent: document.querySelector("#extractionSummaryContent"),
+  categoryMappingDiagnosticsModal: document.querySelector("#categoryMappingDiagnosticsModal"),
+  closeCategoryMappingDiagnosticsModal: document.querySelector("#closeCategoryMappingDiagnosticsModal"),
+  categoryMappingDiagnosticsModalCloseTargets: document.querySelectorAll('[data-role="categoryMappingDiagnosticsModalClose"]'),
+  categoryMappingDiagnosticsContent: document.querySelector("#categoryMappingDiagnosticsContent"),
   cachedSearchProgressStrip: document.querySelector("#cachedSearchProgressStrip"),
   resultsLoadingPanel: document.querySelector("#resultsLoadingPanel"),
   resultsLoadingTitle: document.querySelector("#resultsLoadingTitle"),
@@ -3949,6 +3963,11 @@ async function fetchExtractionSummary() {
   return fetchJson("/api/extraction-summary");
 }
 
+async function fetchCategoryMappingDiagnostics(options = {}) {
+  const search = options.forceRefresh ? "?refresh=1" : "";
+  return fetchJson(`/api/category-mapping-diagnostics${search}`);
+}
+
 async function fetchPromptLibrary() {
   return fetchJson("/api/prompt-library");
 }
@@ -4061,6 +4080,571 @@ function getSupplementalTraitDisplay(trait = {}) {
 function formatSupplementalTraitText(trait = {}) {
   const display = getSupplementalTraitDisplay(trait);
   return display.context ? `${display.lead} (${display.context})` : display.lead;
+}
+
+function formatBestEffortTimestamp(value = "") {
+  const normalized = String(value || "").trim();
+  if (!normalized) {
+    return "—";
+  }
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) {
+    return normalized;
+  }
+  return parsed.toLocaleString();
+}
+
+function formatMappingSourceLabel(value = "") {
+  switch (String(value || "").trim()) {
+    case "table":
+      return "Rule";
+    case "decision":
+      return "Decision";
+    case "legacy_extraction":
+      return "Legacy Extraction";
+    case "unmapped":
+      return "Unmapped";
+    default:
+      return "Unknown";
+  }
+}
+
+function buildCategoryGroupingDisplay(grouping = "") {
+  const parts = String(grouping || "")
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  return {
+    primary: parts[0] || String(grouping || "").trim() || "Unspecified",
+    secondary: parts.slice(1).join(" | ")
+  };
+}
+
+function formatProductDiagnosticStatus(status = "") {
+  switch (String(status || "").trim()) {
+    case "extracted":
+      return "Extracted";
+    case "has_stage0_only":
+      return "Stage 0 only";
+    case "excluded_unmapped_grouping":
+      return "Excluded: unmapped grouping";
+    case "no_extraction_rows":
+      return "No extraction rows";
+    case "canonical_only":
+      return "Canonical only";
+    default:
+      return "Unknown";
+  }
+}
+
+function getCategoryMappingRowActionState(row = {}) {
+  if (!row || typeof row !== "object") {
+    return "all";
+  }
+  if (row.mapping_source === "unmapped") {
+    return "needs_mapping";
+  }
+  if (!row.visual_type) {
+    return "excluded";
+  }
+  if ((Number(row.missing_count) || 0) > 0) {
+    return "missing_extraction";
+  }
+  if ((Number(row.stale_canonical_count) || 0) > 0) {
+    return "stale_canonical";
+  }
+  return "healthy";
+}
+
+function getCategoryMappingFilteredRows(summary = state.categoryMappingDiagnostics) {
+  if (!summary || !Array.isArray(summary.rows)) {
+    return [];
+  }
+  const filters = state.categoryMappingFilters || {};
+  const search = String(filters.search || "").trim().toLowerCase();
+  const mappingSource = String(filters.mappingSource || "all").trim();
+  const pixelSeekMapping = String(filters.pixelSeekMapping || "all").trim();
+  const actionScope = String(filters.actionScope || "all").trim();
+  const sort = String(filters.sort || "priority").trim();
+
+  const rows = summary.rows.filter((row) => {
+    if (mappingSource !== "all" && row.mapping_source !== mappingSource) {
+      return false;
+    }
+    if (pixelSeekMapping !== "all" && String(row.pixel_seek_mapping || "") !== pixelSeekMapping) {
+      return false;
+    }
+    if (actionScope !== "all" && getCategoryMappingRowActionState(row) !== actionScope) {
+      return false;
+    }
+    if (!search) {
+      return true;
+    }
+    const haystack = [
+      row.grouping,
+      row.pixel_seek_mapping,
+      row.mapping_source,
+      ...(Array.isArray(row.products) ? row.products.flatMap((product) => [
+        product.product_name,
+        product.brand,
+        product.source_product_id,
+        product.canonical_key
+      ]) : [])
+    ]
+      .map((value) => String(value || "").toLowerCase())
+      .join(" ");
+    return haystack.includes(search);
+  });
+
+  const sortedRows = [...rows];
+  sortedRows.sort((left, right) => {
+    if (sort === "grouping") {
+      return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+    }
+    if (sort === "normalized") {
+      if ((Number(right.normalized_product_count) || 0) !== (Number(left.normalized_product_count) || 0)) {
+        return (Number(right.normalized_product_count) || 0) - (Number(left.normalized_product_count) || 0);
+      }
+      return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+    }
+    if (sort === "missing") {
+      if ((Number(right.missing_count) || 0) !== (Number(left.missing_count) || 0)) {
+        return (Number(right.missing_count) || 0) - (Number(left.missing_count) || 0);
+      }
+      return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+    }
+    if (sort === "last_extracted") {
+      return String(right.last_extracted_at || "").localeCompare(String(left.last_extracted_at || ""));
+    }
+
+    const rank = (row) => {
+      if (row.mapping_source === "unmapped") {
+        return 0;
+      }
+      if (!row.visual_type) {
+        return 2;
+      }
+      return 1;
+    };
+    const leftRank = rank(left);
+    const rightRank = rank(right);
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+    if (leftRank === 0) {
+      if ((Number(right.normalized_product_count) || 0) !== (Number(left.normalized_product_count) || 0)) {
+        return (Number(right.normalized_product_count) || 0) - (Number(left.normalized_product_count) || 0);
+      }
+      return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+    }
+    if (leftRank === 1) {
+      if ((Number(right.missing_count) || 0) !== (Number(left.missing_count) || 0)) {
+        return (Number(right.missing_count) || 0) - (Number(left.missing_count) || 0);
+      }
+      if ((Number(right.normalized_product_count) || 0) !== (Number(left.normalized_product_count) || 0)) {
+        return (Number(right.normalized_product_count) || 0) - (Number(left.normalized_product_count) || 0);
+      }
+      return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+    }
+    if ((Number(right.normalized_product_count) || 0) !== (Number(left.normalized_product_count) || 0)) {
+      return (Number(right.normalized_product_count) || 0) - (Number(left.normalized_product_count) || 0);
+    }
+    return String(left.grouping || "").localeCompare(String(right.grouping || ""));
+  });
+
+  return sortedRows;
+}
+
+function renderCategoryMappingDiagnostics(summary = state.categoryMappingDiagnostics) {
+  if (!elements.categoryMappingDiagnosticsContent) {
+    return;
+  }
+  if (!summary) {
+    elements.categoryMappingDiagnosticsContent.innerHTML = '<p class="rules-summary-intro">No category mapping diagnostics available.</p>';
+    return;
+  }
+
+  const meta = summary.meta && typeof summary.meta === "object" ? summary.meta : {};
+  const mappingHelp = meta.mapping_source_help && typeof meta.mapping_source_help === "object"
+    ? meta.mapping_source_help
+    : {};
+  const summaryCounts = summary.summary && typeof summary.summary === "object" ? summary.summary : {};
+  const rows = getCategoryMappingFilteredRows(summary);
+  const generatedAt = String(summary.generated_at || "").trim();
+  const pixelSeekOptions = [...new Set(
+    (Array.isArray(summary.rows) ? summary.rows : [])
+      .map((row) => String(row.pixel_seek_mapping || "").trim())
+      .filter(Boolean)
+  )].sort((left, right) => left.localeCompare(right));
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "category-mapping-content";
+
+  const cards = document.createElement("div");
+  cards.className = "extraction-summary-grid";
+  [
+    {
+      title: "Groupings",
+      value: `${(Number(summaryCounts.total_groupings) || 0).toLocaleString()} total • ${(Number(summaryCounts.unmapped_groupings) || 0).toLocaleString()} unmapped`
+    },
+    {
+      title: "Coverage",
+      value: `${(Number(summaryCounts.extracted_products) || 0).toLocaleString()} extracted • ${(Number(summaryCounts.missing_products) || 0).toLocaleString()} missing`
+    },
+    {
+      title: "Normalized products",
+      value: `${(Number(summaryCounts.normalized_products) || 0).toLocaleString()} products`
+    },
+    {
+      title: "Legacy threshold",
+      value: `${Math.round((Number(meta.legacy_extraction_threshold) || 0) * 100)}% concentration`
+    }
+  ].forEach((cardData) => {
+    const card = document.createElement("article");
+    card.className = "rules-card extraction-summary-card";
+    const title = document.createElement("h3");
+    title.className = "rules-card-title";
+    title.textContent = cardData.title;
+    const value = document.createElement("p");
+    value.className = "extraction-summary-metric";
+    value.textContent = cardData.value;
+    card.append(title, value);
+    cards.appendChild(card);
+  });
+
+  const controlsCard = document.createElement("article");
+  controlsCard.className = "rules-card extraction-summary-table-card";
+  const controlsTitle = document.createElement("h3");
+  controlsTitle.className = "rules-card-title";
+  controlsTitle.textContent = "Filters";
+  const controlsMeta = document.createElement("p");
+  controlsMeta.className = "rules-summary-intro";
+  controlsMeta.textContent = generatedAt
+    ? `Latest snapshot: ${new Date(generatedAt).toLocaleString()}. Stage 0 and last extracted come from the current image index and should be treated as best-effort diagnostics.`
+    : "Latest snapshot unavailable.";
+  const controls = document.createElement("div");
+  controls.className = "category-mapping-controls";
+
+  const searchLabel = document.createElement("label");
+  searchLabel.className = "category-mapping-control";
+  searchLabel.innerHTML = '<span>Search</span><input id="categoryMappingSearchInput" type="search" placeholder="Grouping, product, brand..." />';
+  const searchInput = searchLabel.querySelector("input");
+  searchInput.value = String(state.categoryMappingFilters.search || "");
+  const updateSearchFilter = (event) => {
+    state.categoryMappingFilters.search = event.target.value || "";
+    renderCategoryMappingDiagnostics();
+  };
+  searchInput.addEventListener("change", updateSearchFilter);
+  searchInput.addEventListener("search", updateSearchFilter);
+
+  const sourceLabel = document.createElement("label");
+  sourceLabel.className = "category-mapping-control";
+  sourceLabel.innerHTML = `
+    <span>Mapping source</span>
+    <select id="categoryMappingSourceFilter">
+      <option value="all">All sources</option>
+      <option value="unmapped">Unmapped</option>
+      <option value="legacy_extraction">Legacy extraction</option>
+      <option value="table">Table</option>
+      <option value="decision">Decision</option>
+    </select>
+  `;
+  const sourceSelect = sourceLabel.querySelector("select");
+  sourceSelect.value = String(state.categoryMappingFilters.mappingSource || "all");
+  sourceSelect.addEventListener("change", (event) => {
+    state.categoryMappingFilters.mappingSource = event.target.value || "all";
+    renderCategoryMappingDiagnostics();
+  });
+
+  const mappingLabel = document.createElement("label");
+  mappingLabel.className = "category-mapping-control";
+  mappingLabel.innerHTML = `
+    <span>PixelSeek mapping</span>
+    <select id="categoryMappingPixelSeekFilter">
+      <option value="all">All mappings</option>
+      ${pixelSeekOptions.map((label) => `<option value="${label}">${label}</option>`).join("")}
+    </select>
+  `;
+  const mappingSelect = mappingLabel.querySelector("select");
+  mappingSelect.value = String(state.categoryMappingFilters.pixelSeekMapping || "all");
+  mappingSelect.addEventListener("change", (event) => {
+    state.categoryMappingFilters.pixelSeekMapping = event.target.value || "all";
+    renderCategoryMappingDiagnostics();
+  });
+
+  const actionLabel = document.createElement("label");
+  actionLabel.className = "category-mapping-control";
+  actionLabel.innerHTML = `
+    <span>Action scope</span>
+    <select id="categoryMappingActionFilter">
+      <option value="all">All rows</option>
+      <option value="needs_mapping">Needs mapping</option>
+      <option value="missing_extraction">Missing extraction</option>
+      <option value="stale_canonical">Stale canonical</option>
+      <option value="healthy">Fully covered</option>
+      <option value="excluded">Intentionally excluded</option>
+    </select>
+  `;
+  const actionSelect = actionLabel.querySelector("select");
+  actionSelect.value = String(state.categoryMappingFilters.actionScope || "all");
+  actionSelect.addEventListener("change", (event) => {
+    state.categoryMappingFilters.actionScope = event.target.value || "all";
+    renderCategoryMappingDiagnostics();
+  });
+
+  const sortLabel = document.createElement("label");
+  sortLabel.className = "category-mapping-control";
+  sortLabel.innerHTML = `
+    <span>Sort</span>
+    <select id="categoryMappingSortSelect">
+      <option value="priority">Priority</option>
+      <option value="missing">Missing high → low</option>
+      <option value="normalized">Normalized high → low</option>
+      <option value="last_extracted">Last extracted recent → old</option>
+      <option value="grouping">Grouping A → Z</option>
+    </select>
+  `;
+  const sortSelect = sortLabel.querySelector("select");
+  sortSelect.value = String(state.categoryMappingFilters.sort || "priority");
+  sortSelect.addEventListener("change", (event) => {
+    state.categoryMappingFilters.sort = event.target.value || "priority";
+    renderCategoryMappingDiagnostics();
+  });
+
+  const refreshButton = document.createElement("button");
+  refreshButton.type = "button";
+  refreshButton.className = "rules-summary-button";
+  refreshButton.textContent = "Refresh";
+  refreshButton.addEventListener("click", async () => {
+    refreshButton.disabled = true;
+    refreshButton.textContent = "Refreshing...";
+    try {
+      state.categoryMappingDiagnostics = await fetchCategoryMappingDiagnostics({ forceRefresh: true });
+      renderCategoryMappingDiagnostics();
+    } catch (error) {
+      setStatus(error.message || "Failed to refresh category mapping diagnostics.", "error");
+    } finally {
+      refreshButton.disabled = false;
+      refreshButton.textContent = "Refresh";
+    }
+  });
+
+  controls.append(searchLabel, sourceLabel, mappingLabel, actionLabel, sortLabel, refreshButton);
+  controlsCard.append(controlsTitle, controlsMeta, controls);
+
+  const tableCard = document.createElement("article");
+  tableCard.className = "rules-card extraction-summary-table-card";
+  const tableTitle = document.createElement("h3");
+  tableTitle.className = "rules-card-title";
+  tableTitle.textContent = "By Designer Pages category combination";
+  const tableMeta = document.createElement("p");
+  tableMeta.className = "rules-summary-intro";
+  tableMeta.textContent = `${rows.length.toLocaleString()} rows shown. Missing is hidden for rows without an active target mapping.`;
+
+  const tableWrap = document.createElement("div");
+  tableWrap.className = "extraction-summary-table-wrap";
+  const table = document.createElement("table");
+  table.className = "extraction-summary-table category-mapping-table";
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>DP category combination</th>
+        <th>PixelSeek mapping</th>
+        <th>Source</th>
+        <th>Normalized</th>
+        <th>Stage 0</th>
+        <th>Extracted</th>
+        <th>Canonical</th>
+        <th>Missing</th>
+        <th>Last extracted</th>
+      </tr>
+    </thead>
+  `;
+  const tbody = document.createElement("tbody");
+
+  rows.forEach((row) => {
+    const rowKey = String(row.grouping || "");
+    const expanded = state.categoryMappingExpandedRows.has(rowKey);
+    const tr = document.createElement("tr");
+    tr.className = "extraction-summary-row is-expandable";
+    tr.setAttribute("role", "button");
+    tr.tabIndex = 0;
+    tr.setAttribute("aria-expanded", expanded ? "true" : "false");
+    const toggleExpanded = () => {
+      if (state.categoryMappingExpandedRows.has(rowKey)) {
+        state.categoryMappingExpandedRows.delete(rowKey);
+      } else {
+        state.categoryMappingExpandedRows.add(rowKey);
+      }
+      renderCategoryMappingDiagnostics();
+    };
+    tr.addEventListener("click", toggleExpanded);
+    tr.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        toggleExpanded();
+      }
+    });
+
+    const groupingCell = document.createElement("td");
+    groupingCell.className = "extraction-summary-category-cell";
+    const indicator = document.createElement("span");
+    indicator.className = "extraction-summary-row-indicator";
+    indicator.textContent = expanded ? "▾" : "▸";
+    indicator.setAttribute("aria-hidden", "true");
+    const groupingDisplay = buildCategoryGroupingDisplay(row.grouping);
+    const groupingTextWrap = document.createElement("span");
+    groupingTextWrap.className = "category-mapping-grouping-text";
+    const groupingPrimary = document.createElement("span");
+    groupingPrimary.className = "category-mapping-grouping-primary";
+    groupingPrimary.textContent = groupingDisplay.primary;
+    groupingTextWrap.appendChild(groupingPrimary);
+    if (groupingDisplay.secondary) {
+      const groupingSecondary = document.createElement("span");
+      groupingSecondary.className = "category-mapping-grouping-secondary";
+      groupingSecondary.textContent = groupingDisplay.secondary;
+      groupingTextWrap.appendChild(groupingSecondary);
+    }
+    groupingCell.append(indicator, groupingTextWrap);
+
+    const mappingCell = document.createElement("td");
+    mappingCell.textContent = row.pixel_seek_mapping || "—";
+
+    const sourceCell = document.createElement("td");
+    const sourceBadge = document.createElement("span");
+    sourceBadge.className = `category-mapping-source-badge is-${row.mapping_source || "unknown"}`;
+    sourceBadge.textContent = formatMappingSourceLabel(row.mapping_source);
+    const sourceHelpText = mappingHelp?.[row.mapping_source] ? ` ${mappingHelp[row.mapping_source]}` : "";
+    const concentrationText = row.mapping_source === "legacy_extraction" && row.legacy_extraction_concentration !== null
+      ? ` ${(Number(row.legacy_extraction_concentration) * 100).toFixed(1)}% concentration.`
+      : "";
+    sourceBadge.title = `${formatMappingSourceLabel(row.mapping_source)}.${sourceHelpText}${concentrationText}`.trim();
+    sourceCell.appendChild(sourceBadge);
+
+    const normalizedCell = document.createElement("td");
+    normalizedCell.className = "extraction-summary-number-cell";
+    normalizedCell.textContent = `${(Number(row.normalized_product_count) || 0).toLocaleString()}`;
+
+    const stage0Cell = document.createElement("td");
+    stage0Cell.className = "extraction-summary-number-cell";
+    stage0Cell.textContent = `${(Number(row.stage0_product_count) || 0).toLocaleString()}`;
+
+    const extractedCell = document.createElement("td");
+    extractedCell.className = "extraction-summary-number-cell";
+    extractedCell.textContent = `${(Number(row.extracted_product_count) || 0).toLocaleString()}`;
+
+    const canonicalCell = document.createElement("td");
+    canonicalCell.className = "extraction-summary-number-cell";
+    canonicalCell.textContent = `${(Number(row.canonical_product_count) || 0).toLocaleString()}`;
+    if ((Number(row.stale_canonical_count) || 0) > 0) {
+      const staleBadge = document.createElement("span");
+      staleBadge.className = "category-mapping-stale-badge";
+      staleBadge.textContent = `${Number(row.stale_canonical_count).toLocaleString()} stale`;
+      staleBadge.title = "Canonical count exceeds normalized count for this grouping.";
+      canonicalCell.appendChild(staleBadge);
+    }
+
+    const missingCell = document.createElement("td");
+    missingCell.className = "extraction-summary-number-cell";
+    missingCell.textContent = row.missing_count === null || row.missing_count === undefined
+      ? "—"
+      : `${(Number(row.missing_count) || 0).toLocaleString()}`;
+
+    const lastExtractedCell = document.createElement("td");
+    lastExtractedCell.textContent = formatBestEffortTimestamp(row.last_extracted_at);
+
+    tr.append(
+      groupingCell,
+      mappingCell,
+      sourceCell,
+      normalizedCell,
+      stage0Cell,
+      extractedCell,
+      canonicalCell,
+      missingCell,
+      lastExtractedCell
+    );
+    tbody.appendChild(tr);
+
+    if (expanded) {
+      const detailRow = document.createElement("tr");
+      detailRow.className = "extraction-summary-detail-row";
+      const detailCell = document.createElement("td");
+      detailCell.colSpan = 9;
+      const detailPanel = document.createElement("div");
+      detailPanel.className = "extraction-summary-detail-panel category-mapping-detail-panel";
+
+      const detailMeta = document.createElement("p");
+      detailMeta.className = "rules-summary-intro";
+      detailMeta.textContent = `${(Array.isArray(row.products) ? row.products.length : 0).toLocaleString()} products in detail view. Products extracted into a different category still appear as Extracted and can be spotted by comparing their extracted type to the row mapping.`;
+
+      const detailTableWrap = document.createElement("div");
+      detailTableWrap.className = "category-mapping-product-table-wrap";
+      const detailTable = document.createElement("table");
+      detailTable.className = "extraction-summary-table category-mapping-product-table";
+      detailTable.innerHTML = `
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Brand</th>
+            <th>Product ID</th>
+            <th>Status</th>
+            <th>Extracted type</th>
+            <th>Stage 0</th>
+            <th>Exclusion reason</th>
+            <th>Last extracted</th>
+          </tr>
+        </thead>
+      `;
+      const detailTbody = document.createElement("tbody");
+      const products = Array.isArray(row.products) ? row.products : [];
+      products.forEach((product) => {
+        const productTr = document.createElement("tr");
+        const productNameCell = document.createElement("td");
+        productNameCell.textContent = product.product_name || product.canonical_key || product.source_product_id || "Unknown";
+        const brandCell = document.createElement("td");
+        brandCell.textContent = product.brand || "—";
+        const idCell = document.createElement("td");
+        idCell.className = "category-mapping-id-cell";
+        idCell.textContent = product.source_product_id || product.canonical_key || "—";
+        const statusCell = document.createElement("td");
+        statusCell.textContent = formatProductDiagnosticStatus(product.status);
+        const extractedTypeCell = document.createElement("td");
+        extractedTypeCell.textContent = product.extracted_visual_type_label || "—";
+        const stage0CellDetail = document.createElement("td");
+        stage0CellDetail.textContent = product.stage_0_result || product.effective_classification || "—";
+        const exclusionCell = document.createElement("td");
+        exclusionCell.textContent = product.exclusion_reason || "—";
+        const extractedAtCell = document.createElement("td");
+        extractedAtCell.textContent = formatBestEffortTimestamp(product.last_extracted_at);
+        productTr.append(
+          productNameCell,
+          brandCell,
+          idCell,
+          statusCell,
+          extractedTypeCell,
+          stage0CellDetail,
+          exclusionCell,
+          extractedAtCell
+        );
+        detailTbody.appendChild(productTr);
+      });
+      detailTable.appendChild(detailTbody);
+      detailTableWrap.appendChild(detailTable);
+      detailPanel.append(detailMeta, detailTableWrap);
+      detailCell.appendChild(detailPanel);
+      detailRow.appendChild(detailCell);
+      tbody.appendChild(detailRow);
+    }
+  });
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  tableCard.append(tableTitle, tableMeta, tableWrap);
+
+  wrapper.append(cards, controlsCard, tableCard);
+  elements.categoryMappingDiagnosticsContent.innerHTML = "";
+  elements.categoryMappingDiagnosticsContent.appendChild(wrapper);
 }
 
 function renderExtractionSummary(summary = state.extractionSummary) {
@@ -10206,7 +10790,7 @@ function openStructuredTraitsModal() {
 
 function closeStructuredTraitsModal() {
   elements.structuredTraitsModal.hidden = true;
-  if (elements.imageModal.hidden && elements.promptLibraryModal.hidden && elements.extractionSummaryModal.hidden) {
+  if (elements.imageModal.hidden && elements.promptLibraryModal.hidden && elements.extractionSummaryModal.hidden && elements.categoryMappingDiagnosticsModal.hidden) {
     document.body.classList.remove("modal-open");
   }
 }
@@ -10226,7 +10810,7 @@ async function openPromptLibraryModal() {
 
 function closePromptLibraryModal() {
   elements.promptLibraryModal.hidden = true;
-  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.extractionSummaryModal.hidden) {
+  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.extractionSummaryModal.hidden && elements.categoryMappingDiagnosticsModal.hidden) {
     document.body.classList.remove("modal-open");
   }
 }
@@ -10243,7 +10827,24 @@ async function openExtractionSummaryModal() {
 
 function closeExtractionSummaryModal() {
   elements.extractionSummaryModal.hidden = true;
-  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.promptLibraryModal.hidden) {
+  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.promptLibraryModal.hidden && elements.categoryMappingDiagnosticsModal.hidden) {
+    document.body.classList.remove("modal-open");
+  }
+}
+
+async function openCategoryMappingDiagnosticsModal() {
+  if (elements.categoryMappingDiagnosticsContent) {
+    elements.categoryMappingDiagnosticsContent.innerHTML = '<p class="rules-summary-intro">Loading category mapping diagnostics...</p>';
+  }
+  elements.categoryMappingDiagnosticsModal.hidden = false;
+  document.body.classList.add("modal-open");
+  state.categoryMappingDiagnostics = await fetchCategoryMappingDiagnostics();
+  renderCategoryMappingDiagnostics();
+}
+
+function closeCategoryMappingDiagnosticsModal() {
+  elements.categoryMappingDiagnosticsModal.hidden = true;
+  if (elements.imageModal.hidden && elements.structuredTraitsModal.hidden && elements.promptLibraryModal.hidden && elements.extractionSummaryModal.hidden) {
     document.body.classList.remove("modal-open");
   }
 }
@@ -11578,6 +12179,14 @@ elements.openExtractionSummary?.addEventListener("click", async () => {
     setStatus(error.message || "Failed to load extraction summary.", "error");
   }
 });
+elements.openCategoryMappingDiagnostics?.addEventListener("click", async () => {
+  try {
+    await openCategoryMappingDiagnosticsModal();
+  } catch (error) {
+    closeCategoryMappingDiagnosticsModal();
+    setStatus(error.message || "Failed to load category mapping diagnostics.", "error");
+  }
+});
 elements.copyStructuredTraits?.addEventListener("click", () => {
   try {
     openStructuredTraitsModal();
@@ -11587,6 +12196,7 @@ elements.copyStructuredTraits?.addEventListener("click", () => {
 });
 elements.closePromptLibraryModal?.addEventListener("click", closePromptLibraryModal);
 elements.closeExtractionSummaryModal?.addEventListener("click", closeExtractionSummaryModal);
+elements.closeCategoryMappingDiagnosticsModal?.addEventListener("click", closeCategoryMappingDiagnosticsModal);
 elements.closeStructuredTraitsModal?.addEventListener("click", closeStructuredTraitsModal);
 elements.copyPromptLibraryModalButton?.addEventListener("click", async () => {
   try {
@@ -11605,6 +12215,7 @@ elements.copyStructuredTraitsModalButton?.addEventListener("click", async () => 
 elements.imageModalCloseTargets.forEach((target) => target.addEventListener("click", closeImageModal));
 elements.promptLibraryModalCloseTargets.forEach((target) => target.addEventListener("click", closePromptLibraryModal));
 elements.extractionSummaryModalCloseTargets.forEach((target) => target.addEventListener("click", closeExtractionSummaryModal));
+elements.categoryMappingDiagnosticsModalCloseTargets.forEach((target) => target.addEventListener("click", closeCategoryMappingDiagnosticsModal));
 elements.structuredTraitsModalCloseTargets.forEach((target) => target.addEventListener("click", closeStructuredTraitsModal));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !elements.imageModal.hidden) {
@@ -11613,6 +12224,10 @@ document.addEventListener("keydown", (event) => {
   }
   if (event.key === "Escape" && !elements.extractionSummaryModal.hidden) {
     closeExtractionSummaryModal();
+    return;
+  }
+  if (event.key === "Escape" && !elements.categoryMappingDiagnosticsModal.hidden) {
+    closeCategoryMappingDiagnosticsModal();
     return;
   }
   if (event.key === "Escape" && !elements.structuredTraitsModal.hidden) {

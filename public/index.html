@@ -37,6 +37,7 @@
         <button id="copyStructuredTraits" class="site-nav-link" type="button">Structured Traits</button>
         <button id="openPromptLibrary" class="site-nav-link" type="button">Prompts</button>
         <button id="openExtractionSummary" class="site-nav-link" type="button">Pipeline Diagnostics</button>
+        <button id="openCategoryMappingDiagnostics" class="site-nav-link" type="button">Category Mapping</button>
         <button id="debugToggle" class="debug-toggle" type="button" aria-haspopup="dialog">
           <span id="debugToggleLabel">Debug Table</span>
         </button>
@@ -522,6 +523,26 @@
           <p class="rules-summary-intro">Counts come from the current image index. Trait health reflects how often each seating type produces schema-valid values that are neither missing nor <strong>unknown</strong>. <span class="pipeline-diagnostics-note">Showing categories present in the current image-index snapshot. Other categories will appear after the next full extraction run.</span></p>
           <div id="extractionSummaryContent" class="extraction-summary-content">
             <p class="rules-summary-intro">Loading extraction summary...</p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="categoryMappingDiagnosticsModal" class="modal-shell" hidden>
+      <div class="modal-backdrop" data-role="categoryMappingDiagnosticsModalClose"></div>
+      <div class="modal-card rules-modal-card category-mapping-modal-card">
+        <div class="modal-header">
+          <div>
+            <p class="modal-eyebrow">Category Mapping</p>
+            <h2 class="modal-title">Designer Pages Category Mapping Diagnostics</h2>
+          </div>
+          <button id="closeCategoryMappingDiagnosticsModal" class="modal-close" type="button" aria-label="Close category mapping diagnostics modal">✕</button>
+        </div>
+
+        <section class="rules-summary-content">
+          <p class="rules-summary-intro">Normalized counts come from the current normalized catalog. Extracted and canonical counts come from local Postgres canonical state. Stage 0 and last extracted timestamps are best-effort signals from the current image index artifact.</p>
+          <div id="categoryMappingDiagnosticsContent" class="category-mapping-content">
+            <p class="rules-summary-intro">Loading category mapping diagnostics...</p>
           </div>
         </section>
       </div>
