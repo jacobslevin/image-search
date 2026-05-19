@@ -27,11 +27,11 @@ Production behavior:
 
 Set these on the EB environment:
 
-- `PGHOST=image-search.cluster-ccvqwwr6c4yt.us-east-1.rds.amazonaws.com`
-- `PGPORT=5432`
-- `PGDATABASE=imagesearch`
-- `PGUSER=imagesearchuser`
-- `PGPASSWORD=ImageSearch2026!!`
+- `PGHOST=<production-rds-host>`
+- `PGPORT=<production-rds-port>`
+- `PGDATABASE=<production-database-name>`
+- `PGUSER=<production-database-user>`
+- `PGPASSWORD=<production-database-password>`
 - `PGSSLMODE=require`
 
 OpenAI:
