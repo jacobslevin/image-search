@@ -5575,6 +5575,10 @@ body.results-loading-active .results-layout {
     justify-content: center;
   }
 
+  .family-count-icon {
+    display: none;
+  }
+
   .search-panel {
     padding: 16px;
   }
