@@ -46,9 +46,13 @@
 
     <div class="page-shell">
       <header class="hero">
-        <p class="eyebrow">AI Enabled</p>
+        <p class="eyebrow">AI Enabled <span class="hero-beta-badge" aria-label="Beta">Beta</span></p>
         <h1>Visual Search <span class="hero-sparkle" aria-hidden="true">✦</span></h1>
         <p class="hero-subhead">Find products by uploading an image or describing what you need</p>
+        <div id="familyCountSummary" class="family-count-summary" hidden>
+          <div id="familyCountBar" class="family-count-bar" aria-label="Searchable product families"></div>
+          <p class="family-count-caption">Currently searching a curated beta selection</p>
+        </div>
       </header>
 
       <section class="search-panel">
@@ -353,6 +357,7 @@
 
     <div id="mobileCategoryDropdownBackdrop" class="mobile-category-dropdown-backdrop" hidden></div>
     <div id="mobileCategoryDropdown" class="mobile-category-dropdown" hidden></div>
+    <pre id="similarLookDebugProbe" class="similar-look-debug-probe" hidden aria-live="polite"></pre>
     <div id="mobileResultCardMenuBackdrop" class="mobile-result-card-menu-backdrop" hidden></div>
     <div id="mobileResultCardMenu" class="mobile-result-card-menu" hidden>
       <div class="mobile-result-card-menu-header">

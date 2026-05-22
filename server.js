@@ -4528,6 +4528,7 @@ const server = http.createServer(async (request, response) => {
         seed_queries: seedQueries,
         brands: bootstrapData.brands || [],
         categories: bootstrapData.categories || [],
+        family_searchable_counts: bootstrapData.family_searchable_counts || [],
         stats: bootstrapData.stats || { products: 0, images: 0 },
         image_analysis_available: Boolean(process.env.OPENAI_API_KEY),
         ranking_rules: getRankingRulesSummary(),

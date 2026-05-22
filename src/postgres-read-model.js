@@ -5,6 +5,7 @@ import {
   getLeafCategories,
   normalizeVisualTypeKey
 } from "./utils.js";
+import { loadVisualTypesRegistry } from "./visual-types-registry.js";
 import { parseVectorLiteral, queryPostgres, vectorToSqlLiteral } from "./postgres.js";
 
 const SEARCH_CANDIDATE_LIMIT = 1000;
@@ -526,25 +527,80 @@ export async function loadCanonicalBootstrapData() {
     return canonicalBootstrapCache.value;
   }
 
-  const [countsResult, productResult] = await Promise.all([
+  const [countsResult, productResult, familySearchableCountsResult] = await Promise.all([
     queryPostgres(
       `SELECT
         (SELECT count(*)::int FROM canonical_products) AS products,
         (SELECT count(*)::int FROM canonical_images) AS images,
         (SELECT count(*)::int FROM canonical_images WHERE visual_summary_embedding IS NOT NULL OR search_text_embedding IS NOT NULL) AS indexed_images`
     ),
-    queryPostgres(`SELECT canonical_key, product_name, brand, raw_category, a_level, b_level, c_level FROM canonical_products ORDER BY product_name`)
+    queryPostgres(`SELECT canonical_key, product_name, brand, raw_category, a_level, b_level, c_level FROM canonical_products ORDER BY product_name`),
+    queryPostgres(
+      `SELECT
+         ci.visual_type,
+         count(DISTINCT cp.canonical_key)::int AS searchable_products
+       FROM canonical_products cp
+       JOIN canonical_images ci ON ci.canonical_product_id = cp.id
+       WHERE ci.effective_classification = 'product'
+         AND COALESCE(ci.excluded, false) = false
+         AND ci.visual_summary_embedding IS NOT NULL
+         AND ci.search_text_embedding IS NOT NULL
+         AND COALESCE(NULLIF(ci.visual_type, ''), '') <> ''
+       GROUP BY ci.visual_type`
+    )
   ]);
 
   const products = productResult.rows.map(mapCanonicalProductRow);
   const brands = [...new Set(products.map((product) => product.brand).filter(Boolean))].sort((left, right) => left.localeCompare(right));
   const categories = [...new Set(products.flatMap((product) => getLeafCategories(product)).filter(Boolean))].sort((left, right) => left.localeCompare(right));
   const counts = countsResult.rows[0] || { products: 0, images: 0, indexed_images: 0 };
+  const registryApi = loadVisualTypesRegistry();
+  const visualTypeFamilyMap = Object.fromEntries(
+    registryApi.listVisualTypes().map((entry) => [entry.visual_type, entry.family])
+  );
+  const familyLabelMap = Object.fromEntries(
+    Object.entries(registryApi.getRegistry()?.families || {}).map(([familyKey, familyConfig]) => [
+      familyKey,
+      String(familyConfig?.label || familyKey).trim()
+    ])
+  );
+  const familyCountsMap = new Map();
+  const familyOrder = ["seating", "tables", "faucets"];
+
+  for (const row of familySearchableCountsResult.rows || []) {
+    const visualType = String(row.visual_type || "").trim();
+    const family = String(visualTypeFamilyMap[visualType] || "").trim();
+    if (!family) {
+      continue;
+    }
+    familyCountsMap.set(
+      family,
+      (familyCountsMap.get(family) || 0) + (Number(row.searchable_products) || 0)
+    );
+  }
+
+  const family_searchable_counts = [...familyCountsMap.entries()]
+    .map(([family, searchable_products]) => ({
+      family,
+      label: String(familyLabelMap[family] || family).trim(),
+      searchable_products
+    }))
+    .sort((left, right) => {
+      const leftRank = familyOrder.indexOf(left.family);
+      const rightRank = familyOrder.indexOf(right.family);
+      const normalizedLeftRank = leftRank >= 0 ? leftRank : Number.MAX_SAFE_INTEGER;
+      const normalizedRightRank = rightRank >= 0 ? rightRank : Number.MAX_SAFE_INTEGER;
+      if (normalizedLeftRank !== normalizedRightRank) {
+        return normalizedLeftRank - normalizedRightRank;
+      }
+      return left.label.localeCompare(right.label);
+    });
 
   const payload = {
     has_index: Number(counts.indexed_images || 0) > 0,
     brands,
     categories,
+    family_searchable_counts,
     stats: {
       products: Number(counts.products || 0),
       images: Number(counts.images || 0)

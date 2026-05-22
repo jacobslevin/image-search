@@ -12,9 +12,11 @@ import {
 } from "./category-scope.js";
 import {
   buildRoutingTypesConfig,
+  filterPublicVisualTypeOptions,
   formatVisualTypeLabel,
   getVisualTypeDisplayNameMap,
   getVisualTypeOptions,
+  groupPublicVisualTypeOptionsByFamily,
   groupVisualTypeOptionsByFamily,
   isSupportedBrowseVisualType,
   resolveClarificationFamilySelection,
@@ -182,6 +184,88 @@ function renderAppVersion(version = "") {
   elements.appVersionIndicator.hidden = !normalizedVersion;
 }
 
+function renderFamilyCountSummary(counts = []) {
+  if (!elements.familyCountSummary || !elements.familyCountBar) {
+    return;
+  }
+  const rows = Array.isArray(counts)
+    ? counts.filter((entry) => entry && typeof entry === "object" && String(entry.family || "").trim())
+    : [];
+  elements.familyCountBar.replaceChildren();
+  if (!rows.length) {
+    elements.familyCountSummary.hidden = true;
+    return;
+  }
+
+  rows.forEach((entry, index) => {
+    const item = document.createElement("span");
+    item.className = "family-count-item";
+
+    const familyKey = String(entry.family || "").trim();
+    const iconMarkup = getFamilyCountIconMarkup(familyKey);
+    if (iconMarkup) {
+      const iconWrap = document.createElement("span");
+      iconWrap.className = "family-count-icon";
+      iconWrap.setAttribute("aria-hidden", "true");
+      iconWrap.innerHTML = iconMarkup;
+      item.appendChild(iconWrap);
+    }
+
+    const name = document.createElement("span");
+    name.className = "family-count-name";
+    name.textContent = String(entry.label || entry.family || "").trim();
+
+    const value = document.createElement("span");
+    value.className = "family-count-value";
+    value.textContent = String(Number(entry.searchable_products) || 0);
+
+    item.append(name, value);
+    elements.familyCountBar.appendChild(item);
+
+    if (index < rows.length - 1) {
+      const divider = document.createElement("span");
+      divider.className = "family-count-divider";
+      divider.setAttribute("aria-hidden", "true");
+      elements.familyCountBar.appendChild(divider);
+    }
+  });
+
+  elements.familyCountSummary.hidden = false;
+}
+
+function getFamilyCountIconMarkup(family = "") {
+  switch (String(family || "").trim()) {
+    case "seating":
+      return `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 11a2 2 0 0 1 2 2v2h10v-2a2 2 0 1 1 4 0v4a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-4a2 2 0 0 1 2 -2z" />
+          <path d="M5 11v-5a3 3 0 0 1 3 -3h8a3 3 0 0 1 3 3v5" />
+          <path d="M6 19v2" />
+          <path d="M18 19v2" />
+        </svg>
+      `;
+    case "tables":
+      return `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10h18" />
+          <path d="M5 6h14a1 1 0 0 1 1 1v3h-16v-3a1 1 0 0 1 1 -1z" />
+          <path d="M5 10v8" />
+          <path d="M19 10v8" />
+          <path d="M9 18v-3" />
+          <path d="M15 18v-3" />
+        </svg>
+      `;
+    case "faucets":
+      return `
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.106 3.262 -5.624 1.566 -8.349c-1.123 -1.812 -2.92 -3.616 -5.39 -5.412a1.998 1.998 0 0 0 -2.346 0c-2.47 1.796 -4.267 3.6 -5.39 5.412c-1.696 2.725 -1.036 6.243 1.564 8.349z" />
+        </svg>
+      `;
+    default:
+      return "";
+  }
+}
+
 function syncHomePathUi() {
   if (elements.siteNavBrandLink) {
     elements.siteNavBrandLink.setAttribute("href", HOME_PATH);
@@ -189,7 +273,7 @@ function syncHomePathUi() {
 }
 
 function getBootstrapRoutingTypeOptions(bootstrap = state.bootstrap) {
-  return getVisualTypeOptions(bootstrap);
+  return filterPublicVisualTypeOptions(getVisualTypeOptions(bootstrap));
 }
 
 function syncVisualTypeSelectOptions(select, allLabel = "All categories", bootstrap = state.bootstrap) {
@@ -334,14 +418,14 @@ const HOMEPAGE_IMAGE_EXAMPLES = [
   {
     productId: "dp:14051265",
     imageId: "dp:14051265:img:8fc1b70ea5b765f6",
-    imageUrl: "https://content.designerpages.com/assets/82384758/BobLounge140000338thumbnailS.jpg",
+    imageUrl: "https://content.designerpages.com/assets/82384758/BobLounge140000338thumbnailS_small.jpg",
     title: "Bob Lounge Seating",
     brand: "Coalesse"
   },
   {
     productId: "dp:13945982",
     imageId: "dp:13945982:img:9f73f9d399d37a38",
-    imageUrl: "https://content.designerpages.com/assets/81879132/BelmontImageGallery191.jpg",
+    imageUrl: "https://content.designerpages.com/assets/81879132/BelmontImageGallery191_small.jpg",
     title: "Belmont",
     brand: "Bernhardt Design"
   }
@@ -359,6 +443,8 @@ const focusDrag = {
 const elements = {
   appVersionIndicator: document.querySelector("#appVersionIndicator"),
   siteNavBrandLink: document.querySelector("#siteNavBrandLink"),
+  familyCountSummary: document.querySelector("#familyCountSummary"),
+  familyCountBar: document.querySelector("#familyCountBar"),
   cardTemplate: document.querySelector("#cardTemplate"),
   closeImageModal: document.querySelector("#closeImageModal"),
   closeStructuredTraitsModal: document.querySelector("#closeStructuredTraitsModal"),
@@ -2135,7 +2221,9 @@ function shouldShowSearchCategoryChip() {
 }
 
 function isSimilarLookDropdownEligible() {
-  return isImageOriginSimilarLookEligible() && Boolean(getPrimaryCategoryScopeSelection(state.resultCategoryScope) && getPrimaryCategoryScopeSelection(state.resultCategoryScope) !== "all");
+  const hasCurrentVisualType = Boolean(String(state.currentVisualType || "").trim());
+  const primaryCategoryScopeSelection = getPrimaryCategoryScopeSelection(state.resultCategoryScope);
+  return hasCurrentVisualType && Boolean(primaryCategoryScopeSelection && primaryCategoryScopeSelection !== "all");
 }
 
 function closeMobileCategoryDropdown() {
@@ -2152,7 +2240,7 @@ function closeMobileCategoryDropdown() {
 function getSimilarLookAccordionGroups() {
   const sourceVisualType = String(state.similarLookSourceVisualType || state.currentVisualType || "").trim();
   const sourceFamily = getVisualTypeFamilyForSimilarLook(sourceVisualType);
-  const grouped = groupVisualTypeOptionsByFamily(CATEGORY_REQUIREMENT_OPTION_KEYS, state.bootstrap)
+  const grouped = groupPublicVisualTypeOptionsByFamily(CATEGORY_REQUIREMENT_OPTION_KEYS, state.bootstrap)
     .map((group) => ({
       ...group,
       allowed: isAllowedSimilarLookFamily(sourceFamily, group.family)
@@ -2172,7 +2260,7 @@ function getSimilarLookAccordionGroups() {
     if (grouped.some((group) => group.family === family)) {
       return;
     }
-    const options = Object.keys(bootstrapTypes)
+    const options = filterPublicVisualTypeOptions(Object.keys(bootstrapTypes))
       .filter((key) => String(familyMap[normalizeVisualTypeKey(key)] || "").trim().toLowerCase() === family)
       .map((key) => ({
         value: key,
@@ -2283,7 +2371,8 @@ function renderCategoryChipDropdown() {
   if (!elements.mobileCategoryDropdown || !elements.searchCategorySelect || !elements.searchCategoryChipWrap) {
     return;
   }
-  const showDropdown = shouldShowSearchCategoryChip() && !elements.searchCategoryChipWrap.hidden && (isMobileViewport() || isSimilarLookDropdownEligible());
+  const similarLookEligible = isSimilarLookDropdownEligible();
+  const showDropdown = shouldShowSearchCategoryChip() && !elements.searchCategoryChipWrap.hidden && (isMobileViewport() || similarLookEligible);
   if (!showDropdown || !state.mobileCategoryDropdownOpen) {
     elements.mobileCategoryDropdown.hidden = true;
     if (elements.mobileCategoryDropdownBackdrop) {
@@ -2297,7 +2386,7 @@ function renderCategoryChipDropdown() {
   if (elements.mobileCategoryDropdownBackdrop) {
     elements.mobileCategoryDropdownBackdrop.hidden = false;
   }
-  if (isSimilarLookDropdownEligible()) {
+  if (similarLookEligible) {
     renderSimilarLookAccordionDropdown();
     return;
   }
@@ -7340,11 +7429,11 @@ function renderCategoryRequirementContent(container, categoryRequirement, catego
 
   const options = document.createElement("div");
   options.className = "clarification-options clarification-options-category";
-  const normalizedOptions = categoryRequirement.options
+  const normalizedOptions = filterPublicVisualTypeOptions(categoryRequirement.options
     .map((option) => normalizeVisualTypeKey(option))
     .filter((option) => option && option !== "all")
-    .filter((option, index, values) => values.indexOf(option) === index);
-  const groupedOptions = groupVisualTypeOptionsByFamily(normalizedOptions, state.bootstrap);
+    .filter((option, index, values) => values.indexOf(option) === index));
+  const groupedOptions = groupPublicVisualTypeOptionsByFamily(normalizedOptions, state.bootstrap);
   const familySelection = resolveClarificationFamilySelection(groupedOptions, categoryRequirement.activeFamily);
   const { singleFamilyMode, activeFamily } = familySelection;
 
@@ -11617,6 +11706,7 @@ async function bootstrap() {
     syncHomePathUi();
     state.bootstrap = await fetchJson("/api/bootstrap");
     renderAppVersion(state.bootstrap?.version || "");
+    renderFamilyCountSummary(state.bootstrap?.family_searchable_counts || []);
     renderCategoryFilterOptions(state.bootstrap.categories || []);
     renderSearchComposer();
     if (elements.refreshAgeFilterSelect) {

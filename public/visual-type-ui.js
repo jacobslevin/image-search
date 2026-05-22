@@ -19,6 +19,10 @@ const DEFAULT_FAMILY_LABELS = {
   faucets: "Faucets"
 };
 
+export const PUBLIC_HIDDEN_VISUAL_TYPES = new Set([
+  "huddle_collaborative"
+]);
+
 export function buildRoutingTypesConfig(bootstrap = null) {
   const bootstrapConfig = bootstrap?.visual_types || bootstrap?.seating_types || null;
   return bootstrapConfig && typeof bootstrapConfig === "object"
@@ -67,6 +71,19 @@ export function getVisualTypeOptions(bootstrap = null) {
     .map((value) => normalizeVisualTypeKey(value))
     .filter(Boolean)
     .sort((left, right) => formatVisualTypeLabel(left, bootstrap).localeCompare(formatVisualTypeLabel(right, bootstrap)));
+}
+
+export function filterPublicVisualTypeOptions(optionValues = []) {
+  return (Array.isArray(optionValues) ? optionValues : [])
+    .map((value) => normalizeVisualTypeKey(value))
+    .filter((value) => value && !PUBLIC_HIDDEN_VISUAL_TYPES.has(value));
+}
+
+export function groupPublicVisualTypeOptionsByFamily(optionValues = [], bootstrap = null) {
+  return groupVisualTypeOptionsByFamily(
+    filterPublicVisualTypeOptions(optionValues),
+    bootstrap
+  );
 }
 
 export function getVisualTypeFamilyMap(bootstrap = null) {
