@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { resolveRoutingKey as resolveRegistryRoutingKey } from "./visual-types-registry.js";
 
 export const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".gif"]);
-export const IMAGE_CLASSIFICATIONS = new Set(["scene", "product", "product_detail"]);
+export const IMAGE_CLASSIFICATIONS = new Set(["scene", "product", "product_detail", "non_photo"]);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const ROOT_DIR = path.resolve(__dirname, "..");
@@ -161,6 +161,10 @@ const PIXELSEEK_TYPE_BY_GROUPING = Object.freeze({
   "Conference Tables": "conference",
   "Conference Tables | Workplace": "conference",
   "Cafe Tables": "cafe_dining",
+  "Kitchen Faucets": "kitchen_faucet",
+  "Faucets | Kitchen Faucets": "kitchen_faucet",
+  "Bathroom Faucets": "bathroom_lavatory_faucet",
+  "Bathroom Faucets | Faucets": "bathroom_lavatory_faucet",
   "Lounge Seating": "lounge_chair",
   "Lounge Seating | Modular Seating": "lounge_chair",
   "Modular Seating": "lounge_chair",
@@ -187,6 +191,8 @@ const VISUAL_TYPE_TO_PIXELSEEK_LABEL = Object.freeze({
   lounge_chair: "Lounge Seating",
   stool: "Stools",
   bench: "Benches",
+  kitchen_faucet: "Kitchen Faucets",
+  bathroom_lavatory_faucet: "Bathroom Faucets",
   conference: "Conference Tables",
   occasional: "Occasional Tables",
   cafe_dining: "Cafe/Dining Tables",

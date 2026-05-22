@@ -58,7 +58,7 @@ test("tables visual_types in bootstrap carry the full registry field lists", () 
   );
 });
 
-test("seating_category_options stay seating-only while visual_type_options include tables", () => {
+test("seating_category_options stay seating-only while visual_type_options include tables and faucets", () => {
   const payload = buildBootstrapSchemaPayload();
 
   assert.deepEqual(payload.seating_category_options, [
@@ -71,6 +71,8 @@ test("seating_category_options stay seating-only while visual_type_options inclu
 
   assert.ok(payload.visual_type_options.includes("conference"));
   assert.ok(payload.visual_type_options.includes("training"));
+  assert.ok(payload.visual_type_options.includes("kitchen_faucet"));
+  assert.ok(payload.visual_type_options.includes("bathroom_lavatory_faucet"));
 });
 
 test("getAllVisualTypeOptions exposes the full registry for server-side clarification fallbacks", () => {

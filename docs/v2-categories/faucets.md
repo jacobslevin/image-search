@@ -11,7 +11,9 @@ Two sub-categories for v2:
 - Kitchen
 - Bathroom-lavatory
 
-Tub-and-shower, bidet, and bar/prep are deferred from v2 scope. May be added in follow-on releases as data and usage patterns warrant.
+Tub-and-shower, bidet, and dispensers are deferred from v2 scope. May be added in follow-on releases as data and usage patterns warrant.
+
+Bar/prep faucets are included in v2 and route to the `kitchen_faucet` sub-category.
 
 ## Architectural role
 
@@ -37,7 +39,7 @@ If foundation bugs surface during faucets implementation, they get fixed in the 
 |---|---|---|
 | spout_style | gooseneck, straight, angular, articulating, bridge, pot-filler-folding | Ranking |
 | spout_articulation | pull-spray, non-pull | Ranking |
-| side_spray | (boolean) | Descriptive |
+| side_spray | (boolean; implemented in registry as `Present | Absent | unknown`) | Descriptive |
 
 ## Bathroom-lavatory-specific traits
 

@@ -226,7 +226,26 @@
             <button id="selectNoneButton" class="batch-manage-link" type="button">None</button>
             <button id="doneManagingButton" class="batch-manage-link batch-manage-link-right" type="button">Done</button>
           </div>
-          <button id="batchRefreshButton" class="upload-button upload-button-strong batch-refresh-primary" type="button">Refresh Extraction</button>
+          <div class="batch-refresh-actions">
+            <button id="batchRefreshButton" class="upload-button upload-button-strong batch-refresh-primary" type="button">Refresh Extraction</button>
+            <button id="batchRefreshIdsToggle" class="batch-manage-link batch-refresh-ids-toggle" type="button">Enter product IDs</button>
+          </div>
+          <div id="batchRefreshIdsPanel" class="batch-refresh-ids-panel" hidden>
+            <label class="batch-refresh-ids-label" for="batchRefreshIdsInput">Paste DP product IDs (comma or newline separated)</label>
+            <textarea
+              id="batchRefreshIdsInput"
+              class="batch-refresh-ids-input"
+              rows="4"
+              placeholder="13869890, 13608361&#10;13939634"
+            ></textarea>
+            <div class="batch-refresh-ids-footer">
+              <p id="batchRefreshIdsCount" class="batch-refresh-ids-count">0 product IDs parsed</p>
+              <div class="batch-refresh-ids-actions">
+                <button id="batchRefreshIdsCancel" class="batch-manage-link" type="button">Cancel</button>
+                <button id="batchRefreshIdsSubmit" class="upload-button upload-button-strong" type="button" disabled>Run extraction</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div id="batchRefreshProgress" class="batch-refresh-progress" hidden>
           <p id="batchRefreshHeadline" class="batch-refresh-headline">Analyzing products...</p>

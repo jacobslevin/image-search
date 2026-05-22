@@ -1665,6 +1665,7 @@
             {
               "field": "mounting_type",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "deck",
                 "wall"
@@ -1674,6 +1675,7 @@
             {
               "field": "handle_count",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "0",
                 "1",
@@ -1685,6 +1687,7 @@
             {
               "field": "handle_style",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "lever",
                 "cross",
@@ -1698,6 +1701,7 @@
             {
               "field": "finish",
               "inherits": "finish",
+              "detectability": "medium",
               "allowed_subset": [
                 "Polished chrome / nickel",
                 "Brushed nickel / stainless",
@@ -1714,6 +1718,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
+              "detectability": "medium_high",
               "allowed_subset": [
                 "Minimal",
                 "Traditional",
@@ -1724,15 +1729,22 @@
             {
               "field": "body_geometry",
               "type": "enum",
+              "detectability": "high",
+              "description": "Whether the faucet's spout silhouette forms a clear semicircular arch. 'round' = a recognizable semicircular curve (classic curved gooseneck). 'rectangular' = anything that is not a clear semicircular arch, including both angular forms and smooth non-arched forms. Wall-mount faucets judged on visible spout profile.",
               "allowed_values": [
                 "round",
                 "rectangular"
               ],
+              "value_definitions": {
+                "round": "The faucet's spout silhouette forms a TRUE semicircular arch — a continuous curve the entire way, like a rainbow, with NO straight vertical sides. The curve begins near the base and arcs continuously up and over. If the spout has straight parallel vertical sides with only the top portion curved (rises straight up, curves across the top, drops straight down), that is NOT a semicircular arch — it is a squared U-shape and should be rectangular.",
+                "rectangular": "The faucet's spout silhouette is NOT a continuous semicircular arch. This includes: (a) straight vertical risers with a curved or flat top — the parallel straight sides disqualify it from being an arch even if the top curves; (b) angular/squared forms; (c) cantilevered horizontal spouts; (d) smooth organic bends that don't trace a half-circle. Only a continuous rainbow-like curve with no straight sides is round."
+              },
               "priority": "ranking"
             },
             {
               "field": "spout_cross_section",
               "type": "enum",
+              "detectability": "medium",
               "allowed_values": [
                 "round",
                 "rectangular"
@@ -1742,6 +1754,7 @@
             {
               "field": "spout_style",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "gooseneck",
                 "straight",
@@ -1755,6 +1768,7 @@
             {
               "field": "spout_articulation",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "pull-spray",
                 "non-pull"
@@ -1764,6 +1778,7 @@
             {
               "field": "side_spray",
               "type": "enum",
+              "detectability": "high_when_present",
               "allowed_values": [
                 "Present",
                 "Absent",
@@ -1779,6 +1794,7 @@
             {
               "field": "mounting_type",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "deck",
                 "wall"
@@ -1788,6 +1804,7 @@
             {
               "field": "handle_count",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "0",
                 "1",
@@ -1799,6 +1816,7 @@
             {
               "field": "handle_style",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "lever",
                 "cross",
@@ -1812,6 +1830,7 @@
             {
               "field": "finish",
               "inherits": "finish",
+              "detectability": "medium",
               "allowed_subset": [
                 "Polished chrome / nickel",
                 "Brushed nickel / stainless",
@@ -1828,6 +1847,7 @@
             {
               "field": "design_register",
               "inherits": "design_register",
+              "detectability": "medium_high",
               "allowed_subset": [
                 "Minimal",
                 "Traditional",
@@ -1838,15 +1858,22 @@
             {
               "field": "body_geometry",
               "type": "enum",
+              "detectability": "high",
+              "description": "Whether the faucet's spout silhouette forms a clear semicircular arch. 'round' = a recognizable semicircular curve (classic curved gooseneck). 'rectangular' = anything that is not a clear semicircular arch, including both angular forms and smooth non-arched forms. Wall-mount faucets judged on visible spout profile.",
               "allowed_values": [
                 "round",
                 "rectangular"
               ],
+              "value_definitions": {
+                "round": "The faucet's spout silhouette forms a TRUE semicircular arch — a continuous curve the entire way, like a rainbow, with NO straight vertical sides. The curve begins near the base and arcs continuously up and over. If the spout has straight parallel vertical sides with only the top portion curved (rises straight up, curves across the top, drops straight down), that is NOT a semicircular arch — it is a squared U-shape and should be rectangular.",
+                "rectangular": "The faucet's spout silhouette is NOT a continuous semicircular arch. This includes: (a) straight vertical risers with a curved or flat top — the parallel straight sides disqualify it from being an arch even if the top curves; (b) angular/squared forms; (c) cantilevered horizontal spouts; (d) smooth organic bends that don't trace a half-circle. Only a continuous rainbow-like curve with no straight sides is round."
+              },
               "priority": "ranking"
             },
             {
               "field": "spout_cross_section",
               "type": "enum",
+              "detectability": "medium",
               "allowed_values": [
                 "round",
                 "rectangular"
@@ -1856,6 +1883,7 @@
             {
               "field": "spout_style",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "gooseneck",
                 "straight",
@@ -1867,6 +1895,7 @@
             {
               "field": "configuration",
               "type": "enum",
+              "detectability": "high",
               "allowed_values": [
                 "single-hole",
                 "centerset",

@@ -64,6 +64,7 @@ const state = {
   categorySelectionTouchedSinceLastSearch: false,
   manageMode: false,
   selectedProductIds: new Set(),
+  batchRefreshIdsPanelOpen: false,
   sortMode: "auto",
   categoryFilter: [],
   resultCategoryScope: [],
@@ -465,6 +466,12 @@ const elements = {
   selectAllButton: document.querySelector("#selectAllButton"),
   selectNoneButton: document.querySelector("#selectNoneButton"),
   batchRefreshButton: document.querySelector("#batchRefreshButton"),
+  batchRefreshIdsToggle: document.querySelector("#batchRefreshIdsToggle"),
+  batchRefreshIdsPanel: document.querySelector("#batchRefreshIdsPanel"),
+  batchRefreshIdsInput: document.querySelector("#batchRefreshIdsInput"),
+  batchRefreshIdsCount: document.querySelector("#batchRefreshIdsCount"),
+  batchRefreshIdsCancel: document.querySelector("#batchRefreshIdsCancel"),
+  batchRefreshIdsSubmit: document.querySelector("#batchRefreshIdsSubmit"),
   doneManagingButton: document.querySelector("#doneManagingButton"),
   batchRefreshProgress: document.querySelector("#batchRefreshProgress"),
   batchRefreshHeadline: document.querySelector("#batchRefreshHeadline"),
@@ -3955,6 +3962,61 @@ async function refreshProductsBatch(productIds = []) {
   });
 }
 
+function normalizeBatchRefreshProductIds(rawValue = "") {
+  const seen = new Set();
+  return String(rawValue || "")
+    .split(/[\n,]+/)
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .map((value) => {
+      if (/^product_dp_\d+$/i.test(value)) {
+        return value.toLowerCase();
+      }
+      if (/^\d+$/.test(value)) {
+        return `product_dp_${value}`;
+      }
+      return "";
+    })
+    .filter(Boolean)
+    .filter((value) => {
+      if (seen.has(value)) {
+        return false;
+      }
+      seen.add(value);
+      return true;
+    });
+}
+
+function renderBatchRefreshIdsPanel() {
+  if (!elements.batchRefreshIdsPanel || !elements.batchRefreshIdsInput) {
+    return;
+  }
+
+  const parsedIds = normalizeBatchRefreshProductIds(elements.batchRefreshIdsInput.value);
+  elements.batchRefreshIdsPanel.hidden = !state.batchRefreshIdsPanelOpen || state.batchRefreshing;
+
+  if (elements.batchRefreshIdsCount) {
+    elements.batchRefreshIdsCount.textContent = `${parsedIds.length} product ID${parsedIds.length === 1 ? "" : "s"} parsed`;
+  }
+  if (elements.batchRefreshIdsSubmit) {
+    elements.batchRefreshIdsSubmit.disabled = state.batchRefreshing || parsedIds.length === 0;
+  }
+}
+
+function openBatchRefreshIdsPanel() {
+  state.batchRefreshIdsPanelOpen = true;
+  renderBatchRefreshIdsPanel();
+  elements.batchRefreshIdsInput?.focus();
+}
+
+function closeBatchRefreshIdsPanel({ clear = false } = {}) {
+  state.batchRefreshIdsPanelOpen = false;
+  if (clear && elements.batchRefreshIdsInput) {
+    elements.batchRefreshIdsInput.value = "";
+  }
+  renderBatchRefreshIdsPanel();
+}
+
 async function fetchSceneFilterProgress() {
   return fetchJson("/api/scene-filter-progress");
 }
@@ -4109,15 +4171,18 @@ function formatMappingSourceLabel(value = "") {
   }
 }
 
-function buildCategoryGroupingDisplay(grouping = "") {
+const categoryGroupingCollator = new Intl.Collator(undefined, {
+  sensitivity: "base",
+  numeric: true
+});
+
+function formatCategoryGroupingDisplay(grouping = "") {
   const parts = String(grouping || "")
     .split("|")
     .map((part) => part.trim())
-    .filter(Boolean);
-  return {
-    primary: parts[0] || String(grouping || "").trim() || "Unspecified",
-    secondary: parts.slice(1).join(" | ")
-  };
+    .filter(Boolean)
+    .sort((left, right) => categoryGroupingCollator.compare(left, right));
+  return parts.length ? parts.join(" | ") : "Unspecified";
 }
 
 function formatProductDiagnosticStatus(status = "") {
@@ -4492,20 +4557,10 @@ function renderCategoryMappingDiagnostics(summary = state.categoryMappingDiagnos
     indicator.className = "extraction-summary-row-indicator";
     indicator.textContent = expanded ? "▾" : "▸";
     indicator.setAttribute("aria-hidden", "true");
-    const groupingDisplay = buildCategoryGroupingDisplay(row.grouping);
-    const groupingTextWrap = document.createElement("span");
-    groupingTextWrap.className = "category-mapping-grouping-text";
-    const groupingPrimary = document.createElement("span");
-    groupingPrimary.className = "category-mapping-grouping-primary";
-    groupingPrimary.textContent = groupingDisplay.primary;
-    groupingTextWrap.appendChild(groupingPrimary);
-    if (groupingDisplay.secondary) {
-      const groupingSecondary = document.createElement("span");
-      groupingSecondary.className = "category-mapping-grouping-secondary";
-      groupingSecondary.textContent = groupingDisplay.secondary;
-      groupingTextWrap.appendChild(groupingSecondary);
-    }
-    groupingCell.append(indicator, groupingTextWrap);
+    const groupingText = document.createElement("span");
+    groupingText.className = "category-mapping-grouping-labels";
+    groupingText.textContent = formatCategoryGroupingDisplay(row.grouping);
+    groupingCell.append(indicator, groupingText);
 
     const mappingCell = document.createElement("td");
     mappingCell.textContent = row.pixel_seek_mapping || "—";
@@ -5376,6 +5431,45 @@ function updateBatchRefreshProgress(payload = {}) {
   } catch {}
   renderBatchRefreshProgress();
   syncManageToolbar();
+}
+
+async function startBatchRefresh(productIds = [], modeLabel = "Refreshing extraction") {
+  if (!productIds.length || state.batchRefreshing) {
+    return;
+  }
+
+  state.batchRefreshing = true;
+  state.batchRefreshProgressVisible = true;
+  closeBatchRefreshIdsPanel({ clear: true });
+  updateBatchRefreshProgress({
+    total: productIds.length,
+    completed: 0,
+    succeeded: 0,
+    failed: 0,
+    left: productIds.length,
+    current_batch: productIds.length ? 1 : 0,
+    total_batches: Math.ceil(productIds.length / 5),
+    current_product_name: "",
+    current_product_images_passed: 0,
+    current_run: "",
+    total_cost_usd: 0,
+    log: []
+  });
+  renderResults(state.lastPayload, state.lastQuery);
+  setStatus(`${modeLabel} for ${productIds.length} selected product${productIds.length === 1 ? "" : "s"}...`, "info");
+
+  try {
+    await refreshProductsBatch(productIds);
+    await pollBatchRefreshStatus();
+    openBatchRefreshStream();
+  } catch (error) {
+    closeBatchRefreshStream();
+    state.batchRefreshing = false;
+    state.batchRefreshProgress = null;
+    state.batchRefreshProgressVisible = false;
+    renderResults(state.lastPayload, state.lastQuery);
+    setStatus(error.message || "Batch extraction refresh failed.", "error");
+  }
 }
 
 function dismissBatchRefreshProgress() {
@@ -6408,12 +6502,19 @@ function syncManageToolbar() {
         ? `Refresh Extraction${selectionCount ? ` (${selectionCount})` : ""}`
         : `Build Image Index${selectionCount ? ` (${selectionCount})` : ""}`;
   }
+  if (elements.batchRefreshIdsToggle) {
+    elements.batchRefreshIdsToggle.hidden = false;
+    elements.batchRefreshIdsToggle.disabled = state.batchRefreshing;
+    elements.batchRefreshIdsToggle.textContent = state.batchRefreshIdsPanelOpen ? "Hide product IDs" : "Enter product IDs";
+  }
+  renderBatchRefreshIdsPanel();
 }
 
 function enterManageMode() {
   state.manageMode = true;
   state.selectedProductIds = new Set();
   state.batchRefreshProgressVisible = false;
+  state.batchRefreshIdsPanelOpen = false;
   syncManageToolbar();
   renderResults(state.lastPayload, state.lastQuery);
 }
@@ -6425,6 +6526,7 @@ function exitManageMode() {
   state.batchRefreshProgress = null;
   state.batchRefreshProgressVisible = false;
   state.selectedProductIds = new Set();
+  closeBatchRefreshIdsPanel({ clear: true });
   syncManageToolbar();
   renderResults(state.lastPayload, state.lastQuery);
 }
@@ -12039,81 +12141,29 @@ elements.selectNoneButton?.addEventListener("click", () => {
 });
 
 elements.batchRefreshButton?.addEventListener("click", async () => {
-  if (!state.bootstrap?.has_index) {
-    const productIds = [...state.selectedProductIds];
-    if (!productIds.length || state.batchRefreshing) {
-      return;
-    }
-
-    state.batchRefreshing = true;
-    state.batchRefreshProgressVisible = true;
-    updateBatchRefreshProgress({
-      total: productIds.length,
-      completed: 0,
-      succeeded: 0,
-      failed: 0,
-      left: productIds.length,
-      current_batch: productIds.length ? 1 : 0,
-      total_batches: Math.ceil(productIds.length / 5),
-      current_product_name: "",
-      current_product_images_passed: 0,
-      current_run: "",
-      total_cost_usd: 0,
-      log: []
-    });
-    renderResults(state.lastPayload, state.lastQuery);
-    setStatus(`Building AI index for ${productIds.length} selected product${productIds.length === 1 ? "" : "s"}...`, "info");
-
-    try {
-      await refreshProductsBatch(productIds);
-      await pollBatchRefreshStatus();
-      openBatchRefreshStream();
-    } catch (error) {
-      closeBatchRefreshStream();
-      state.batchRefreshing = false;
-      state.batchRefreshProgress = null;
-      state.batchRefreshProgressVisible = false;
-      renderResults(state.lastPayload, state.lastQuery);
-      setStatus(error.message || "AI index build failed.", "error");
-    }
-    return;
-  }
   const productIds = [...state.selectedProductIds];
-  if (!productIds.length || state.batchRefreshing) {
+  await startBatchRefresh(productIds, state.bootstrap?.has_index ? "Refreshing extraction" : "Building AI index");
+});
+
+elements.batchRefreshIdsToggle?.addEventListener("click", () => {
+  if (state.batchRefreshIdsPanelOpen) {
+    closeBatchRefreshIdsPanel();
     return;
   }
+  openBatchRefreshIdsPanel();
+});
 
-  state.batchRefreshing = true;
-  state.batchRefreshProgressVisible = true;
-    updateBatchRefreshProgress({
-      total: productIds.length,
-      completed: 0,
-      succeeded: 0,
-      failed: 0,
-      left: productIds.length,
-      current_batch: productIds.length ? 1 : 0,
-      total_batches: Math.ceil(productIds.length / 5),
-      current_product_name: "",
-      current_product_images_passed: 0,
-      current_run: "",
-      total_cost_usd: 0,
-      log: []
-    });
-  renderResults(state.lastPayload, state.lastQuery);
-  setStatus(`Refreshing extraction for ${productIds.length} selected product${productIds.length === 1 ? "" : "s"}...`);
+elements.batchRefreshIdsInput?.addEventListener("input", () => {
+  renderBatchRefreshIdsPanel();
+});
 
-  try {
-    await refreshProductsBatch(productIds);
-    await pollBatchRefreshStatus();
-    openBatchRefreshStream();
-  } catch (error) {
-    closeBatchRefreshStream();
-    state.batchRefreshing = false;
-    state.batchRefreshProgress = null;
-    state.batchRefreshProgressVisible = false;
-    renderResults(state.lastPayload, state.lastQuery);
-    setStatus(error.message || "Batch extraction refresh failed.", "error");
-  }
+elements.batchRefreshIdsCancel?.addEventListener("click", () => {
+  closeBatchRefreshIdsPanel({ clear: true });
+});
+
+elements.batchRefreshIdsSubmit?.addEventListener("click", async () => {
+  const productIds = normalizeBatchRefreshProductIds(elements.batchRefreshIdsInput?.value || "");
+  await startBatchRefresh(productIds, state.bootstrap?.has_index ? "Refreshing extraction" : "Building AI index");
 });
 
 elements.debugToggle.addEventListener("click", async () => {

@@ -66,6 +66,43 @@ test("clean conference-table catalog records round-trip through grouping routing
   );
 });
 
+test("clean faucet catalog records round-trip through grouping routing into Stage 0 faucets context", () => {
+  const kitchenRecord = {
+    b_level: ["Faucets"],
+    c_level: ["Kitchen Faucets"]
+  };
+  const bathroomRecord = {
+    b_level: ["Bathroom Faucets"],
+    c_level: ["Faucets"]
+  };
+
+  assert.equal(getPixelSeekType(kitchenRecord, {}), "kitchen_faucet");
+  assert.equal(resolveCatalogVisualTypeKey(getPixelSeekType(kitchenRecord, {})), "kitchen_faucet");
+  assert.deepEqual(
+    resolveStage0RoutingContext(kitchenRecord),
+    {
+      source_field: "visual_type",
+      visual_type: "kitchen_faucet",
+      family: "faucets",
+      label: "Kitchen Faucet",
+      family_label: "Faucets"
+    }
+  );
+
+  assert.equal(getPixelSeekType(bathroomRecord, {}), "bathroom_lavatory_faucet");
+  assert.equal(resolveCatalogVisualTypeKey(getPixelSeekType(bathroomRecord, {})), "bathroom_lavatory_faucet");
+  assert.deepEqual(
+    resolveStage0RoutingContext(bathroomRecord),
+    {
+      source_field: "visual_type",
+      visual_type: "bathroom_lavatory_faucet",
+      family: "faucets",
+      label: "Bathroom Lavatory Faucet",
+      family_label: "Faucets"
+    }
+  );
+});
+
 test("Stage 0 furniture-count prompt stays conservative for seating and faucets", () => {
   const seatingPrompt = buildStage0FurnitureCountPrompt(resolveStage0RoutingContext({ visual_type: "lounge_chair" }));
   assert.match(seatingPrompt, /A seating product with an integrated or attached table/i);
@@ -78,7 +115,9 @@ test("Stage 0 furniture-count prompt stays conservative for seating and faucets"
     label: "Kitchen Faucet",
     family_label: "Faucets"
   });
-  assert.match(faucetPrompt, /A seating product with an integrated or attached table/i);
+  assert.match(faucetPrompt, /The intended product family for this image is faucets/i);
+  assert.match(faucetPrompt, /A clean studio, cutout, or plain-background presentation of one faucet counts as 1/i);
+  assert.match(faucetPrompt, /Environmental scene indicators for faucets include visible sink bowls, vanities, countertops, backsplashes/i);
 });
 
 test("Stage 0 furniture-count prompt becomes table-aware for tables family", () => {

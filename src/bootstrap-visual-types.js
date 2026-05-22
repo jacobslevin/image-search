@@ -96,7 +96,7 @@ export function buildBootstrapSchemaPayload(options = {}) {
     registryApi
   }).filter((visualType) => {
     const entry = registryApi.resolveRoutingKey(visualType);
-    return entry?.family === "seating" || entry?.family === "tables";
+    return entry?.family === "seating" || entry?.family === "tables" || entry?.family === "faucets";
   });
 
   return {

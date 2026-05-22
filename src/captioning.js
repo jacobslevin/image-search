@@ -84,12 +84,13 @@ const stage1PlausibleCategoryEnum = Object.freeze(
   )]
 );
 const stage1ResultEnum = ["product", "product_detail", "scene"];
-const stage0ResultEnum = ["product", "scene", "product_detail"];
+const stage0ResultEnum = ["product", "scene", "product_detail", "non_photo"];
 const GPT_41_INPUT_COST_PER_TOKEN = 2 / 1_000_000;
 const GPT_41_OUTPUT_COST_PER_TOKEN = 8 / 1_000_000;
 const GPT_41_NANO_INPUT_COST_PER_TOKEN = 0.10 / 1_000_000;
 const GPT_41_NANO_OUTPUT_COST_PER_TOKEN = 0.40 / 1_000_000;
 const IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT = 1;
+const STAGE0_IMAGE_TIMEOUT_MS = Number(process.env.STAGE0_IMAGE_TIMEOUT_MS || 90000);
 const PIXELSEEK_TYPE_TO_VISUAL_TYPE = Object.freeze({
   lounge_chair: "lounge_chair",
   guest_chair: "guest_chair",
@@ -489,6 +490,31 @@ function resolveSupportedQueryImageVisualType(value = "") {
 
 function sleepMs(ms = 0) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withTimeout(promise, timeoutMs = 0, message = "Operation timed out.") {
+  const budgetMs = Number(timeoutMs || 0);
+  if (!Number.isFinite(budgetMs) || budgetMs <= 0) {
+    return promise;
+  }
+
+  let timer = null;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => {
+          const error = new Error(message);
+          error.name = "TimeoutError";
+          reject(error);
+        }, budgetMs);
+      })
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
 }
 
 function isTransientImageExtractionError(error) {
@@ -2395,7 +2421,14 @@ function extractionPrompt(typeKey) {
   const type = getVisualTypeConfig(typeKey) || seatingTypes[fallbackSeatingType] || { label: typeKey || "Unknown type" };
   const fields = getStage23TypeFields(typeKey);
   const fieldLines = fields
-    .map((entry) => `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]`)
+    .map((entry) => {
+      const valueDefinitions = entry.value_definitions && typeof entry.value_definitions === "object"
+        ? Object.entries(entry.value_definitions)
+          .map(([value, definition]) => `${value}: ${definition}`)
+          .join("; ")
+        : "";
+      return `- ${entry.field} (photo-detectable: ${String(entry.detectability || "").toUpperCase()}) => [${entry.allowed_values.join(", ")}]${valueDefinitions ? `\n  definitions: ${valueDefinitions}` : ""}`;
+    })
     .join("\n");
   if (getVisualTypeFamily(typeKey) === "tables") {
     return `Analyze one furniture image and answer only schema-routed questions. Type route: ${type.label} (${typeKey}). Return strict JSON only.
@@ -2408,6 +2441,25 @@ Rules:
 - Ignore chairs, people, and non-primary scene objects.
 - For conditional traits, only answer the fields listed for this routed table type.
 - structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with table form, support structure, and the most distinctive visual trait.
+- raw_visual_highlights is optional debug only, max 8 bullets.
+Fields: ${fieldLines}`;
+  }
+  if (getVisualTypeFamily(typeKey) === "faucets") {
+    return `Analyze one product image and answer only schema-routed questions. Type route: ${type.label} (${typeKey}). Return strict JSON only.
+
+Rules:
+- Fill image_traits fields only for the listed fields.
+- Use the stage 2 visual summary plus the image itself to choose enum values.
+- Distinguish "not visible" from "not applicable":
+  - If a trait should exist for this product but is not clearly visible in the image, use "unknown".
+  - If a trait does not apply to this product type at all, use the explicit non-presence enum value when one exists.
+  - For faucets, explicit non-presence values include handle_count = "0", handle_style = "none_visible", and side_spray = "Absent".
+  - Example: pot fillers may have small valve actuators on the arm rather than user-facing lever/cross/knob handles. In that case, prefer handle_count = "0" and handle_style = "none_visible" rather than forcing a lever/knob classification.
+- Never invent values outside allowed enum values.
+- Ignore sinks, counters, vanities, backsplashes, people, decor, and secondary fixtures.
+- Focus on mounting, handle layout, body/spout geometry, articulation, finish, and overall form.
+- For body_geometry, judge the faucet's side silhouette: arched = round, L-shaped or U-shaped = rectangular.
+- structured_caption: write a 1-2 sentence product caption. No brand or model names. Lead with faucet form, mounting, and the most distinctive visible trait.
 - raw_visual_highlights is optional debug only, max 8 bullets.
 Fields: ${fieldLines}`;
   }
@@ -2918,6 +2970,55 @@ Stage 3: attributes
 - Use the image and stage 2 visual summary together to resolve the structured traits.
 
 Relevant attribute fields for this routed table type only:
+${buildFieldGuideForType(typeKey)}
+
+Return JSON with:
+- silhouette
+- proportions
+- structure_type
+- back_geometry
+- seat_geometry
+- arm_geometry
+- surface_language
+- design_register
+- distinctive_elements
+${buildVisualSummaryInstruction(typeKey)}
+- structured_caption
+- raw_visual_highlights
+- image_traits`;
+  }
+  if (getVisualTypeFamily(typeKey) === "faucets") {
+    return `You are a furniture and fixtures visual analyst. Analyze only the primary faucet product in the image. The visual_type has already been routed: ${typeConfig.label} (${typeKey}).
+
+Return strict JSON only.
+
+Stage 2: visual form
+- Describe only the primary faucet product.
+- Ignore the sink, vanity, backsplash, room, props, people, and secondary fixtures.
+- No brand or model names.
+- Focus on mounting, handle arrangement, body/spout geometry, articulation, finish, and overall design register.
+- Use back_geometry = "none — not applicable to faucets".
+- Use arm_geometry = "none — no arms on faucets".
+- Use seat_geometry to describe the spout/body geometry, outlet profile, reach, and curvature read.
+
+Stage 3: attributes
+- Fill only the attributes listed below for this routed faucet type.
+- Distinguish "not visible" from "not applicable":
+  - If a trait should exist for this product but is not clearly visible, use "unknown".
+  - If a trait does not apply to this product type at all, use the explicit non-presence enum value when one exists.
+  - For faucets, explicit non-presence values include handle_count = "0", handle_style = "none_visible", and side_spray = "Absent".
+  - Example: pot fillers may have small valve actuators on the arm rather than user-facing lever/cross/knob handles. In that case, prefer handle_count = "0" and handle_style = "none_visible" rather than forcing a lever/knob classification.
+- Never invent values outside the allowed enums.
+- Use the image and stage 2 visual summary together to resolve the structured traits.
+- For body_geometry, ask one question: does the spout silhouette form a clear semicircular arch (rising and curving up and over in a half-circle, like a classic gooseneck)?
+- If yes, answer round.
+- If it does not trace a clear semicircle — whether because it is angular/squared OR because it is a smooth bend that is not a half-circle — answer rectangular.
+- A true semicircular arch curves continuously like a rainbow, with no straight vertical sides.
+- If the spout rises straight up on parallel sides and only curves at the top, it is a squared U-shape — answer rectangular, not round.
+- The presence of straight parallel vertical sides means it is NOT a semicircular arch.
+- State whether you see a clear semicircular arch before setting body_geometry. Reflect that decision in reasoning, seat_geometry, or distinctive_elements.
+
+Relevant attribute fields for this routed faucet type only:
 ${buildFieldGuideForType(typeKey)}
 
 Return JSON with:
@@ -3457,6 +3558,23 @@ Use these rules carefully:
 
 Return only a number.`;
   }
+  if (family === "faucets") {
+    return `Count the distinct primary products in this photo. Products means: faucets and visible furniture such as tables, desks, cabinets, shelving, benches, stools, chairs, sofas, or beds.
+
+Multiple of the same type count as 1 only when they read as a single tightly presented catalog grouping rather than a real lifestyle or installed scene.
+
+The intended product family for this image is faucets.
+
+Use these rules carefully:
+- A clean studio, cutout, or plain-background presentation of one faucet counts as 1.
+- A clean catalog presentation of one faucet installed on a sink or wall can still count as 1 when the sink/wall reads as simple support context rather than a styled environment.
+- If the image reads as a real kitchen, bathroom, hospitality, or lifestyle environment, do NOT collapse it to 1 just because one faucet is dominant.
+- Environmental scene indicators for faucets include visible sink bowls, vanities, countertops, backsplashes, stovetops, cookware, glassware, towels, soap, flowers, styled props, dramatic or atmospheric lighting, or broader room architecture that makes the image read as an installed lifestyle scene rather than isolated product photography.
+- If the image clearly shows a styled or lived-in environment built around the faucet, count more than 1.
+- Do not count faint background objects only when they are truly negligible and the image still reads as a clean product presentation rather than a lifestyle scene.
+
+Return only a number.`;
+  }
 
   return `Count the furniture in this photo. Furniture means: chairs, sofas,
 tables, desks, cabinets, shelving, benches, stools, or beds.
@@ -3484,11 +3602,65 @@ Environmental indicators include visible architecture, windows, ceilings, floori
 
 Return only "full", "partial", or "environmental".`;
   }
+  if (family === "faucets") {
+    return `Assess the primary faucet product in this photo.
+
+Return one of exactly three answers:
+- "full" if the full silhouette of the primary faucet is visible and the image reads like a clean product presentation
+- "partial" if only part of the primary faucet is visible or key parts of the silhouette are cropped/missing
+- "environmental" if the full faucet may be visible but the image reads as a fully realized kitchen, bathroom, hospitality, or lifestyle environment rather than a clean product shot
+
+Environmental indicators include visible sink bowls, vanities, countertops, backsplashes, stovetops, cookware, glassware, towels, soap, flowers, decor, dramatic/atmospheric lighting, or a scene that reads as installed/styled rather than isolated product photography.
+
+Return only "full", "partial", or "environmental".`;
+  }
 
   return `Can you see the full silhouette of the furniture piece in this photo,
 or only part of it?
 
 Return "full" or "partial".`;
+}
+
+export function buildStage0AssetTypePrompt(routingContext = null) {
+  const family = String(routingContext?.family || "").trim().toLowerCase();
+  if (family !== "faucets") {
+    return "";
+  }
+
+  return `Decide whether this image is usable product imagery or non-product reference material.
+
+Return exactly one answer:
+- "photo" if this image is usable product imagery for visual identification of the product
+- "non_photo" if this image is non-product reference material
+
+Treat this as a usability decision for product appearance, not a strict photography test.
+An image can still be "photo" even if it is a manufacturer render, highly retouched studio cutout, or lifestyle scene, as long as it clearly shows what the product looks like.
+
+Return "photo" for:
+- real product photos
+- studio cutouts on white or plain backgrounds
+- installed or lifestyle scenes
+- manufacturer renders or highly stylized catalog imagery
+- any clear product silhouette intended to show the product's appearance
+
+Return "non_photo" when the image exists mainly to communicate information other than what the product looks like, including:
+- dimensioned line drawings
+- measurement arrows or dimensional callouts
+- exploded parts diagrams
+- numbered part labels with leader lines
+- installation diagrams
+- charts, graphs, axes, grid lines, or plotted data
+- infographic or comparison layouts with text overlays
+- branded marketing layouts or watermarks dominating the composition
+- isolated finish swatches or color or material sample tiles without real product context
+- logos or branding graphics
+- placeholder or fallback images
+
+Important:
+- Even if small product photos appear inside a larger infographic or comparison layout, return "non_photo" when the overall composition is reference material rather than a standalone product image.
+- A manufacturer logo etched on the product itself does not make it "non_photo".
+
+Return only "photo" or "non_photo".`;
 }
 
 const OBJECT_NOUNS = new Set(["chair", "table", "sofa", "stool", "bench", "desk", "seat", "furniture"]);
@@ -4265,6 +4437,7 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
   const rawCount = String(countData?.answer || "").trim();
   const parsedCountMatch = rawCount.match(/\d+/);
   const parsedCount = parsedCountMatch ? Number(parsedCountMatch[0]) : Number.NaN;
+  const family = String(routingContext?.family || "").trim().toLowerCase();
   if (!Number.isFinite(parsedCount)) {
     return {
       data: { result: "scene" },
@@ -4312,6 +4485,45 @@ async function classifyStage0ProductSceneWithMeta(imageInput, options = {}) {
   return {
     data: { result },
     usage: sumUsage(countUsage, completenessUsage)
+  };
+}
+
+async function classifyImageAssetTypeWithMeta(imageInput, options = {}) {
+  if (!options.apiKey) {
+    return {
+      data: { result: "photo" },
+      usage: normalizeOpenAiUsage()
+    };
+  }
+
+  const model = options.stage0Model || "gpt-4.1";
+  const routingContext = options.stage0RoutingContext || null;
+  const { data, usage } = await callOpenAiJsonWithMeta({
+    apiKey: options.apiKey,
+    model,
+    systemPrompt: buildStage0AssetTypePrompt(routingContext),
+    userParts: [
+      ...(imageInput.catalogContext
+        ? [{ type: "input_text", text: imageInput.catalogContext }]
+        : []),
+      { type: "input_image", image_url: imageInput.image_url, detail: "low" }
+    ],
+    schemaName: "stage0_asset_type",
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        answer: { type: "string" }
+      },
+      required: ["answer"]
+    }
+  });
+
+  const raw = String(data?.answer || "").trim().toLowerCase();
+  const result = raw.includes("non_photo") ? "non_photo" : "photo";
+  return {
+    data: { result },
+    usage
   };
 }
 
@@ -5497,8 +5709,53 @@ export async function classifyImageStage0(imageRecord = {}, options = {}) {
     });
   }
 
+  const family = String(stage0RoutingContext?.family || "").trim().toLowerCase();
+  let assetTypeUsage = normalizeOpenAiUsage();
+  let assetTypeCost = 0;
+  let assetTypeResult = family === "faucets" ? "error" : "";
+  let assetTypeError = null;
+  if (family === "faucets") {
+    try {
+      const { data: assetTypeData, usage } = await classifyImageAssetTypeWithMeta(imageInput, optionsWithDimensions);
+      assetTypeUsage = usage || normalizeOpenAiUsage();
+      assetTypeCost = estimateUsageCostUsd(assetTypeUsage);
+      assetTypeResult = String(assetTypeData?.result || "").trim().toLowerCase() === "non_photo" ? "non_photo" : "photo";
+      if (assetTypeResult === "non_photo") {
+        const stage0Usage = sumUsage(assetTypeUsage);
+        const stage0Cost = Number((assetTypeCost || 0).toFixed(6));
+        if (typeof options.progressCallback === "function") {
+          options.progressCallback({
+            type: "stage0_complete",
+            image_url: imageRecord.image_url,
+            product_id: imageRecord.product_id || "",
+            product_name: imageRecord.name || imageRecord.product_name || "",
+            stage_0_result: "non_photo"
+          });
+        }
+        return {
+          categories,
+          imageDimensions,
+          imageInput,
+          optionsWithDimensions,
+          assetTypeResult,
+          assetTypeError,
+          stage0: { result: "non_photo" },
+          stage0Usage,
+          stage0Cost
+        };
+      }
+    } catch (error) {
+      assetTypeResult = "error";
+      assetTypeError = error?.message || "asset type classification failed.";
+      console.warn(
+        `[stage0-asset-type] Falling back to existing faucet Stage 0 flow for ${imageRecord.image_id || imageRecord.image_url}: ${assetTypeError}`
+      );
+    }
+  }
+
   const { data: stage0, usage: stage0Usage } = await classifyStage0ProductSceneWithMeta(imageInput, optionsWithDimensions);
-  const stage0Cost = estimateUsageCostUsd(stage0Usage);
+  const combinedStage0Usage = sumUsage(assetTypeUsage, stage0Usage);
+  const stage0Cost = Number(((assetTypeCost || 0) + Number(estimateUsageCostUsd(stage0Usage) || 0)).toFixed(6));
 
   if (typeof options.progressCallback === "function") {
     options.progressCallback({
@@ -5515,8 +5772,10 @@ export async function classifyImageStage0(imageRecord = {}, options = {}) {
     imageDimensions,
     imageInput,
     optionsWithDimensions,
+    assetTypeResult,
+    assetTypeError,
     stage0,
-    stage0Usage,
+    stage0Usage: combinedStage0Usage,
     stage0Cost
   };
 }
@@ -5541,7 +5800,7 @@ export async function generateImageExtractionRecordFromStage0(imageRecord = {}, 
   const stage0Usage = stage0Payload.stage0Usage || normalizeOpenAiUsage();
   const stage0Cost = Number(stage0Payload.stage0Cost || estimateUsageCostUsd(stage0Usage) || 0);
 
-  if (stage0.result === "scene" || stage0.result === "product_detail") {
+  if (stage0.result === "scene" || stage0.result === "product_detail" || stage0.result === "non_photo") {
     return buildExcludedImageExtractionResult({
       baseRecord: {
         image_id: imageRecord.image_id,
@@ -5782,9 +6041,13 @@ export async function generateProductExtractionRecordsWithCap(productImages = []
   const failedImages = [];
   for (const image of productImages) {
     try {
-      const stage0Result = await retryImageOperation(
-        () => classifyImageStage0(image, options),
-        { retryLimit: IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT }
+      const stage0Result = await withTimeout(
+        retryImageOperation(
+          () => classifyImageStage0(image, options),
+          { retryLimit: IMAGE_EXTRACTION_TRANSIENT_RETRY_LIMIT }
+        ),
+        STAGE0_IMAGE_TIMEOUT_MS,
+        `Stage 0 image processing timeout after ${Math.round(STAGE0_IMAGE_TIMEOUT_MS / 1000)}s.`
       );
       classificationEntries.push({
         image,
@@ -5903,7 +6166,7 @@ export async function regenerateImageExtractionRecordWithExistingStage0(imageRec
     });
   }
 
-  if (stage0Result === "scene" || stage0Result === "product_detail") {
+  if (stage0Result === "scene" || stage0Result === "product_detail" || stage0Result === "non_photo") {
     return buildExcludedImageExtractionResult({
       baseRecord: {
         ...existingRecord,
